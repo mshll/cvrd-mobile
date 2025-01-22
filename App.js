@@ -1,10 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
 import { TamaguiProvider, Theme, YStack, Spinner } from 'tamagui';
 import tamaguiConfig from './tamagui.config';
 import { NavigationContainer } from '@react-navigation/native';
 import { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useColorScheme } from 'react-native';
+import { StatusBar, useColorScheme } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
   useFonts,
   Poppins_100Thin,
@@ -66,11 +66,14 @@ export default function App() {
       <TamaguiProvider config={tamaguiConfig}>
         <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
           <AuthProvider>
-            <NavigationContainer>
-              {/* <Navigation /> */}
-              <MainNav />
-              {/* <AuthNav /> */}
-            </NavigationContainer>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <StatusBar animated={true} barStyle="default" />
+              <NavigationContainer>
+                {/* <Navigation /> */}
+                <MainNav />
+                {/* <AuthNav /> */}
+              </NavigationContainer>
+            </GestureHandlerRootView>
           </AuthProvider>
         </Theme>
       </TamaguiProvider>

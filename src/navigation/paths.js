@@ -1,13 +1,14 @@
 export const Paths = {
   // Main paths
-  HOME: 'home',
-  ACTIVITY: 'activity',
-  ADD_CARD: 'add-card',
-  SUBSCRIPTIONS: 'subscriptions',
-  PROFILE: 'profile',
+  HOME: 'Home',
+  ACTIVITY: 'Activity',
+  ADD_CARD: 'AddCard',
+  SUBSCRIPTIONS: 'Subscriptions',
+  PROFILE: 'Profile',
+  CARD_DETAILS: 'CardDetails',
 
   // Auth paths
-  ONBOARDING: 'onboarding',
-  LOGIN: 'login',
-  SIGNUP: 'signup',
+  ONBOARDING: 'Onboarding',
+  LOGIN: 'Login',
+  SIGNUP: 'Signup',
 };
