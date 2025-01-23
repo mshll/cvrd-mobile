@@ -9,6 +9,7 @@ import AddCardScreen from '@/screens/AddCardScreen';
 import { AnimatedTabBarNavigator } from '@/lib/react-native-animated-nav-tab-bar/dist/lib';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
+import { useCards } from '@/hooks/useCards';
 
 const Tab = AnimatedTabBarNavigator();
 const Stack = createNativeStackNavigator();
@@ -87,6 +88,7 @@ const TabNavigator = () => {
 
 const MainNav = () => {
   const colorScheme = useColorScheme();
+  const { getCardById } = useCards();
 
   return (
     <Stack.Navigator
@@ -107,12 +109,15 @@ const MainNav = () => {
       <Stack.Screen
         name={Paths.CARD_DETAILS}
         component={CardDetailsScreen}
-        options={{
-          headerShown: true,
-          headerTitle: 'Card Details',
-          animation: 'slide_from_right',
-          gestureEnabled: true,
-          gestureDirection: 'horizontal',
+        options={({ route }) => {
+          const card = getCardById(route.params.cardId);
+          return {
+            headerShown: true,
+            headerTitle: card?.card_name || 'Card Details',
+            animation: 'slide_from_right',
+            gestureEnabled: true,
+            gestureDirection: 'horizontal',
+          };
         }}
       />
     </Stack.Navigator>

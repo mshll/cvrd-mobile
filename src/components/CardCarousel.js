@@ -16,7 +16,6 @@ const CARD_HEIGHT = Math.round(CARD_WIDTH * CARD_ASPECT_RATIO);
 const SPACING = 2;
 const ITEM_WIDTH = CARD_WIDTH + SPACING * 2;
 const SIDE_SPACING = (WINDOW_WIDTH - CARD_WIDTH) / 2;
-const SNAP_OFFSET = SIDE_SPACING - SPACING;
 
 const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
 
@@ -30,8 +29,7 @@ function CardCarousel({ title, data, icon: Icon }) {
   const handleCardPress = React.useCallback(
     (item, index) => {
       navigation.navigate(Paths.CARD_DETAILS, {
-        card: item,
-        index,
+        cardId: item.id,
       });
     },
     [navigation]
@@ -43,20 +41,27 @@ function CardCarousel({ title, data, icon: Icon }) {
 
   const onScrollEnd = React.useCallback((event) => {
     const position = event.nativeEvent.contentOffset.x;
-    const index = Math.round((position - SNAP_OFFSET) / ITEM_WIDTH);
+    const index = Math.round(position / ITEM_WIDTH);
 
     if (flashListRef.current) {
-      flashListRef.current.scrollToIndex({
-        index,
-        animated: true,
-        viewPosition: 0.5,
-      });
+      if (index === 0 && position < ITEM_WIDTH / 2) {
+        flashListRef.current.scrollToOffset({
+          offset: 0,
+          animated: true,
+        });
+      } else {
+        flashListRef.current.scrollToIndex({
+          index: Math.max(0, index),
+          animated: true,
+          viewPosition: 0.5,
+        });
+      }
     }
   }, []);
 
   const renderItem = React.useCallback(
     ({ item, index }) => {
-      const inputRange = [(index - 1) * ITEM_WIDTH + SNAP_OFFSET, index * ITEM_WIDTH + SNAP_OFFSET, (index + 1) * ITEM_WIDTH + SNAP_OFFSET];
+      const inputRange = [(index - 1) * ITEM_WIDTH, index * ITEM_WIDTH, (index + 1) * ITEM_WIDTH];
 
       const scale = scrollX.interpolate({
         inputRange,
@@ -75,7 +80,7 @@ function CardCarousel({ title, data, icon: Icon }) {
               },
             ]}
           >
-            <CardComponent type={item.type} label={item.label} emoji={item.emoji} lastFourDigits={item.lastFourDigits} color={item.backgroundColor} />
+            <CardComponent displayData={item} />
           </Animated.View>
         </Pressable>
       );
@@ -99,7 +104,7 @@ function CardCarousel({ title, data, icon: Icon }) {
           horizontal
           showsHorizontalScrollIndicator={false}
           snapToInterval={ITEM_WIDTH}
-          decelerationRate="fast"
+          decelerationRate={0.8}
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: true })}
           onMomentumScrollEnd={onScrollEnd}
           contentContainerStyle={styles.contentContainer}
@@ -134,7 +139,7 @@ const styles = StyleSheet.create({
     width: WINDOW_WIDTH,
   },
   contentContainer: {
-    paddingHorizontal: SNAP_OFFSET,
+    paddingHorizontal: SIDE_SPACING - SPACING,
   },
   cardContainer: {
     width: CARD_WIDTH,

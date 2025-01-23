@@ -1,6 +1,9 @@
-import { Text, View, Image } from 'tamagui';
+import { Text, View, Image, XStack, YStack } from 'tamagui';
 import { BlurView } from 'expo-blur';
 import { Dimensions, StyleSheet } from 'react-native';
+import { Colors } from '@/config/colors';
+import { useCards } from '@/hooks/useCards';
+import { PauseCircle, XCircle } from '@tamagui/lucide-icons';
 
 const window = Dimensions.get('window');
 const WINDOW_WIDTH = window.width;
@@ -25,8 +28,33 @@ const getLuminance = (hexColor) => {
   return luminance;
 };
 
-const CardComponent = ({ type = 'Location', label = 'Location', emoji = '📍', lastFourDigits = '1234', color = 'pink' }) => {
-  let cardColor;
+const CardComponent = ({ cardId, displayData }) => {
+  const { getCardById } = useCards();
+  const card = cardId ? getCardById(cardId) : null;
+
+  // If displayData is provided, use it directly, otherwise generate from card
+  const {
+    type = 'Location',
+    label = 'Location',
+    emoji = '📍',
+    lastFourDigits = '1234',
+    backgroundColor = 'pink',
+    isPaused = card?.is_paused || false,
+    isClosed = card?.is_closed || false,
+  } = displayData ||
+  (card
+    ? {
+        type: card.card_type,
+        label: card.card_name,
+        emoji: card.card_icon,
+        lastFourDigits: card.card_number.slice(-4),
+        backgroundColor: card.card_color,
+        isPaused: card.is_paused,
+        isClosed: card.is_closed,
+      }
+    : {});
+
+  let cardColor = Colors.cards[backgroundColor] || backgroundColor;
   let cardTheme;
 
   const getCardImg = (theme) => {
@@ -40,55 +68,61 @@ const CardComponent = ({ type = 'Location', label = 'Location', emoji = '📍', 
     if (type === 'Category' && theme === 'dark') return require('../../assets/cards/category-front-dark.png');
   };
 
-  switch (color) {
-    case 'pink':
-      cardColor = '#E14C81';
-      break;
-    case 'green':
-      cardColor = '#44D47D';
-      break;
-    case 'blue':
-      cardColor = '#3981A6';
-      break;
-    case 'yellow':
-      cardColor = '#EBE14B';
-      break;
-    default:
-      cardColor = color;
-  }
-
   // Determine theme based on color luminance
   const luminance = getLuminance(cardColor);
   cardTheme = luminance > 0.5 ? 'dark' : 'light';
+  const blurTint = cardTheme === 'light' ? 'systemThickMaterialDark' : 'systemThickMaterialLight';
 
   const cardImg = getCardImg(cardTheme);
   const textColor = cardTheme === 'light' ? 'white' : 'black';
 
   return (
     <View width={CARD_WIDTH} height={CARD_HEIGHT} borderRadius={20} overflow="hidden" bg={cardColor}>
-      <Image source={cardImg} style={styles.cardImage} resizeMode="cover" />
-
-      {/* Top Left Badge */}
-      <BlurView intensity={20} style={[styles.badge, styles.topLeft]}>
-        <Text fontSize={14}>{emoji}</Text>
-        <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600">
-          {label}
-        </Text>
-      </BlurView>
-
-      {/* Top Right Badge */}
-      <BlurView intensity={20} style={[styles.badge, styles.topRight]}>
-        <Text fontSize={12} color={textColor} fontWeight="600">
-          {type}
-        </Text>
-      </BlurView>
-
-      {/* Bottom Left Card Number */}
-      <View style={[{ position: 'absolute', padding: 6 }, styles.bottomLeft]}>
-        <Text fontSize={16} color={textColor} fontWeight="600">
-          •••• &nbsp;{lastFourDigits}
-        </Text>
+      {/* Background Layer */}
+      <View style={StyleSheet.absoluteFill}>
+        <Image source={cardImg} style={styles.cardImage} resizeMode="cover" />
+        {(isPaused || isClosed) && (
+          <View style={[StyleSheet.absoluteFill, styles.statusOverlay]}>
+            <BlurView intensity={50} tint={blurTint} style={styles.statusBadge}>
+              {isPaused && <PauseCircle size={20} color={textColor} />}
+              {isClosed && <XCircle size={20} color={textColor} />}
+              <Text fontSize={14} color={textColor} marginLeft={8} fontWeight="600">
+                {isClosed ? 'Closed' : isPaused ? 'Paused' : ''}
+              </Text>
+            </BlurView>
+          </View>
+        )}
       </View>
+
+      {/* Content Layer */}
+      <YStack style={styles.contentContainer}>
+        {/* Top Row */}
+        <XStack style={styles.topRow}>
+          {/* <XStack flex={1} justifyContent="flex-start" flexWrap="wrap"> */}
+          <BlurView intensity={20} tint={blurTint} style={styles.badge}>
+            <Text fontSize={14}>{emoji}</Text>
+            <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600">
+              {label}
+            </Text>
+          </BlurView>
+          {/* </XStack> */}
+
+          {/* <XStack flex={1} justifyContent="flex-end" flexWrap="wrap"> */}
+          <BlurView intensity={20} tint={blurTint} style={styles.badge}>
+            <Text fontSize={12} color={textColor} fontWeight="600">
+              {type}
+            </Text>
+          </BlurView>
+        </XStack>
+        {/* </XStack> */}
+
+        {/* Bottom Row */}
+        <View style={styles.bottomRow}>
+          <Text fontSize={16} color={textColor} fontWeight="600" pb="$1" pl="$1">
+            •••• &nbsp;{lastFourDigits}
+          </Text>
+        </View>
+      </YStack>
     </View>
   );
 };
@@ -97,28 +131,41 @@ const styles = StyleSheet.create({
   cardImage: {
     width: '100%',
     height: '100%',
-    position: 'absolute',
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 12,
+    justifyContent: 'space-between',
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    flexWrap: 'wrap-reverse',
+  },
+  bottomRow: {
+    flexDirection: 'row',
   },
   badge: {
-    position: 'absolute',
     borderRadius: 30,
     paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',
     overflow: 'hidden',
   },
-  topLeft: {
-    top: 12,
-    left: 12,
+  statusOverlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  topRight: {
-    top: 12,
-    right: 12,
-  },
-  bottomLeft: {
-    bottom: 12,
-    left: 12,
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 30,
+    overflow: 'hidden',
   },
 });
 
