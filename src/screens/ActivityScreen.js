@@ -293,18 +293,17 @@ const SkeletonItem = () => {
 
 const LoadingSkeleton = () => {
   return (
-    <View style={[styles.listContainer]}>
-      <View style={styles.content}>
-        <View style={styles.sectionHeader} backgroundColor={Colors.dark.background}>
-          <Text color={Colors.dark.textSecondary} fontSize={16} fontWeight="500">
-            <Animated.View style={styles.skeletonMonth} />
-          </Text>
-        </View>
-        
-        {Array(6).fill(0).map((_, index) => (
-          <SkeletonItem key={index} />
-        ))}
+    <View style={styles.content}>
+      <View style={styles.sectionHeader} backgroundColor={Colors.dark.background}>
+        <Text color={Colors.dark.textSecondary} fontSize={16} fontWeight="500">
+          <Animated.View style={styles.skeletonMonth} />
+        </Text>
       </View>
+      
+      {/* Show only 4 items which is typically what fits in the viewport */}
+      {Array(5).fill(0).map((_, index) => (
+        <SkeletonItem key={index} />
+      ))}
     </View>
   );
 };
