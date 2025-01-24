@@ -37,7 +37,7 @@ export const HomeStack = () => {
         name={Paths.HOME}
         component={HomeScreen}
         options={{
-          headerTitle: () => <Image source={require('@/../assets/cvrd-logo-white.png')} style={{ height: 24, resizeMode: 'contain' }} />,
+          headerTitle: () => <Image source={require('@/../assets/cvrd-logo-white.png')} style={{ height: 50, resizeMode: 'contain' }} />,
         }}
       />
     </Stack.Navigator>
