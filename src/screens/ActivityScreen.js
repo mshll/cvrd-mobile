@@ -1,10 +1,10 @@
 import { Colors } from '@/config/colors';
 import { View, Text, Input, XStack, YStack, Button } from 'tamagui';
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { Search, Filter } from '@tamagui/lucide-icons';
-import { StyleSheet, SectionList, Animated } from 'react-native';
+import { useState, useCallback, useEffect } from 'react';
+import { Search, ArrowDown, ArrowUp } from '@tamagui/lucide-icons';
+import { StyleSheet, SectionList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BlurView } from 'expo-blur';
+import TransactionCard, { LoadingSkeleton } from '../components/TransactionCard';
 
 // This would typically come from an API client file
 const API = {
@@ -25,13 +25,16 @@ const API = {
   }
 };
 
-const FILTER_OPTIONS = [
-  { id: 'recent', label: 'Most Recent', sortKey: 'date', sortOrder: 'desc', group: 'sort' },
-  { id: 'highest', label: 'Highest Amount', sortKey: 'amount', sortOrder: 'desc', group: 'sort' },
-  { id: 'lowest', label: 'Lowest Amount', sortKey: 'amount', sortOrder: 'asc', group: 'sort' },
-  { id: 'settled', label: 'Settled Only', filterKey: 'status', filterValue: 'Settled', group: 'status' },
-  { id: 'declined', label: 'Declined Only', filterKey: 'status', filterValue: 'Declined', group: 'status' }
-];
+const SORT_STATES = {
+  DATE: 'date',
+  AMOUNT: 'amount'
+};
+
+const FILTER_STATES = {
+  ALL: 'all',
+  SETTLED: 'Settled',
+  DECLINED: 'Declined'
+};
 
 // Update the dummy data to include different months
 const DUMMY_TRANSACTIONS = [
@@ -145,203 +148,15 @@ const groupTransactionsByMonth = (transactions) => {
     }));
 };
 
-const TransactionItem = ({ transaction }) => {
-  const { name, cardType, amount, displayDate, status, emoji, color } = transaction;
-  
-  const getBgColor = (colorName) => {
-    switch (colorName) {
-      case 'pink':
-        return 'rgba(225, 76, 129, 0.15)';
-      case 'green':
-        return 'rgba(68, 212, 125, 0.15)';
-      case 'blue':
-        return 'rgba(57, 129, 166, 0.15)';
-      case 'yellow':
-        return 'rgba(235, 225, 75, 0.15)';
-      default:
-        return colorName;
-    }
-  };
-
-  const getTextColor = (colorName) => {
-    switch (colorName) {
-      case 'pink':
-        return '#E14C81';
-      case 'green':
-        return '#44D47D';
-      case 'blue':
-        return '#3981A6';
-      case 'yellow':
-        return '#8B8534';
-      default:
-        return colorName;
-    }
-  };
-  
-  return (
-    <XStack
-      backgroundColor={Colors.dark.backgroundSecondary}
-      p={16}
-      mb={10}
-      br={12}
-      ai="center"
-      jc="space-between"
-    >
-      <XStack ai="center" gap={12} f={1}>
-        <View
-          width={50}
-          height={50}
-          br={8}
-          backgroundColor={Colors.dark.backgroundTertiary}
-          ai="center"
-          jc="center"
-        >
-          <Text fontSize={20}>{emoji}</Text>
-        </View>
-        <YStack f={1}>
-          <XStack>
-            <View
-              backgroundColor={getBgColor(color)}
-              br={20}
-              px={10}
-              py={2}
-              fd="row"
-              ai="center"
-              gap={4}
-              maxWidth="80%"
-            >
-              <Text 
-                color={getTextColor(color)} 
-                fontSize={14} 
-                fontWeight="500"
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {name}
-              </Text>
-            </View>
-          </XStack>
-          <Text color={Colors.dark.textSecondary} fontSize={12} mt={4}>
-            {displayDate}
-          </Text>
-        </YStack>
-      </XStack>
-      <YStack ai="flex-end" ml={8}>
-        <Text
-          color={Colors.dark.text}
-          fontSize={16}
-          fontWeight="500"
-        >
-          - KD {amount}
-        </Text>
-        <Text
-          color={status === 'Declined' ? Colors.dark.primary : Colors.dark.textSecondary}
-          fontSize={14}
-        >
-          {status}
-        </Text>
-      </YStack>
-    </XStack>
-  );
-};
-
-const SkeletonItem = () => {
-  const fadeAnim = useRef(new Animated.Value(0.3)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 0.3,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, [fadeAnim]);
-
-  return (
-    <XStack
-      backgroundColor={Colors.dark.backgroundSecondary}
-      p={16}
-      mb={10}
-      br={12}
-      ai="center"
-      jc="space-between"
-    >
-      <XStack ai="center" gap={12} f={1}>
-        <Animated.View style={[styles.skeletonIcon, { opacity: fadeAnim }]} />
-        <YStack f={1}>
-          <XStack>
-            <Animated.View style={[styles.skeletonBadge, { opacity: fadeAnim }]} />
-          </XStack>
-          <Animated.View style={[styles.skeletonDate, { opacity: fadeAnim }]} />
-        </YStack>
-      </XStack>
-      <YStack ai="flex-end" ml={8}>
-        <Animated.View style={[styles.skeletonAmount, { opacity: fadeAnim }]} />
-        <Animated.View style={[styles.skeletonStatus, { opacity: fadeAnim }]} />
-      </YStack>
-    </XStack>
-  );
-};
-
-const LoadingSkeleton = () => {
-  return (
-    <View style={styles.content}>
-      <View style={styles.sectionHeader} backgroundColor={Colors.dark.background}>
-        <Text color={Colors.dark.textSecondary} fontSize={16} fontWeight="500">
-          <Animated.View style={styles.skeletonMonth} />
-        </Text>
-      </View>
-      
-      {/* Show only 4 items which is typically what fits in the viewport */}
-      {Array(5).fill(0).map((_, index) => (
-        <SkeletonItem key={index} />
-      ))}
-    </View>
-  );
-};
-
 const ActivityScreen = () => {
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [dateSort, setDateSort] = useState('desc');
+  const [amountSort, setAmountSort] = useState(null);
+  const [statusFilter, setStatusFilter] = useState(FILTER_STATES.ALL);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const toggleFilter = (filterId) => {
-    setSelectedFilters(prev => {
-      const selectedFilter = FILTER_OPTIONS.find(option => option.id === filterId);
-      const isSelected = prev.includes(filterId);
-      
-      if (isSelected) {
-        // If deselecting, just remove the filter
-        return prev.filter(id => id !== filterId);
-      } else {
-        // If selecting, handle mutual exclusivity
-        let updatedFilters = [...prev];
-        
-        // Remove any other filters from the same group
-        if (selectedFilter.group) {
-          const groupFilters = FILTER_OPTIONS
-            .filter(option => option.group === selectedFilter.group)
-            .map(option => option.id);
-          updatedFilters = updatedFilters.filter(id => !groupFilters.includes(id));
-        }
-        
-        // Add the new filter
-        return [...updatedFilters, filterId];
-      }
-    });
-  };
 
   const applyFilters = useCallback((data) => {
     let filteredData = [...data];
@@ -353,49 +168,66 @@ const ActivityScreen = () => {
       );
     }
 
-    // Apply selected filters
-    selectedFilters.forEach(filterId => {
-      const filter = FILTER_OPTIONS.find(option => option.id === filterId);
-      if (!filter) return;
+    // Apply status filter
+    if (statusFilter !== FILTER_STATES.ALL) {
+      filteredData = filteredData.filter(transaction => transaction.status === statusFilter);
+    }
 
-      if (filter.filterKey) {
-        filteredData = filteredData.filter(
-          transaction => transaction[filter.filterKey] === filter.filterValue
-        );
-      }
-
-      if (filter.sortKey) {
-        filteredData.sort((a, b) => {
-          const valueA = a[filter.sortKey];
-          const valueB = b[filter.sortKey];
-          const comparison = valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
-          return filter.sortOrder === 'desc' ? -comparison : comparison;
-        });
-      }
-    });
+    // Apply sorting
+    if (amountSort) {
+      filteredData.sort((a, b) => {
+        const comparison = a.amount - b.amount;
+        return amountSort === 'desc' ? -comparison : comparison;
+      });
+    } else {
+      // Default to date sorting if amount sort is not active
+      filteredData.sort((a, b) => {
+        const comparison = new Date(a.date) - new Date(b.date);
+        return dateSort === 'desc' ? -comparison : comparison;
+      });
+    }
 
     return filteredData;
-  }, [searchQuery, selectedFilters]);
+  }, [searchQuery, dateSort, amountSort, statusFilter]);
 
-  const fetchTransactions = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await API.fetchTransactions();
-      const filteredData = applyFilters(response.data);
-      setTransactions(filteredData);
-    } catch (err) {
-      setError('Failed to load transactions');
-      console.error('Error fetching transactions:', err);
-    } finally {
-      setIsLoading(false);
-    }
+  // Fetch transactions whenever filters change
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await API.fetchTransactions();
+        const filteredData = applyFilters(response.data);
+        setTransactions(filteredData);
+      } catch (err) {
+        setError('Failed to load transactions');
+        console.error('Error fetching transactions:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, [applyFilters]);
 
-  // Initial fetch
-  useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
+  const toggleDateSort = useCallback(() => {
+    setDateSort(prev => prev === 'desc' ? 'asc' : 'desc');
+    setAmountSort(null);
+  }, []);
+
+  const toggleAmountSort = useCallback(() => {
+    setAmountSort(prev => {
+      if (!prev || prev === 'asc') return 'desc';
+      return 'asc';
+    });
+  }, []);
+
+  const toggleStatusFilter = useCallback(() => {
+    setStatusFilter(prev => {
+      if (prev === FILTER_STATES.ALL || prev === FILTER_STATES.DECLINED) return FILTER_STATES.SETTLED;
+      return FILTER_STATES.DECLINED;
+    });
+  }, []);
 
   return (
     <View f={1} bg={Colors.dark.background}>
@@ -417,55 +249,76 @@ const ActivityScreen = () => {
               borderWidth={0}
               backgroundColor="transparent"
               value={searchQuery}
-              onChangeText={(text) => {
-                setSearchQuery(text);
-                fetchTransactions();
-              }}
+              onChangeText={setSearchQuery}
             />
           </XStack>
           
           <Button
-            backgroundColor={showFilters ? Colors.dark.primary : Colors.dark.backgroundSecondary}
+            backgroundColor={Colors.dark.backgroundSecondary}
             br={8}
             p={12}
-            onPress={() => setShowFilters(!showFilters)}
+            onPress={toggleDateSort}
           >
-            <Filter size={20} color={Colors.dark.text} />
+            {dateSort === 'desc' ? (
+              <ArrowDown size={20} color={Colors.dark.text} />
+            ) : (
+              <ArrowUp size={20} color={Colors.dark.text} />
+            )}
           </Button>
         </XStack>
 
-        {showFilters && (
-          <XStack flexWrap="wrap" gap={8}>
-            {FILTER_OPTIONS.map((option) => (
-              <Button
-                key={option.id}
-                backgroundColor={
-                  selectedFilters.includes(option.id)
-                    ? Colors.dark.primary
-                    : Colors.dark.backgroundSecondary
-                }
-                br={20}
-                px={12}
-                py={6}
-                onPress={() => {
-                  toggleFilter(option.id);
-                  fetchTransactions();
-                }}
-              >
-                <Text
-                  color={
-                    selectedFilters.includes(option.id)
-                      ? Colors.dark.text
-                      : Colors.dark.textSecondary
-                  }
-                  fontSize={14}
-                >
-                  {option.label}
-                </Text>
-              </Button>
-            ))}
-          </XStack>
-        )}
+        <XStack gap={8}>
+          <Button
+            f={1}
+            backgroundColor={statusFilter === FILTER_STATES.ALL && !amountSort ? Colors.dark.primary : Colors.dark.backgroundSecondary}
+            br={20}
+            px={12}
+            py={6}
+            onPress={() => {
+              setStatusFilter(FILTER_STATES.ALL);
+              setAmountSort(null);
+            }}
+          >
+            <Text
+              color={statusFilter === FILTER_STATES.ALL && !amountSort ? Colors.dark.text : Colors.dark.textSecondary}
+              fontSize={14}
+            >
+              All
+            </Text>
+          </Button>
+
+          <Button
+            f={1}
+            backgroundColor={amountSort ? Colors.dark.primary : Colors.dark.backgroundSecondary}
+            br={20}
+            px={12}
+            py={6}
+            onPress={toggleAmountSort}
+          >
+            <Text
+              color={amountSort ? Colors.dark.text : Colors.dark.textSecondary}
+              fontSize={14}
+            >
+              {!amountSort ? 'Amount' : amountSort === 'desc' ? 'Lowest' : 'Highest'}
+            </Text>
+          </Button>
+
+          <Button
+            f={1}
+            backgroundColor={statusFilter !== FILTER_STATES.ALL ? Colors.dark.primary : Colors.dark.backgroundSecondary}
+            br={20}
+            px={12}
+            py={6}
+            onPress={toggleStatusFilter}
+          >
+            <Text
+              color={statusFilter !== FILTER_STATES.ALL ? Colors.dark.text : Colors.dark.textSecondary}
+              fontSize={14}
+            >
+              {statusFilter === FILTER_STATES.ALL ? 'Status' : statusFilter === FILTER_STATES.SETTLED ? 'Declined' : 'Settled'}
+            </Text>
+          </Button>
+        </XStack>
       </YStack>
 
       <View style={styles.listContainer}>
@@ -479,7 +332,7 @@ const ActivityScreen = () => {
           <SectionList
             sections={groupTransactionsByMonth(transactions)}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <TransactionItem transaction={item} />}
+            renderItem={({ item }) => <TransactionCard transaction={item} />}
             renderSectionHeader={({ section: { title } }) => (
               <View style={styles.sectionHeader} backgroundColor={Colors.dark.background}>
                 <Text color={Colors.dark.textSecondary} fontSize={16} fontWeight="500">
@@ -510,44 +363,6 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
-  },
-  skeletonIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    backgroundColor: Colors.dark.backgroundTertiary,
-  },
-  skeletonBadge: {
-    width: 120,
-    height: 26,
-    borderRadius: 20,
-    backgroundColor: Colors.dark.backgroundTertiary,
-  },
-  skeletonDate: {
-    width: 100,
-    height: 16,
-    borderRadius: 4,
-    backgroundColor: Colors.dark.backgroundTertiary,
-    marginTop: 4,
-  },
-  skeletonAmount: {
-    width: 80,
-    height: 20,
-    borderRadius: 4,
-    backgroundColor: Colors.dark.backgroundTertiary,
-  },
-  skeletonStatus: {
-    width: 60,
-    height: 16,
-    borderRadius: 4,
-    backgroundColor: Colors.dark.backgroundTertiary,
-    marginTop: 4,
-  },
-  skeletonMonth: {
-    width: 150,
-    height: 20,
-    borderRadius: 4,
-    backgroundColor: Colors.dark.backgroundTertiary,
   },
 });
 
