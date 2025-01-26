@@ -36,8 +36,8 @@ const fontConfig = {
   },
 };
 
-const poppinsFont = createFont({
-  family: 'Poppins',
+const interFont = createFont({
+  family: 'Inter',
   ...fontConfig,
   weight: {
     100: '100',
@@ -51,22 +51,24 @@ const poppinsFont = createFont({
     900: '900',
   },
   face: {
-    100: { normal: 'Poppins_100Thin' },
-    200: { normal: 'Poppins_200ExtraLight' },
-    300: { normal: 'Poppins_300Light' },
-    400: { normal: 'Poppins_400Regular' },
-    500: { normal: 'Poppins_500Medium' },
-    600: { normal: 'Poppins_600SemiBold' },
-    700: { normal: 'Poppins_700Bold' },
-    800: { normal: 'Poppins_800ExtraBold' },
-    900: { normal: 'Poppins_900Black' },
+    100: { normal: 'Inter_100Thin' },
+    200: { normal: 'Inter_200ExtraLight' },
+    300: { normal: 'Inter_300Light' },
+    400: { normal: 'Inter_400Regular' },
+    500: { normal: 'Inter_500Medium' },
+    600: { normal: 'Inter_600SemiBold' },
+    700: { normal: 'Inter_700Bold' },
+    800: { normal: 'Inter_800ExtraBold' },
+    900: { normal: 'Inter_900Black' },
   },
 });
 
-const rubikFont = createFont({
-  family: 'Rubik',
+const archivoFont = createFont({
+  family: 'Archivo',
   ...fontConfig,
   weight: {
+    100: '100',
+    200: '200',
     300: '300',
     400: '400',
     500: '500',
@@ -76,21 +78,35 @@ const rubikFont = createFont({
     900: '900',
   },
   face: {
-    300: { normal: 'Rubik_300Light' },
-    400: { normal: 'Rubik_400Regular' },
-    500: { normal: 'Rubik_500Medium' },
-    600: { normal: 'Rubik_600SemiBold' },
-    700: { normal: 'Rubik_700Bold' },
-    800: { normal: 'Rubik_800ExtraBold' },
-    900: { normal: 'Rubik_900Black' },
+    100: { normal: 'Archivo_100Thin' },
+    200: { normal: 'Archivo_200ExtraLight' },
+    300: { normal: 'Archivo_300Light' },
+    400: { normal: 'Archivo_400Regular' },
+    500: { normal: 'Archivo_500Medium' },
+    600: { normal: 'Archivo_600SemiBold' },
+    700: { normal: 'Archivo_700Bold' },
+    800: { normal: 'Archivo_800ExtraBold' },
+    900: { normal: 'Archivo_900Black' },
+  },
+});
+
+const archivoBlackFont = createFont({
+  family: 'Archivo Black',
+  ...fontConfig,
+  weight: {
+    900: '900',
+  },
+  face: {
+    900: { normal: 'Archivo_900Black' },
   },
 });
 
 const fonts = {
-  heading: poppinsFont,
-  body: poppinsFont,
-  poppins: poppinsFont,
-  rubik: rubikFont,
+  heading: archivoFont,
+  body: interFont,
+  inter: interFont,
+  archivo: archivoFont,
+  archivoBlack: archivoBlackFont,
 };
 
 export const tamaguiConfig = createTamagui({

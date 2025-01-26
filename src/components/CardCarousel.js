@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dimensions, View, StyleSheet, Pressable, Animated } from 'react-native';
+import { View, StyleSheet, Pressable, Animated } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Colors } from '../config/colors';
 import { useColorScheme } from 'react-native';
@@ -7,12 +7,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Paths } from '../navigation/paths';
 import { Text } from 'tamagui';
 import CardComponent from './CardComponent';
+import { WINDOW_WIDTH, CARD_WIDTH, CARD_HEIGHT } from '@/utils/cardUtils';
 
-const window = Dimensions.get('window');
-const WINDOW_WIDTH = window.width;
-const CARD_ASPECT_RATIO = 1630 / 1024;
-const CARD_WIDTH = Math.round(WINDOW_WIDTH * 0.6);
-const CARD_HEIGHT = Math.round(CARD_WIDTH * CARD_ASPECT_RATIO);
 const SPACING = 2;
 const ITEM_WIDTH = CARD_WIDTH + SPACING * 2;
 const SIDE_SPACING = (WINDOW_WIDTH - CARD_WIDTH) / 2;
@@ -34,10 +30,6 @@ function CardCarousel({ title, data, icon: Icon }) {
     },
     [navigation]
   );
-
-  const getItemType = React.useCallback(() => {
-    return 'card';
-  }, []);
 
   const onScrollEnd = React.useCallback((event) => {
     const position = event.nativeEvent.contentOffset.x;
@@ -92,7 +84,7 @@ function CardCarousel({ title, data, icon: Icon }) {
     <View style={styles.section}>
       <View style={styles.header}>
         {Icon && <Icon size={18} color={colors.text} />}
-        <Text fontSize="$3" fontWeight="700" color={colors.text} marginLeft={Icon ? 6 : 0}>
+        <Text fontSize="$4" fontWeight="600" fontFamily="$archivoBlack" color={colors.text} marginLeft={Icon ? 8 : 0}>
           {title}
         </Text>
       </View>
@@ -104,13 +96,12 @@ function CardCarousel({ title, data, icon: Icon }) {
           horizontal
           showsHorizontalScrollIndicator={false}
           snapToInterval={ITEM_WIDTH}
-          decelerationRate={0.8}
+          decelerationRate={'fast'}
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: true })}
           onMomentumScrollEnd={onScrollEnd}
           contentContainerStyle={styles.contentContainer}
           estimatedItemSize={ITEM_WIDTH}
           estimatedListSize={{ width: WINDOW_WIDTH, height: CARD_HEIGHT }}
-          getItemType={getItemType}
           drawDistance={ITEM_WIDTH * 2}
           overrideItemLayout={(layout, item, index) => {
             layout.size = ITEM_WIDTH;
@@ -126,12 +117,12 @@ function CardCarousel({ title, data, icon: Icon }) {
 const styles = StyleSheet.create({
   section: {
     width: '100%',
-    marginBottom: 48,
+    marginBottom: 58,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
     paddingHorizontal: 16,
   },
   carouselContainer: {

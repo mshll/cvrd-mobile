@@ -1,4 +1,3 @@
-import { UserRound, WalletCards, List, Plus, Bell } from '@tamagui/lucide-icons';
 import { Paths } from './paths';
 import { ActivityStack, HomeStack, ProfileStack, SubscriptionsStack } from './StackNavs';
 import { Circle, useTheme } from 'tamagui';
@@ -10,6 +9,13 @@ import { AnimatedTabBarNavigator } from '@/lib/react-native-animated-nav-tab-bar
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { useCards } from '@/hooks/useCards';
+import { WalletIcon, QueueListIcon, BellIcon, UserCircleIcon, PlusIcon } from 'react-native-heroicons/solid';
+import {
+  WalletIcon as WalletIconOutline,
+  QueueListIcon as QueueListIconOutline,
+  BellIcon as BellIconOutline,
+  UserCircleIcon as UserCircleIconOutline,
+} from 'react-native-heroicons/outline';
 
 const Tab = AnimatedTabBarNavigator();
 const Stack = createNativeStackNavigator();
@@ -38,14 +44,18 @@ const TabNavigator = () => {
         name={Paths.HOME}
         component={HomeStack}
         options={{
-          tabBarIcon: ({ color, size }) => <WalletCards color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => {
+            return focused ? <WalletIcon color={color} size={size} /> : <WalletIconOutline color={color} size={size} />;
+          },
         }}
       />
       <Tab.Screen
         name={Paths.ACTIVITY}
         component={ActivityStack}
         options={{
-          tabBarIcon: ({ color, size }) => <List color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => {
+            return focused ? <QueueListIcon color={color} size={size} /> : <QueueListIconOutline color={color} size={size} />;
+          },
         }}
       />
       <Tab.Screen
@@ -54,7 +64,7 @@ const TabNavigator = () => {
         options={{
           tabBarIcon: ({ color, size }) => (
             <Circle backgroundColor={Colors.dark.primary} padding={15} position="absolute" bw={'$1.5'} bc={Colors.dark.card}>
-              <Plus color={Colors.dark.text} size={size + 10} />
+              <PlusIcon color={Colors.dark.text} size={size + 10} />
             </Circle>
           ),
         }}
@@ -72,14 +82,18 @@ const TabNavigator = () => {
         name={Paths.SUBSCRIPTIONS}
         component={SubscriptionsStack}
         options={{
-          tabBarIcon: ({ color, size }) => <Bell color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => {
+            return focused ? <BellIcon color={color} size={size} /> : <BellIconOutline color={color} size={size} />;
+          },
         }}
       />
       <Tab.Screen
         name={Paths.PROFILE}
         component={ProfileStack}
         options={{
-          tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => {
+            return focused ? <UserCircleIcon color={color} size={size} /> : <UserCircleIconOutline color={color} size={size} />;
+          },
         }}
       />
     </Tab.Navigator>

@@ -1,5 +1,5 @@
 import { View, ScrollView, YStack, Text, Separator, XStack, Button } from 'tamagui';
-import { Dimensions, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Colors } from '@/config/colors';
 import { useRoute } from '@react-navigation/native';
 import CardComponent from '@/components/CardComponent';
@@ -7,12 +7,10 @@ import { useCards } from '@/hooks/useCards';
 import { useMemo } from 'react';
 import { Edit3, Pause, PauseCircle, Play, Share2, Trash2 } from '@tamagui/lucide-icons';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
+import CardFlipComponent from '@/components/CardFlipComponent';
+import { PauseIcon, PencilIcon, PencilSquareIcon, PlayIcon, ShareIcon, TrashIcon } from 'react-native-heroicons/solid';
+import { CARD_WIDTH_LARGE, CARD_HEIGHT_LARGE } from '@/utils/cardUtils';
 
-const window = Dimensions.get('window');
-const WINDOW_WIDTH = window.width;
-const CARD_ASPECT_RATIO = 1630 / 1024;
-const CARD_WIDTH = Math.round(WINDOW_WIDTH * 0.8); // Bigger card in details
-const CARD_HEIGHT = Math.round(CARD_WIDTH * CARD_ASPECT_RATIO);
 const MAP_HEIGHT = 200;
 
 const formatCurrency = (amount) => {
@@ -109,41 +107,29 @@ const CardDetailsScreen = () => {
   return (
     <ScrollView f={1} bg={Colors.dark.background}>
       <YStack f={1} ai="center" pt="$5" pb={150}>
-        <CardComponent cardId={cardId} />
+        <CardFlipComponent cardId={cardId} />
 
         {/* Action Buttons */}
         <XStack gap="$5" mt="$5" mb="$5">
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleEdit}>
-              <Edit3 size={20} color={Colors.dark.text} />
+              <PencilIcon size={20} color={Colors.dark.text} />
             </ActionButton>
-            {/* <Text color={Colors.dark.text} fontSize="$2">
-              Edit
-            </Text> */}
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleShare}>
-              <Share2 size={20} color={Colors.dark.text} />
+              <ShareIcon size={20} color={Colors.dark.text} />
             </ActionButton>
-            {/* <Text color={Colors.dark.text} fontSize="$2">
-              Share
-            </Text> */}
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleTogglePause}>
-              {card.is_paused ? <Play size={20} color={Colors.dark.text} /> : <Pause size={20} color={Colors.dark.text} />}
+              {card.is_paused ? <PlayIcon size={20} color={Colors.dark.text} /> : <PauseIcon size={20} color={Colors.dark.text} />}
             </ActionButton>
-            {/* <Text color={Colors.dark.text} fontSize="$2">
-              {card.is_paused ? 'Resume' : 'Pause'}
-            </Text> */}
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleDelete}>
-              <Trash2 size={20} color={Colors.cards.pink} />
+              <TrashIcon size={20} color={Colors.cards.pink} />
             </ActionButton>
-            {/* <Text color={Colors.dark.text} fontSize="$2">
-              Delete
-            </Text> */}
           </YStack>
         </XStack>
 

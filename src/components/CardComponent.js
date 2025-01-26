@@ -1,31 +1,16 @@
 import { Text, View, Image, XStack, YStack } from 'tamagui';
 import { BlurView } from 'expo-blur';
-import { Dimensions, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Colors } from '@/config/colors';
 import { useCards } from '@/hooks/useCards';
-import { PauseCircle, XCircle } from '@tamagui/lucide-icons';
+import { BuildingStorefrontIcon, FireIcon, MapPinIcon, TagIcon, PauseCircleIcon, XCircleIcon } from 'react-native-heroicons/solid';
+import { CARD_WIDTH, CARD_HEIGHT, getCardTheme, getCardAssets } from '@/utils/cardUtils';
 
-const window = Dimensions.get('window');
-const WINDOW_WIDTH = window.width;
-const CARD_ASPECT_RATIO = 1630 / 1024;
-const CARD_WIDTH = Math.round(WINDOW_WIDTH * 0.6);
-const CARD_HEIGHT = Math.round(CARD_WIDTH * CARD_ASPECT_RATIO);
-
-// Calculate relative luminance
-const getLuminance = (hexColor) => {
-  // Remove # if present
-  const hex = hexColor.replace('#', '');
-
-  // Convert hex to rgb
-  const r = parseInt(hex.substr(0, 2), 16) / 255;
-  const g = parseInt(hex.substr(2, 2), 16) / 255;
-  const b = parseInt(hex.substr(4, 2), 16) / 255;
-
-  // Calculate luminance using the relative luminance formula
-  // https://www.w3.org/TR/WCAG20/#relativeluminancedef
-  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-
-  return luminance;
+const getCardIcon = (type, color) => {
+  if (type === 'Location') return <MapPinIcon size={20} color={color} />;
+  if (type === 'Burner') return <FireIcon size={20} color={color} />;
+  if (type === 'Merchant') return <BuildingStorefrontIcon size={20} color={color} />;
+  if (type === 'Category') return <TagIcon size={20} color={color} />;
 };
 
 const CardComponent = ({ cardId, displayData }) => {
@@ -34,11 +19,11 @@ const CardComponent = ({ cardId, displayData }) => {
 
   // If displayData is provided, use it directly, otherwise generate from card
   const {
-    type = 'Location',
-    label = 'Location',
-    emoji = '📍',
+    type = '-',
+    label = '-',
+    emoji = '❌',
     lastFourDigits = '1234',
-    backgroundColor = 'pink',
+    backgroundColor = 'red',
     isPaused = card?.is_paused || false,
     isClosed = card?.is_closed || false,
   } = displayData ||
@@ -55,26 +40,10 @@ const CardComponent = ({ cardId, displayData }) => {
     : {});
 
   let cardColor = Colors.cards[backgroundColor] || backgroundColor;
-  let cardTheme;
-
-  const getCardImg = (theme) => {
-    if (type === 'Location' && theme === 'light') return require('../../assets/cards/location-front-light.png');
-    if (type === 'Location' && theme === 'dark') return require('../../assets/cards/location-front-dark.png');
-    if (type === 'Burner' && theme === 'light') return require('../../assets/cards/burner-front-light.png');
-    if (type === 'Burner' && theme === 'dark') return require('../../assets/cards/burner-front-dark.png');
-    if (type === 'Merchant' && theme === 'light') return require('../../assets/cards/merchant-front-light.png');
-    if (type === 'Merchant' && theme === 'dark') return require('../../assets/cards/merchant-front-dark.png');
-    if (type === 'Category' && theme === 'light') return require('../../assets/cards/category-front-light.png');
-    if (type === 'Category' && theme === 'dark') return require('../../assets/cards/category-front-dark.png');
-  };
-
-  // Determine theme based on color luminance
-  const luminance = getLuminance(cardColor);
-  cardTheme = luminance > 0.5 ? 'dark' : 'light';
+  const cardTheme = getCardTheme(cardColor);
   const blurTint = cardTheme === 'light' ? 'systemThickMaterialDark' : 'systemThickMaterialLight';
-
-  const cardImg = getCardImg(cardTheme);
   const textColor = cardTheme === 'light' ? 'white' : 'black';
+  const { cardImg, logoImg, visaImg } = getCardAssets(type, cardTheme);
 
   return (
     <View width={CARD_WIDTH} height={CARD_HEIGHT} borderRadius={20} overflow="hidden" bg={cardColor}>
@@ -84,8 +53,8 @@ const CardComponent = ({ cardId, displayData }) => {
         {(isPaused || isClosed) && (
           <View style={[StyleSheet.absoluteFill, styles.statusOverlay]}>
             <BlurView intensity={50} tint={blurTint} style={styles.statusBadge}>
-              {isPaused && <PauseCircle size={20} color={textColor} />}
-              {isClosed && <XCircle size={20} color={textColor} />}
+              {isPaused && <PauseCircleIcon size={20} color={textColor} />}
+              {isClosed && <XCircleIcon size={20} color={textColor} />}
               <Text fontSize={14} color={textColor} marginLeft={8} fontWeight="600">
                 {isClosed ? 'Closed' : isPaused ? 'Paused' : ''}
               </Text>
@@ -98,29 +67,29 @@ const CardComponent = ({ cardId, displayData }) => {
       <YStack style={styles.contentContainer}>
         {/* Top Row */}
         <XStack style={styles.topRow}>
-          {/* <XStack flex={1} justifyContent="flex-start" flexWrap="wrap"> */}
           <BlurView intensity={20} tint={blurTint} style={styles.badge}>
             <Text fontSize={14}>{emoji}</Text>
-            <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600">
+            <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600" maxWidth={110} numberOfLines={1}>
               {label}
             </Text>
           </BlurView>
-          {/* </XStack> */}
 
-          {/* <XStack flex={1} justifyContent="flex-end" flexWrap="wrap"> */}
-          <BlurView intensity={20} tint={blurTint} style={styles.badge}>
-            <Text fontSize={12} color={textColor} fontWeight="600">
-              {type}
-            </Text>
-          </BlurView>
+          <View style={[styles.badge, { paddingHorizontal: 10, paddingVertical: 0, borderRadius: 10 }]}>{getCardIcon(type, textColor)}</View>
         </XStack>
-        {/* </XStack> */}
+
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <Image source={logoImg} style={styles.logo} resizeMode="contain" />
+        </View>
 
         {/* Bottom Row */}
         <View style={styles.bottomRow}>
           <Text fontSize={16} color={textColor} fontWeight="600" pb="$1" pl="$1">
             •••• &nbsp;{lastFourDigits}
           </Text>
+          <View style={styles.visaContainer}>
+            <Image source={visaImg} style={styles.visaLogo} resizeMode="contain" />
+          </View>
         </View>
       </YStack>
     </View>
@@ -145,6 +114,9 @@ const styles = StyleSheet.create({
   },
   bottomRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
   },
   badge: {
     borderRadius: 30,
@@ -152,12 +124,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     overflow: 'hidden',
   },
   statusOverlay: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 100,
   },
   statusBadge: {
     flexDirection: 'row',
@@ -166,6 +140,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 30,
     overflow: 'hidden',
+  },
+  logoContainer: {
+    position: 'absolute',
+    right: 30,
+    top: 142,
+    width: 120,
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    width: '100%',
+    height: '100%',
+  },
+  visaContainer: {
+    width: 60,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  visaLogo: {
+    width: '100%',
+    height: '100%',
   },
 });
 
