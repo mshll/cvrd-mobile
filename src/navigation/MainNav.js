@@ -1,14 +1,25 @@
-import { UserRound, WalletCards, List, Plus, Bell } from '@tamagui/lucide-icons';
-import { Paths } from './paths';
-import { ActivityStack, HomeStack, ProfileStack, SubscriptionsStack } from './StackNavs';
-import { Circle, useTheme } from 'tamagui';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Colors } from '@/config/colors';
-import { useColorScheme } from 'react-native';
-import AddCardScreen from '@/screens/AddCardScreen';
-import { AnimatedTabBarNavigator } from '@/lib/react-native-animated-nav-tab-bar/dist/lib';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CardDetailsScreen from '@/screens/CardDetailsScreen';
+import {
+  UserRound,
+  WalletCards,
+  List,
+  Plus,
+  Bell,
+} from "@tamagui/lucide-icons";
+import { Paths } from "./paths";
+import {
+  ActivityStack,
+  HomeStack,
+  ProfileStack,
+  SubscriptionsStack,
+} from "./StackNavs";
+import { Circle, useTheme } from "tamagui";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Colors } from "@/config/colors";
+import { useColorScheme } from "react-native";
+import AddCardScreen from "@/screens/AddCardScreen";
+import { AnimatedTabBarNavigator } from "@/lib/react-native-animated-nav-tab-bar/dist/lib";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import CardDetailsScreen from "@/screens/CardDetailsScreen";
 
 const Tab = AnimatedTabBarNavigator();
 const Stack = createNativeStackNavigator();
@@ -29,7 +40,7 @@ const TabNavigator = () => {
         tabBarBackground: Colors.dark.card,
         tabBarBorderColor: Colors.dark.border,
         floating: true,
-        whenActiveShow: 'icon-only',
+        whenActiveShow: "icon-only",
       }}
       initialRouteName={Paths.HOME}
     >
@@ -37,7 +48,9 @@ const TabNavigator = () => {
         name={Paths.HOME}
         component={HomeStack}
         options={{
-          tabBarIcon: ({ color, size }) => <WalletCards color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => (
+            <WalletCards color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -48,11 +61,17 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name={'add-card-tab'}
+        name={"add-card-tab"}
         component={HomeStack} // Won't be shown
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Circle backgroundColor={Colors.dark.primary} padding={15} position="absolute" bw={'$1.5'} bc={Colors.dark.card}>
+            <Circle
+              backgroundColor={Colors.dark.primary}
+              padding={15}
+              position="absolute"
+              bw={"$1.5"}
+              bc={Colors.dark.card}
+            >
               <Plus color={Colors.dark.text} size={size + 10} />
             </Circle>
           ),
@@ -60,10 +79,14 @@ const TabNavigator = () => {
         listeners={({ navigation }) => ({
           tabPress: (e) => {
             e.preventDefault();
-            navigation.navigate(Paths.ADD_CARD);
+            navigation.navigate(Paths.HOME, {
+              screen: Paths.ADD_CARD_SCREEN,
+            });
           },
           tabLongPress: () => {
-            navigation.navigate(Paths.ADD_CARD);
+            navigation.navigate(Paths.HOME, {
+              screen: Paths.ADD_CARD_SCREEN,
+            });
           },
         })}
       />
@@ -78,7 +101,9 @@ const TabNavigator = () => {
         name={Paths.PROFILE}
         component={ProfileStack}
         options={{
-          tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => (
+            <UserRound color={color} size={size} />
+          ),
         }}
       />
     </Tab.Navigator>
@@ -92,7 +117,7 @@ const MainNav = () => {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        headerBackButtonDisplayMode: 'minimal',
+        headerBackButtonDisplayMode: "minimal",
         headerStyle: {
           backgroundColor: Colors.dark.background,
         },
@@ -103,16 +128,15 @@ const MainNav = () => {
       }}
     >
       <Stack.Screen name="Main" component={TabNavigator} />
-      <Stack.Screen name={Paths.ADD_CARD} component={AddCardScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen
         name={Paths.CARD_DETAILS}
         component={CardDetailsScreen}
         options={{
           headerShown: true,
-          headerTitle: 'Card Details',
-          animation: 'slide_from_right',
+          headerTitle: "Card Details",
+          animation: "slide_from_right",
           gestureEnabled: true,
-          gestureDirection: 'horizontal',
+          gestureDirection: "horizontal",
         }}
       />
     </Stack.Navigator>
