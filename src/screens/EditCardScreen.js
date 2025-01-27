@@ -1,8 +1,8 @@
-import { View, Text, YStack, XStack, Button, Input } from 'tamagui';
+import { View, Text, YStack, XStack, Button, Input, Circle } from 'tamagui';
 import { Colors } from '@/config/colors';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { PlusIcon } from 'react-native-heroicons/solid';
+import { PlusIcon, ArrowPathIcon } from 'react-native-heroicons/solid';
 import { useCards } from '@/hooks/useCards';
 import { Platform, StatusBar, StyleSheet } from 'react-native';
 import EmojiPicker from 'rn-emoji-keyboard';
@@ -12,25 +12,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorPicker, { Panel1, Preview, HueSlider } from 'reanimated-color-picker';
 import BottomSheet from '@/components/BottomSheet';
-
-// Grid of initial emojis (2 rows x 6 columns = 12)
-const INITIAL_EMOJIS = ['💳', '💰', '🏦', '🛍️', '🎫', '✈️', '🛒', '🎮', '🍽️', '🏭', '💻'];
-
-// Color grid (2 rows x 6 columns = 12)
-const COLOR_GRID = [
-  { name: 'pink', value: '#E14C81' },
-  { name: 'green', value: '#77f5bc' },
-  { name: 'blue', value: '#3981A6' },
-  { name: 'yellow', value: '#EBE14B' },
-  { name: 'purple', value: '#9747FF' },
-  { name: 'orange', value: '#FF7847' },
-  { name: 'teal', value: '#47D5FF' },
-  { name: 'red', value: '#FF4747' },
-  { name: 'indigo', value: '#4762FF' },
-  { name: 'lime', value: '#B1FF47' },
-  { name: 'cyan', value: '#47FFF4' },
-  { name: 'custom', value: Colors.dark.backgroundTertiary },
-];
+import {
+  getCardCustomization,
+  saveCardCustomization,
+  resetCardCustomization,
+  DEFAULT_EMOJI,
+  DEFAULT_COLOR,
+  DEFAULT_EMOJIS,
+  DEFAULT_COLORS,
+} from '@/utils/storage';
 
 const EditCardScreen = () => {
   const navigation = useNavigation();
@@ -40,19 +30,49 @@ const EditCardScreen = () => {
   const card = getCardById(cardId);
 
   const [cardName, setCardName] = useState(card?.card_name || '');
-  const [emoji, setEmoji] = useState(card?.card_icon || '💳');
-  const [cardColor, setCardColor] = useState(card?.card_color || 'blue');
+  const [emoji, setEmoji] = useState(card?.card_icon || DEFAULT_EMOJI);
+  const [cardColor, setCardColor] = useState(card?.card_color || DEFAULT_COLOR);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showColorWheel, setShowColorWheel] = useState(false);
   const [customColor, setCustomColor] = useState('#000000');
+  const [customEmojiIndex, setCustomEmojiIndex] = useState(-1);
+  const [customColorIndex, setCustomColorIndex] = useState(-1);
+  const [emojiGrid, setEmojiGrid] = useState([...DEFAULT_EMOJIS]);
+  const [colorGrid, setColorGrid] = useState([...DEFAULT_COLORS]);
+
+  // Load saved customizations
+  useEffect(() => {
+    const loadCustomizations = async () => {
+      const customization = await getCardCustomization(cardId);
+      setEmojiGrid(customization.emojis);
+      setColorGrid(customization.colors);
+    };
+    loadCustomizations();
+  }, [cardId]);
 
   const handleEmojiSelected = ({ emoji }) => {
     setEmoji(emoji);
+    if (customEmojiIndex >= 0) {
+      const newEmojiGrid = [...emojiGrid];
+      newEmojiGrid[customEmojiIndex] = emoji;
+      setEmojiGrid(newEmojiGrid);
+      saveCardCustomization(cardId, newEmojiGrid, colorGrid);
+    }
     setShowEmojiPicker(false);
   };
 
   const handleColorSelected = ({ hex }) => {
     setCustomColor(hex);
+  };
+
+  const resetToDefaults = async () => {
+    await resetCardCustomization(cardId);
+    setEmoji(DEFAULT_EMOJI);
+    setCardColor(DEFAULT_COLOR);
+    setCustomEmojiIndex(-1);
+    setCustomColorIndex(-1);
+    setEmojiGrid([...DEFAULT_EMOJIS]);
+    setColorGrid([...DEFAULT_COLORS]);
   };
 
   const handleSave = () => {
@@ -63,32 +83,6 @@ const EditCardScreen = () => {
     });
     navigation.goBack();
   };
-
-  const colorGridButtons = COLOR_GRID.map((color, index) => (
-    <Button
-      key={color.name}
-      width="15%"
-      aspectRatio={1}
-      borderRadius={1000}
-      backgroundColor={color.value}
-      pressStyle={{ opacity: 0.8 }}
-      m={0}
-      p={0}
-      ai="center"
-      jc="center"
-      onPress={() => {
-        if (color.name === 'custom') {
-          setShowColorWheel(true);
-        } else {
-          setCardColor(color.name);
-        }
-      }}
-      borderWidth={cardColor === color.name || (color.name === 'custom' && cardColor.startsWith('#')) ? 2 : 0}
-      borderColor={Colors.dark.text}
-    >
-      {color.name === 'custom' && <PlusIcon size={16} color={Colors.dark.text} />}
-    </Button>
-  ));
 
   return (
     <View f={1} backgroundColor={Colors.dark.background}>
@@ -117,17 +111,6 @@ const EditCardScreen = () => {
                     }}
                   />
                 </View>
-                {/* <LinearGradient
-                  colors={['transparent', 'transparent', 'transparent', 'transparent', Colors.dark.background]}
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: 60,
-                  }}
-                  pointerEvents="none"
-                /> */}
               </View>
             </YStack>
 
@@ -151,19 +134,38 @@ const EditCardScreen = () => {
               />
             </YStack>
 
+            {/* Reset Button */}
+            <Button
+              backgroundColor={'transparent'}
+              pressStyle={{ opacity: 0.7, backgroundColor: 'transparent', borderWidth: 0 }}
+              onPress={resetToDefaults}
+              size="$3"
+              borderRadius={8}
+              flexDirection="row"
+              gap="$1"
+              mb="-$2"
+            >
+              <ArrowPathIcon size={16} color={Colors.dark.primary} />
+              <Text color={Colors.dark.primary} fontSize="$3" fontWeight="600">
+                Reset to Default
+              </Text>
+            </Button>
+
             {/* Emoji Grid */}
             <YStack gap="$2" width="100%">
               <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily={'$heading'}>
                 Card Icon
               </Text>
               <XStack width="100%" flexWrap="wrap" gap="$2" jc="space-between">
-                {INITIAL_EMOJIS.map((emojiItem, index) => (
+                {emojiGrid.map((emojiItem, index) => (
                   <Button
                     key={index}
                     width="15%"
                     aspectRatio={1}
                     borderRadius={12}
-                    backgroundColor={emoji === emojiItem ? Colors.dark.primary : Colors.dark.backgroundSecondary}
+                    backgroundColor={Colors.dark.backgroundSecondary}
+                    borderWidth={emoji === emojiItem ? 2 : 0}
+                    borderColor={Colors.dark.primary}
                     pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
                     onPress={() => setEmoji(emojiItem)}
                     p={0}
@@ -177,7 +179,11 @@ const EditCardScreen = () => {
                   borderRadius={12}
                   backgroundColor={Colors.dark.backgroundSecondary}
                   pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
-                  onPress={() => setShowEmojiPicker(true)}
+                  onPress={() => {
+                    const lastSelectedIndex = emojiGrid.indexOf(emoji);
+                    setCustomEmojiIndex(lastSelectedIndex >= 0 ? lastSelectedIndex : 0);
+                    setShowEmojiPicker(true);
+                  }}
                   p={0}
                   ai="center"
                   jc="center"
@@ -193,7 +199,42 @@ const EditCardScreen = () => {
                 Card Color
               </Text>
               <XStack width="100%" flexWrap="wrap" gap="$2" jc="space-between">
-                {colorGridButtons}
+                {colorGrid.map((color, index) => (
+                  <Button
+                    key={color.name}
+                    width="15%"
+                    aspectRatio={1}
+                    borderRadius={1000}
+                    backgroundColor={color.value}
+                    pressStyle={{ opacity: 0.8 }}
+                    m={0}
+                    p={0}
+                    ai="center"
+                    jc="center"
+                    onPress={() => {
+                      if (color.name === 'custom') {
+                        const lastSelectedIndex = colorGrid.findIndex((c) => c.value === cardColor);
+                        setCustomColorIndex(lastSelectedIndex >= 0 ? lastSelectedIndex : 0);
+                        setShowColorWheel(true);
+                      } else {
+                        setCardColor(color.value);
+                      }
+                    }}
+                    borderWidth={cardColor === color.value ? 2 : 0}
+                    borderColor={Colors.dark.primary}
+                  >
+                    <Circle
+                      position="absolute"
+                      top={0}
+                      left={0}
+                      right={0}
+                      bottom={0}
+                      borderWidth={cardColor === color.value ? 2 : 0}
+                      borderColor={Colors.dark.background}
+                    />
+                    {color.name === 'custom' && <PlusIcon size={16} color={Colors.dark.text} />}
+                  </Button>
+                ))}
               </XStack>
             </YStack>
           </YStack>
@@ -245,6 +286,12 @@ const EditCardScreen = () => {
               backgroundColor={Colors.dark.primary}
               pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
               onPress={() => {
+                if (customColorIndex >= 0) {
+                  const newColorGrid = [...colorGrid];
+                  newColorGrid[customColorIndex].value = customColor;
+                  setColorGrid(newColorGrid);
+                  saveCardCustomization(cardId, emojiGrid, newColorGrid);
+                }
                 setCardColor(customColor);
                 setShowColorWheel(false);
               }}
@@ -255,17 +302,6 @@ const EditCardScreen = () => {
                 Select
               </Text>
             </Button>
-            {/* <Button
-              backgroundColor={Colors.dark.backgroundTertiary}
-              pressStyle={{ backgroundColor: Colors.dark.backgroundSecondary }}
-              onPress={() => setShowColorWheel(false)}
-              size="$5"
-              borderRadius={15}
-            >
-              <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily={'$archivo'}>
-                Cancel
-              </Text>
-            </Button> */}
           </YStack>
         </YStack>
       </BottomSheet>

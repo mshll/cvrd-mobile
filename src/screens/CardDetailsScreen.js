@@ -8,17 +8,18 @@ import { useMemo, useState } from 'react';
 import { Edit3, Pause, PauseCircle, Play, Share2, Trash2 } from '@tamagui/lucide-icons';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
 import CardFlipComponent from '@/components/CardFlipComponent';
-import { PauseIcon, PencilIcon, PencilSquareIcon, PlayIcon, ShareIcon, TrashIcon } from 'react-native-heroicons/solid';
+import { PaintBrushIcon, PauseIcon, PencilIcon, PlayIcon, ShareIcon, TrashIcon } from 'react-native-heroicons/solid';
 import { CARD_WIDTH_LARGE, CARD_HEIGHT_LARGE } from '@/utils/cardUtils';
 import { formatCurrency } from '@/utils/utils';
 import { Paths } from '@/navigation/paths';
+import { ArrowUpOnSquareIcon } from 'react-native-heroicons/outline';
 
 const MAP_HEIGHT = 200;
 
 const ActionButton = ({ onPress, children }) => (
   <Button
-    width={55}
-    height={55}
+    width={60}
+    height={60}
     borderRadius={15}
     backgroundColor={Colors.dark.backgroundSecondary}
     pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
@@ -108,22 +109,22 @@ const CardDetailsScreen = () => {
         <XStack gap="$5" mt="$5" mb="$5">
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleEdit}>
-              <PencilIcon size={20} color={Colors.dark.text} />
+              <PaintBrushIcon size={25} color={Colors.dark.text} />
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleShare}>
-              <ShareIcon size={20} color={Colors.dark.text} />
+              <ArrowUpOnSquareIcon size={25} color={Colors.dark.text} />
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleTogglePause}>
-              {card.is_paused ? <PlayIcon size={20} color={Colors.dark.text} /> : <PauseIcon size={20} color={Colors.dark.text} />}
+              {card.is_paused ? <PlayIcon size={25} color={Colors.dark.text} /> : <PauseIcon size={25} color={Colors.dark.text} />}
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleDelete}>
-              <TrashIcon size={20} color={Colors.cards.pink} />
+              <TrashIcon size={25} color={Colors.cards.pink} />
             </ActionButton>
           </YStack>
         </XStack>
