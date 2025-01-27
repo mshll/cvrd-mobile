@@ -3,6 +3,7 @@ export const Paths = {
   HOME: 'Home',
   ACTIVITY: 'Activity',
   ADD_CARD: 'AddCard',
+  EDIT_CARD: 'EditCard',
   SUBSCRIPTIONS: 'Subscriptions',
   PROFILE: 'Profile',
   CARD_DETAILS: 'CardDetails',

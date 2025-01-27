@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import {
   useFonts,
   Inter_100Thin,
@@ -73,13 +74,15 @@ export default function App() {
         <TamaguiProvider config={tamaguiConfig}>
           <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
             <AuthProvider>
-              <StatusBar animated={true} barStyle="default" />
-              <NavigationContainer>
-                {/* <Navigation /> */}
-                <MainNav />
-                {/* <AuthNav /> */}
-              </NavigationContainer>
-              <Toast config={toastConfig} />
+              <BottomSheetModalProvider>
+                <StatusBar animated={true} barStyle="default" />
+                <NavigationContainer>
+                  {/* <Navigation /> */}
+                  <MainNav />
+                  {/* <AuthNav /> */}
+                </NavigationContainer>
+                <Toast config={toastConfig} />
+              </BottomSheetModalProvider>
             </AuthProvider>
           </Theme>
         </TamaguiProvider>

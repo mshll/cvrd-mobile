@@ -1,0 +1,17 @@
+export const user = {
+  id: 'user123',
+  name: 'Janna Almuqaisib',
+  email: 'janna.almuqaisib@gmail.com',
+  avatar: 'https://github.com/jannakam.png',
+  phone: '966555555555',
+  is_active: true,
+  is_verified: true,
+  is_deleted: false,
+  spend_today: 10,
+  spend_week: 10,
+  spend_month: 40,
+  spend_year: 100,
+  shared_with_me: 4,
+  created_at: '2024-01-15T10:00:00Z',
+  updated_at: '2024-01-15T10:00:00Z',
+};

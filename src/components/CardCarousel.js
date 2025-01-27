@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { View, StyleSheet, Pressable, Animated } from 'react-native';
+import { StyleSheet, Pressable, Animated } from 'react-native';
+import { View, XStack } from 'tamagui';
 import { FlashList } from '@shopify/flash-list';
 import { Colors } from '../config/colors';
 import { useColorScheme } from 'react-native';
@@ -81,14 +82,21 @@ function CardCarousel({ title, data, icon: Icon }) {
   );
 
   return (
-    <View style={styles.section}>
-      <View style={styles.header}>
+    <View w="100%" mb="$7" gap="$4">
+      {/* <View style={styles.header}>
         {Icon && <Icon size={18} color={colors.text} />}
         <Text fontSize="$4" fontWeight="600" fontFamily="$archivoBlack" color={colors.text} marginLeft={Icon ? 8 : 0}>
           {title}
         </Text>
-      </View>
-      <View style={[styles.carouselContainer, { height: CARD_HEIGHT }]}>
+      </View> */}
+      <XStack ai="center" mb="$2" gap="$2" px="$4">
+        {Icon && <Icon size={20} color={colors.text} />}
+        <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+          {title}
+        </Text>
+      </XStack>
+      {/* <View style={[styles.carouselContainer, { height: CARD_HEIGHT }]}> */}
+      <View w="100%" h={CARD_HEIGHT} ai="center">
         <AnimatedFlashList
           ref={flashListRef}
           data={data}
@@ -115,20 +123,6 @@ function CardCarousel({ title, data, icon: Icon }) {
 }
 
 const styles = StyleSheet.create({
-  section: {
-    width: '100%',
-    marginBottom: 58,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 16,
-  },
-  carouselContainer: {
-    alignItems: 'center',
-    width: WINDOW_WIDTH,
-  },
   contentContainer: {
     paddingHorizontal: SIDE_SPACING - SPACING,
   },

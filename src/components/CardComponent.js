@@ -50,32 +50,35 @@ const CardComponent = ({ cardId, displayData }) => {
       {/* Background Layer */}
       <View style={StyleSheet.absoluteFill}>
         <Image source={cardImg} style={styles.cardImage} resizeMode="cover" />
-        {(isPaused || isClosed) && (
-          <View style={[StyleSheet.absoluteFill, styles.statusOverlay]}>
-            <BlurView intensity={50} tint={blurTint} style={styles.statusBadge}>
-              {isPaused && <PauseCircleIcon size={20} color={textColor} />}
-              {isClosed && <XCircleIcon size={20} color={textColor} />}
-              <Text fontSize={14} color={textColor} marginLeft={8} fontWeight="600">
-                {isClosed ? 'Closed' : isPaused ? 'Paused' : ''}
-              </Text>
-            </BlurView>
-          </View>
-        )}
+        {isClosed && <View style={styles.closedOverlay} />}
       </View>
 
       {/* Content Layer */}
       <YStack style={styles.contentContainer}>
         {/* Top Row */}
-        <XStack style={styles.topRow}>
-          <BlurView intensity={20} tint={blurTint} style={styles.badge}>
-            <Text fontSize={14}>{emoji}</Text>
-            <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600" maxWidth={110} numberOfLines={1}>
-              {label}
-            </Text>
-          </BlurView>
+        <YStack gap={8}>
+          <XStack style={styles.topRow}>
+            <BlurView intensity={20} tint={blurTint} style={styles.badge}>
+              <Text fontSize={14}>{emoji}</Text>
+              <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600" maxWidth={110} numberOfLines={1}>
+                {label}
+              </Text>
+            </BlurView>
 
-          <View style={[styles.badge, { paddingHorizontal: 10, paddingVertical: 0, borderRadius: 10 }]}>{getCardIcon(type, textColor)}</View>
-        </XStack>
+            <View style={[styles.badge, { paddingHorizontal: 10, paddingVertical: 0, borderRadius: 10 }]}>{getCardIcon(type, textColor)}</View>
+          </XStack>
+
+          {/* Status Badges */}
+          {(isPaused || isClosed) && (
+            <BlurView intensity={20} tint={blurTint} style={[styles.badge, styles.statusBadge]}>
+              {isPaused && <PauseCircleIcon size={16} color={textColor} />}
+              {isClosed && <XCircleIcon size={16} color={textColor} />}
+              <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600">
+                {isClosed ? 'Closed' : isPaused ? 'Paused' : ''}
+              </Text>
+            </BlurView>
+          )}
+        </YStack>
 
         {/* Logo */}
         <View style={styles.logoContainer}>
@@ -119,7 +122,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   badge: {
-    borderRadius: 30,
+    borderRadius: 10,
     paddingVertical: 6,
     paddingHorizontal: 14,
     flexDirection: 'row',
@@ -127,19 +130,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  statusOverlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
-  },
   statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 30,
-    overflow: 'hidden',
+    alignSelf: 'flex-start',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
   },
   logoContainer: {
     position: 'absolute',
@@ -163,6 +157,11 @@ const styles = StyleSheet.create({
   visaLogo: {
     width: '100%',
     height: '100%',
+  },
+  closedOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1000,
+    backgroundColor: 'rgba(64, 64, 64, 0.5)',
   },
 });
 

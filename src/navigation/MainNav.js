@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Colors } from '@/config/colors';
 import { useColorScheme } from 'react-native';
 import AddCardScreen from '@/screens/AddCardScreen';
+import EditCardScreen from '@/screens/EditCardScreen';
 import { AnimatedTabBarNavigator } from '@/lib/react-native-animated-nav-tab-bar/dist/lib';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
@@ -63,8 +64,10 @@ const TabNavigator = () => {
         component={HomeStack} // Won't be shown
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Circle backgroundColor={Colors.dark.primary} padding={15} position="absolute" bw={'$1.5'} bc={Colors.dark.card}>
-              <PlusIcon color={Colors.dark.text} size={size + 10} />
+            <Circle backgroundColor={Colors.dark.card} padding={7} position="absolute">
+              <Circle backgroundColor={Colors.dark.primary} padding={15}>
+                <PlusIcon color={'black'} size={size + 10} />
+              </Circle>
             </Circle>
           ),
         }}
@@ -120,6 +123,7 @@ const MainNav = () => {
     >
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen name={Paths.ADD_CARD} component={AddCardScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name={Paths.EDIT_CARD} component={EditCardScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen
         name={Paths.CARD_DETAILS}
         component={CardDetailsScreen}

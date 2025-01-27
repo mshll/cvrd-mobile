@@ -1,7 +1,9 @@
-import { useMemo } from 'react';
-import { cards } from '@/data/cards';
+import { useMemo, useState } from 'react';
+import { cards as initialCards } from '@/data/cards';
 
 export function useCards() {
+  const [cards, setCards] = useState(initialCards);
+
   const cardsByType = useMemo(() => {
     return cards.reduce((acc, card) => {
       if (!acc[card.card_type]) {
@@ -10,7 +12,7 @@ export function useCards() {
       acc[card.card_type].push(card);
       return acc;
     }, {});
-  }, []);
+  }, [cards]);
 
   const getCardById = (id) => cards.find((card) => card.id === id);
 
@@ -27,11 +29,25 @@ export function useCards() {
 
   const getAllCardsDisplay = () => cards.map(getCardDisplayData);
 
+  const updateCard = (cardId, updatedData) => {
+    setCards((prevCards) =>
+      prevCards.map((card) =>
+        card.id === cardId
+          ? {
+              ...card,
+              ...updatedData,
+            }
+          : card
+      )
+    );
+  };
+
   return {
     cards,
     cardsByType,
     getCardById,
     getCardDisplayData,
     getAllCardsDisplay,
+    updateCard,
   };
 }

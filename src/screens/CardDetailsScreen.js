@@ -1,32 +1,26 @@
 import { View, ScrollView, YStack, Text, Separator, XStack, Button } from 'tamagui';
 import { StyleSheet } from 'react-native';
 import { Colors } from '@/config/colors';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import CardComponent from '@/components/CardComponent';
 import { useCards } from '@/hooks/useCards';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Edit3, Pause, PauseCircle, Play, Share2, Trash2 } from '@tamagui/lucide-icons';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
 import CardFlipComponent from '@/components/CardFlipComponent';
 import { PauseIcon, PencilIcon, PencilSquareIcon, PlayIcon, ShareIcon, TrashIcon } from 'react-native-heroicons/solid';
 import { CARD_WIDTH_LARGE, CARD_HEIGHT_LARGE } from '@/utils/cardUtils';
+import { formatCurrency } from '@/utils/utils';
+import { Paths } from '@/navigation/paths';
 
 const MAP_HEIGHT = 200;
-
-const formatCurrency = (amount) => {
-  const formatted = new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-  return `KD ${formatted}`;
-};
 
 const ActionButton = ({ onPress, children }) => (
   <Button
     width={55}
     height={55}
     borderRadius={15}
-    backgroundColor={Colors.dark.backgroundTertiary}
+    backgroundColor={Colors.dark.backgroundSecondary}
     pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
     onPress={onPress}
     alignItems="center"
@@ -80,8 +74,9 @@ const LocationMap = ({ latitude, longitude, radius, color }) => {
 
 const CardDetailsScreen = () => {
   const route = useRoute();
+  const navigation = useNavigation();
   const { cardId } = route.params;
-  const { getCardById } = useCards();
+  const { getCardById, updateCard } = useCards();
   const card = getCardById(cardId);
 
   const remainingPercentage = useMemo(() => {
@@ -89,7 +84,7 @@ const CardDetailsScreen = () => {
   }, [card.remaining_limit, card.spending_limit]);
 
   const handleEdit = () => {
-    // TODO: Implement edit functionality
+    navigation.navigate(Paths.EDIT_CARD, { cardId });
   };
 
   const handleShare = () => {
