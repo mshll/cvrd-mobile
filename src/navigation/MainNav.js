@@ -10,7 +10,13 @@ import { AnimatedTabBarNavigator } from '@/lib/react-native-animated-nav-tab-bar
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { useCards } from '@/hooks/useCards';
-import { WalletIcon, QueueListIcon, BellIcon, UserCircleIcon, PlusIcon } from 'react-native-heroicons/solid';
+import {
+  WalletIcon,
+  QueueListIcon,
+  BellIcon,
+  UserCircleIcon,
+  PlusIcon,
+} from 'react-native-heroicons/solid';
 import {
   WalletIcon as WalletIconOutline,
   QueueListIcon as QueueListIconOutline,
@@ -46,7 +52,11 @@ const TabNavigator = () => {
         component={HomeStack}
         options={{
           tabBarIcon: ({ color, size, focused }) => {
-            return focused ? <WalletIcon color={color} size={size} /> : <WalletIconOutline color={color} size={size} />;
+            return focused ? (
+              <WalletIcon color={color} size={size} />
+            ) : (
+              <WalletIconOutline color={color} size={size} />
+            );
           },
         }}
       />
@@ -55,7 +65,11 @@ const TabNavigator = () => {
         component={ActivityStack}
         options={{
           tabBarIcon: ({ color, size, focused }) => {
-            return focused ? <QueueListIcon color={color} size={size} /> : <QueueListIconOutline color={color} size={size} />;
+            return focused ? (
+              <QueueListIcon color={color} size={size} />
+            ) : (
+              <QueueListIconOutline color={color} size={size} />
+            );
           },
         }}
       />
@@ -90,7 +104,11 @@ const TabNavigator = () => {
         component={SubscriptionsStack}
         options={{
           tabBarIcon: ({ color, size, focused }) => {
-            return focused ? <BellIcon color={color} size={size} /> : <BellIconOutline color={color} size={size} />;
+            return focused ? (
+              <BellIcon color={color} size={size} />
+            ) : (
+              <BellIconOutline color={color} size={size} />
+            );
           },
         }}
       />
@@ -99,7 +117,11 @@ const TabNavigator = () => {
         component={ProfileStack}
         options={{
           tabBarIcon: ({ color, size, focused }) => {
-            return focused ? <UserCircleIcon color={color} size={size} /> : <UserCircleIconOutline color={color} size={size} />;
+            return focused ? (
+              <UserCircleIcon color={color} size={size} />
+            ) : (
+              <UserCircleIconOutline color={color} size={size} />
+            );
           },
         }}
       />
@@ -126,8 +148,16 @@ const MainNav = () => {
       }}
     >
       <Stack.Screen name="Main" component={TabNavigator} />
-      <Stack.Screen name={Paths.ADD_CARD} component={AddCardScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name={Paths.EDIT_CARD} component={EditCardScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen
+        name={Paths.ADD_CARD}
+        component={AddCardScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name={Paths.EDIT_CARD}
+        component={EditCardScreen}
+        options={{ presentation: 'modal' }}
+      />
       <Stack.Screen
         name={Paths.CARD_DETAILS}
         component={CardDetailsScreen}
