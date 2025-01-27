@@ -1,142 +1,369 @@
 import { Colors } from '@/config/colors';
-import { StatusBar } from 'expo-status-bar';
-import { View, Text, YStack } from 'tamagui';
-import Animated, { useAnimatedStyle, interpolate, useSharedValue, withTiming } from 'react-native-reanimated';
-import { Image, Dimensions, Pressable, Platform } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
-import { useCallback } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { Paths } from '@/navigation/paths';
+import { View, Text, Input, XStack, YStack, Button } from 'tamagui';
+import { useState, useCallback, useEffect } from 'react';
+import { Search, ArrowDown, ArrowUp } from '@tamagui/lucide-icons';
+import { StyleSheet, SectionList } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import TransactionCard, { LoadingSkeleton } from '../components/TransactionCard';
 
-const window = Dimensions.get('window');
-const WINDOW_WIDTH = window.width;
-const WINDOW_HEIGHT = window.height;
-const CARD_ASPECT_RATIO = 1.586;
-const CARD_WIDTH = Math.round(WINDOW_WIDTH * 0.6);
-const CARD_HEIGHT = Math.round(CARD_WIDTH * CARD_ASPECT_RATIO);
+// This would typically come from an API client file
+const API = {
+  fetchTransactions: async ({ page = 1, filters = {} } = {}) => {
+    // Simulate API call with dummy data
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          data: DUMMY_TRANSACTIONS,
+          meta: {
+            total: DUMMY_TRANSACTIONS.length,
+            page: 1,
+            hasMore: false
+          }
+        });
+      }, 1000);
+    });
+  }
+};
 
-const CARD_OFFSET = 100;
-const TOP_PADDING = Platform.OS === 'ios' ? 120 : 100;
-const BOTTOM_PADDING = 120;
-const HEADER_HEIGHT = 100;
-const SEPARATION_OFFSET = WINDOW_HEIGHT / 3;
+const SORT_STATES = {
+  DATE: 'date',
+  AMOUNT: 'amount'
+};
 
-const DUMMY_DATA = Array(20)
-  .fill(null)
-  .map((_, index) => ({
-    id: `card${index}`,
-    image: require('../../assets/cards/card1-front.png'),
-  }));
+const FILTER_STATES = {
+  ALL: 'all',
+  SETTLED: 'Settled',
+  DECLINED: 'Declined'
+};
 
-const CreditCard = ({ item, index, scrollY, totalLength, onPress }) => {
-  const animatedStyle = useAnimatedStyle(() => {
-    const inputRange = [
-      Math.max(0, (index - 2) * CARD_OFFSET - SEPARATION_OFFSET),
-      Math.max(0, (index - 1) * CARD_OFFSET - SEPARATION_OFFSET),
-      Math.max(0, index * CARD_OFFSET - SEPARATION_OFFSET),
-    ];
-    const translateY = interpolate(scrollY.value, inputRange, [0, 0, -CARD_OFFSET], 'clamp');
+// Update the dummy data to include different months
+const DUMMY_TRANSACTIONS = [
+  // March Transactions
+  {
+    id: '1',
+    name: 'Entertainment',
+    cardType: 'Category',
+    amount: 20,
+    date: '2024-03-10T14:35:00',
+    displayDate: 'Mar 10, 02:35 PM',
+    status: 'Settled',
+    emoji: '🎬',
+    color: 'pink'
+  },
+  {
+    id: '2',
+    name: 'Streaming',
+    cardType: 'Merchant',
+    amount: 15,
+    date: '2024-03-08T14:34:00',
+    displayDate: 'Mar 08, 02:34 PM',
+    status: 'Declined',
+    emoji: '📺',
+    color: 'blue'
+  },
+  // February Transactions
+  {
+    id: '3',
+    name: 'Shopping',
+    cardType: 'Category',
+    amount: 150,
+    date: '2024-02-28T11:20:00',
+    displayDate: 'Feb 28, 11:20 AM',
+    status: 'Settled',
+    emoji: '🛍️',
+    color: 'green'
+  },
+  {
+    id: '4',
+    name: 'Coffee Shop',
+    cardType: 'Location',
+    amount: 8,
+    date: '2024-02-15T09:45:00',
+    displayDate: 'Feb 15, 09:45 AM',
+    status: 'Settled',
+    emoji: '☕',
+    color: 'yellow'
+  },
+  // January Transactions
+  {
+    id: '5',
+    name: 'Travel Card',
+    cardType: 'Burner',
+    amount: 500,
+    date: '2024-01-20T16:30:00',
+    displayDate: 'Jan 20, 04:30 PM',
+    status: 'Settled',
+    emoji: '✈️',
+    color: 'pink'
+  },
+  {
+    id: '6',
+    name: 'Restaurant',
+    cardType: 'Location',
+    amount: 45,
+    date: '2024-01-15T20:15:00',
+    displayDate: 'Jan 15, 08:15 PM',
+    status: 'Declined',
+    emoji: '🍽️',
+    color: 'blue'
+  }
+].concat(
+  // Additional random transactions for March
+  Array(4).fill(null).map((_, index) => ({
+    id: String(index + 7),
+    name: `Card ${index + 1}`,
+    cardType: ['Category', 'Merchant', 'Burner', 'Location'][index % 4],
+    amount: 12 + index,
+    date: `2024-03-${5 - index}T${14 - index}:35:00`,
+    displayDate: `Mar ${5 - index}, ${14 - index}:35 PM`,
+    status: index % 3 === 0 ? 'Declined' : 'Settled',
+    emoji: ['🎬', '🛍️', '🔥', '📍'][index % 4],
+    color: ['pink', 'green', 'blue', 'yellow'][index % 4]
+  }))
+);
 
-    // Create a smooth initial scroll transition
-    const initialScrollProgress = interpolate(scrollY.value, [0, CARD_OFFSET], [0, 1], 'clamp');
+// Update the grouping function to return data in SectionList format
+const groupTransactionsByMonth = (transactions) => {
+  const groups = transactions.reduce((acc, transaction) => {
+    const date = new Date(transaction.date);
+    const monthYear = date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    
+    if (!acc[monthYear]) {
+      acc[monthYear] = [];
+    }
+    acc[monthYear].push(transaction);
+    return acc;
+  }, {});
 
-    return {
-      transform: [{ translateY: translateY * initialScrollProgress }],
-      zIndex: totalLength - index,
-    };
-  });
-
-  return (
-    <Pressable
-      onPress={() => onPress(item, index)}
-      style={{
-        position: 'absolute',
-        width: CARD_WIDTH,
-        height: CARD_HEIGHT,
-        top: index * CARD_OFFSET,
-      }}
-    >
-      <Animated.View
-        sharedTransitionTag={`card-${item.id}`}
-        style={[
-          {
-            width: '100%',
-            height: '100%',
-            borderRadius: 20,
-            elevation: 5,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            backgroundColor: Colors.dark.background,
-          },
-          animatedStyle,
-        ]}
-      >
-        <Image
-          source={item.image}
-          style={{
-            width: '100%',
-            height: '100%',
-            borderRadius: 20,
-            resizeMode: 'cover',
-          }}
-        />
-      </Animated.View>
-    </Pressable>
-  );
+  // Convert to SectionList format and sort
+  return Object.entries(groups)
+    .sort(([monthA], [monthB]) => {
+      const dateA = new Date(monthA);
+      const dateB = new Date(monthB);
+      return dateB - dateA;
+    })
+    .map(([month, data]) => ({
+      title: month,
+      data
+    }));
 };
 
 const ActivityScreen = () => {
-  const navigation = useNavigation();
-  const scrollY = useSharedValue(0);
+  const insets = useSafeAreaInsets();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateSort, setDateSort] = useState('desc');
+  const [amountSort, setAmountSort] = useState(null);
+  const [statusFilter, setStatusFilter] = useState(FILTER_STATES.ALL);
+  const [transactions, setTransactions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleScroll = useCallback((event) => {
-    scrollY.value = event.nativeEvent.contentOffset.y;
+  const applyFilters = useCallback((data) => {
+    let filteredData = [...data];
+
+    // Apply search filter
+    if (searchQuery) {
+      filteredData = filteredData.filter(transaction =>
+        transaction.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter !== FILTER_STATES.ALL) {
+      filteredData = filteredData.filter(transaction => transaction.status === statusFilter);
+    }
+
+    // Apply sorting
+    if (amountSort) {
+      filteredData.sort((a, b) => {
+        const comparison = a.amount - b.amount;
+        return amountSort === 'desc' ? -comparison : comparison;
+      });
+    } else {
+      // Default to date sorting if amount sort is not active
+      filteredData.sort((a, b) => {
+        const comparison = new Date(a.date) - new Date(b.date);
+        return dateSort === 'desc' ? -comparison : comparison;
+      });
+    }
+
+    return filteredData;
+  }, [searchQuery, dateSort, amountSort, statusFilter]);
+
+  // Fetch transactions whenever filters change
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await API.fetchTransactions();
+        const filteredData = applyFilters(response.data);
+        setTransactions(filteredData);
+      } catch (err) {
+        setError('Failed to load transactions');
+        console.error('Error fetching transactions:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [applyFilters]);
+
+  const toggleDateSort = useCallback(() => {
+    setDateSort(prev => prev === 'desc' ? 'asc' : 'desc');
+    setAmountSort(null);
   }, []);
 
-  const handleCardPress = useCallback(
-    (card, index) => {
-      navigation.navigate(Paths.CARD_DETAILS, { card, index });
-    },
-    [navigation]
-  );
+  const toggleAmountSort = useCallback(() => {
+    setAmountSort(prev => {
+      if (!prev || prev === 'asc') return 'desc';
+      return 'asc';
+    });
+  }, []);
 
-  const contentHeight = CARD_OFFSET * (DUMMY_DATA.length - 1) + CARD_HEIGHT + TOP_PADDING + BOTTOM_PADDING;
+  const toggleStatusFilter = useCallback(() => {
+    setStatusFilter(prev => {
+      if (prev === FILTER_STATES.ALL || prev === FILTER_STATES.DECLINED) return FILTER_STATES.SETTLED;
+      return FILTER_STATES.DECLINED;
+    });
+  }, []);
 
   return (
     <View f={1} bg={Colors.dark.background}>
-      <YStack f={1} ai="center">
-        <View f={1} w="100%" ai="center">
-          <View width={CARD_WIDTH} height={WINDOW_HEIGHT}>
-            <ScrollView
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
-              contentContainerStyle={{
-                height: contentHeight,
-                paddingTop: TOP_PADDING,
-                paddingBottom: BOTTOM_PADDING,
-                marginTop: HEADER_HEIGHT + 10,
-              }}
-              showsVerticalScrollIndicator={false}
+      <YStack pt={insets.top - 30} px={16} space={16}>
+        <XStack space={8}>
+          <XStack
+            f={1}
+            br={8}
+            backgroundColor={Colors.dark.backgroundSecondary}
+            ai="center"
+            px={12}
+          >
+            <Search size={20} color={Colors.dark.textSecondary} />
+            <Input
+              f={1}
+              placeholder="Search"
+              placeholderTextColor={Colors.dark.textSecondary}
+              color={Colors.dark.text}
+              borderWidth={0}
+              backgroundColor="transparent"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </XStack>
+          
+          <Button
+            backgroundColor={Colors.dark.backgroundSecondary}
+            br={8}
+            p={12}
+            onPress={toggleDateSort}
+          >
+            {dateSort === 'desc' ? (
+              <ArrowDown size={20} color={Colors.dark.text} />
+            ) : (
+              <ArrowUp size={20} color={Colors.dark.text} />
+            )}
+          </Button>
+        </XStack>
+
+        <XStack gap={8}>
+          <Button
+            f={1}
+            backgroundColor={statusFilter === FILTER_STATES.ALL && !amountSort ? Colors.dark.primary : Colors.dark.backgroundSecondary}
+            br={20}
+            px={12}
+            py={6}
+            onPress={() => {
+              setStatusFilter(FILTER_STATES.ALL);
+              setAmountSort(null);
+            }}
+          >
+            <Text
+              color={statusFilter === FILTER_STATES.ALL && !amountSort ? Colors.dark.text : Colors.dark.textSecondary}
+              fontSize={14}
             >
-              {DUMMY_DATA.map((item, index) => (
-                <CreditCard
-                  key={`${item.id}-${index}`}
-                  item={item}
-                  index={index}
-                  scrollY={scrollY}
-                  totalLength={DUMMY_DATA.length}
-                  onPress={handleCardPress}
-                />
-              ))}
-            </ScrollView>
-          </View>
-        </View>
+              All
+            </Text>
+          </Button>
+
+          <Button
+            f={1}
+            backgroundColor={amountSort ? Colors.dark.primary : Colors.dark.backgroundSecondary}
+            br={20}
+            px={12}
+            py={6}
+            onPress={toggleAmountSort}
+          >
+            <Text
+              color={amountSort ? Colors.dark.text : Colors.dark.textSecondary}
+              fontSize={14}
+            >
+              {!amountSort ? 'Amount' : amountSort === 'desc' ? 'Lowest' : 'Highest'}
+            </Text>
+          </Button>
+
+          <Button
+            f={1}
+            backgroundColor={statusFilter !== FILTER_STATES.ALL ? Colors.dark.primary : Colors.dark.backgroundSecondary}
+            br={20}
+            px={12}
+            py={6}
+            onPress={toggleStatusFilter}
+          >
+            <Text
+              color={statusFilter !== FILTER_STATES.ALL ? Colors.dark.text : Colors.dark.textSecondary}
+              fontSize={14}
+            >
+              {statusFilter === FILTER_STATES.ALL ? 'Status' : statusFilter === FILTER_STATES.SETTLED ? 'Declined' : 'Settled'}
+            </Text>
+          </Button>
+        </XStack>
       </YStack>
-      <StatusBar style="light" />
+
+      <View style={styles.listContainer}>
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : error ? (
+          <Text color={Colors.dark.primary} ta="center" mt={20}>{error}</Text>
+        ) : transactions.length === 0 ? (
+          <Text color={Colors.dark.textSecondary} ta="center" mt={20}>No transactions found</Text>
+        ) : (
+          <SectionList
+            sections={groupTransactionsByMonth(transactions)}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <TransactionCard transaction={item} />}
+            renderSectionHeader={({ section: { title } }) => (
+              <View style={styles.sectionHeader} backgroundColor={Colors.dark.background}>
+                <Text color={Colors.dark.textSecondary} fontSize={16} fontWeight="500">
+                  {title}
+                </Text>
+              </View>
+            )}
+            stickySectionHeadersEnabled={true}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.content}
+          />
+        )}
+      </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  listContainer: {
+    flex: 1,
+    marginTop: 10,
+    marginBottom: 90,
+  },
+  sectionHeader: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  content: {
+    paddingHorizontal: 20,
+  },
+});
 
 export default ActivityScreen;
