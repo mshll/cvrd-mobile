@@ -32,6 +32,7 @@ import {
 import MainNav from '@/navigation/MainNav';
 import AuthNav from '@/navigation/AuthNav';
 import { AuthProvider, useAuthContext } from '@/context/AuthContext';
+import { BreadcrumbProvider } from '@/context/BreadcrumbContext';
 import toastConfig from '@/config/toastConfig';
 
 const queryClient = new QueryClient();
@@ -74,15 +75,17 @@ export default function App() {
         <TamaguiProvider config={tamaguiConfig}>
           <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
             <AuthProvider>
-              <BottomSheetModalProvider>
-                <StatusBar animated={true} barStyle="default" />
-                <NavigationContainer>
-                  {/* <Navigation /> */}
-                  <MainNav />
-                  {/* <AuthNav /> */}
-                </NavigationContainer>
-                <Toast config={toastConfig} />
-              </BottomSheetModalProvider>
+              <BreadcrumbProvider>
+                <BottomSheetModalProvider>
+                  <StatusBar animated={true} barStyle="default" />
+                  <NavigationContainer>
+                    {/* <Navigation /> */}
+                    <MainNav />
+                    {/* <AuthNav /> */}
+                  </NavigationContainer>
+                  <Toast config={toastConfig} />
+                </BottomSheetModalProvider>
+              </BreadcrumbProvider>
             </AuthProvider>
           </Theme>
         </TamaguiProvider>

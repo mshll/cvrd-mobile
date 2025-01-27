@@ -9,6 +9,7 @@ import { Image } from 'react-native';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { TransitionPresets } from '@react-navigation/stack';
 import AddCardScreen from '@/screens/AddCardScreen';
+import CardConfigScreen from '@/screens/CardConfigScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -56,6 +57,14 @@ export const HomeStack = () => {
         }}
       />
       <Stack.Screen
+        name={Paths.CARD_CONFIG_SCREEN}
+        component={CardConfigScreen}
+        options={{
+          headerShown: false,
+          animationEnabled: false,
+        }}
+      />
+      <Stack.Screen
         name={Paths.CARD_DETAILS}
         component={CardDetailsScreen}
         options={{
@@ -72,7 +81,16 @@ export const HomeStack = () => {
 export const ActivityStack = () => {
   return (
     <Stack.Navigator screenOptions={defaultScreenOptions}>
-      <Stack.Screen name={Paths.ACTIVITY_SCREEN} component={ActivityScreen} />
+      <Stack.Screen
+      options={{
+        headerTitle: () => (
+          <Image
+            source={require('@/../assets/logo-primary.png')}
+            style={{ height: 24, resizeMode: 'contain' }}
+          />
+        ),
+      }}
+      name={Paths.ACTIVITY_SCREEN} component={ActivityScreen} />
     </Stack.Navigator>
   );
 };
