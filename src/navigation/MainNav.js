@@ -74,10 +74,14 @@ const TabNavigator = () => {
         listeners={({ navigation }) => ({
           tabPress: (e) => {
             e.preventDefault();
-            navigation.navigate(Paths.ADD_CARD);
+            navigation.navigate(Paths.HOME, {
+              screen: Paths.ADD_CARD_SCREEN,
+            });
           },
           tabLongPress: () => {
-            navigation.navigate(Paths.ADD_CARD);
+            navigation.navigate(Paths.HOME, {
+              screen: Paths.ADD_CARD_SCREEN,
+            });
           },
         })}
       />

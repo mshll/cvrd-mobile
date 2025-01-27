@@ -8,6 +8,7 @@ import { Colors } from '@/config/colors';
 import { Image } from 'react-native';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { TransitionPresets } from '@react-navigation/stack';
+import AddCardScreen from '@/screens/AddCardScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,7 +35,7 @@ export const HomeStack = () => {
       }}
     >
       <Stack.Screen
-        name={Paths.HOME}
+        name={Paths.HOME_SCREEN}
         component={HomeScreen}
         options={{
           headerTitle: () => <Image source={require('@/../assets/logo-primary.png')} style={{ height: 24, resizeMode: 'contain' }} />,
@@ -47,7 +48,7 @@ export const HomeStack = () => {
 export const ActivityStack = () => {
   return (
     <Stack.Navigator screenOptions={defaultScreenOptions}>
-      <Stack.Screen name={Paths.ACTIVITY} component={ActivityScreen} />
+      <Stack.Screen name={Paths.ACTIVITY_SCREEN} component={ActivityScreen} />
     </Stack.Navigator>
   );
 };
@@ -55,7 +56,7 @@ export const ActivityStack = () => {
 export const ProfileStack = () => {
   return (
     <Stack.Navigator screenOptions={defaultScreenOptions}>
-      <Stack.Screen name={Paths.PROFILE} component={ProfileScreen} />
+      <Stack.Screen name={Paths.PROFILE_SCREEN} component={ProfileScreen} />
     </Stack.Navigator>
   );
 };
@@ -63,7 +64,7 @@ export const ProfileStack = () => {
 export const SubscriptionsStack = () => {
   return (
     <Stack.Navigator screenOptions={defaultScreenOptions}>
-      <Stack.Screen name={Paths.SUBSCRIPTIONS} component={SubscriptionsScreen} />
+      <Stack.Screen name={Paths.SUBSCRIPTIONS_SCREEN} component={SubscriptionsScreen} />
     </Stack.Navigator>
   );
 };
