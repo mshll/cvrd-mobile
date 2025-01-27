@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Dimensions, View, StyleSheet, Pressable, Animated } from 'react-native';
+import { StyleSheet, Pressable, Animated } from 'react-native';
+import { View, XStack } from 'tamagui';
 import { FlashList } from '@shopify/flash-list';
 import { Colors } from '../config/colors';
 import { useColorScheme } from 'react-native';
@@ -7,16 +8,11 @@ import { useNavigation } from '@react-navigation/native';
 import { Paths } from '../navigation/paths';
 import { Text } from 'tamagui';
 import CardComponent from './CardComponent';
+import { WINDOW_WIDTH, CARD_WIDTH, CARD_HEIGHT } from '@/utils/cardUtils';
 
-const window = Dimensions.get('window');
-const WINDOW_WIDTH = window.width;
-const CARD_ASPECT_RATIO = 1630 / 1024;
-const CARD_WIDTH = Math.round(WINDOW_WIDTH * 0.6);
-const CARD_HEIGHT = Math.round(CARD_WIDTH * CARD_ASPECT_RATIO);
 const SPACING = 2;
 const ITEM_WIDTH = CARD_WIDTH + SPACING * 2;
 const SIDE_SPACING = (WINDOW_WIDTH - CARD_WIDTH) / 2;
-const SNAP_OFFSET = SIDE_SPACING - SPACING;
 
 const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
 
@@ -30,33 +26,35 @@ function CardCarousel({ title, data, icon: Icon }) {
   const handleCardPress = React.useCallback(
     (item, index) => {
       navigation.navigate(Paths.CARD_DETAILS, {
-        card: item,
-        index,
+        cardId: item.id,
       });
     },
     [navigation]
   );
 
-  const getItemType = React.useCallback(() => {
-    return 'card';
-  }, []);
-
   const onScrollEnd = React.useCallback((event) => {
     const position = event.nativeEvent.contentOffset.x;
-    const index = Math.round((position - SNAP_OFFSET) / ITEM_WIDTH);
+    const index = Math.round(position / ITEM_WIDTH);
 
     if (flashListRef.current) {
-      flashListRef.current.scrollToIndex({
-        index,
-        animated: true,
-        viewPosition: 0.5,
-      });
+      if (index === 0 && position < ITEM_WIDTH / 2) {
+        flashListRef.current.scrollToOffset({
+          offset: 0,
+          animated: true,
+        });
+      } else {
+        flashListRef.current.scrollToIndex({
+          index: Math.max(0, index),
+          animated: true,
+          viewPosition: 0.5,
+        });
+      }
     }
   }, []);
 
   const renderItem = React.useCallback(
     ({ item, index }) => {
-      const inputRange = [(index - 1) * ITEM_WIDTH + SNAP_OFFSET, index * ITEM_WIDTH + SNAP_OFFSET, (index + 1) * ITEM_WIDTH + SNAP_OFFSET];
+      const inputRange = [(index - 1) * ITEM_WIDTH, index * ITEM_WIDTH, (index + 1) * ITEM_WIDTH];
 
       const scale = scrollX.interpolate({
         inputRange,
@@ -75,7 +73,7 @@ function CardCarousel({ title, data, icon: Icon }) {
               },
             ]}
           >
-            <CardComponent type={item.type} label={item.label} emoji={item.emoji} lastFourDigits={item.lastFourDigits} color={item.backgroundColor} />
+            <CardComponent displayData={item} />
           </Animated.View>
         </Pressable>
       );
@@ -84,14 +82,21 @@ function CardCarousel({ title, data, icon: Icon }) {
   );
 
   return (
-    <View style={styles.section}>
-      <View style={styles.header}>
+    <View w="100%" mb="$7" gap="$4">
+      {/* <View style={styles.header}>
         {Icon && <Icon size={18} color={colors.text} />}
-        <Text fontSize="$3" fontWeight="700" color={colors.text} marginLeft={Icon ? 6 : 0}>
+        <Text fontSize="$4" fontWeight="600" fontFamily="$archivoBlack" color={colors.text} marginLeft={Icon ? 8 : 0}>
           {title}
         </Text>
-      </View>
-      <View style={[styles.carouselContainer, { height: CARD_HEIGHT }]}>
+      </View> */}
+      <XStack ai="center" mb="$2" gap="$2" px="$4">
+        {Icon && <Icon size={20} color={colors.text} />}
+        <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+          {title}
+        </Text>
+      </XStack>
+      {/* <View style={[styles.carouselContainer, { height: CARD_HEIGHT }]}> */}
+      <View w="100%" h={CARD_HEIGHT} ai="center">
         <AnimatedFlashList
           ref={flashListRef}
           data={data}
@@ -99,13 +104,12 @@ function CardCarousel({ title, data, icon: Icon }) {
           horizontal
           showsHorizontalScrollIndicator={false}
           snapToInterval={ITEM_WIDTH}
-          decelerationRate="fast"
+          decelerationRate={'fast'}
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: true })}
           onMomentumScrollEnd={onScrollEnd}
           contentContainerStyle={styles.contentContainer}
           estimatedItemSize={ITEM_WIDTH}
           estimatedListSize={{ width: WINDOW_WIDTH, height: CARD_HEIGHT }}
-          getItemType={getItemType}
           drawDistance={ITEM_WIDTH * 2}
           overrideItemLayout={(layout, item, index) => {
             layout.size = ITEM_WIDTH;
@@ -119,22 +123,8 @@ function CardCarousel({ title, data, icon: Icon }) {
 }
 
 const styles = StyleSheet.create({
-  section: {
-    width: '100%',
-    marginBottom: 48,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 16,
-  },
-  carouselContainer: {
-    alignItems: 'center',
-    width: WINDOW_WIDTH,
-  },
   contentContainer: {
-    paddingHorizontal: SNAP_OFFSET,
+    paddingHorizontal: SIDE_SPACING - SPACING,
   },
   cardContainer: {
     width: CARD_WIDTH,

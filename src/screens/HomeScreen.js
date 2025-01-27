@@ -1,108 +1,290 @@
 import * as React from 'react';
-import { StyleSheet, ScrollView } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Colors } from '../config/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import CardCarousel from '../components/CardCarousel';
-import { Store, Tag, MapPin, Flame } from '@tamagui/lucide-icons';
-import CardComponent from '@/components/CardComponent';
+import {
+  BuildingStorefrontIcon,
+  FireIcon,
+  MapPinIcon,
+  TagIcon,
+  ArrowsUpDownIcon,
+  AdjustmentsHorizontalIcon,
+  BanknotesIcon,
+  CreditCardIcon,
+  PauseIcon,
+  XCircleIcon,
+  ShareIcon,
+} from 'react-native-heroicons/solid';
+import { useCards } from '@/hooks/useCards';
+import { useSectionOrder } from '@/hooks/useSectionOrder';
+import { ScrollView, View, Button, XStack, Text, YStack, Spinner, Card, Avatar } from 'tamagui';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import DraggableList from '@/components/DraggableList';
+import { BlurView } from 'expo-blur';
+import { user } from '@/data/user';
+import { formatCurrency } from '@/utils/utils';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { Platform, StyleSheet } from 'react-native';
+import { FullWindowOverlay } from 'react-native-screens';
+import BottomSheet from '@/components/BottomSheet';
 
-const CARD_TYPES = ['Merchant', 'Category', 'Location', 'Burner'];
-const CARD_COLORS = ['pink', 'green', 'blue', 'yellow'];
+// ============================================================================
+// Constants & Config
+// ============================================================================
 
-// Labels and emojis for different card purposes
-const CARD_LABELS = {
-  Food: ['🍕', '🍔', '🍜', '🥗', '🍣'],
-  Travel: ['✈️', '🚆', '🏨', '🗺️', '🌎'],
-  Shopping: ['🛍️', '👕', '👟', '💄', '🎮'],
-  Entertainment: ['🎬', '🎭', '🎪', '🎨', '🎮'],
-  Health: ['💊', '🏥', '🧘‍♀️', '🚑', '⚕️'],
-  Education: ['📚', '🎓', '✏️', '🔬', '📝'],
-  Tech: ['💻', '📱', '🖥️', '🎧', '⌚'],
-  Sports: ['⚽', '🏀', '🎾', '🏃‍♂️', '🚴‍♀️'],
-};
-
-const generateRandomCard = () => {
-  // Get random label category and its emoji
-  const categories = Object.keys(CARD_LABELS);
-  const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-  const emojis = CARD_LABELS[randomCategory];
-  const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-
-  return {
-    id: Math.random().toString(36).substring(7),
-    type: CARD_TYPES[Math.floor(Math.random() * CARD_TYPES.length)],
-    backgroundColor: CARD_COLORS[Math.floor(Math.random() * CARD_COLORS.length)],
-    lastFourDigits: Math.floor(1000 + Math.random() * 9000).toString(),
-    label: randomCategory,
-    emoji: randomEmoji,
-  };
-};
-
-const DUMMY_DATA = Array(30)
-  .fill(null)
-  .map(() => generateRandomCard());
-
-const SECTIONS = [
-  {
+const SECTION_CONFIG = {
+  merchant: {
+    id: 'merchant',
     title: 'Merchant Locked Cards',
-    data: DUMMY_DATA.filter((card) => card.type === 'Merchant'),
-    icon: Store,
+    icon: BuildingStorefrontIcon,
   },
-  {
+  category: {
+    id: 'category',
     title: 'Category Locked Cards',
-    data: DUMMY_DATA.filter((card) => card.type === 'Category'),
-    icon: Tag,
+    icon: TagIcon,
   },
-  {
+  location: {
+    id: 'location',
     title: 'Location Locked Cards',
-    data: DUMMY_DATA.filter((card) => card.type === 'Location'),
-    icon: MapPin,
+    icon: MapPinIcon,
   },
-  {
+  burner: {
+    id: 'burner',
     title: 'Burner Cards',
-    data: DUMMY_DATA.filter((card) => card.type === 'Burner'),
-    icon: Flame,
+    icon: FireIcon,
   },
-];
+};
 
-function HomeScreen() {
-  const colorScheme = useColorScheme();
-  const insets = useSafeAreaInsets();
-  const colors = Colors[colorScheme || 'light'];
+// ============================================================================
+// Utility Components
+// ============================================================================
+
+function StatCard({ icon: Icon, iconColor, label, value, dotColor }) {
+  return (
+    <Card f={1} bg={Colors.dark.backgroundSecondary} p="$4" br="$5" gap="$1">
+      <XStack ai="center" gap="$2" mb="$1">
+        {dotColor ? <View w={12} h={12} br="$6" bg={dotColor} /> : <Icon size={12} color={iconColor} />}
+        <Text color={Colors.dark.textSecondary} fontSize="$3">
+          {label}
+        </Text>
+      </XStack>
+      <Text color={Colors.dark.text} fontSize="$5" fontWeight="700">
+        {value}
+      </Text>
+    </Card>
+  );
+}
+
+// ============================================================================
+// Feature Components
+// ============================================================================
+
+function UserGreeting() {
+  return (
+    <XStack ai="center" mb="$2" gap="$3">
+      {/* <Avatar circular size="$6">
+        <Avatar.Image source={{ uri: user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random` }} />
+        <Avatar.Fallback backgroundColor={Colors.dark.backgroundSecondary} />
+      </Avatar>
+      <XStack>
+        <Text color={Colors.dark.text} fontSize="$7" fontFamily="$archivoBlack">
+          Hi,{' '}
+        </Text>
+        <Text color={Colors.dark.primary} fontSize="$7" fontFamily="$archivoBlack">
+          {user.name.split(' ')[0]}
+        </Text>
+      </XStack> */}
+    </XStack>
+  );
+}
+
+function SpendingStats() {
+  return (
+    <YStack gap="$3">
+      <XStack ai="center" mb="$2" gap="$2">
+        <BanknotesIcon size={20} color={Colors.dark.text} />
+        <Text color={Colors.dark.text} fontSize="$4" fontFamily="$archivoBlack">
+          Spend
+        </Text>
+      </XStack>
+      <XStack gap="$3">
+        <Card f={1} bg={Colors.dark.backgroundSecondary} p="$4" br="$5">
+          <Text color={Colors.dark.textSecondary} fontSize="$3" mb="$2">
+            Today
+          </Text>
+          <Text color={Colors.dark.text} fontSize="$5" fontWeight="700">
+            {formatCurrency(user.spend_today)}
+          </Text>
+        </Card>
+        <Card f={1} bg={Colors.dark.backgroundSecondary} p="$4" br="$5">
+          <Text color={Colors.dark.textSecondary} fontSize="$3" mb="$2">
+            This Month
+          </Text>
+          <Text color={Colors.dark.text} fontSize="$5" fontWeight="700">
+            {formatCurrency(user.spend_month)}
+          </Text>
+        </Card>
+      </XStack>
+    </YStack>
+  );
+}
+
+function CardStats() {
+  const { cards } = useCards();
+
+  const stats = useMemo(() => {
+    return cards.reduce(
+      (acc, card) => {
+        if (!card.is_closed && !card.is_paused) acc.active++;
+        if (card.is_paused) acc.paused++;
+        if (card.is_closed) acc.closed++;
+        if (card.is_shared) acc.shared++;
+        return acc;
+      },
+      { active: 0, paused: 0, closed: 0, shared: 0 }
+    );
+  }, [cards]);
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <ScrollView
-        style={[styles.scrollView, { backgroundColor: colors.background }]}
-        contentContainerStyle={[
-          styles.content,
-          {
-            paddingTop: insets.top + 24,
-            paddingBottom: insets.bottom + 100, // Account for floating navbar
-          },
-        ]}
-        showsVerticalScrollIndicator={false}
+    // <YStack gap="$3">
+    //   <XStack ai="center" gap="$2">
+    //     <CreditCardIcon size={20} color={Colors.dark.text} />
+    //     <Text color={Colors.dark.text} fontSize="$4" fontFamily="$archivoBlack">
+    //       Cards
+    //     </Text>
+    //   </XStack>
+    //   <XStack gap="$3">
+    //     <StatCard dotColor={Colors.cards.green} label="Active" value={stats.active} />
+    //     <StatCard icon={PauseIcon} iconColor={Colors.cards.yellow} label="Paused" value={stats.paused} />
+    //   </XStack>
+    //   <XStack gap="$3">
+    //     <StatCard icon={XCircleIcon} iconColor={Colors.cards.pink} label="Closed" value={stats.closed} />
+    //     <StatCard icon={ShareIcon} iconColor={Colors.cards.blue} label="Shared" value={stats.shared} />
+    //   </XStack>
+    // </YStack>
+    <></>
+  );
+}
+
+function SpendingSummary() {
+  return (
+    <YStack px="$4" mb="$7" gap="$4">
+      <UserGreeting />
+      <SpendingStats />
+      <CardStats />
+    </YStack>
+  );
+}
+
+function CustomizeButton({ onPress }) {
+  return (
+    <XStack px="$4">
+      <Button
+        f={1}
+        size="$5"
+        bg={Colors.dark.backgroundSecondary}
+        pressStyle={{ bg: Colors.dark.backgroundTertiary }}
+        onPress={onPress}
+        icon={<AdjustmentsHorizontalIcon size={20} color={Colors.dark.text} />}
+        mx="$1"
       >
-        {SECTIONS.map((section) => (
-          <CardCarousel key={section.title} title={section.title} data={section.data} icon={section.icon} />
-        ))}
-      </ScrollView>
-    </GestureHandlerRootView>
+        <Text color={Colors.dark.text} fontWeight="700">
+          Customize
+        </Text>
+      </Button>
+    </XStack>
+  );
+}
+
+function ReorganizeSheet({ isOpen, onOpenChange, sections, onReorder, onReset }) {
+  return (
+    <BottomSheet isOpen={isOpen} onClose={onOpenChange} enableContentPanningGesture={false}>
+      <YStack px="$4" pt="$5" pb="$10">
+        <XStack jc="space-between" ai="center" mb="$3">
+          <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+            Customize
+          </Text>
+          <XStack gap="$2">
+            <Button size="$3" bg="transparent" pressStyle={{ bg: Colors.dark.backgroundTertiary }} onPress={onReset}>
+              <Text color={Colors.dark.textSecondary}>Reset</Text>
+            </Button>
+            <Button
+              size="$3"
+              bg={Colors.dark.backgroundSecondary}
+              pressStyle={{ bg: Colors.dark.backgroundTertiary }}
+              onPress={() => onOpenChange(false)}
+            >
+              <Text color={Colors.dark.text}>Done</Text>
+            </Button>
+          </XStack>
+        </XStack>
+        <View backgroundColor={Colors.dark.background}>
+          <DraggableList sections={sections} onReorder={onReorder} />
+        </View>
+      </YStack>
+    </BottomSheet>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  contentContainer: {
     flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    paddingBottom: 32,
   },
 });
+
+// ============================================================================
+// Main Screen Component
+// ============================================================================
+
+function HomeScreen() {
+  const insets = useSafeAreaInsets();
+  const colors = Colors.dark;
+  const { cardsByType, getCardDisplayData } = useCards();
+  const { order, isLoading, saveOrder, resetOrder } = useSectionOrder();
+  const [isReorganizing, setIsReorganizing] = useState(false);
+
+  const sections = useMemo(() => {
+    return order.map((sectionId) => ({
+      ...SECTION_CONFIG[sectionId],
+      data: (cardsByType[SECTION_CONFIG[sectionId].title.split(' ')[0]] || []).map(getCardDisplayData),
+    }));
+  }, [order, cardsByType]);
+
+  const handleReorder = async (reorderedSections) => {
+    const newOrder = reorderedSections.map((section) => section.id);
+    await saveOrder(newOrder);
+  };
+
+  if (isLoading) {
+    return (
+      <View f={1} ai="center" jc="center" bg={colors.background}>
+        <Spinner size="large" color={colors.text} />
+      </View>
+    );
+  }
+
+  return (
+    <View f={1} bg={colors.background}>
+      <ScrollView
+        f={1}
+        contentContainerStyle={{
+          paddingTop: 24,
+          paddingBottom: insets.bottom + 100, // Account for floating navbar
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <SpendingSummary />
+        {sections.map((section) => (
+          <CardCarousel key={section.id} title={section.title} data={section.data} icon={section.icon} />
+        ))}
+        <CustomizeButton onPress={() => setIsReorganizing(true)} />
+      </ScrollView>
+
+      <ReorganizeSheet isOpen={isReorganizing} onOpenChange={setIsReorganizing} sections={sections} onReorder={handleReorder} onReset={resetOrder} />
+    </View>
+  );
+}
 
 export default HomeScreen;

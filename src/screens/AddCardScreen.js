@@ -1,5 +1,5 @@
-import { Colors } from "@/config/colors";
-import { View } from "tamagui";
+import { Colors } from '@/config/colors';
+import { View } from 'tamagui';
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -12,14 +12,14 @@ import Animated, {
   withDelay,
   useAnimatedScrollHandler,
   useAnimatedRef,
-} from "react-native-reanimated";
-import { useEffect, useState, useCallback, memo } from "react";
-import { Dimensions } from "react-native";
-import AddCardComponent from "@/components/AddCardComponent";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+} from 'react-native-reanimated';
+import { useEffect, useState, useCallback, memo } from 'react';
+import { Dimensions } from 'react-native';
+import AddCardComponent from '@/components/AddCardComponent';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-const window = Dimensions.get("window");
+const window = Dimensions.get('window');
 const WINDOW_WIDTH = window.width;
 const WINDOW_HEIGHT = window.height;
 const CARD_ASPECT_RATIO = 1.586;
@@ -32,36 +32,36 @@ const CARD_SPACING = 20;
 
 const SAMPLE_CARDS = [
   {
-    id: "1",
-    type: "Burner",
-    label: "Quick Pay",
-    emoji: "🔥",
-    color: "pink",
-    title: "Single-Use",
+    id: '1',
+    type: 'Burner',
+    label: 'Quick Pay',
+    emoji: '🔥',
+    color: 'pink',
+    title: 'Single-Use',
   },
   {
-    id: "2",
-    type: "Merchant",
-    label: "Shopping",
-    emoji: "🛍️",
-    color: "green",
-    title: "Merchant-Locked",
+    id: '2',
+    type: 'Merchant',
+    label: 'Shopping',
+    emoji: '🛍️',
+    color: 'green',
+    title: 'Merchant-Locked',
   },
   {
-    id: "3",
-    type: "Location",
-    label: "Travel",
-    emoji: "✈️",
-    color: "blue",
-    title: "Location-Locked",
+    id: '3',
+    type: 'Location',
+    label: 'Travel',
+    emoji: '✈️',
+    color: 'blue',
+    title: 'Location-Locked',
   },
   {
-    id: "4",
-    type: "Category",
-    label: "Monthly",
-    emoji: "📅",
-    color: "yellow",
-    title: "Category-Locked",
+    id: '4',
+    type: 'Category',
+    label: 'Monthly',
+    emoji: '📅',
+    color: 'yellow',
+    title: 'Category-Locked',
   },
 ];
 
@@ -87,30 +87,13 @@ const CarouselCard = memo(({ item, index, scrollX, showCarousel }) => {
       (index + 1) * (CARD_WIDTH + CARD_SPACING),
     ];
 
-    const scale = interpolate(
-      scrollX.value,
-      inputRange,
-      [0.85, 1, 0.85],
-      "clamp"
-    );
+    const scale = interpolate(scrollX.value, inputRange, [0.85, 1, 0.85], 'clamp');
 
-    const translateY = interpolate(
-      scrollX.value,
-      inputRange,
-      [30, 0, 30],
-      "clamp"
-    );
+    const translateY = interpolate(scrollX.value, inputRange, [30, 0, 30], 'clamp');
 
-    const slideOut =
-      index === centerIndex
-        ? 0
-        : index < centerIndex
-        ? -CARD_WIDTH
-        : CARD_WIDTH;
+    const slideOut = index === centerIndex ? 0 : index < centerIndex ? -CARD_WIDTH : CARD_WIDTH;
 
-    const translateX = showCarousel
-      ? withSpring(0, { damping: 15, stiffness: 40 })
-      : slideOut;
+    const translateX = showCarousel ? withSpring(0, { damping: 15, stiffness: 40 }) : slideOut;
 
     // Both center and side cards start hidden
     let opacity = 0;
@@ -120,9 +103,7 @@ const CarouselCard = memo(({ item, index, scrollX, showCarousel }) => {
       opacity = showCarousel ? withSpring(1, { damping: 8, stiffness: 50 }) : 0;
     } else {
       // Side cards appear with a delay after center card
-      opacity = showCarousel
-        ? withDelay(200, withSpring(1, { damping: 12, stiffness: 35 }))
-        : 0;
+      opacity = showCarousel ? withDelay(200, withSpring(1, { damping: 12, stiffness: 35 })) : 0;
     }
 
     return {
@@ -141,12 +122,7 @@ const CarouselCard = memo(({ item, index, scrollX, showCarousel }) => {
         cardStyle,
       ]}
     >
-      <AddCardComponent
-        type={item.type}
-        label={item.label}
-        emoji={item.emoji}
-        color={item.color}
-      />
+      <AddCardComponent type={item.type} label={item.label} emoji={item.emoji} color={item.color} />
     </Animated.View>
   );
 });
@@ -155,12 +131,12 @@ const AnimatedTitle = memo(({ scrollX }) => {
   return (
     <View
       style={{
-        position: "absolute",
+        position: 'absolute',
         top: -80,
         left: 0,
         right: 0,
         height: 40,
-        justifyContent: "center",
+        justifyContent: 'center',
       }}
     >
       {SAMPLE_CARDS.map((card, index) => {
@@ -173,7 +149,7 @@ const AnimatedTitle = memo(({ scrollX }) => {
               (index + 1) * (CARD_WIDTH + CARD_SPACING),
             ],
             [-CARD_WIDTH, 0, CARD_WIDTH],
-            "clamp"
+            'clamp'
           );
 
           // Calculate opacity based on distance from center
@@ -185,7 +161,7 @@ const AnimatedTitle = memo(({ scrollX }) => {
               (index + 0.8) * (CARD_WIDTH + CARD_SPACING), // End fade slightly after
             ],
             [0, 1, 0],
-            "clamp"
+            'clamp'
           );
 
           const scale = interpolate(
@@ -196,7 +172,7 @@ const AnimatedTitle = memo(({ scrollX }) => {
               (index + 1) * (CARD_WIDTH + CARD_SPACING),
             ],
             [0.8, 1, 0.8],
-            "clamp"
+            'clamp'
           );
 
           return {
@@ -210,12 +186,12 @@ const AnimatedTitle = memo(({ scrollX }) => {
             key={card.id}
             style={[
               {
-                position: "absolute",
+                position: 'absolute',
                 width: CARD_WIDTH,
                 left: WINDOW_WIDTH / 2 - CARD_WIDTH / 2,
-                alignItems: "center",
-                justifyContent: "center",
-                height: "100%",
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
               },
               titleStyle,
             ]}
@@ -223,11 +199,11 @@ const AnimatedTitle = memo(({ scrollX }) => {
             <Animated.Text
               style={{
                 fontSize: 24,
-                fontWeight: "600",
+                fontWeight: '600',
                 color: Colors.dark.text,
-                textAlign: "center",
+                textAlign: 'center',
                 includeFontPadding: false,
-                textAlignVertical: "center",
+                textAlignVertical: 'center',
               }}
               numberOfLines={1}
             >
@@ -245,12 +221,7 @@ const Carousel = memo(({ scrollX, showCarousel }) => {
 
   const renderCard = useCallback(
     ({ item, index }) => (
-      <CarouselCard
-        item={item}
-        index={index}
-        scrollX={scrollX}
-        showCarousel={showCarousel}
-      />
+      <CarouselCard item={item} index={index} scrollX={scrollX} showCarousel={showCarousel} />
     ),
     [showCarousel]
   );
@@ -305,9 +276,7 @@ const AddCardScreen = () => {
   const borderRadius = useSharedValue(CIRCLE_SIZE / 2);
   const width = useSharedValue(CIRCLE_SIZE);
   const height = useSharedValue(CIRCLE_SIZE);
-  const translateY = useSharedValue(
-    WINDOW_HEIGHT - (insets.top + START_TOP + BOTTOM_NAV_HEIGHT)
-  );
+  const translateY = useSharedValue(WINDOW_HEIGHT - (insets.top + START_TOP + BOTTOM_NAV_HEIGHT));
   const squish = useSharedValue(1);
   const scrollX = useSharedValue(0);
 
@@ -424,22 +393,12 @@ const AddCardScreen = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View f={1} bg={Colors.dark.background}>
-        <View
-          width={WINDOW_WIDTH}
-          height={WINDOW_HEIGHT}
-          pt={insets.top + START_TOP}
-          ai="center"
-        >
-          <View
-            width={WINDOW_WIDTH}
-            height={CARD_HEIGHT}
-            ai="center"
-            jc="center"
-          >
+        <View width={WINDOW_WIDTH} height={WINDOW_HEIGHT} pt={insets.top + START_TOP} ai="center">
+          <View width={WINDOW_WIDTH} height={CARD_HEIGHT} ai="center" jc="center">
             <Animated.View
               style={[
                 {
-                  position: "absolute",
+                  position: 'absolute',
                 },
                 animatedStyle,
               ]}

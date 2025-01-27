@@ -17,23 +17,23 @@ const API = {
           meta: {
             total: DUMMY_TRANSACTIONS.length,
             page: 1,
-            hasMore: false
-          }
+            hasMore: false,
+          },
         });
       }, 1000);
     });
-  }
+  },
 };
 
 const SORT_STATES = {
   DATE: 'date',
-  AMOUNT: 'amount'
+  AMOUNT: 'amount',
 };
 
 const FILTER_STATES = {
   ALL: 'all',
   SETTLED: 'Settled',
-  DECLINED: 'Declined'
+  DECLINED: 'Declined',
 };
 
 // Update the dummy data to include different months
@@ -48,7 +48,7 @@ const DUMMY_TRANSACTIONS = [
     displayDate: 'Mar 10, 02:35 PM',
     status: 'Settled',
     emoji: '🎬',
-    color: 'pink'
+    color: 'pink',
   },
   {
     id: '2',
@@ -59,7 +59,7 @@ const DUMMY_TRANSACTIONS = [
     displayDate: 'Mar 08, 02:34 PM',
     status: 'Declined',
     emoji: '📺',
-    color: 'blue'
+    color: 'blue',
   },
   // February Transactions
   {
@@ -71,7 +71,7 @@ const DUMMY_TRANSACTIONS = [
     displayDate: 'Feb 28, 11:20 AM',
     status: 'Settled',
     emoji: '🛍️',
-    color: 'green'
+    color: 'green',
   },
   {
     id: '4',
@@ -82,7 +82,7 @@ const DUMMY_TRANSACTIONS = [
     displayDate: 'Feb 15, 09:45 AM',
     status: 'Settled',
     emoji: '☕',
-    color: 'yellow'
+    color: 'yellow',
   },
   // January Transactions
   {
@@ -94,7 +94,7 @@ const DUMMY_TRANSACTIONS = [
     displayDate: 'Jan 20, 04:30 PM',
     status: 'Settled',
     emoji: '✈️',
-    color: 'pink'
+    color: 'pink',
   },
   {
     id: '6',
@@ -105,21 +105,23 @@ const DUMMY_TRANSACTIONS = [
     displayDate: 'Jan 15, 08:15 PM',
     status: 'Declined',
     emoji: '🍽️',
-    color: 'blue'
-  }
+    color: 'blue',
+  },
 ].concat(
   // Additional random transactions for March
-  Array(4).fill(null).map((_, index) => ({
-    id: String(index + 7),
-    name: `Card ${index + 1}`,
-    cardType: ['Category', 'Merchant', 'Burner', 'Location'][index % 4],
-    amount: 12 + index,
-    date: `2024-03-${5 - index}T${14 - index}:35:00`,
-    displayDate: `Mar ${5 - index}, ${14 - index}:35 PM`,
-    status: index % 3 === 0 ? 'Declined' : 'Settled',
-    emoji: ['🎬', '🛍️', '🔥', '📍'][index % 4],
-    color: ['pink', 'green', 'blue', 'yellow'][index % 4]
-  }))
+  Array(4)
+    .fill(null)
+    .map((_, index) => ({
+      id: String(index + 7),
+      name: `Card ${index + 1}`,
+      cardType: ['Category', 'Merchant', 'Burner', 'Location'][index % 4],
+      amount: 12 + index,
+      date: `2024-03-${5 - index}T${14 - index}:35:00`,
+      displayDate: `Mar ${5 - index}, ${14 - index}:35 PM`,
+      status: index % 3 === 0 ? 'Declined' : 'Settled',
+      emoji: ['🎬', '🛍️', '🔥', '📍'][index % 4],
+      color: ['pink', 'green', 'blue', 'yellow'][index % 4],
+    }))
 );
 
 // Update the grouping function to return data in SectionList format
@@ -127,7 +129,7 @@ const groupTransactionsByMonth = (transactions) => {
   const groups = transactions.reduce((acc, transaction) => {
     const date = new Date(transaction.date);
     const monthYear = date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-    
+
     if (!acc[monthYear]) {
       acc[monthYear] = [];
     }
@@ -144,7 +146,7 @@ const groupTransactionsByMonth = (transactions) => {
     })
     .map(([month, data]) => ({
       title: month,
-      data
+      data,
     }));
 };
 
@@ -158,37 +160,38 @@ const ActivityScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const applyFilters = useCallback((data) => {
-    let filteredData = [...data];
+  const applyFilters = useCallback(
+    (data) => {
+      let filteredData = [...data];
 
-    // Apply search filter
-    if (searchQuery) {
-      filteredData = filteredData.filter(transaction =>
-        transaction.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
+      // Apply search filter
+      if (searchQuery) {
+        filteredData = filteredData.filter((transaction) => transaction.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      }
 
-    // Apply status filter
-    if (statusFilter !== FILTER_STATES.ALL) {
-      filteredData = filteredData.filter(transaction => transaction.status === statusFilter);
-    }
+      // Apply status filter
+      if (statusFilter !== FILTER_STATES.ALL) {
+        filteredData = filteredData.filter((transaction) => transaction.status === statusFilter);
+      }
 
-    // Apply sorting
-    if (amountSort) {
-      filteredData.sort((a, b) => {
-        const comparison = a.amount - b.amount;
-        return amountSort === 'desc' ? -comparison : comparison;
-      });
-    } else {
-      // Default to date sorting if amount sort is not active
-      filteredData.sort((a, b) => {
-        const comparison = new Date(a.date) - new Date(b.date);
-        return dateSort === 'desc' ? -comparison : comparison;
-      });
-    }
+      // Apply sorting
+      if (amountSort) {
+        filteredData.sort((a, b) => {
+          const comparison = a.amount - b.amount;
+          return amountSort === 'desc' ? -comparison : comparison;
+        });
+      } else {
+        // Default to date sorting if amount sort is not active
+        filteredData.sort((a, b) => {
+          const comparison = new Date(a.date) - new Date(b.date);
+          return dateSort === 'desc' ? -comparison : comparison;
+        });
+      }
 
-    return filteredData;
-  }, [searchQuery, dateSort, amountSort, statusFilter]);
+      return filteredData;
+    },
+    [searchQuery, dateSort, amountSort, statusFilter]
+  );
 
   // Fetch transactions whenever filters change
   useEffect(() => {
@@ -211,19 +214,19 @@ const ActivityScreen = () => {
   }, [applyFilters]);
 
   const toggleDateSort = useCallback(() => {
-    setDateSort(prev => prev === 'desc' ? 'asc' : 'desc');
+    setDateSort((prev) => (prev === 'desc' ? 'asc' : 'desc'));
     setAmountSort(null);
   }, []);
 
   const toggleAmountSort = useCallback(() => {
-    setAmountSort(prev => {
+    setAmountSort((prev) => {
       if (!prev || prev === 'asc') return 'desc';
       return 'asc';
     });
   }, []);
 
   const toggleStatusFilter = useCallback(() => {
-    setStatusFilter(prev => {
+    setStatusFilter((prev) => {
       if (prev === FILTER_STATES.ALL || prev === FILTER_STATES.DECLINED) return FILTER_STATES.SETTLED;
       return FILTER_STATES.DECLINED;
     });
@@ -233,13 +236,7 @@ const ActivityScreen = () => {
     <View f={1} bg={Colors.dark.background}>
       <YStack pt={insets.top - 30} px={16} space={16}>
         <XStack space={8}>
-          <XStack
-            f={1}
-            br={8}
-            backgroundColor={Colors.dark.backgroundSecondary}
-            ai="center"
-            px={12}
-          >
+          <XStack f={1} br={8} backgroundColor={Colors.dark.backgroundSecondary} ai="center" px={12}>
             <Search size={20} color={Colors.dark.textSecondary} />
             <Input
               f={1}
@@ -252,18 +249,9 @@ const ActivityScreen = () => {
               onChangeText={setSearchQuery}
             />
           </XStack>
-          
-          <Button
-            backgroundColor={Colors.dark.backgroundSecondary}
-            br={8}
-            p={12}
-            onPress={toggleDateSort}
-          >
-            {dateSort === 'desc' ? (
-              <ArrowDown size={20} color={Colors.dark.text} />
-            ) : (
-              <ArrowUp size={20} color={Colors.dark.text} />
-            )}
+
+          <Button backgroundColor={Colors.dark.backgroundSecondary} br={8} p={12} onPress={toggleDateSort}>
+            {dateSort === 'desc' ? <ArrowDown size={20} color={Colors.dark.text} /> : <ArrowUp size={20} color={Colors.dark.text} />}
           </Button>
         </XStack>
 
@@ -279,10 +267,7 @@ const ActivityScreen = () => {
               setAmountSort(null);
             }}
           >
-            <Text
-              color={statusFilter === FILTER_STATES.ALL && !amountSort ? Colors.dark.text : Colors.dark.textSecondary}
-              fontSize={14}
-            >
+            <Text color={statusFilter === FILTER_STATES.ALL && !amountSort ? Colors.dark.text : Colors.dark.textSecondary} fontSize={14}>
               All
             </Text>
           </Button>
@@ -295,10 +280,7 @@ const ActivityScreen = () => {
             py={6}
             onPress={toggleAmountSort}
           >
-            <Text
-              color={amountSort ? Colors.dark.text : Colors.dark.textSecondary}
-              fontSize={14}
-            >
+            <Text color={amountSort ? Colors.dark.text : Colors.dark.textSecondary} fontSize={14}>
               {!amountSort ? 'Amount' : amountSort === 'desc' ? 'Lowest' : 'Highest'}
             </Text>
           </Button>
@@ -311,10 +293,7 @@ const ActivityScreen = () => {
             py={6}
             onPress={toggleStatusFilter}
           >
-            <Text
-              color={statusFilter !== FILTER_STATES.ALL ? Colors.dark.text : Colors.dark.textSecondary}
-              fontSize={14}
-            >
+            <Text color={statusFilter !== FILTER_STATES.ALL ? Colors.dark.text : Colors.dark.textSecondary} fontSize={14}>
               {statusFilter === FILTER_STATES.ALL ? 'Status' : statusFilter === FILTER_STATES.SETTLED ? 'Declined' : 'Settled'}
             </Text>
           </Button>
@@ -325,9 +304,13 @@ const ActivityScreen = () => {
         {isLoading ? (
           <LoadingSkeleton />
         ) : error ? (
-          <Text color={Colors.dark.primary} ta="center" mt={20}>{error}</Text>
+          <Text color={Colors.dark.primary} ta="center" mt={20}>
+            {error}
+          </Text>
         ) : transactions.length === 0 ? (
-          <Text color={Colors.dark.textSecondary} ta="center" mt={20}>No transactions found</Text>
+          <Text color={Colors.dark.textSecondary} ta="center" mt={20}>
+            No transactions found
+          </Text>
         ) : (
           <SectionList
             sections={groupTransactionsByMonth(transactions)}

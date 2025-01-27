@@ -1,94 +1,100 @@
-import { Text, View, Image } from 'tamagui';
+import { Text, View, Image, XStack, YStack } from 'tamagui';
 import { BlurView } from 'expo-blur';
-import { Dimensions, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Colors } from '@/config/colors';
+import { useCards } from '@/hooks/useCards';
+import { BuildingStorefrontIcon, FireIcon, MapPinIcon, TagIcon, PauseCircleIcon, XCircleIcon } from 'react-native-heroicons/solid';
+import { CARD_WIDTH, CARD_HEIGHT, getCardTheme, getCardAssets } from '@/utils/cardUtils';
 
-const window = Dimensions.get('window');
-const WINDOW_WIDTH = window.width;
-const CARD_ASPECT_RATIO = 1630 / 1024;
-const CARD_WIDTH = Math.round(WINDOW_WIDTH * 0.6);
-const CARD_HEIGHT = Math.round(CARD_WIDTH * CARD_ASPECT_RATIO);
-
-// Calculate relative luminance
-const getLuminance = (hexColor) => {
-  // Remove # if present
-  const hex = hexColor.replace('#', '');
-
-  // Convert hex to rgb
-  const r = parseInt(hex.substr(0, 2), 16) / 255;
-  const g = parseInt(hex.substr(2, 2), 16) / 255;
-  const b = parseInt(hex.substr(4, 2), 16) / 255;
-
-  // Calculate luminance using the relative luminance formula
-  // https://www.w3.org/TR/WCAG20/#relativeluminancedef
-  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-
-  return luminance;
+const getCardIcon = (type, color) => {
+  if (type === 'Location') return <MapPinIcon size={20} color={color} />;
+  if (type === 'Burner') return <FireIcon size={20} color={color} />;
+  if (type === 'Merchant') return <BuildingStorefrontIcon size={20} color={color} />;
+  if (type === 'Category') return <TagIcon size={20} color={color} />;
 };
 
-const CardComponent = ({ type = 'Location', label = 'Location', emoji = '📍', lastFourDigits = '1234', color = 'pink' }) => {
-  let cardColor;
-  let cardTheme;
+const CardComponent = ({ cardId, displayData }) => {
+  const { getCardById } = useCards();
+  const card = cardId ? getCardById(cardId) : null;
 
-  const getCardImg = (theme) => {
-    if (type === 'Location' && theme === 'light') return require('../../assets/cards/location-front-light.png');
-    if (type === 'Location' && theme === 'dark') return require('../../assets/cards/location-front-dark.png');
-    if (type === 'Burner' && theme === 'light') return require('../../assets/cards/burner-front-light.png');
-    if (type === 'Burner' && theme === 'dark') return require('../../assets/cards/burner-front-dark.png');
-    if (type === 'Merchant' && theme === 'light') return require('../../assets/cards/merchant-front-light.png');
-    if (type === 'Merchant' && theme === 'dark') return require('../../assets/cards/merchant-front-dark.png');
-    if (type === 'Category' && theme === 'light') return require('../../assets/cards/category-front-light.png');
-    if (type === 'Category' && theme === 'dark') return require('../../assets/cards/category-front-dark.png');
-  };
+  // If displayData is provided, use it directly, otherwise generate from card
+  const {
+    type = '-',
+    label = '-',
+    emoji = '❌',
+    lastFourDigits = '1234',
+    backgroundColor = 'red',
+    isPaused = card?.is_paused || false,
+    isClosed = card?.is_closed || false,
+  } = displayData ||
+  (card
+    ? {
+        type: card.card_type,
+        label: card.card_name,
+        emoji: card.card_icon,
+        lastFourDigits: card.card_number.slice(-4),
+        backgroundColor: card.card_color,
+        isPaused: card.is_paused,
+        isClosed: card.is_closed,
+      }
+    : {});
 
-  switch (color) {
-    case 'pink':
-      cardColor = '#E14C81';
-      break;
-    case 'green':
-      cardColor = '#44D47D';
-      break;
-    case 'blue':
-      cardColor = '#3981A6';
-      break;
-    case 'yellow':
-      cardColor = '#EBE14B';
-      break;
-    default:
-      cardColor = color;
-  }
-
-  // Determine theme based on color luminance
-  const luminance = getLuminance(cardColor);
-  cardTheme = luminance > 0.5 ? 'dark' : 'light';
-
-  const cardImg = getCardImg(cardTheme);
+  let cardColor = Colors.cards[backgroundColor] || backgroundColor;
+  const cardTheme = getCardTheme(cardColor);
+  const blurTint = cardTheme === 'light' ? 'systemThickMaterialDark' : 'systemThickMaterialLight';
   const textColor = cardTheme === 'light' ? 'white' : 'black';
+  const { cardImg, logoImg, visaImg } = getCardAssets(type, cardTheme);
 
   return (
     <View width={CARD_WIDTH} height={CARD_HEIGHT} borderRadius={20} overflow="hidden" bg={cardColor}>
-      <Image source={cardImg} style={styles.cardImage} resizeMode="cover" />
-
-      {/* Top Left Badge */}
-      <BlurView intensity={20} style={[styles.badge, styles.topLeft]}>
-        <Text fontSize={14}>{emoji}</Text>
-        <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600">
-          {label}
-        </Text>
-      </BlurView>
-
-      {/* Top Right Badge */}
-      <BlurView intensity={20} style={[styles.badge, styles.topRight]}>
-        <Text fontSize={12} color={textColor} fontWeight="600">
-          {type}
-        </Text>
-      </BlurView>
-
-      {/* Bottom Left Card Number */}
-      <View style={[{ position: 'absolute', padding: 6 }, styles.bottomLeft]}>
-        <Text fontSize={16} color={textColor} fontWeight="600">
-          •••• &nbsp;{lastFourDigits}
-        </Text>
+      {/* Background Layer */}
+      <View style={StyleSheet.absoluteFill}>
+        <Image source={cardImg} style={styles.cardImage} resizeMode="cover" />
+        {isClosed && <View style={styles.closedOverlay} />}
       </View>
+
+      {/* Content Layer */}
+      <YStack style={styles.contentContainer}>
+        {/* Top Row */}
+        <YStack gap={8}>
+          <XStack style={styles.topRow}>
+            <BlurView intensity={20} tint={blurTint} style={styles.badge}>
+              <Text fontSize={14}>{emoji}</Text>
+              <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600" maxWidth={110} numberOfLines={1}>
+                {label}
+              </Text>
+            </BlurView>
+
+            <View style={[styles.badge, { paddingHorizontal: 10, paddingVertical: 0, borderRadius: 10 }]}>{getCardIcon(type, textColor)}</View>
+          </XStack>
+
+          {/* Status Badges */}
+          {(isPaused || isClosed) && (
+            <BlurView intensity={20} tint={blurTint} style={[styles.badge, styles.statusBadge]}>
+              {isPaused && <PauseCircleIcon size={16} color={textColor} />}
+              {isClosed && <XCircleIcon size={16} color={textColor} />}
+              <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600">
+                {isClosed ? 'Closed' : isPaused ? 'Paused' : ''}
+              </Text>
+            </BlurView>
+          )}
+        </YStack>
+
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <Image source={logoImg} style={styles.logo} resizeMode="contain" />
+        </View>
+
+        {/* Bottom Row */}
+        <View style={styles.bottomRow}>
+          <Text fontSize={16} color={textColor} fontWeight="600" pb="$1" pl="$1">
+            •••• &nbsp;{lastFourDigits}
+          </Text>
+          <View style={styles.visaContainer}>
+            <Image source={visaImg} style={styles.visaLogo} resizeMode="contain" />
+          </View>
+        </View>
+      </YStack>
     </View>
   );
 };
@@ -97,28 +103,65 @@ const styles = StyleSheet.create({
   cardImage: {
     width: '100%',
     height: '100%',
-    position: 'absolute',
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 12,
+    justifyContent: 'space-between',
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    flexWrap: 'wrap-reverse',
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
   },
   badge: {
-    position: 'absolute',
-    borderRadius: 30,
+    borderRadius: 10,
     paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     overflow: 'hidden',
   },
-  topLeft: {
-    top: 12,
-    left: 12,
+  statusBadge: {
+    alignSelf: 'flex-start',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
   },
-  topRight: {
-    top: 12,
-    right: 12,
+  logoContainer: {
+    position: 'absolute',
+    right: 30,
+    top: 142,
+    width: 120,
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  bottomLeft: {
-    bottom: 12,
-    left: 12,
+  logo: {
+    width: '100%',
+    height: '100%',
+  },
+  visaContainer: {
+    width: 60,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  visaLogo: {
+    width: '100%',
+    height: '100%',
+  },
+  closedOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1000,
+    backgroundColor: 'rgba(64, 64, 64, 0.5)',
   },
 });
 
