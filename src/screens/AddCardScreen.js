@@ -1,5 +1,5 @@
 import { Colors } from '@/config/colors';
-import { View, Button } from 'tamagui';
+import { View, Button, Text } from 'tamagui';
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -19,9 +19,10 @@ import AddCardComponent from '@/components/AddCardComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import BreadcrumbTrail from '@/components/BreadcrumbTrail';
-import { useBreadcrumb } from '@/context/BreadcrumbContext';
+import { useNavigation, CommonActions } from '@react-navigation/native';
+import CardConfigComponent from '@/components/card-creation/CardConfigComponent';
+import CardReviewComponent from '@/components/card-creation/CardReviewComponent';
+import { Paths } from '@/navigation/paths';
 
 const window = Dimensions.get('window');
 const WINDOW_WIDTH = window.width;
@@ -33,42 +34,44 @@ const CIRCLE_SIZE = 60;
 const START_TOP = 140;
 const BOTTOM_NAV_HEIGHT = 80;
 const CARD_SPACING = 20;
-const BREADCRUMB_HEIGHT = 44;
-const BREADCRUMB_WIDTH = WINDOW_WIDTH * 0.7;
 
 const SAMPLE_CARDS = [
   {
     id: '1',
     type: 'Merchant',
-    label: 'Shopping',
+    label: 'Amazon',
     emoji: '🛍️',
     color: Colors.cards.green,
     title: 'Merchant-Locked',
+    description: 'Use your card with only one merchant. Your Amazon card!',
   },
   {
     id: '2',
-    type: 'Burner',
-    label: 'Quick Pay',
-    emoji: '🔥',
+    type: 'Category',
+    label: 'Groceries',
+    emoji: '📅',
     color: Colors.cards.pink,
-    title: 'Single-Use',
+    title: 'Category-Locked',
+    description:
+      'Use your card for one category of expenses. Only shop for groceries with this card',
   },
-  
   {
     id: '3',
     type: 'Location',
-    label: 'Travel',
+    label: 'London',
     emoji: '✈️',
     color: Colors.cards.blue,
     title: 'Location-Locked',
+    description: 'Set location boundaries for card usage. Budget for your trip to London!',
   },
   {
     id: '4',
-    type: 'Category',
-    label: 'Monthly',
-    emoji: '📅',
+    type: 'Burner',
+    label: 'Notion Free Trial',
+    emoji: '🔥',
     color: Colors.cards.yellow,
-    title: 'Category-Locked',
+    title: 'Single-Use',
+    description: 'A card that expires after one use. Free trials make great burners!',
   },
 ];
 
@@ -94,11 +97,8 @@ const CarouselCard = memo(({ item, index, scrollX, showCarousel }) => {
     ];
 
     const scale = interpolate(scrollX.value, inputRange, [0.85, 1, 0.85], 'clamp');
-
     const translateY = interpolate(scrollX.value, inputRange, [30, 0, 30], 'clamp');
-
     const slideOut = index === centerIndex ? 0 : index < centerIndex ? -CARD_WIDTH : CARD_WIDTH;
-
     const translateX = showCarousel ? withSpring(0, { damping: 10, stiffness: 20 }) : slideOut;
 
     // Center card appears instantly, side cards animate in
@@ -116,17 +116,22 @@ const CarouselCard = memo(({ item, index, scrollX, showCarousel }) => {
   });
 
   return (
-    <Animated.View
-      style={[
-        {
-          width: CARD_WIDTH,
-          marginRight: index < SAMPLE_CARDS.length - 1 ? CARD_SPACING : 0,
-        },
-        cardStyle,
-      ]}
+    <View
+      style={{
+        width: CARD_WIDTH,
+        marginRight: index < SAMPLE_CARDS.length - 1 ? CARD_SPACING : 0,
+        alignItems: 'center',
+      }}
     >
-      <AddCardComponent type={item.type} label={item.label} emoji={item.emoji} color={item.color} />
-    </Animated.View>
+      <Animated.View style={cardStyle}>
+        <AddCardComponent
+          type={item.type}
+          label={item.label}
+          emoji={item.emoji}
+          color={item.color}
+        />
+      </Animated.View>
+    </View>
   );
 });
 
@@ -139,17 +144,20 @@ const AnimatedTitle = memo(({ scrollX, showCarousel }) => {
 
   return (
     <Animated.View
-      style={[{
-        position: 'absolute',
-        top: -80,
-        left: 0,
-        right: 0,
-        height: 40,
-        justifyContent: 'center',
-      }, titleContainerStyle]}
+      style={[
+        {
+          position: 'absolute',
+          top: -80,
+          left: 0,
+          right: 0,
+          height: 40,
+          justifyContent: 'center',
+        },
+        titleContainerStyle,
+      ]}
     >
       {SAMPLE_CARDS.map((card, index) => {
-        const titleStyle = useAnimatedStyle(() => {
+        const containerStyle = useAnimatedStyle(() => {
           const x = interpolate(
             scrollX.value,
             [
@@ -201,7 +209,7 @@ const AnimatedTitle = memo(({ scrollX, showCarousel }) => {
                 justifyContent: 'center',
                 height: '100%',
               },
-              titleStyle,
+              containerStyle,
             ]}
           >
             <Animated.Text
@@ -224,33 +232,111 @@ const AnimatedTitle = memo(({ scrollX, showCarousel }) => {
   );
 });
 
-const SelectButton = memo(({ showCarousel, selectedCard }) => {
-  const navigation = useNavigation();
-  const { setCurrentStep } = useBreadcrumb();
+const AnimatedDescription = memo(({ scrollX, showCarousel }) => {
+  const descriptionContainerStyle = useAnimatedStyle(() => {
+    return {
+      opacity: showCarousel ? withDelay(200, withSpring(1, { damping: 12, stiffness: 35 })) : 0,
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        {
+          position: 'absolute',
+          top: CARD_HEIGHT + 40,
+          left: 0,
+          right: 0,
+          minHeight: 60,
+          justifyContent: 'center',
+        },
+        descriptionContainerStyle,
+      ]}
+    >
+      {SAMPLE_CARDS.map((card, index) => {
+        const containerStyle = useAnimatedStyle(() => {
+          const x = interpolate(
+            scrollX.value,
+            [
+              (index - 1) * (CARD_WIDTH + CARD_SPACING),
+              index * (CARD_WIDTH + CARD_SPACING),
+              (index + 1) * (CARD_WIDTH + CARD_SPACING),
+            ],
+            [-CARD_WIDTH, 0, CARD_WIDTH],
+            'clamp'
+          );
+
+          const opacity = interpolate(
+            scrollX.value,
+            [
+              (index - 0.8) * (CARD_WIDTH + CARD_SPACING),
+              index * (CARD_WIDTH + CARD_SPACING),
+              (index + 0.8) * (CARD_WIDTH + CARD_SPACING),
+            ],
+            [0, 1, 0],
+            'clamp'
+          );
+
+          const scale = interpolate(
+            scrollX.value,
+            [
+              (index - 1) * (CARD_WIDTH + CARD_SPACING),
+              index * (CARD_WIDTH + CARD_SPACING),
+              (index + 1) * (CARD_WIDTH + CARD_SPACING),
+            ],
+            [0.8, 1, 0.8],
+            'clamp'
+          );
+
+          return {
+            transform: [{ translateX: x }, { scale }],
+            opacity,
+          };
+        });
+
+        return (
+          <Animated.View
+            key={card.id}
+            style={[
+              {
+                position: 'absolute',
+                width: CARD_WIDTH,
+                left: WINDOW_WIDTH / 2 - CARD_WIDTH / 2,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: 16,
+              },
+              containerStyle,
+            ]}
+          >
+            <Text
+              style={{
+                fontSize: 14,
+                color: Colors.dark.textSecondary,
+                textAlign: 'center',
+                lineHeight: 20,
+              }}
+            >
+              {card.description}
+            </Text>
+          </Animated.View>
+        );
+      })}
+    </Animated.View>
+  );
+});
+
+const SelectButton = memo(({ showCarousel, selectedCard, onSelect }) => {
   const buttonStyle = useAnimatedStyle(() => {
     return {
       opacity: showCarousel ? withDelay(400, withSpring(1, { damping: 15 })) : 0,
       transform: [
         {
-          translateY: showCarousel 
-            ? withDelay(400, withSpring(0, { damping: 15 })) 
-            : 20
-        }
-      ]
+          translateY: showCarousel ? withDelay(400, withSpring(0, { damping: 15 })) : 20,
+        },
+      ],
     };
   });
-
-  const handleSelect = () => {
-    setCurrentStep(2); // Update step before navigation
-    navigation.navigate('CardConfigScreen', {
-      cardType: selectedCard.type,
-      initialData: {
-        color: selectedCard.color,
-        emoji: selectedCard.emoji,
-        label: selectedCard.label
-      }
-    });
-  };
 
   return (
     <Animated.View style={[{ width: CARD_WIDTH }, buttonStyle]}>
@@ -261,7 +347,7 @@ const SelectButton = memo(({ showCarousel, selectedCard }) => {
         fontWeight="600"
         borderRadius={12}
         pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
-        onPress={handleSelect}
+        onPress={() => onSelect(selectedCard)}
       >
         Select Card
       </Button>
@@ -269,9 +355,8 @@ const SelectButton = memo(({ showCarousel, selectedCard }) => {
   );
 });
 
-const Carousel = memo(({ scrollX, showCarousel }) => {
+const Carousel = memo(({ scrollX, showCarousel, selectedCard, setSelectedCard, onSelect }) => {
   const flatListRef = useAnimatedRef();
-  const [selectedCard, setSelectedCard] = useState(SAMPLE_CARDS[1]); // Default to center card
 
   const renderCard = useCallback(
     ({ item, index }) => (
@@ -321,15 +406,20 @@ const Carousel = memo(({ scrollX, showCarousel }) => {
           index,
         })}
       />
+      <AnimatedDescription scrollX={scrollX} showCarousel={showCarousel} />
     </View>
   );
 });
 
 const AddCardScreen = () => {
   const insets = useSafeAreaInsets();
-  const { setCurrentStep } = useBreadcrumb();
+  const navigation = useNavigation();
   const [showCard, setShowCard] = useState(false);
   const [showCarousel, setShowCarousel] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(SAMPLE_CARDS[1]); // Default to center card
+  const [step, setStep] = useState('select'); // 'select', 'config', 'review'
+  const [cardData, setCardData] = useState(null);
+
   const scale = useSharedValue(0.3);
   const borderRadius = useSharedValue(CIRCLE_SIZE / 2);
   const width = useSharedValue(CIRCLE_SIZE);
@@ -363,8 +453,6 @@ const AddCardScreen = () => {
   });
 
   useEffect(() => {
-    setCurrentStep(1); // Reset to step 1 when screen mounts
-    
     // Rise and bounce from bottom with slower spring
     translateY.value = withSpring(0, {
       ...springConfig,
@@ -453,27 +541,46 @@ const AddCardScreen = () => {
     return () => {};
   }, []);
 
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <View f={1} bg={Colors.dark.background}>
-        <View 
-          width={WINDOW_WIDTH} 
-          height={WINDOW_HEIGHT} 
-          ai="center"
-        >
-          {/* Breadcrumb at the top */}
-          <View mt={insets.top - 20}>
-            <BreadcrumbTrail showTrail={showCarousel} />
-          </View>
+  const handleSelectCard = (card) => {
+    setStep('config');
+  };
 
-          {/* Card Section - Moved down for better spacing */}
-          <View 
-            width={WINDOW_WIDTH} 
-            height={CARD_HEIGHT} 
-            ai="center" 
-            jc="center"
-            mt={START_TOP}
-          >
+  const handleConfigBack = () => {
+    setStep('select');
+  };
+
+  const handleConfigNext = (data) => {
+    setCardData(data);
+    setStep('review');
+  };
+
+  const handleReviewBack = () => {
+    setStep('config');
+  };
+
+  const handleCreateCard = (finalCardData) => {
+    // Reset navigation state and navigate to Home tab
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'Main',
+            state: {
+              routes: [{ name: Paths.HOME }],
+              index: 0,
+            },
+          },
+        ],
+      })
+    );
+  };
+
+  const renderStep = () => {
+    switch (step) {
+      case 'select':
+        return (
+          <>
             <Animated.View
               style={[
                 {
@@ -482,18 +589,74 @@ const AddCardScreen = () => {
                 animatedStyle,
               ]}
             />
-            <Carousel scrollX={scrollX} showCarousel={showCarousel} />
+            <View f={1} pb={BOTTOM_NAV_HEIGHT + insets.bottom + 20}>
+              <Carousel
+                scrollX={scrollX}
+                showCarousel={showCarousel}
+                selectedCard={selectedCard}
+                setSelectedCard={setSelectedCard}
+                onSelect={handleSelectCard}
+              />
+            </View>
+          </>
+        );
+      case 'config':
+        return (
+          <View f={1} pb={insets.bottom}>
+            <CardConfigComponent
+              cardType={selectedCard.type}
+              initialData={selectedCard}
+              onBack={handleConfigBack}
+              onNext={handleConfigNext}
+            />
+          </View>
+        );
+      case 'review':
+        return (
+          <View f={1} pb={insets.bottom}>
+            <CardReviewComponent
+              cardType={selectedCard.type}
+              cardData={cardData}
+              onBack={handleReviewBack}
+              onCreateCard={handleCreateCard}
+            />
+          </View>
+        );
+    }
+  };
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View f={1} bg={Colors.dark.background}>
+        <View width={WINDOW_WIDTH} height={WINDOW_HEIGHT} ai="center">
+          {/* Card Section */}
+          <View
+            width={WINDOW_WIDTH}
+            ai="center"
+            mt={START_TOP}
+            f={1}
+            style={{
+              paddingBottom: step === 'select' ? 0 : insets.bottom,
+            }}
+          >
+            {renderStep()}
           </View>
 
           {/* Button Section */}
-          <View 
-            position="absolute" 
-            bottom={BOTTOM_NAV_HEIGHT + insets.bottom + 20}
-            width={WINDOW_WIDTH}
-            ai="center"
-          >
-            <SelectButton showCarousel={showCarousel} selectedCard={SAMPLE_CARDS[1]} />
-          </View>
+          {step === 'select' && (
+            <View
+              position="absolute"
+              bottom={BOTTOM_NAV_HEIGHT + insets.bottom + 20}
+              width={WINDOW_WIDTH}
+              ai="center"
+            >
+              <SelectButton
+                showCarousel={showCarousel}
+                selectedCard={selectedCard}
+                onSelect={handleSelectCard}
+              />
+            </View>
+          )}
         </View>
       </View>
     </GestureHandlerRootView>

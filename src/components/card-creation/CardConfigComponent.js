@@ -1,7 +1,6 @@
 import { View, Text, YStack, XStack, Button, Input, Circle, Switch, Slider } from 'tamagui';
 import { Colors } from '@/config/colors';
 import { useState, useEffect } from 'react';
-import { useNavigation, useRoute } from '@react-navigation/native';
 import { PlusIcon, ArrowPathIcon, MapPinIcon } from 'react-native-heroicons/solid';
 import { Platform, StatusBar, StyleSheet, Dimensions } from 'react-native';
 import EmojiPicker from 'rn-emoji-keyboard';
@@ -27,13 +26,12 @@ const CATEGORIES = [
   { id: '7', name: 'Education', emoji: '📚' },
   { id: '8', name: 'Utilities', emoji: '🔌' },
   { id: '9', name: 'Other', emoji: '🛠️' },
-  // ... more categories
 ];
 
 const RADIUS_OPTIONS = [
   { label: 'Neighborhood', value: 1000, description: '1km radius' },
   { label: 'District', value: 5000, description: '5km radius' },
-  { label: 'Country', value: null, description: 'Entire country' }, // value will be set dynamically
+  { label: 'Country', value: null, description: 'Entire country' },
 ];
 
 const LIMIT_OPTIONS = [
@@ -57,7 +55,6 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
 
   return (
     <YStack gap="$4">
-      {/* Card Name */}
       <YStack gap="$2">
         <Text
           color={Colors.dark.textSecondary}
@@ -82,7 +79,6 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
         />
       </YStack>
 
-      {/* Limits */}
       <YStack gap="$2">
         <Text
           color={Colors.dark.textSecondary}
@@ -93,7 +89,6 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
           Spending Limits
         </Text>
 
-        {/* Limit Type Buttons */}
         <XStack flexWrap="wrap" gap="$2">
           {LIMIT_OPTIONS.map((option) => (
             <Button
@@ -118,7 +113,6 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
           ))}
         </XStack>
 
-        {/* Limit Amount Slider */}
         <YStack gap="$2" mt="$2" p="$3" br="$4">
           <XStack jc="center" mb="$2">
             <Input
@@ -191,24 +185,22 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
         const country = response[0].country;
         setCountryName(country);
 
-        // Approximate country radius based on common country sizes
         let approximateRadius;
         switch (country) {
           case 'Kuwait':
-            approximateRadius = 100000; // 100km
+            approximateRadius = 100000;
             break;
           case 'United Arab Emirates':
-            approximateRadius = 350000; // 350km
+            approximateRadius = 350000;
             break;
           case 'Saudi Arabia':
-            approximateRadius = 1000000; // 1000km
+            approximateRadius = 1000000;
             break;
           default:
-            approximateRadius = 200000; // 200km default
+            approximateRadius = 200000;
         }
         setCountryRadius(approximateRadius);
 
-        // If current radius is set to country, update it with new country radius
         if (radius === RADIUS_OPTIONS[2].value) {
           setRadius(approximateRadius);
         }
@@ -219,7 +211,6 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
   };
 
   useEffect(() => {
-    // Get initial country info
     getLocationInfo(location.latitude, location.longitude);
   }, []);
 
@@ -245,8 +236,8 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
           initialRegion={{
             latitude: location.latitude,
             longitude: location.longitude,
-            latitudeDelta: 0.5, // Increased to show more area
-            longitudeDelta: 0.5, // Increased to show more area
+            latitudeDelta: 0.5,
+            longitudeDelta: 0.5,
           }}
           scrollEnabled={true}
           zoomEnabled={true}
@@ -278,7 +269,6 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
         </Text>
         <XStack flexWrap="wrap" gap="$2">
           {RADIUS_OPTIONS.map((option) => {
-            // For country option, use the dynamically set countryRadius
             const optionValue = option.value === null ? countryRadius : option.value;
             const isSelected = radius === optionValue;
 
@@ -363,13 +353,8 @@ const CategorySettings = ({ selectedCategory, setSelectedCategory }) => {
   );
 };
 
-const CardConfigScreen = () => {
+const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation();
-  const route = useRoute();
-  const { cardType, initialData } = route.params;
-
-  console.log('Card Type:', cardType); // For debugging
 
   // Common state
   const [cardName, setCardName] = useState(initialData?.label || '');
@@ -412,10 +397,7 @@ const CardConfigScreen = () => {
       cardData.category = selectedCategory;
     }
 
-    navigation.navigate('CardReviewScreen', {
-      cardType,
-      cardData,
-    });
+    onNext(cardData);
   };
 
   // Render type-specific settings based on card type
@@ -444,8 +426,6 @@ const CardConfigScreen = () => {
 
   return (
     <View f={1} backgroundColor={Colors.dark.background}>
-      <StatusBar barStyle="light-content" />
-
       <ScrollView contentContainerStyle={styles.container}>
         <YStack gap="$6" pb="$8">
           {/* Common Settings */}
@@ -473,7 +453,7 @@ const CardConfigScreen = () => {
               f={1}
               backgroundColor={Colors.dark.backgroundSecondary}
               pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
-              onPress={() => navigation.goBack()}
+              onPress={onBack}
               size="$5"
               borderRadius={15}
             >
@@ -504,7 +484,9 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 100,
   },
 });
 
-export default CardConfigScreen;
+export default CardConfigComponent;
