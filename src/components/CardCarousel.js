@@ -1,27 +1,33 @@
 import * as React from 'react';
 import { StyleSheet, Pressable, Animated } from 'react-native';
 import { View, XStack } from 'tamagui';
-import { FlashList } from '@shopify/flash-list';
 import { Colors } from '../config/colors';
 import { useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '../navigation/paths';
 import { Text } from 'tamagui';
 import CardComponent from './CardComponent';
-import { WINDOW_WIDTH, CARD_WIDTH, CARD_HEIGHT } from '@/utils/cardUtils';
+import {
+  WINDOW_WIDTH,
+  CARD_WIDTH as CARD_WIDTH_DEFAULT,
+  CARD_HEIGHT as CARD_HEIGHT_DEFAULT,
+} from '@/utils/cardUtils';
 
+const CARD_SCALE = 0.9;
+const CARD_HEIGHT = CARD_HEIGHT_DEFAULT * CARD_SCALE;
+const CARD_WIDTH = CARD_WIDTH_DEFAULT * CARD_SCALE;
 const SPACING = 2;
 const ITEM_WIDTH = CARD_WIDTH + SPACING * 2;
 const SIDE_SPACING = (WINDOW_WIDTH - CARD_WIDTH) / 2;
 
-const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
+const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
 function CardCarousel({ title, data, icon: Icon }) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme || 'light'];
   const navigation = useNavigation();
   const scrollX = React.useRef(new Animated.Value(0)).current;
-  const flashListRef = React.useRef(null);
+  const flatListRef = React.useRef(null);
 
   const handleCardPress = React.useCallback(
     (item, index) => {
@@ -36,19 +42,11 @@ function CardCarousel({ title, data, icon: Icon }) {
     const position = event.nativeEvent.contentOffset.x;
     const index = Math.round(position / ITEM_WIDTH);
 
-    if (flashListRef.current) {
-      if (index === 0 && position < ITEM_WIDTH / 2) {
-        flashListRef.current.scrollToOffset({
-          offset: 0,
-          animated: true,
-        });
-      } else {
-        flashListRef.current.scrollToIndex({
-          index: Math.max(0, index),
-          animated: true,
-          viewPosition: 0.5,
-        });
-      }
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({
+        offset: index * ITEM_WIDTH,
+        animated: true,
+      });
     }
   }, []);
 
@@ -63,7 +61,10 @@ function CardCarousel({ title, data, icon: Icon }) {
       });
 
       return (
-        <Pressable onPress={() => handleCardPress(item, index)} style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}>
+        <Pressable
+          onPress={() => handleCardPress(item, index)}
+          style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}
+        >
           <Animated.View
             style={[
               styles.cardContainer,
@@ -73,7 +74,7 @@ function CardCarousel({ title, data, icon: Icon }) {
               },
             ]}
           >
-            <CardComponent displayData={item} />
+            <CardComponent displayData={item} scale={CARD_SCALE} />
           </Animated.View>
         </Pressable>
       );
@@ -81,40 +82,46 @@ function CardCarousel({ title, data, icon: Icon }) {
     [handleCardPress, scrollX]
   );
 
+  React.useEffect(() => {
+    // Center the first card after mounting
+    if (flatListRef.current && data.length > 0) {
+      setTimeout(() => {
+        flatListRef.current.scrollToOffset({
+          offset: 0,
+          animated: false,
+        });
+      }, 100);
+    }
+  }, [data]);
+
   return (
     <View w="100%" mb="$7" gap="$4">
-      {/* <View style={styles.header}>
-        {Icon && <Icon size={18} color={colors.text} />}
-        <Text fontSize="$4" fontWeight="600" fontFamily="$archivoBlack" color={colors.text} marginLeft={Icon ? 8 : 0}>
-          {title}
-        </Text>
-      </View> */}
       <XStack ai="center" mb="$2" gap="$2" px="$4">
         {Icon && <Icon size={20} color={colors.text} />}
         <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
           {title}
         </Text>
       </XStack>
-      {/* <View style={[styles.carouselContainer, { height: CARD_HEIGHT }]}> */}
       <View w="100%" h={CARD_HEIGHT} ai="center">
-        <AnimatedFlashList
-          ref={flashListRef}
+        <AnimatedFlatList
+          ref={flatListRef}
           data={data}
           renderItem={renderItem}
           horizontal
           showsHorizontalScrollIndicator={false}
           snapToInterval={ITEM_WIDTH}
-          decelerationRate={'fast'}
-          onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], { useNativeDriver: true })}
+          decelerationRate={0.8}
+          bounces={true}
+          onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
+            useNativeDriver: true,
+          })}
           onMomentumScrollEnd={onScrollEnd}
           contentContainerStyle={styles.contentContainer}
-          estimatedItemSize={ITEM_WIDTH}
-          estimatedListSize={{ width: WINDOW_WIDTH, height: CARD_HEIGHT }}
-          drawDistance={ITEM_WIDTH * 2}
-          overrideItemLayout={(layout, item, index) => {
-            layout.size = ITEM_WIDTH;
-            layout.offset = index * ITEM_WIDTH;
-          }}
+          getItemLayout={(data, index) => ({
+            length: ITEM_WIDTH,
+            offset: ITEM_WIDTH * index,
+            index,
+          })}
           initialScrollIndex={0}
         />
       </View>

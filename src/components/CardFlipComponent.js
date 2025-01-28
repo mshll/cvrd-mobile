@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View, Animated, TouchableWithoutFeedback, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Animated, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { Text, View, Image, XStack, YStack } from 'tamagui';
 import CardComponent from '@/components/CardComponent';
 import { Colors } from '@/config/colors';
 import { BlurView } from 'expo-blur';
@@ -6,11 +7,16 @@ import * as Clipboard from 'expo-clipboard';
 import { useCards } from '@/hooks/useCards';
 import { useRef, useState, useEffect } from 'react';
 import { ClipboardDocumentIcon } from 'react-native-heroicons/solid';
-import { XStack } from 'tamagui';
 import Toast from 'react-native-toast-message';
-import { CARD_WIDTH, CARD_HEIGHT, getCardTheme, getCardAssets, formatCardNumber, formatExpiryDate } from '@/utils/cardUtils';
+import {
+  CARD_WIDTH,
+  CARD_HEIGHT,
+  getCardTheme,
+  getCardAssets,
+  formatCardNumber,
+  formatExpiryDate,
+} from '@/utils/cardUtils';
 
-const FLIP_DURATION = 500;
 const AUTO_FLIP_DELAY = 5000;
 
 const CardFlipComponent = ({ cardId }) => {
@@ -66,29 +72,48 @@ const CardFlipComponent = ({ cardId }) => {
     }
 
     const toValue = isFlipped ? 0 : 180;
+    const preFlipValue = isFlipped ? 225 : -45;
 
-    // Start flip animation
-    Animated.timing(flipAnim, {
-      toValue,
-      duration: FLIP_DURATION,
-      useNativeDriver: true,
-    }).start(() => {
+    Animated.sequence([
+      // Pre-flip in opposite direction
+      // Animated.spring(flipAnim, {
+      //   toValue: preFlipValue,
+      //   useNativeDriver: true,
+      //   tension: 20,
+      //   friction: 10,
+      //   velocity: isFlipped ? -10 : 10,
+      //   restSpeedThreshold: 100,
+      //   restDisplacementThreshold: 40,
+      //   overshootClamping: true,
+      // }),
+      // Main flip
+      Animated.spring(flipAnim, {
+        toValue,
+        useNativeDriver: true,
+        tension: 10, // Less tension for smoother movement
+        friction: 10, // Less friction for more natural bounce
+        velocity: isFlipped ? -10 : 10, // Reversed velocity for natural continuation
+        restSpeedThreshold: 100,
+        restDisplacementThreshold: 40,
+        overshootClamping: true,
+      }),
+    ]).start(() => {
       setIsFlipped(!isFlipped);
 
       if (!isFlipped) {
-        // Start secondary animations immediately after flip starts
-        Animated.sequence([
-          Animated.timing(logoMoveAnim, {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-          Animated.timing(detailsFadeAnim, {
-            toValue: 1,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-        ]).start();
+        // Start secondary animations
+        Animated.spring(logoMoveAnim, {
+          toValue: 1,
+          useNativeDriver: true,
+          tension: 40,
+          friction: 8,
+        }).start();
+        Animated.spring(detailsFadeAnim, {
+          toValue: 1,
+          useNativeDriver: true,
+          tension: 40,
+          friction: 8,
+        }).start();
       } else {
         // Reset animations when flipping to front
         logoMoveAnim.setValue(0);
@@ -98,13 +123,15 @@ const CardFlipComponent = ({ cardId }) => {
   };
 
   const frontInterpolate = flipAnim.interpolate({
-    inputRange: [0, 180],
-    outputRange: ['0deg', '180deg'],
+    inputRange: [-45, 0, 180, 225],
+    outputRange: ['-45deg', '0deg', '180deg', '225deg'],
+    extrapolate: 'clamp',
   });
 
   const backInterpolate = flipAnim.interpolate({
-    inputRange: [0, 180],
-    outputRange: ['180deg', '360deg'],
+    inputRange: [-45, 0, 180, 225],
+    outputRange: ['225deg', '180deg', '360deg', '405deg'],
+    extrapolate: 'clamp',
   });
 
   const frontAnimatedStyle = {
@@ -117,7 +144,7 @@ const CardFlipComponent = ({ cardId }) => {
 
   const logoTranslateY = logoMoveAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -120],
+    outputRange: [0, -110],
   });
 
   const renderFront = () => {
@@ -128,40 +155,62 @@ const CardFlipComponent = ({ cardId }) => {
     const cardNumberSegments = formatCardNumber(card.card_number);
 
     return (
-      <View style={[styles.backContainer, { backgroundColor: cardColor }]}>
+      <View w={CARD_WIDTH} h={CARD_HEIGHT} br={20} of="hidden" bg={cardColor}>
         <Image source={cardImg} style={styles.cardImage} resizeMode="cover" />
-        <View style={styles.contentContainer}>
+        <View f={1} jc="flex-end" ai="flex-end">
           {/* Animated Logo */}
           <Animated.View style={[styles.logoContainer, { transform: [{ translateY: logoTranslateY }] }]}>
             <Image source={logoImg} style={styles.logo} resizeMode="contain" />
           </Animated.View>
 
           {/* Animated Card Details */}
-          <Animated.View style={[styles.cardDetailsWrapper, { opacity: detailsFadeAnim }]}>
-            <View style={styles.cardNumberContainer}>
-              <XStack ai="flex-end" gap="$2">
-                <TouchableOpacity onPress={handleCopyCardNumber} style={styles.copyButton}>
-                  <ClipboardDocumentIcon size={22} color={textColor} />
-                </TouchableOpacity>
-                <View>
-                  {cardNumberSegments.map((segment, index) => (
-                    <Text key={index} style={[styles.cardNumber, { color: textColor }]}>
-                      {segment}
-                    </Text>
-                  ))}
-                </View>
-              </XStack>
-            </View>
-            <View style={styles.cardDetailsContainer}>
-              <View style={styles.detailRow}>
-                <Text style={[styles.detailLabel, { color: textColor }]}>Expiry Date</Text>
-                <Text style={[styles.detailValue, { color: textColor }]}>{formatExpiryDate(card.expiry_date)}</Text>
+          <Animated.View style={[{ opacity: detailsFadeAnim }]}>
+            <YStack ai="flex-end" jc="space-between" w="100%" h={CARD_HEIGHT - 100} px="$6" pb="$6" pt="$2" gap="$5">
+              <View ai="flex-end">
+                <XStack ai="flex-end" gap="$3">
+                  <XStack mb="$2">
+                    <TouchableOpacity onPress={handleCopyCardNumber} p="$2" hitSlop={10}>
+                      <ClipboardDocumentIcon size={22} color={textColor} />
+                    </TouchableOpacity>
+                  </XStack>
+                  <View>
+                    {cardNumberSegments.map((segment, index) => (
+                      <Text
+                        key={index}
+                        fos={28}
+                        fontWeight="900"
+                        ls={2}
+                        fontStyle="italic"
+                        fontFamily={'$archivoBlack'}
+                        color={textColor}
+                        textAlign="right"
+                        letterSpacing={0.5}
+                      >
+                        {segment}
+                      </Text>
+                    ))}
+                  </View>
+                </XStack>
               </View>
-              <View style={styles.detailRow}>
-                <Text style={[styles.detailLabel, { color: textColor }]}>CVV</Text>
-                <Text style={[styles.detailValue, { color: textColor }]}>{card.cvv}</Text>
-              </View>
-            </View>
+              <YStack ai="flex-end" gap="$4">
+                <YStack ai="flex-end">
+                  <Text color={textColor} fos={12} mb="$1" fontWeight="600">
+                    Expiry Date
+                  </Text>
+                  <Text color={textColor} fos={16} fontWeight="800">
+                    {formatExpiryDate(card.expiry_date)}
+                  </Text>
+                </YStack>
+                <YStack ai="flex-end">
+                  <Text color={textColor} fos={12} mb="$1" fontWeight="600">
+                    CVV
+                  </Text>
+                  <Text color={textColor} fos={16} fontWeight="800">
+                    {card.cvv}
+                  </Text>
+                </YStack>
+              </YStack>
+            </YStack>
           </Animated.View>
         </View>
       </View>
@@ -169,11 +218,13 @@ const CardFlipComponent = ({ cardId }) => {
   };
 
   return (
-    <View style={styles.wrapper}>
+    <View w={CARD_WIDTH} h={CARD_HEIGHT} zi={1}>
       <TouchableWithoutFeedback onPress={flipCard}>
-        <View style={styles.container}>
+        <View w={CARD_WIDTH} h={CARD_HEIGHT} pos="relative" jc="center" ai="center">
           <Animated.View style={[styles.cardContainer, frontAnimatedStyle]}>{renderFront()}</Animated.View>
-          <Animated.View style={[styles.cardContainer, styles.cardBack, backAnimatedStyle]}>{renderBack()}</Animated.View>
+          <Animated.View style={[styles.cardContainer, styles.cardBack, backAnimatedStyle]}>
+            {renderBack()}
+          </Animated.View>
         </View>
       </TouchableWithoutFeedback>
     </View>
@@ -181,18 +232,6 @@ const CardFlipComponent = ({ cardId }) => {
 };
 
 const styles = StyleSheet.create({
-  wrapper: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    zIndex: 1,
-  },
-  container: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   cardContainer: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
@@ -202,21 +241,10 @@ const styles = StyleSheet.create({
   cardBack: {
     transform: [{ rotateY: '180deg' }],
   },
-  backContainer: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
   cardImage: {
     width: '100%',
     height: '100%',
     position: 'absolute',
-  },
-  contentContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
   },
   logoContainer: {
     position: 'absolute',
@@ -230,47 +258,6 @@ const styles = StyleSheet.create({
   logo: {
     width: '100%',
     height: '100%',
-  },
-  cardDetailsWrapper: {
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end',
-    width: '100%',
-    height: CARD_HEIGHT - 100,
-    paddingHorizontal: 30,
-    paddingBottom: 20,
-    gap: 20,
-  },
-  cardNumberContainer: {
-    alignItems: 'flex-end',
-  },
-  cardNumber: {
-    color: Colors.dark.text,
-    fontSize: 32,
-    fontWeight: '900',
-    letterSpacing: 2,
-    fontStyle: 'italic',
-  },
-  cardDetailsContainer: {
-    alignItems: 'flex-end',
-    gap: 15,
-  },
-  detailRow: {
-    alignItems: 'flex-end',
-  },
-  detailLabel: {
-    color: Colors.dark.textSecondary,
-    fontSize: 12,
-    marginBottom: 4,
-    fontWeight: '600',
-  },
-  detailValue: {
-    color: Colors.dark.text,
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  copyButton: {
-    padding: 8,
-    marginLeft: 4,
   },
 });
 

@@ -86,7 +86,7 @@ const archivoFont = createFont({
     600: { normal: 'Archivo_600SemiBold' },
     700: { normal: 'Archivo_700Bold' },
     800: { normal: 'Archivo_800ExtraBold' },
-    900: { normal: 'Archivo_900Black' },
+    900: { normal: 'Archivo_900Black', italic: 'Archivo_900Black_Italic' },
   },
 });
 
@@ -97,7 +97,7 @@ const archivoBlackFont = createFont({
     900: '900',
   },
   face: {
-    900: { normal: 'Archivo_900Black' },
+    900: { normal: 'Archivo_900Black', italic: 'Archivo_900Black_Italic' },
   },
 });
 

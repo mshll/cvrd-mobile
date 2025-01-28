@@ -3,7 +3,14 @@ import { BlurView } from 'expo-blur';
 import { StyleSheet } from 'react-native';
 import { Colors } from '@/config/colors';
 import { useCards } from '@/hooks/useCards';
-import { BuildingStorefrontIcon, FireIcon, MapPinIcon, TagIcon, PauseCircleIcon, XCircleIcon } from 'react-native-heroicons/solid';
+import {
+  BuildingStorefrontIcon,
+  FireIcon,
+  MapPinIcon,
+  TagIcon,
+  PauseCircleIcon,
+  XCircleIcon,
+} from 'react-native-heroicons/solid';
 import { CARD_WIDTH, CARD_HEIGHT, getCardTheme, getCardAssets } from '@/utils/cardUtils';
 
 const getCardIcon = (type, color) => {
@@ -13,7 +20,7 @@ const getCardIcon = (type, color) => {
   if (type === 'Category') return <TagIcon size={20} color={color} />;
 };
 
-const CardComponent = ({ cardId, displayData }) => {
+const CardComponent = ({ cardId, displayData, scale = 1 }) => {
   const { getCardById } = useCards();
   const card = cardId ? getCardById(cardId) : null;
 
@@ -46,7 +53,7 @@ const CardComponent = ({ cardId, displayData }) => {
   const { cardImg, logoImg, visaImg } = getCardAssets(type, cardTheme);
 
   return (
-    <View width={CARD_WIDTH} height={CARD_HEIGHT} borderRadius={20} overflow="hidden" bg={cardColor}>
+    <View width={CARD_WIDTH * scale} height={CARD_HEIGHT * scale} borderRadius={20} overflow="hidden" bg={cardColor}>
       {/* Background Layer */}
       <View style={StyleSheet.absoluteFill}>
         <Image source={cardImg} style={styles.cardImage} resizeMode="cover" />
@@ -60,12 +67,29 @@ const CardComponent = ({ cardId, displayData }) => {
           <XStack style={styles.topRow}>
             <BlurView intensity={20} tint={blurTint} style={styles.badge}>
               <Text fontSize={14}>{emoji}</Text>
-              <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600" maxWidth={110} numberOfLines={1}>
+              <Text
+                fontSize={12}
+                color={textColor}
+                marginLeft={4}
+                fontWeight="600"
+                numberOfLines={1}
+                maxWidth={CARD_WIDTH * scale * 0.5}
+              >
                 {label}
               </Text>
             </BlurView>
 
-            <View style={[styles.badge, { paddingHorizontal: 10, paddingVertical: 0, borderRadius: 10 }]}>{getCardIcon(type, textColor)}</View>
+            <View
+              style={[
+                {
+                  paddingRight: 2,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                },
+              ]}
+            >
+              {getCardIcon(type, textColor)}
+            </View>
           </XStack>
 
           {/* Status Badges */}
@@ -81,8 +105,16 @@ const CardComponent = ({ cardId, displayData }) => {
         </YStack>
 
         {/* Logo */}
-        <View style={styles.logoContainer}>
-          <Image source={logoImg} style={styles.logo} resizeMode="contain" />
+        <View
+          w={CARD_WIDTH * scale * 0.5}
+          h={100}
+          jc="center"
+          ai="center"
+          pos="absolute"
+          t={CARD_HEIGHT * scale * 0.5 - 50}
+          r={30}
+        >
+          <Image source={logoImg} w="100%" h="100%" resizeMode="contain" />
         </View>
 
         {/* Bottom Row */}

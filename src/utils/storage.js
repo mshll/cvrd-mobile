@@ -1,64 +1,82 @@
 import { Colors } from '@/config/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CARD_CUSTOMIZATION_KEY = 'card_customizations';
+export const StorageKeys = {
+  CARD_CUSTOMIZATION: 'cvrd:card_customizations',
+};
 
-// Default values
-export const DEFAULT_EMOJIS = ['💳', '💰', '🏦', '🛍️', '🎫', '✈️', '🛒', '🎮', '🍽️', '🏭', '💻'];
-export const DEFAULT_COLORS = [
-  { name: 'pink', value: '#E14C81' },
-  { name: 'green', value: '#77f5bc' },
-  { name: 'blue', value: '#3981A6' },
-  { name: 'yellow', value: '#EBE14B' },
-  { name: 'purple', value: '#9747FF' },
-  { name: 'orange', value: '#FF7847' },
-  { name: 'teal', value: '#47D5FF' },
-  { name: 'red', value: '#FF4747' },
-  { name: 'indigo', value: '#4762FF' },
-  { name: 'lime', value: '#B1FF47' },
-  { name: 'cyan', value: '#47FFF4' },
-  { name: 'custom', value: Colors.dark.backgroundTertiary },
-];
+const DEFAULT_CUSTOMIZATION = {
+  emojis: ['💳', '💰', '🏦', '🛍️', '🎫', '✈️', '🛒', '🎮', '🍽️', '🏭', '💻'],
+  colors: [
+    { name: 'red', value: '#d6515b' },
+    { name: 'green', value: '#77f5bc' },
+    { name: 'blue', value: '#3981A6' },
+    { name: 'yellow', value: '#EBE14B' },
+    { name: 'purple', value: '#9747FF' },
+    { name: 'orange', value: '#FF7847' },
+    { name: 'teal', value: '#47D5FF' },
+    { name: 'pink', value: '#d6515b' },
+    { name: 'indigo', value: '#4762FF' },
+    { name: 'lime', value: '#B1FF47' },
+    { name: 'cyan', value: '#47FFF4' },
+    { name: 'custom', value: Colors.dark.backgroundTertiary },
+  ],
+};
 
-export const getCardCustomization = async (cardId) => {
+// Create a deep clone of the default customization
+const cloneDefaults = () => ({
+  emojis: [...DEFAULT_CUSTOMIZATION.emojis],
+  colors: DEFAULT_CUSTOMIZATION.colors.map((color) => ({ ...color })),
+});
+
+export const Defaults = {
+  ...DEFAULT_CUSTOMIZATION,
+  EMOJI: '💳',
+  COLOR: '#3981A6',
+};
+
+const getStoredCustomizations = async () => {
   try {
-    const customizations = await AsyncStorage.getItem(CARD_CUSTOMIZATION_KEY);
-    if (customizations) {
-      const parsed = JSON.parse(customizations);
-      return parsed[cardId] || { emojis: [...DEFAULT_EMOJIS], colors: [...DEFAULT_COLORS] };
-    }
-    return { emojis: [...DEFAULT_EMOJIS], colors: [...DEFAULT_COLORS] };
-  } catch (error) {
-    console.error('Error getting card customization:', error);
-    return { emojis: [...DEFAULT_EMOJIS], colors: [...DEFAULT_COLORS] };
+    const data = await AsyncStorage.getItem(StorageKeys.CARD_CUSTOMIZATION);
+    return data ? JSON.parse(data) : {};
+  } catch {
+    return {};
   }
 };
 
-export const saveCardCustomization = async (cardId, emojis, colors) => {
-  try {
-    const customizations = await AsyncStorage.getItem(CARD_CUSTOMIZATION_KEY);
-    const parsed = customizations ? JSON.parse(customizations) : {};
+export const getCardCustomization = async (cardId) => {
+  if (!cardId) return cloneDefaults();
+  const customizations = await getStoredCustomizations();
+  return customizations[cardId] || cloneDefaults();
+};
 
-    parsed[cardId] = { emojis, colors };
-    await AsyncStorage.setItem(CARD_CUSTOMIZATION_KEY, JSON.stringify(parsed));
+export const saveCardCustomization = async (cardId, emojis, colors) => {
+  if (!cardId) return;
+  try {
+    const customizations = await getStoredCustomizations();
+    customizations[cardId] = {
+      emojis: Array.isArray(emojis) ? [...emojis] : [...DEFAULT_CUSTOMIZATION.emojis],
+      colors: Array.isArray(colors)
+        ? colors.map((color) => ({ ...color }))
+        : DEFAULT_CUSTOMIZATION.colors.map((color) => ({ ...color })),
+    };
+    await AsyncStorage.setItem(StorageKeys.CARD_CUSTOMIZATION, JSON.stringify(customizations));
   } catch (error) {
-    console.error('Error saving card customization:', error);
+    console.error('Failed to save card customization:', error);
   }
 };
 
 export const resetCardCustomization = async (cardId) => {
+  if (!cardId) return cloneDefaults();
   try {
-    const customizations = await AsyncStorage.getItem(CARD_CUSTOMIZATION_KEY);
-    if (customizations) {
-      const parsed = JSON.parse(customizations);
-      // Instead of just deleting, set it to default values
-      parsed[cardId] = { emojis: [...DEFAULT_EMOJIS], colors: [...DEFAULT_COLORS] };
-      await AsyncStorage.setItem(CARD_CUSTOMIZATION_KEY, JSON.stringify(parsed));
-    }
-  } catch (error) {
-    console.error('Error resetting card customization:', error);
+    const customizations = await getStoredCustomizations();
+    const defaultCustomization = cloneDefaults();
+    customizations[cardId] = defaultCustomization;
+    await AsyncStorage.setItem(StorageKeys.CARD_CUSTOMIZATION, JSON.stringify(customizations));
+    return defaultCustomization;
+  } catch {
+    return cloneDefaults();
   }
 };
 
-export const DEFAULT_EMOJI = '💳';
-export const DEFAULT_COLOR = '#3981A6'; // blue
+export const { EMOJI: DEFAULT_EMOJI, COLOR: DEFAULT_COLOR } = Defaults;

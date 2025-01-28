@@ -200,31 +200,32 @@ function CustomizeButton({ onPress }) {
 
 function ReorganizeSheet({ isOpen, onOpenChange, sections, onReorder, onReset }) {
   return (
-    <BottomSheet isOpen={isOpen} onClose={onOpenChange} enableContentPanningGesture={false}>
-      <YStack px="$4" pt="$5" pb="$10">
-        <XStack jc="space-between" ai="center" mb="$3">
-          <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
-            Customize
-          </Text>
-          <XStack gap="$2">
-            <Button size="$3" bg="transparent" pressStyle={{ bg: Colors.dark.backgroundTertiary }} onPress={onReset}>
-              <Text color={Colors.dark.textSecondary}>Reset</Text>
-            </Button>
-            <Button
-              size="$3"
-              bg={Colors.dark.backgroundSecondary}
-              pressStyle={{ bg: Colors.dark.backgroundTertiary }}
-              onPress={() => onOpenChange(false)}
-            >
-              <Text color={Colors.dark.text}>Done</Text>
-            </Button>
-          </XStack>
-        </XStack>
-        <View backgroundColor={Colors.dark.background}>
-          <DraggableList sections={sections} onReorder={onReorder} />
-        </View>
-      </YStack>
-    </BottomSheet>
+    // <BottomSheet isOpen={isOpen} onClose={onOpenChange} enableContentPanningGesture={false}>
+    //   <YStack px="$4" pt="$5" pb="$10">
+    //     <XStack jc="space-between" ai="center" mb="$3">
+    //       <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+    //         Customize
+    //       </Text>
+    //       <XStack gap="$2">
+    //         <Button size="$3" bg="transparent" pressStyle={{ bg: Colors.dark.backgroundTertiary }} onPress={onReset}>
+    //           <Text color={Colors.dark.textSecondary}>Reset</Text>
+    //         </Button>
+    //         <Button
+    //           size="$3"
+    //           bg={Colors.dark.backgroundSecondary}
+    //           pressStyle={{ bg: Colors.dark.backgroundTertiary }}
+    //           onPress={() => onOpenChange(false)}
+    //         >
+    //           <Text color={Colors.dark.text}>Done</Text>
+    //         </Button>
+    //       </XStack>
+    //     </XStack>
+    //     <View backgroundColor={Colors.dark.background}>
+    //       <DraggableList sections={sections} onReorder={onReorder} />
+    //     </View>
+    //   </YStack>
+    // </BottomSheet>
+    <></>
   );
 }
 
@@ -282,7 +283,13 @@ function HomeScreen() {
         <CustomizeButton onPress={() => setIsReorganizing(true)} />
       </ScrollView>
 
-      <ReorganizeSheet isOpen={isReorganizing} onOpenChange={setIsReorganizing} sections={sections} onReorder={handleReorder} onReset={resetOrder} />
+      <ReorganizeSheet
+        isOpen={isReorganizing}
+        onOpenChange={setIsReorganizing}
+        sections={sections}
+        onReorder={handleReorder}
+        onReset={resetOrder}
+      />
     </View>
   );
 }

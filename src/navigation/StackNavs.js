@@ -39,30 +39,8 @@ export const HomeStack = () => {
         component={HomeScreen}
         options={{
           headerTitle: () => (
-            <Image
-              source={require('@/../assets/logo-primary.png')}
-              style={{ height: 24, resizeMode: 'contain' }}
-            />
+            <Image source={require('@/../assets/logo-primary.png')} style={{ height: 24, resizeMode: 'contain' }} />
           ),
-        }}
-      />
-      <Stack.Screen
-        name={Paths.ADD_CARD_SCREEN}
-        component={AddCardScreen}
-        options={{
-          presentation: 'modal',
-          headerTitle: 'Add Card',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name={Paths.CARD_DETAILS}
-        component={CardDetailsScreen}
-        options={{
-          headerTitle: 'Card Details',
-          animation: 'slide_from_right',
-          gestureEnabled: true,
-          gestureDirection: 'horizontal',
         }}
       />
     </Stack.Navigator>

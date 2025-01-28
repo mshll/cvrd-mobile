@@ -28,11 +28,14 @@ import {
   Archivo_700Bold,
   Archivo_800ExtraBold,
   Archivo_900Black,
+  Archivo_900Black_Italic,
 } from '@expo-google-fonts/dev';
 import MainNav from '@/navigation/MainNav';
 import AuthNav from '@/navigation/AuthNav';
 import { AuthProvider, useAuthContext } from '@/context/AuthContext';
 import toastConfig from '@/config/toastConfig';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const queryClient = new QueryClient();
 
@@ -64,29 +67,32 @@ export default function App() {
     Archivo_700Bold,
     Archivo_800ExtraBold,
     Archivo_900Black,
+    Archivo_900Black_Italic,
   });
 
   if (!fontsLoaded) return null;
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <TamaguiProvider config={tamaguiConfig}>
-          <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
-            <AuthProvider>
-              <BottomSheetModalProvider>
-                <StatusBar animated={true} barStyle="default" />
-                <NavigationContainer>
-                  {/* <Navigation /> */}
-                  <MainNav />
-                  {/* <AuthNav /> */}
-                </NavigationContainer>
-                <Toast config={toastConfig} />
-              </BottomSheetModalProvider>
-            </AuthProvider>
-          </Theme>
-        </TamaguiProvider>
-      </GestureHandlerRootView>
+      <ActionSheetProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <TamaguiProvider config={tamaguiConfig}>
+            <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
+              <AuthProvider>
+                <BottomSheetModalProvider>
+                  <StatusBar animated={true} barStyle="default" />
+                  <NavigationContainer>
+                    {/* <Navigation /> */}
+                    <MainNav />
+                    {/* <AuthNav /> */}
+                  </NavigationContainer>
+                  <Toast config={toastConfig} />
+                </BottomSheetModalProvider>
+              </AuthProvider>
+            </Theme>
+          </TamaguiProvider>
+        </GestureHandlerRootView>
+      </ActionSheetProvider>
     </QueryClientProvider>
   );
 }
