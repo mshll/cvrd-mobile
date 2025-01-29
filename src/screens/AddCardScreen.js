@@ -1,5 +1,5 @@
 import { Colors } from '@/config/colors';
-import { View } from 'tamagui';
+import { View, Button, Text } from 'tamagui';
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -18,6 +18,11 @@ import { Dimensions } from 'react-native';
 import AddCardComponent from '@/components/AddCardComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, CommonActions } from '@react-navigation/native';
+import CardConfigComponent from '@/components/card-creation/CardConfigComponent';
+import CardReviewComponent from '@/components/card-creation/CardReviewComponent';
+import { Paths } from '@/navigation/paths';
 
 const window = Dimensions.get('window');
 const WINDOW_WIDTH = window.width;
@@ -26,55 +31,59 @@ const CARD_ASPECT_RATIO = 1.586;
 const CARD_WIDTH = Math.round(WINDOW_WIDTH * 0.6);
 const CARD_HEIGHT = Math.round(CARD_WIDTH * CARD_ASPECT_RATIO);
 const CIRCLE_SIZE = 60;
-const START_TOP = 100;
+const START_TOP = 140;
 const BOTTOM_NAV_HEIGHT = 80;
 const CARD_SPACING = 20;
 
 const SAMPLE_CARDS = [
   {
     id: '1',
-    type: 'Burner',
-    label: 'Quick Pay',
-    emoji: '🔥',
-    color: 'pink',
-    title: 'Single-Use',
+    type: 'Merchant',
+    label: 'Amazon',
+    emoji: '🛍️',
+    color: Colors.cards.green,
+    title: 'Merchant-Locked',
+    description: 'Use your card with only one merchant. Your Amazon card!',
   },
   {
     id: '2',
-    type: 'Merchant',
-    label: 'Shopping',
-    emoji: '🛍️',
-    color: 'green',
-    title: 'Merchant-Locked',
+    type: 'Category',
+    label: 'Groceries',
+    emoji: '📅',
+    color: Colors.cards.pink,
+    title: 'Category-Locked',
+    description:
+      'Use your card for one category of expenses. Only shop for groceries with this card',
   },
   {
     id: '3',
     type: 'Location',
-    label: 'Travel',
+    label: 'London',
     emoji: '✈️',
-    color: 'blue',
+    color: Colors.cards.blue,
     title: 'Location-Locked',
+    description: 'Set location boundaries for card usage. Budget for your trip to London!',
   },
   {
     id: '4',
-    type: 'Category',
-    label: 'Monthly',
-    emoji: '📅',
-    color: 'yellow',
-    title: 'Category-Locked',
+    type: 'Burner',
+    label: 'Notion Free Trial',
+    emoji: '🔥',
+    color: Colors.cards.yellow,
+    title: 'Single-Use',
+    description: 'A card that expires after one use. Free trials make great burners!',
   },
 ];
 
 const springConfig = {
   damping: 15,
-  stiffness: 60,
+  stiffness: 70,
   mass: 1,
 };
 
 const liquidSpring = {
-  damping: 12,
-  stiffness: 30,
-  mass: 0.8,
+  damping: 10,
+  stiffness: 15,
 };
 
 const CarouselCard = memo(({ item, index, scrollX, showCarousel }) => {
@@ -88,21 +97,15 @@ const CarouselCard = memo(({ item, index, scrollX, showCarousel }) => {
     ];
 
     const scale = interpolate(scrollX.value, inputRange, [0.85, 1, 0.85], 'clamp');
-
     const translateY = interpolate(scrollX.value, inputRange, [30, 0, 30], 'clamp');
-
     const slideOut = index === centerIndex ? 0 : index < centerIndex ? -CARD_WIDTH : CARD_WIDTH;
+    const translateX = showCarousel ? withSpring(0, { damping: 10, stiffness: 20 }) : slideOut;
 
-    const translateX = showCarousel ? withSpring(0, { damping: 15, stiffness: 40 }) : slideOut;
-
-    // Both center and side cards start hidden
-    let opacity = 0;
-
+    // Center card appears instantly, side cards animate in
+    let opacity;
     if (index === centerIndex) {
-      // Center card appears first when showCarousel becomes true
-      opacity = showCarousel ? withSpring(1, { damping: 8, stiffness: 50 }) : 0;
+      opacity = showCarousel ? 1 : 0;
     } else {
-      // Side cards appear with a delay after center card
       opacity = showCarousel ? withDelay(200, withSpring(1, { damping: 12, stiffness: 35 })) : 0;
     }
 
@@ -113,34 +116,48 @@ const CarouselCard = memo(({ item, index, scrollX, showCarousel }) => {
   });
 
   return (
-    <Animated.View
-      style={[
-        {
-          width: CARD_WIDTH,
-          marginHorizontal: CARD_SPACING / 2,
-        },
-        cardStyle,
-      ]}
+    <View
+      style={{
+        width: CARD_WIDTH,
+        marginRight: index < SAMPLE_CARDS.length - 1 ? CARD_SPACING : 0,
+        alignItems: 'center',
+      }}
     >
-      <AddCardComponent type={item.type} label={item.label} emoji={item.emoji} color={item.color} />
-    </Animated.View>
+      <Animated.View style={cardStyle}>
+        <AddCardComponent
+          type={item.type}
+          label={item.label}
+          emoji={item.emoji}
+          color={item.color}
+        />
+      </Animated.View>
+    </View>
   );
 });
 
-const AnimatedTitle = memo(({ scrollX }) => {
+const AnimatedTitle = memo(({ scrollX, showCarousel }) => {
+  const titleContainerStyle = useAnimatedStyle(() => {
+    return {
+      opacity: showCarousel ? withDelay(200, withSpring(1, { damping: 12, stiffness: 35 })) : 0,
+    };
+  });
+
   return (
-    <View
-      style={{
-        position: 'absolute',
-        top: -80,
-        left: 0,
-        right: 0,
-        height: 40,
-        justifyContent: 'center',
-      }}
+    <Animated.View
+      style={[
+        {
+          position: 'absolute',
+          top: -80,
+          left: 0,
+          right: 0,
+          height: 40,
+          justifyContent: 'center',
+        },
+        titleContainerStyle,
+      ]}
     >
       {SAMPLE_CARDS.map((card, index) => {
-        const titleStyle = useAnimatedStyle(() => {
+        const containerStyle = useAnimatedStyle(() => {
           const x = interpolate(
             scrollX.value,
             [
@@ -152,13 +169,12 @@ const AnimatedTitle = memo(({ scrollX }) => {
             'clamp'
           );
 
-          // Calculate opacity based on distance from center
           const opacity = interpolate(
             scrollX.value,
             [
-              (index - 0.8) * (CARD_WIDTH + CARD_SPACING), // Start fade slightly before
+              (index - 0.8) * (CARD_WIDTH + CARD_SPACING),
               index * (CARD_WIDTH + CARD_SPACING),
-              (index + 0.8) * (CARD_WIDTH + CARD_SPACING), // End fade slightly after
+              (index + 0.8) * (CARD_WIDTH + CARD_SPACING),
             ],
             [0, 1, 0],
             'clamp'
@@ -193,7 +209,7 @@ const AnimatedTitle = memo(({ scrollX }) => {
                 justifyContent: 'center',
                 height: '100%',
               },
-              titleStyle,
+              containerStyle,
             ]}
           >
             <Animated.Text
@@ -212,66 +228,202 @@ const AnimatedTitle = memo(({ scrollX }) => {
           </Animated.View>
         );
       })}
-    </View>
+    </Animated.View>
   );
 });
 
-const Carousel = memo(({ scrollX, showCarousel }) => {
-  const flatListRef = useAnimatedRef();
-
-  const renderCard = useCallback(
-    ({ item, index }) => (
-      <CarouselCard item={item} index={index} scrollX={scrollX} showCarousel={showCarousel} />
-    ),
-    [showCarousel]
-  );
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollX.value = event.contentOffset.x;
-    },
+const AnimatedDescription = memo(({ scrollX, showCarousel }) => {
+  const descriptionContainerStyle = useAnimatedStyle(() => {
+    return {
+      opacity: showCarousel ? withDelay(200, withSpring(1, { damping: 12, stiffness: 35 })) : 0,
+    };
   });
 
-  useEffect(() => {
-    // Scroll to center card after mounting
-    if (flatListRef.current) {
-      setTimeout(() => {
-        flatListRef.current.scrollToIndex({ index: 1, animated: false });
-      }, 100);
-    }
-  }, []);
-
   return (
-    <View>
-      <AnimatedTitle scrollX={scrollX} />
-      <Animated.FlatList
-        ref={flatListRef}
-        data={SAMPLE_CARDS}
-        renderItem={renderCard}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH + CARD_SPACING}
-        decelerationRate="fast"
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        contentContainerStyle={{
-          paddingHorizontal: (WINDOW_WIDTH - CARD_WIDTH) / 2,
-        }}
-        getItemLayout={(data, index) => ({
-          length: CARD_WIDTH + CARD_SPACING,
-          offset: (CARD_WIDTH + CARD_SPACING) * index,
-          index,
-        })}
-      />
-    </View>
+    <Animated.View
+      style={[
+        {
+          position: 'absolute',
+          top: CARD_HEIGHT + 40,
+          left: 0,
+          right: 0,
+          minHeight: 60,
+          justifyContent: 'center',
+        },
+        descriptionContainerStyle,
+      ]}
+    >
+      {SAMPLE_CARDS.map((card, index) => {
+        const containerStyle = useAnimatedStyle(() => {
+          const x = interpolate(
+            scrollX.value,
+            [
+              (index - 1) * (CARD_WIDTH + CARD_SPACING),
+              index * (CARD_WIDTH + CARD_SPACING),
+              (index + 1) * (CARD_WIDTH + CARD_SPACING),
+            ],
+            [-CARD_WIDTH, 0, CARD_WIDTH],
+            'clamp'
+          );
+
+          const opacity = interpolate(
+            scrollX.value,
+            [
+              (index - 0.8) * (CARD_WIDTH + CARD_SPACING),
+              index * (CARD_WIDTH + CARD_SPACING),
+              (index + 0.8) * (CARD_WIDTH + CARD_SPACING),
+            ],
+            [0, 1, 0],
+            'clamp'
+          );
+
+          const scale = interpolate(
+            scrollX.value,
+            [
+              (index - 1) * (CARD_WIDTH + CARD_SPACING),
+              index * (CARD_WIDTH + CARD_SPACING),
+              (index + 1) * (CARD_WIDTH + CARD_SPACING),
+            ],
+            [0.8, 1, 0.8],
+            'clamp'
+          );
+
+          return {
+            transform: [{ translateX: x }, { scale }],
+            opacity,
+          };
+        });
+
+        return (
+          <Animated.View
+            key={card.id}
+            style={[
+              {
+                position: 'absolute',
+                width: CARD_WIDTH,
+                left: WINDOW_WIDTH / 2 - CARD_WIDTH / 2,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: 16,
+              },
+              containerStyle,
+            ]}
+          >
+            <Text
+              style={{
+                fontSize: 14,
+                color: Colors.dark.textSecondary,
+                textAlign: 'center',
+                lineHeight: 20,
+              }}
+            >
+              {card.description}
+            </Text>
+          </Animated.View>
+        );
+      })}
+    </Animated.View>
   );
 });
+
+const SelectButton = memo(({ showCarousel, selectedCard, onSelect }) => {
+  const buttonStyle = useAnimatedStyle(() => {
+    return {
+      opacity: showCarousel ? withDelay(400, withSpring(1, { damping: 15 })) : 0,
+      transform: [
+        {
+          translateY: showCarousel ? withDelay(400, withSpring(0, { damping: 15 })) : 20,
+        },
+      ],
+    };
+  });
+
+  return (
+    <Animated.View style={[{ width: CARD_WIDTH }, buttonStyle]}>
+      <Button
+        backgroundColor={Colors.dark.backgroundSecondary}
+        color={Colors.dark.text}
+        size="$5"
+        fontWeight="600"
+        borderRadius={12}
+        pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+        onPress={() => onSelect(selectedCard)}
+      >
+        Select Card
+      </Button>
+    </Animated.View>
+  );
+});
+
+const Carousel = memo(
+  ({ scrollX, showCarousel, selectedCard, setSelectedCard, onSelect, initialIndex }) => {
+    const flatListRef = useAnimatedRef();
+
+    const renderCard = useCallback(
+      ({ item, index }) => (
+        <CarouselCard item={item} index={index} scrollX={scrollX} showCarousel={showCarousel} />
+      ),
+      [showCarousel]
+    );
+
+    const scrollHandler = useAnimatedScrollHandler({
+      onScroll: (event) => {
+        scrollX.value = event.contentOffset.x;
+        // Update selected card based on scroll position
+        const selectedIndex = Math.round(event.contentOffset.x / (CARD_WIDTH + CARD_SPACING));
+        runOnJS(setSelectedCard)(SAMPLE_CARDS[selectedIndex]);
+      },
+    });
+
+    // Set initial scroll value directly
+    useEffect(() => {
+      if (initialIndex !== undefined) {
+        scrollX.value = initialIndex * (CARD_WIDTH + CARD_SPACING);
+      }
+    }, [initialIndex]);
+
+    return (
+      <View>
+        <AnimatedTitle scrollX={scrollX} showCarousel={showCarousel} />
+        <Animated.FlatList
+          ref={flatListRef}
+          data={SAMPLE_CARDS}
+          renderItem={renderCard}
+          keyExtractor={(item) => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={CARD_WIDTH + CARD_SPACING}
+          decelerationRate="fast"
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          contentContainerStyle={{
+            paddingHorizontal: (WINDOW_WIDTH - CARD_WIDTH) / 2,
+          }}
+          getItemLayout={(data, index) => ({
+            length: CARD_WIDTH + CARD_SPACING,
+            offset: (CARD_WIDTH + CARD_SPACING) * index,
+            index,
+          })}
+          initialScrollIndex={initialIndex}
+          initialNumToRender={SAMPLE_CARDS.length}
+        />
+        <AnimatedDescription scrollX={scrollX} showCarousel={showCarousel} />
+      </View>
+    );
+  }
+);
 
 const AddCardScreen = () => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const [showCard, setShowCard] = useState(false);
   const [showCarousel, setShowCarousel] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(SAMPLE_CARDS[1]); // Default to center card
+  const [selectedIndex, setSelectedIndex] = useState(1); // Track selected index
+  const [step, setStep] = useState('select'); // 'select', 'config', 'review'
+  const [cardData, setCardData] = useState(null);
+  const [isInitialMount, setIsInitialMount] = useState(true);
+
   const scale = useSharedValue(0.3);
   const borderRadius = useSharedValue(CIRCLE_SIZE / 2);
   const width = useSharedValue(CIRCLE_SIZE);
@@ -280,31 +432,18 @@ const AddCardScreen = () => {
   const squish = useSharedValue(1);
   const scrollX = useSharedValue(0);
 
-  const onAnimationComplete = () => {
-    setShowCard(true);
-    // Show carousel (center card first) after morphing circle fades out
-    setTimeout(() => {
-      setShowCarousel(true);
-    }, 400);
+  const resetAnimationValues = () => {
+    scale.value = 0.3;
+    borderRadius.value = CIRCLE_SIZE / 2;
+    width.value = CIRCLE_SIZE;
+    height.value = CIRCLE_SIZE;
+    translateY.value = WINDOW_HEIGHT - (insets.top + START_TOP + BOTTOM_NAV_HEIGHT);
+    squish.value = 1;
+    setShowCard(false);
+    setShowCarousel(false);
   };
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      width: width.value,
-      height: height.value,
-      borderRadius: borderRadius.value,
-      transform: [
-        { scale: scale.value },
-        { translateY: translateY.value },
-        { scaleX: squish.value },
-        { scaleY: 2 - squish.value },
-      ],
-      backgroundColor: Colors.dark.primary,
-      opacity: showCard ? withTiming(0, { duration: 200 }) : 1, // Faster fade out
-    };
-  });
-
-  useEffect(() => {
+  const startAnimation = () => {
     // Rise and bounce from bottom with slower spring
     translateY.value = withSpring(0, {
       ...springConfig,
@@ -370,7 +509,10 @@ const AddCardScreen = () => {
         CARD_HEIGHT,
         {
           ...liquidSpring,
-          stiffness: 35,
+          stiffness: 60,
+          velocity: 2,
+          overshootClamping: true,
+          restSpeedThreshold: 0.01,
         },
         () => {
           runOnJS(onAnimationComplete)();
@@ -386,25 +528,176 @@ const AddCardScreen = () => {
         stiffness: 25,
       })
     );
+  };
 
-    return () => {};
+  const onAnimationComplete = () => {
+    // Trigger both state changes after a very brief delay to ensure morphing is complete
+    requestAnimationFrame(() => {
+      setShowCard(true);
+      setShowCarousel(true);
+    });
+  };
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      width: width.value,
+      height: height.value,
+      borderRadius: borderRadius.value,
+      transform: [
+        { scale: scale.value },
+        { translateY: translateY.value },
+        { scaleX: squish.value },
+        { scaleY: 2 - squish.value },
+      ],
+      backgroundColor: Colors.dark.primary,
+      opacity: showCard ? withTiming(0, { duration: 100 }) : 1, // Faster fade out (reduced from 200ms to 100ms)
+    };
+  });
+
+  useEffect(() => {
+    startAnimation();
+    return () => {
+      resetAnimationValues();
+    };
   }, []);
+
+  // Watch for step changes to reset animation when returning to select
+  useEffect(() => {
+    if (step === 'select' && !isInitialMount) {
+      setShowCard(true);
+      setShowCarousel(true);
+      // Find the index of the currently selected card
+      const index = SAMPLE_CARDS.findIndex((card) => card.id === selectedCard.id);
+      if (index !== -1) {
+        setSelectedIndex(index);
+      }
+    }
+  }, [step]);
+
+  const handleSelectCard = (card) => {
+    setIsInitialMount(false);
+    const index = SAMPLE_CARDS.findIndex((c) => c.id === card.id);
+    if (index !== -1) {
+      setSelectedIndex(index);
+    }
+    setStep('config');
+  };
+
+  const handleConfigBack = () => {
+    setStep('select');
+  };
+
+  const handleConfigNext = (data) => {
+    setCardData(data);
+    setStep('review');
+  };
+
+  const handleReviewBack = () => {
+    setStep('config');
+  };
+
+  const handleCreateCard = (finalCardData) => {
+    // Reset navigation state and navigate to Home tab
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'Main',
+            state: {
+              routes: [{ name: Paths.HOME }],
+              index: 0,
+            },
+          },
+        ],
+      })
+    );
+  };
+
+  const renderStep = () => {
+    switch (step) {
+      case 'select':
+        return (
+          <>
+            {isInitialMount && (
+              <Animated.View
+                style={[
+                  {
+                    position: 'absolute',
+                  },
+                  animatedStyle,
+                ]}
+              />
+            )}
+            <View f={1} pb={BOTTOM_NAV_HEIGHT + insets.bottom + 20}>
+              <Carousel
+                scrollX={scrollX}
+                showCarousel={showCarousel}
+                selectedCard={selectedCard}
+                setSelectedCard={setSelectedCard}
+                onSelect={handleSelectCard}
+                initialIndex={selectedIndex}
+              />
+            </View>
+          </>
+        );
+      case 'config':
+        return (
+          <View f={1} pt={16}>
+            <CardConfigComponent
+              cardType={selectedCard.type}
+              initialData={selectedCard}
+              onBack={handleConfigBack}
+              onNext={handleConfigNext}
+            />
+          </View>
+        );
+      case 'review':
+        return (
+          <View f={1} pt={16}>
+            <CardReviewComponent
+              cardType={selectedCard.type}
+              cardData={cardData}
+              onBack={handleReviewBack}
+              onCreateCard={handleCreateCard}
+            />
+          </View>
+        );
+    }
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View f={1} bg={Colors.dark.background}>
-        <View width={WINDOW_WIDTH} height={WINDOW_HEIGHT} pt={insets.top + START_TOP} ai="center">
-          <View width={WINDOW_WIDTH} height={CARD_HEIGHT} ai="center" jc="center">
-            <Animated.View
-              style={[
-                {
-                  position: 'absolute',
-                },
-                animatedStyle,
-              ]}
-            />
-            <Carousel scrollX={scrollX} showCarousel={showCarousel} />
+        <View width={WINDOW_WIDTH} height={WINDOW_HEIGHT} ai="center">
+          {/* Card Section */}
+          <View
+            width={WINDOW_WIDTH}
+            ai="center"
+            mt={step === 'select' ? START_TOP : 0}
+            f={1}
+            style={{
+              paddingBottom: step === 'select' ? 0 : insets.bottom,
+            }}
+          >
+            {renderStep()}
           </View>
+
+          {/* Button Section */}
+          {step === 'select' && (
+            <View
+              position="absolute"
+              bottom={BOTTOM_NAV_HEIGHT + insets.bottom + 20}
+              width={WINDOW_WIDTH}
+              ai="center"
+            >
+              <SelectButton
+                showCarousel={showCarousel}
+                selectedCard={selectedCard}
+                onSelect={handleSelectCard}
+              />
+            </View>
+          )}
         </View>
       </View>
     </GestureHandlerRootView>

@@ -6,9 +6,9 @@ import { Colors } from '@/config/colors';
 import { useColorScheme } from 'react-native';
 import AddCardScreen from '@/screens/AddCardScreen';
 import EditCardScreen from '@/screens/EditCardScreen';
+import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { AnimatedTabBarNavigator } from '@/lib/react-native-animated-nav-tab-bar/dist/lib';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { useCards } from '@/hooks/useCards';
 import {
   WalletIcon,
@@ -75,7 +75,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name={'add-card-tab'}
-        component={HomeStack} // Won't be shown
+        component={HomeStack}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Circle backgroundColor={Colors.dark.card} padding={7} position="absolute">
@@ -88,14 +88,10 @@ const TabNavigator = () => {
         listeners={({ navigation }) => ({
           tabPress: (e) => {
             e.preventDefault();
-            navigation.navigate(Paths.HOME, {
-              screen: Paths.ADD_CARD_SCREEN,
-            });
+            navigation.navigate(Paths.ADD_CARD_SCREEN);
           },
           tabLongPress: () => {
-            navigation.navigate(Paths.HOME, {
-              screen: Paths.ADD_CARD_SCREEN,
-            });
+            navigation.navigate(Paths.ADD_CARD_SCREEN);
           },
         })}
       />
@@ -149,7 +145,7 @@ const MainNav = () => {
     >
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen
-        name={Paths.ADD_CARD}
+        name={Paths.ADD_CARD_SCREEN}
         component={AddCardScreen}
         options={{ presentation: 'modal' }}
       />

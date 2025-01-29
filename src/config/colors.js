@@ -26,7 +26,7 @@ export const Colors = {
     borderSecondary: '#cccccc',
   },
   cards: {
-    pink: '#E14C81',
+    pink: '#d6515b',
     green: '#77f5bc',
     blue: '#3981A6',
     yellow: '#EBE14B',
