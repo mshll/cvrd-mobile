@@ -45,6 +45,7 @@ const LIMIT_OPTIONS = [
 const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
   const [selectedLimitType, setSelectedLimitType] = useState('transaction');
   const selectedOption = LIMIT_OPTIONS.find((opt) => opt.id === selectedLimitType);
+  const insets = useSafeAreaInsets();
 
   const handleLimitChange = (value) => {
     setLimits((prev) => ({
@@ -54,7 +55,7 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
   };
 
   return (
-    <YStack gap="$4">
+    <YStack gap="$4" mt={insets.top - 30}>
       <YStack gap="$2">
         <Text
           color={Colors.dark.textSecondary}
@@ -73,7 +74,7 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
           color={Colors.dark.text}
           placeholderTextColor={Colors.dark.textTertiary}
           fontSize="$4"
-          p={0}
+          height={45}
           px="$4"
           fontWeight="700"
         />
@@ -113,7 +114,7 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
           ))}
         </XStack>
 
-        <YStack gap="$2" mt="$2" p="$3" br="$4">
+        <YStack gap="$2" mt="$2">
           <XStack jc="center" mb="$2">
             <Input
               value={`${limits[selectedLimitType]}`}
@@ -126,14 +127,13 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
               borderWidth={0}
               color={Colors.dark.text}
               width={120}
+              height={45}
               textAlign="center"
               fontSize="$5"
               fontWeight="600"
               placeholder="0"
               placeholderTextColor={Colors.dark.textTertiary}
-              px="$3"
-              py="$2"
-              br="$3"
+              px="$4"
             />
           </XStack>
           <Slider
@@ -426,66 +426,65 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
 
   return (
     <View f={1} backgroundColor={Colors.dark.background}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <YStack gap="$6" pb="$8">
-          {/* Common Settings */}
-          <CommonSettings
-            cardName={cardName}
-            setCardName={setCardName}
-            limits={limits}
-            setLimits={setLimits}
-          />
+      <View style={styles.container}>
+        {/* Common Settings */}
+        <CommonSettings
+          cardName={cardName}
+          setCardName={setCardName}
+          limits={limits}
+          setLimits={setLimits}
+        />
 
-          {/* Type-specific Settings */}
-          {renderTypeSpecificSettings()}
+        {/* Type-specific Settings */}
+        {renderTypeSpecificSettings()}
 
-          {/* Bottom Buttons */}
-          <XStack
-            width="100%"
-            gap="$12"
-            borderTopWidth={1}
-            borderTopColor={`${Colors.dark.border}40`}
-            pt="$4"
-            mt="$4"
-            jc="space-between"
+        {/* Bottom Buttons */}
+        <XStack
+          width="100%"
+          gap="$12"
+          borderTopWidth={1}
+          borderTopColor={`${Colors.dark.border}40`}
+          pt="$4"
+          mt="auto"
+          mb={insets.bottom + 50}
+          jc="space-between"
+        >
+          <Button
+            f={1}
+            backgroundColor={Colors.dark.backgroundSecondary}
+            pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+            onPress={onBack}
+            size="$5"
+            borderRadius={15}
           >
-            <Button
-              f={1}
-              backgroundColor={Colors.dark.backgroundSecondary}
-              pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
-              onPress={onBack}
-              size="$5"
-              borderRadius={15}
-            >
-              <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$archivo">
-                Back
-              </Text>
-            </Button>
-            <Button
-              f={1}
-              backgroundColor={Colors.dark.primary}
-              pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
-              onPress={handleNext}
-              size="$5"
-              borderRadius={15}
-            >
-              <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
-                Next
-              </Text>
-            </Button>
-          </XStack>
-        </YStack>
-      </ScrollView>
+            <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$archivo">
+              Back
+            </Text>
+          </Button>
+          <Button
+            f={1}
+            backgroundColor={Colors.dark.primary}
+            pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+            onPress={handleNext}
+            size="$5"
+            borderRadius={15}
+          >
+            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+              Next
+            </Text>
+          </Button>
+        </XStack>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 100,
+    display: 'flex',
+    flexDirection: 'column',
   },
 });
 

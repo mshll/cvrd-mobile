@@ -3,6 +3,7 @@ import { View, Text, XStack, Button, YStack } from 'tamagui';
 import { Colors } from '@/config/colors';
 import CardComponent from '@/components/CardComponent';
 import { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Default card configurations for each type
 const DEFAULT_CARD_CONFIGS = {
@@ -29,6 +30,7 @@ const INITIAL_GENERATIONS = 3;
 
 const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
   const [remainingGenerations, setRemainingGenerations] = useState(INITIAL_GENERATIONS);
+  const insets = useSafeAreaInsets();
 
   const handleCreateCard = () => {
     Alert.alert(
@@ -135,9 +137,8 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
           borderTopWidth={1}
           borderTopColor={`${Colors.dark.border}40`}
           pt="$4"
-          mt="$4"
+          mb={insets.bottom + 50}
           jc="space-between"
-          bottom={100}
         >
           <Button
             f={1}
@@ -181,8 +182,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 100,
+    display: 'flex',
+    flexDirection: 'column',
   },
 });
 
