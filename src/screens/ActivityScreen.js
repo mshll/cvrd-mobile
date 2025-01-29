@@ -166,7 +166,9 @@ const ActivityScreen = () => {
 
       // Apply search filter
       if (searchQuery) {
-        filteredData = filteredData.filter((transaction) => transaction.name.toLowerCase().includes(searchQuery.toLowerCase()));
+        filteredData = filteredData.filter((transaction) =>
+          transaction.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
       }
 
       // Apply status filter
@@ -227,7 +229,8 @@ const ActivityScreen = () => {
 
   const toggleStatusFilter = useCallback(() => {
     setStatusFilter((prev) => {
-      if (prev === FILTER_STATES.ALL || prev === FILTER_STATES.DECLINED) return FILTER_STATES.SETTLED;
+      if (prev === FILTER_STATES.ALL || prev === FILTER_STATES.DECLINED)
+        return FILTER_STATES.SETTLED;
       return FILTER_STATES.DECLINED;
     });
   }, []);
@@ -236,7 +239,13 @@ const ActivityScreen = () => {
     <View f={1} bg={Colors.dark.background}>
       <YStack pt={insets.top - 30} px={16} space={16}>
         <XStack space={8}>
-          <XStack f={1} br={8} backgroundColor={Colors.dark.backgroundSecondary} ai="center" px={12}>
+          <XStack
+            f={1}
+            br={8}
+            backgroundColor={Colors.dark.backgroundSecondary}
+            ai="center"
+            px={12}
+          >
             <Search size={20} color={Colors.dark.textSecondary} />
             <Input
               f={1}
@@ -250,16 +259,29 @@ const ActivityScreen = () => {
             />
           </XStack>
 
-          <Button backgroundColor={Colors.dark.backgroundSecondary} br={8} p={12} onPress={toggleDateSort}>
-            {dateSort === 'desc' ? <ArrowDown size={20} color={Colors.dark.text} /> : <ArrowUp size={20} color={Colors.dark.text} />}
+          <Button
+            backgroundColor={Colors.dark.backgroundSecondary}
+            br={8}
+            p={12}
+            onPress={toggleDateSort}
+          >
+            {dateSort === 'desc' ? (
+              <ArrowDown size={20} color={Colors.dark.text} />
+            ) : (
+              <ArrowUp size={20} color={Colors.dark.text} />
+            )}
           </Button>
         </XStack>
 
         <XStack gap={8}>
           <Button
             f={1}
-            backgroundColor={statusFilter === FILTER_STATES.ALL && !amountSort ? Colors.dark.primary : Colors.dark.backgroundSecondary}
-            br={20}
+            backgroundColor={
+              statusFilter === FILTER_STATES.ALL && !amountSort
+                ? Colors.dark.primary
+                : Colors.dark.backgroundSecondary
+            }
+            br={10}
             px={12}
             py={6}
             onPress={() => {
@@ -267,7 +289,14 @@ const ActivityScreen = () => {
               setAmountSort(null);
             }}
           >
-            <Text color={statusFilter === FILTER_STATES.ALL && !amountSort ? Colors.dark.text : Colors.dark.textSecondary} fontSize={14}>
+            <Text
+              color={
+                statusFilter === FILTER_STATES.ALL && !amountSort
+                  ? Colors.dark.text
+                  : Colors.dark.textSecondary
+              }
+              fontSize={14}
+            >
               All
             </Text>
           </Button>
@@ -275,7 +304,7 @@ const ActivityScreen = () => {
           <Button
             f={1}
             backgroundColor={amountSort ? Colors.dark.primary : Colors.dark.backgroundSecondary}
-            br={20}
+            br={10}
             px={12}
             py={6}
             onPress={toggleAmountSort}
@@ -287,14 +316,27 @@ const ActivityScreen = () => {
 
           <Button
             f={1}
-            backgroundColor={statusFilter !== FILTER_STATES.ALL ? Colors.dark.primary : Colors.dark.backgroundSecondary}
-            br={20}
+            backgroundColor={
+              statusFilter !== FILTER_STATES.ALL
+                ? Colors.dark.primary
+                : Colors.dark.backgroundSecondary
+            }
+            br={10}
             px={12}
             py={6}
             onPress={toggleStatusFilter}
           >
-            <Text color={statusFilter !== FILTER_STATES.ALL ? Colors.dark.text : Colors.dark.textSecondary} fontSize={14}>
-              {statusFilter === FILTER_STATES.ALL ? 'Status' : statusFilter === FILTER_STATES.SETTLED ? 'Declined' : 'Settled'}
+            <Text
+              color={
+                statusFilter !== FILTER_STATES.ALL ? Colors.dark.text : Colors.dark.textSecondary
+              }
+              fontSize={14}
+            >
+              {statusFilter === FILTER_STATES.ALL
+                ? 'Status'
+                : statusFilter === FILTER_STATES.SETTLED
+                ? 'Declined'
+                : 'Settled'}
             </Text>
           </Button>
         </XStack>

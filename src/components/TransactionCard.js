@@ -6,13 +6,13 @@ import { useEffect, useRef } from 'react';
 const getTextColor = (colorName) => {
   switch (colorName) {
     case 'pink':
-      return '#E14C81';
+      return Colors.cards.pink;
     case 'green':
-      return '#44D47D';
+      return Colors.cards.green;
     case 'blue':
-      return '#3981A6';
+      return Colors.cards.blue;
     case 'yellow':
-      return '#8B8534';
+      return Colors.cards.yellow;
     default:
       return colorName;
   }
@@ -21,13 +21,13 @@ const getTextColor = (colorName) => {
 const getBgColor = (colorName) => {
   switch (colorName) {
     case 'pink':
-      return 'rgba(225, 76, 129, 0.15)';
+      return `${Colors.cards.pink}26`; // 15% opacity
     case 'green':
-      return 'rgba(68, 212, 125, 0.15)';
+      return `${Colors.cards.green}26`;
     case 'blue':
-      return 'rgba(57, 129, 166, 0.15)';
+      return `${Colors.cards.blue}26`;
     case 'yellow':
-      return 'rgba(235, 225, 75, 0.15)';
+      return `${Colors.cards.yellow}26`;
     default:
       return colorName;
   }
@@ -35,7 +35,7 @@ const getBgColor = (colorName) => {
 
 const TransactionCard = ({ transaction }) => {
   const { name, amount, displayDate, status, emoji, color } = transaction;
-  
+
   return (
     <XStack
       backgroundColor={Colors.dark.backgroundSecondary}
@@ -60,7 +60,7 @@ const TransactionCard = ({ transaction }) => {
           <XStack>
             <View
               backgroundColor={getBgColor(color)}
-              br={20}
+              br={6}
               px={10}
               py={2}
               fd="row"
@@ -68,9 +68,9 @@ const TransactionCard = ({ transaction }) => {
               gap={4}
               maxWidth="80%"
             >
-              <Text 
-                color={getTextColor(color)} 
-                fontSize={14} 
+              <Text
+                color={getTextColor(color)}
+                fontSize={14}
                 fontWeight="500"
                 numberOfLines={1}
                 ellipsizeMode="tail"
@@ -85,11 +85,7 @@ const TransactionCard = ({ transaction }) => {
         </YStack>
       </XStack>
       <YStack ai="flex-end" ml={8}>
-        <Text
-          color={Colors.dark.text}
-          fontSize={16}
-          fontWeight="500"
-        >
+        <Text color={Colors.dark.text} fontSize={16} fontWeight="500">
           - KD {amount}
         </Text>
         <Text
@@ -157,11 +153,13 @@ const LoadingSkeleton = () => {
           <Animated.View style={styles.skeletonMonth} />
         </Text>
       </View>
-      
+
       {/* Show only 4 items which is typically what fits in the viewport */}
-      {Array(6).fill(0).map((_, index) => (
-        <TransactionCardSkeleton key={index} />
-      ))}
+      {Array(6)
+        .fill(0)
+        .map((_, index) => (
+          <TransactionCardSkeleton key={index} />
+        ))}
     </View>
   );
 };
@@ -215,4 +213,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export { TransactionCard as default, LoadingSkeleton }; 
+export { TransactionCard as default, LoadingSkeleton };
