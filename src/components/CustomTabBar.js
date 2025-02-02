@@ -2,6 +2,7 @@ import { TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Colors } from '@/config/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Circle, Square, View } from 'tamagui';
+import { Paths } from '@/navigation/paths';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -32,7 +33,7 @@ export function CustomTabBar({ state, descriptors, navigation }) {
               return (
                 <View key={route.key} style={styles.tabItem}>
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('ADD_CARD_SCREEN')}
+                    onPress={() => navigation.getParent()?.navigate(Paths.ADD_CARD_SCREEN)}
                     style={{ width: 70, height: 70 }}
                   >
                     <Circle

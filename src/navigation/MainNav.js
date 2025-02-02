@@ -56,6 +56,12 @@ const TabNavigator = () => {
         options={{
           tabBarIcon: ({ color, size }) => <PlusIcon color={color} size={size} style={{ marginTop: 2 }} />,
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.getParent()?.navigate(Paths.ADD_CARD_SCREEN);
+          },
+        })}
       />
       <Tab.Screen
         name={Paths.SUBSCRIPTIONS}
@@ -121,8 +127,8 @@ const MainNav = () => {
         component={AddCardScreen}
         options={{
           presentation: 'modal',
-          headerTitle: 'Add Card',
           headerShown: false,
+          animation: 'slide_from_bottom',
         }}
       />
     </Stack.Navigator>

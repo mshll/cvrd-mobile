@@ -53,17 +53,6 @@ export const HomeStack = () => {
           ),
         }}
       />
-      {/* ADDED TO MAIN NAV INSTEAD */}
-      {/* <Stack.Screen
-        name={Paths.CARD_DETAILS}
-        component={CardDetailsScreen}
-        options={{
-          headerTitle: 'Card Details',
-          animation: 'slide_from_right',
-          gestureEnabled: true,
-          gestureDirection: 'horizontal',
-        }}
-      /> */}
     </Stack.Navigator>
   );
 };
@@ -113,6 +102,7 @@ export function MainStack() {
       <Stack.Screen name={Paths.CARD_DETAILS} component={CardDetailsScreen} />
       <Stack.Screen name={Paths.EDIT_CARD} component={EditCardScreen} />
       <Stack.Screen name={Paths.EDIT_LOCATION} component={EditLocationScreen} />
+      <Stack.Screen name={Paths.ADD_CARD_SCREEN} component={AddCardScreen} />
     </Stack.Navigator>
   );
 }
