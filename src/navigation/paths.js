@@ -7,6 +7,7 @@ export const Paths = {
   SUBSCRIPTIONS: 'Subscriptions',
   PROFILE: 'Profile',
   CARD_DETAILS: 'CardDetails',
+  EDIT_LOCATION: 'EditLocation',
 
   // Stack screen paths
   HOME_SCREEN: 'HomeScreen',

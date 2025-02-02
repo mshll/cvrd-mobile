@@ -155,7 +155,7 @@ const CardFlipComponent = ({ cardId }) => {
     const cardNumberSegments = formatCardNumber(card.card_number);
 
     return (
-      <View w={CARD_WIDTH} h={CARD_HEIGHT} br={20} of="hidden" bg={cardColor}>
+      <View w={CARD_WIDTH} h={CARD_HEIGHT} borderRadius={15} bg={cardColor} overflow="hidden">
         <Image source={cardImg} style={styles.cardImage} resizeMode="cover" />
         <View f={1} jc="flex-end" ai="flex-end">
           {/* Animated Logo */}
@@ -168,11 +168,6 @@ const CardFlipComponent = ({ cardId }) => {
             <YStack ai="flex-end" jc="space-between" w="100%" h={CARD_HEIGHT - 100} px="$6" pb="$6" pt="$2" gap="$5">
               <View ai="flex-end">
                 <XStack ai="flex-end" gap="$3">
-                  <XStack mb="$2">
-                    <TouchableOpacity onPress={handleCopyCardNumber} p="$2" hitSlop={10}>
-                      <ClipboardDocumentIcon size={22} color={textColor} />
-                    </TouchableOpacity>
-                  </XStack>
                   <View>
                     {cardNumberSegments.map((segment, index) => (
                       <Text
@@ -212,6 +207,22 @@ const CardFlipComponent = ({ cardId }) => {
               </YStack>
             </YStack>
           </Animated.View>
+
+          {/* Copy Button */}
+          {isFlipped && (
+            <TouchableOpacity onPress={handleCopyCardNumber} style={styles.copyButton} hitSlop={10}>
+              <BlurView
+                intensity={20}
+                tint={cardTheme === 'light' ? 'systemThickMaterialDark' : 'systemThickMaterialLight'}
+                style={styles.blurView}
+              >
+                <ClipboardDocumentIcon size={14} color={textColor} />
+                <Text color={textColor} fos={12} fontWeight="600" ml="$2">
+                  Copy
+                </Text>
+              </BlurView>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     );
@@ -258,6 +269,21 @@ const styles = StyleSheet.create({
   logo: {
     width: '100%',
     height: '100%',
+  },
+  copyButton: {
+    position: 'absolute',
+    bottom: 12,
+    left: 12,
+    zIndex: 1,
+  },
+  blurView: {
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
 });
 

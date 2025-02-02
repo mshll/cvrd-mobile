@@ -15,7 +15,7 @@ const DEFAULT_CUSTOMIZATION = {
     { name: 'purple', value: '#9747FF' },
     { name: 'orange', value: '#FF7847' },
     { name: 'teal', value: '#47D5FF' },
-    { name: 'pink', value: '#d6515b' },
+    { name: 'pink', value: '#E14C81' },
     { name: 'indigo', value: '#4762FF' },
     { name: 'lime', value: '#B1FF47' },
     { name: 'cyan', value: '#47FFF4' },
