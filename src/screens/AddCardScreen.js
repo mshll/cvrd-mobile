@@ -50,7 +50,7 @@ const SAMPLE_CARDS = [
     type: 'Category',
     label: 'Groceries',
     emoji: '📅',
-    color: Colors.cards.pink,
+    color: Colors.dark.primary,
     title: 'Category-Locked',
     description:
       'Use your card for one category of expenses. Only shop for groceries with this card',

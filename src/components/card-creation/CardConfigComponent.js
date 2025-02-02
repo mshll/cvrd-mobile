@@ -1,8 +1,8 @@
 import { View, Text, YStack, XStack, Button, Input, Circle, Switch, Slider } from 'tamagui';
 import { Colors } from '@/config/colors';
-import { useState, useEffect } from 'react';
-import { PlusIcon, ArrowPathIcon, MapPinIcon } from 'react-native-heroicons/solid';
-import { Platform, StatusBar, StyleSheet, Dimensions } from 'react-native';
+import { useState, useEffect, useCallback } from 'react';
+import { PlusIcon, ArrowPathIcon, MapPinIcon, ChevronLeftIcon, QuestionMarkCircleIcon, PencilIcon } from 'react-native-heroicons/solid';
+import { Platform, StatusBar, StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import EmojiPicker from 'rn-emoji-keyboard';
 import CardComponent from '@/components/CardComponent';
 import { CARD_HEIGHT } from '@/utils/cardUtils';
@@ -13,8 +13,16 @@ import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
+import { useNavigation } from '@react-navigation/native';
+import { Paths } from '@/navigation/paths';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
+const MAP_HEIGHT = 200;
+
+// Add radius constants
+const MIN_RADIUS = 0.2; // in km
+const MAX_RADIUS = 100; // in km
+const DEFAULT_RADIUS = 0.5; // in km
 
 const CATEGORIES = [
   { id: '1', name: 'Entertainment', emoji: '🎬' },
@@ -35,34 +43,41 @@ const RADIUS_OPTIONS = [
 ];
 
 const LIMIT_OPTIONS = [
-  { id: 'transaction', label: 'Per Transaction', defaultValue: 1000, max: 5000 },
-  { id: 'daily', label: 'Daily', defaultValue: 5000, max: 10000 },
-  { id: 'weekly', label: 'Weekly', defaultValue: 10000, max: 25000 },
-  { id: 'monthly', label: 'Monthly', defaultValue: 25000, max: 50000 },
-  { id: 'total', label: 'Total', defaultValue: 25000, max: 50000 },
+  { id: 'per_transaction', label: 'Per Transaction', defaultValue: 1000, max: 200 },
+  { id: 'per_day', label: 'Per Day', defaultValue: 5000, max: 500 },
+  { id: 'per_week', label: 'Per Week', defaultValue: 10000, max: 2000 },
+  { id: 'per_month', label: 'Per Month', defaultValue: 25000, max: 8000 },
+  { id: 'per_year', label: 'Per Year', defaultValue: 50000, max: 100000 },
+  { id: 'total', label: 'Total', defaultValue: 100000, max: 200000 },
+  { id: 'no_limit', label: 'No Limit', defaultValue: null, max: null },
 ];
 
-const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
-  const [selectedLimitType, setSelectedLimitType] = useState('transaction');
+const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimits, setSelectedLimits }) => {
+  const [selectedLimitType, setSelectedLimitType] = useState('per_transaction');
   const selectedOption = LIMIT_OPTIONS.find((opt) => opt.id === selectedLimitType);
   const insets = useSafeAreaInsets();
 
   const handleLimitChange = (value) => {
-    setLimits((prev) => ({
-      ...prev,
-      [selectedLimitType]: value,
-    }));
+    if (selectedLimitType === 'no_limit') {
+      setLimits((prev) => ({
+        ...prev,
+        [selectedLimitType]: null,
+      }));
+    } else {
+      setLimits((prev) => ({
+        ...prev,
+        [selectedLimitType]: value,
+      }));
+    }
+    // Add this limit type to the set of selected limits
+    setSelectedLimits(prev => new Set([...prev, selectedLimitType]));
   };
 
   return (
-    <YStack gap="$4" mt={insets.top - 30}>
-      <YStack gap="$2">
-        <Text
-          color={Colors.dark.textSecondary}
-          fontSize="$3"
-          fontWeight="600"
-          fontFamily="$heading"
-        >
+    <YStack gap="$5" mt={insets.top - 30}>
+      {/* Card Name Input */}
+      <YStack gap="$3">
+        <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
           Card Name
         </Text>
         <Input
@@ -70,101 +85,130 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
           onChangeText={setCardName}
           placeholder="Enter card name"
           backgroundColor={Colors.dark.backgroundSecondary}
-          borderWidth={0}
+          borderWidth={1}
+          borderColor={Colors.dark.border}
           color={Colors.dark.text}
           placeholderTextColor={Colors.dark.textTertiary}
           fontSize="$4"
           height={45}
           px="$4"
           fontWeight="700"
+          br={12}
         />
       </YStack>
 
-      <YStack gap="$2">
-        <Text
-          color={Colors.dark.textSecondary}
-          fontSize="$3"
-          fontWeight="600"
-          fontFamily="$heading"
-        >
+      {/* Spending Limits */}
+      <YStack gap="$3">
+        <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
           Spending Limits
         </Text>
 
-        <XStack flexWrap="wrap" gap="$2">
-          {LIMIT_OPTIONS.map((option) => (
-            <Button
-              key={option.id}
-              backgroundColor={
-                selectedLimitType === option.id
-                  ? Colors.dark.primary
-                  : Colors.dark.backgroundSecondary
-              }
-              pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
-              onPress={() => setSelectedLimitType(option.id)}
-              size="$3"
-              borderRadius={20}
-            >
-              <Text
-                color={selectedLimitType === option.id ? 'white' : Colors.dark.text}
-                fontSize="$3"
-              >
-                {option.label}
-              </Text>
-            </Button>
-          ))}
-        </XStack>
-
-        <YStack gap="$2" mt="$2">
-          <XStack jc="center" mb="$2">
-            <Input
-              value={`${limits[selectedLimitType]}`}
-              onChangeText={(text) => {
-                const value = parseInt(text.replace(/[^0-9]/g, '')) || 0;
-                handleLimitChange(Math.min(value, selectedOption.max));
-              }}
-              keyboardType="numeric"
-              backgroundColor={Colors.dark.backgroundTertiary}
-              borderWidth={0}
-              color={Colors.dark.text}
-              width={120}
-              height={45}
-              textAlign="center"
-              fontSize="$5"
-              fontWeight="600"
-              placeholder="0"
-              placeholderTextColor={Colors.dark.textTertiary}
+        <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary, borderWidth: 1, borderColor: Colors.dark.border, marginBottom:16 }}>
+          <YStack p="$4" gap="$4">
+            {/* Amount Input */}
+            <XStack 
+              backgroundColor={Colors.dark.backgroundTertiary} 
+              br={12} 
+              height={70} 
+              ai="center" 
               px="$4"
-            />
-          </XStack>
-          <Slider
-            defaultValue={[parseInt(selectedOption.defaultValue)]}
-            min={0}
-            max={selectedOption.max}
-            step={100}
-            value={[parseInt(limits[selectedLimitType])]}
-            onValueChange={([value]) => handleLimitChange(value.toString())}
-          >
-            <Slider.Track backgroundColor={Colors.dark.backgroundTertiary} height={2}>
-              <Slider.TrackActive backgroundColor={Colors.dark.primary} />
-            </Slider.Track>
-            <Slider.Thumb
-              index={0}
-              circular
-              size="$2"
-              backgroundColor={Colors.dark.primary}
-              bordered
-              borderColor={Colors.dark.background}
-            />
-          </Slider>
-          <XStack jc="space-between" mt="$1">
-            <Text color={Colors.dark.textSecondary} fontSize="$2">
-              0KWD
-            </Text>
-            <Text color={Colors.dark.textSecondary} fontSize="$2">
-              {selectedOption.max.toLocaleString()}KWD
-            </Text>
-          </XStack>
-        </YStack>
+              opacity={selectedLimitType === 'no_limit' ? 0.5 : 1}
+            >
+              <Text color={Colors.dark.text} fontSize="$8" fontWeight="700" fontFamily="$archivoBlack" mr="$2">
+                KD
+              </Text>
+              <Input
+                value={selectedLimitType === 'no_limit' ? '' : limits[selectedLimitType] === '0' ? '' : limits[selectedLimitType]}
+                onChangeText={(text) => {
+                  if (selectedLimitType !== 'no_limit') {
+                    const value = parseInt(text.replace(/[^0-9]/g, '')) || 0;
+                    handleLimitChange(Math.min(value, selectedOption.max).toString());
+                  }
+                }}
+                placeholder="0.00"
+                keyboardType="decimal-pad"
+                backgroundColor="transparent"
+                borderWidth={0}
+                color={Colors.dark.text}
+                placeholderTextColor={Colors.dark.textTertiary}
+                fontSize="$8"
+                fontFamily="$archivoBlack"
+                p={0}
+                fontWeight="700"
+                textAlign="left"
+                flex={1}
+                returnKeyType="done"
+                onSubmitEditing={Keyboard.dismiss}
+                editable={selectedLimitType !== 'no_limit'}
+              />
+            </XStack>
+
+            {/* Period Selection */}
+            <XStack flexWrap="wrap" gap="$1">
+              {LIMIT_OPTIONS.map((option, index) => {
+                const totalOptions = LIMIT_OPTIONS.length;
+                const rowSize = 2;
+                const totalRows = Math.ceil(totalOptions / rowSize);
+                const currentRow = Math.floor(index / rowSize) + 1;
+                
+                const isFirstRow = currentRow === 1;
+                const isLastRow = currentRow === totalRows;
+                const isFirstInRow = index % rowSize === 0;
+                const isLastInRow = index % rowSize === 1 || index === totalOptions - 1;
+
+                const isSelected = selectedLimitType === option.id;
+                const hasValue = selectedLimits.has(option.id) && 
+                  (option.id === 'no_limit' || parseInt(limits[option.id]) > 0);
+
+                let borderRadius = {
+                  borderTopLeftRadius: isFirstRow && isFirstInRow ? 12 : 0,
+                  borderTopRightRadius: isFirstRow && isLastInRow ? 12 : 0,
+                  borderBottomLeftRadius: isLastRow && isFirstInRow ? 12 : 0,
+                  borderBottomRightRadius: isLastRow && isLastInRow ? 12 : 0,
+                };
+
+                return (
+                  <Button
+                    key={option.id}
+                    backgroundColor={
+                      isSelected ? Colors.dark.primary : 
+                      hasValue ? Colors.dark.primaryDark : Colors.dark.backgroundTertiary
+                    }
+                    pressStyle={{
+                      backgroundColor:
+                        isSelected ? Colors.dark.primaryDark : Colors.dark.backgroundTertiary,
+                    }}
+                    onPress={() => {
+                      setSelectedLimitType(option.id);
+                      if (option.id === 'no_limit') {
+                        handleLimitChange(null);
+                      }
+                    }}
+                    flex={1}
+                    height={50}
+                    minWidth="48%"
+                    {...borderRadius}
+                  >
+                    <Text
+                      color={isSelected || hasValue ? 'white' : Colors.dark.text}
+                      fontSize="$3"
+                      fontWeight="600"
+                    >
+                      {option.label}
+                    </Text>
+                  </Button>
+                );
+              })}
+            </XStack>
+
+            {/* Max Amount Display */}
+            {selectedLimitType !== 'no_limit' && (
+              <Text color={Colors.dark.textSecondary} fontSize="$3">
+                Maximum amount: {selectedOption.max.toLocaleString()} KWD
+              </Text>
+            )}
+          </YStack>
+        </View>
       </YStack>
     </YStack>
   );
@@ -173,6 +217,9 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
 const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
   const [countryRadius, setCountryRadius] = useState(null);
   const [countryName, setCountryName] = useState('');
+  const [address, setAddress] = useState('');
+  const [showHelp, setShowHelp] = useState(false);
+  const navigation = useNavigation();
 
   const getLocationInfo = async (latitude, longitude) => {
     try {
@@ -182,28 +229,18 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
       });
 
       if (response && response[0]) {
-        const country = response[0].country;
-        setCountryName(country);
-
-        let approximateRadius;
-        switch (country) {
-          case 'Kuwait':
-            approximateRadius = 100000;
-            break;
-          case 'United Arab Emirates':
-            approximateRadius = 350000;
-            break;
-          case 'Saudi Arabia':
-            approximateRadius = 1000000;
-            break;
-          default:
-            approximateRadius = 200000;
-        }
-        setCountryRadius(approximateRadius);
-
-        if (radius === RADIUS_OPTIONS[2].value) {
-          setRadius(approximateRadius);
-        }
+        const location = response[0];
+        setCountryName(location.country);
+        
+        // Construct address string
+        const addressParts = [
+          location.street,
+          location.district,
+          location.city,
+          location.region,
+        ].filter(Boolean);
+        
+        setAddress(addressParts.join(', '));
       }
     } catch (error) {
       console.error('Error getting location info:', error);
@@ -212,12 +249,18 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
 
   useEffect(() => {
     getLocationInfo(location.latitude, location.longitude);
-  }, []);
+  }, [location]);
 
-  const handlePinDrag = (e) => {
-    const newLocation = e.nativeEvent.coordinate;
-    setLocation(newLocation);
-    getLocationInfo(newLocation.latitude, newLocation.longitude);
+  const handleMaximizeMap = () => {
+    navigation.navigate(Paths.EDIT_LOCATION, {
+      initialLocation: location,
+      initialRadius: radius,
+      onSave: (newLocation, newRadius) => {
+        setLocation(newLocation);
+        setRadius(newRadius);
+      },
+      cardColor: 'primary'
+    });
   };
 
   return (
@@ -225,71 +268,116 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
       <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
         Select Location
       </Text>
-      <View
-        height={200}
-        backgroundColor={Colors.dark.backgroundSecondary}
-        borderRadius={12}
-        overflow="hidden"
-      >
-        <MapView
-          style={{ flex: 1 }}
-          initialRegion={{
-            latitude: location.latitude,
-            longitude: location.longitude,
-            latitudeDelta: 0.5,
-            longitudeDelta: 0.5,
-          }}
-          scrollEnabled={true}
-          zoomEnabled={true}
-          rotateEnabled={false}
-        >
-          <Marker
-            coordinate={location}
-            draggable
-            onDragEnd={handlePinDrag}
-            pinColor={Colors.dark.primary}
-          />
-          <MapCircle
-            center={location}
-            radius={radius}
-            fillColor="rgba(214, 81, 91, 0.1)"
-            strokeColor="rgba(214, 81, 91, 0.5)"
-            strokeWidth={2}
-          />
-        </MapView>
-      </View>
-      <YStack gap="$2">
-        <Text
-          color={Colors.dark.textSecondary}
-          fontSize="$3"
-          fontWeight="600"
-          fontFamily="$heading"
-        >
-          Radius
-        </Text>
-        <XStack flexWrap="wrap" gap="$2">
-          {RADIUS_OPTIONS.map((option) => {
-            const optionValue = option.value === null ? countryRadius : option.value;
-            const isSelected = radius === optionValue;
 
-            return (
-              <Button
-                key={option.label}
-                backgroundColor={isSelected ? Colors.dark.primary : Colors.dark.backgroundSecondary}
-                pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
-                onPress={() => setRadius(optionValue)}
-              >
-                <YStack ai="center">
-                  <Text color={isSelected ? 'white' : Colors.dark.text}>{option.label}</Text>
-                  <Text color={isSelected ? 'white' : Colors.dark.textSecondary} fontSize="$2">
-                    {option.label === 'Country' && countryName ? countryName : option.description}
-                  </Text>
-                </YStack>
-              </Button>
-            );
-          })}
-        </XStack>
-      </YStack>
+      <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary }}>
+        <View style={{ height: MAP_HEIGHT }}>
+          <MapView
+            style={StyleSheet.absoluteFill}
+            initialRegion={{
+              latitude: location.latitude,
+              longitude: location.longitude,
+              latitudeDelta: 0.5,
+              longitudeDelta: 0.5,
+            }}
+            scrollEnabled={false}
+            zoomEnabled={false}
+            rotateEnabled={false}
+          >
+            <Marker
+              coordinate={location}
+              pinColor={Colors.dark.primary}
+            />
+            <MapCircle
+              center={location}
+              radius={radius * 1000}
+              fillColor={`${Colors.dark.primary}20`}
+              strokeColor={Colors.dark.primary}
+              strokeWidth={2}
+            />
+          </MapView>
+
+          {/* Top right buttons */}
+          <XStack position="absolute" top={12} left={12} gap="$2">
+            <Button
+              size="$3"
+              backgroundColor={Colors.dark.backgroundSecondary}
+              pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+              onPress={handleMaximizeMap}
+              borderWidth={1}
+              borderColor={Colors.dark.border}
+              br={8}
+              px="$3"
+            >
+              <Text color={Colors.dark.text} fontSize="$2" fontWeight="600">
+                Edit
+              </Text>
+            </Button>
+          </XStack>
+          <XStack position="absolute" top={12} right={12} gap="$2">
+          <Button
+              size="$3"
+              circular
+              backgroundColor={Colors.dark.backgroundSecondary}
+              pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+              onPress={() => setShowHelp(true)}
+              borderWidth={1}
+              borderColor={Colors.dark.border}
+              icon={<QuestionMarkCircleIcon size={20} color={Colors.dark.text} />}
+            />
+          </XStack>
+        </View>
+
+        {/* Location Info */}
+        <YStack px={12} py={12} gap={8}>
+          {address ? (
+            <Text color={Colors.dark.text} fontSize="$3" numberOfLines={2}>
+              {address}
+            </Text>
+          ) : (
+            <Text color={Colors.dark.textSecondary} fontSize="$3">
+              Loading address...
+            </Text>
+          )}
+          
+          {/* Radius Display */}
+          <XStack backgroundColor={Colors.dark.backgroundTertiary} px="$3" py="$2" br={8} gap="$2" ai="center">
+            <Text color={Colors.dark.text} fontSize="$4" fontFamily="$archivoBlack">
+              {radius.toFixed(1)} km
+            </Text>
+          </XStack>
+        </YStack>
+      </View>
+
+      {/* Help Sheet */}
+      <BottomSheet isOpen={showHelp} onClose={() => setShowHelp(false)}>
+        <YStack gap="$4" px="$4" pt="$2" pb="$6">
+          <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+            How to Edit Location
+          </Text>
+          <YStack gap="$3">
+            <XStack gap="$2" ai="center">
+              <View w={8} h={8} br={4} bg={Colors.dark.primary} />
+              <Text color={Colors.dark.text} fontSize="$4">
+                Move Pin
+              </Text>
+            </XStack>
+            <Text color={Colors.dark.textSecondary} fontSize="$3" pl={20}>
+              Press and hold anywhere on the map to move the pin, or drag the existing pin
+            </Text>
+
+            <XStack gap="$2" ai="center">
+              <View w={8} h={8} br={4} bg={Colors.dark.primary} />
+              <Text color={Colors.dark.text} fontSize="$4">
+                Adjust Radius
+              </Text>
+            </XStack>
+            <Text color={Colors.dark.textSecondary} fontSize="$3" pl={20}>
+              Use the slider to adjust the radius, or tap the radius display at the top to enter a specific value
+              between {MIN_RADIUS} and {MAX_RADIUS} km
+            </Text>
+          </YStack>
+        </YStack>
+      </BottomSheet>
     </YStack>
   );
 };
@@ -310,15 +398,21 @@ const CategorySettings = ({ selectedCategory, setSelectedCategory }) => {
         onChangeText={setSearchQuery}
         placeholder="Search categories..."
         backgroundColor={Colors.dark.backgroundSecondary}
-        borderWidth={0}
+        borderWidth={1}
+        borderColor={Colors.dark.border}
         color={Colors.dark.text}
         placeholderTextColor={Colors.dark.textTertiary}
+        br={12}
+        height={45}
+        px="$4"
       />
       <View
         height={245}
         backgroundColor={Colors.dark.backgroundSecondary}
         borderRadius={12}
         overflow="hidden"
+        borderWidth={1}
+        borderColor={Colors.dark.border}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -338,6 +432,8 @@ const CategorySettings = ({ selectedCategory, setSelectedCategory }) => {
               pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
               onPress={() => setSelectedCategory(category)}
               mb="$2"
+              borderWidth={1}
+              borderColor={Colors.dark.border}
             >
               <XStack ai="center" gap="$2">
                 <Text fontSize={20}>{category.emoji}</Text>
@@ -359,12 +455,16 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   // Common state
   const [cardName, setCardName] = useState(initialData?.label || '');
   const [limits, setLimits] = useState({
-    transaction: '1000',
-    daily: '5000',
-    weekly: '10000',
-    monthly: '25000',
-    total: '25000',
+    per_transaction: '0',
+    per_day: '0',
+    per_week: '0',
+    per_month: '0',
+    per_year: '0',
+    total: '0',
   });
+  
+  // Keep track of which limits have been selected/modified
+  const [selectedLimits, setSelectedLimits] = useState(new Set());
 
   // Type-specific state
   const [selectedMerchant, setSelectedMerchant] = useState(null);
@@ -372,19 +472,30 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
     latitude: 29.3759,
     longitude: 47.9774,
   });
-  const [radius, setRadius] = useState(500);
+  const [radius, setRadius] = useState(0.5);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const handleNext = () => {
+    // Convert limits to numbers and filter out unselected ones
+    const selectedLimitsData = {};
+    
+    // Process each limit
+    Object.entries(limits).forEach(([key, value]) => {
+      if (selectedLimits.has(key)) {
+        if (key === 'no_limit') {
+          selectedLimitsData[key] = null;
+        } else {
+          const numValue = parseInt(value);
+          if (numValue > 0) {
+            selectedLimitsData[key] = numValue;
+          }
+        }
+      }
+    });
+
     const cardData = {
       name: cardName,
-      limits: {
-        transaction: parseInt(limits.transaction),
-        daily: parseInt(limits.daily),
-        weekly: parseInt(limits.weekly),
-        monthly: parseInt(limits.monthly),
-        total: parseInt(limits.total),
-      },
+      limits: selectedLimitsData,
     };
 
     // Add type-specific data
@@ -426,13 +537,15 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
 
   return (
     <View f={1} backgroundColor={Colors.dark.background}>
-      <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}>
         {/* Common Settings */}
         <CommonSettings
           cardName={cardName}
           setCardName={setCardName}
           limits={limits}
           setLimits={setLimits}
+          selectedLimits={selectedLimits}
+          setSelectedLimits={setSelectedLimits}
         />
 
         {/* Type-specific Settings */}
@@ -456,6 +569,8 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
             onPress={onBack}
             size="$5"
             borderRadius={15}
+            borderWidth={1}
+            borderColor={Colors.dark.border}
           >
             <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$archivo">
               Back
@@ -474,17 +589,15 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
             </Text>
           </Button>
         </XStack>
-      </View>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     paddingHorizontal: 16,
-    display: 'flex',
-    flexDirection: 'column',
   },
 });
 

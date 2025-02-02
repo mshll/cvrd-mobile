@@ -101,8 +101,9 @@ function UserGreeting() {
 }
 
 function SpendingStats() {
+
   return (
-    <YStack gap="$3">
+    <YStack gap="$3" mb="$2" px={16}>
       <XStack ai="center" mb="$2" gap="$2">
         <BanknotesIcon size={20} color={Colors.dark.text} />
         <Text color={Colors.dark.text} fontSize="$4" fontFamily="$archivoBlack">
@@ -110,7 +111,14 @@ function SpendingStats() {
         </Text>
       </XStack>
       <XStack gap="$3">
-        <Card f={1} bg={Colors.dark.backgroundSecondary} p="$4" br="$5">
+        <Card 
+          f={1} 
+          bg={Colors.dark.card} 
+          p="$4" 
+          br={12}
+          borderWidth={1}
+          borderColor={Colors.dark.border}
+        >
           <Text color={Colors.dark.textSecondary} fontSize="$3" mb="$2">
             Today
           </Text>
@@ -118,7 +126,14 @@ function SpendingStats() {
             {formatCurrency(user.spend_today)}
           </Text>
         </Card>
-        <Card f={1} bg={Colors.dark.backgroundSecondary} p="$4" br="$5">
+        <Card 
+          f={1} 
+          bg={Colors.dark.card} 
+          p="$4" 
+          br={12}
+          borderWidth={1}
+          borderColor={Colors.dark.border}
+        >
           <Text color={Colors.dark.textSecondary} fontSize="$3" mb="$2">
             This Month
           </Text>
@@ -170,25 +185,28 @@ function CardStats() {
 
 function SpendingSummary() {
   return (
-    <YStack px="$4" mb="$7" gap="$4">
-      <UserGreeting />
+    <YStack mb="$4" gap="$4">
+      {/* <UserGreeting /> */}
       <SpendingStats />
-      <CardStats />
+      {/* <CardStats /> */}
     </YStack>
   );
 }
 
 function CustomizeButton({ onPress }) {
   return (
-    <XStack px="$4">
+    <XStack >
       <Button
         f={1}
         size="$5"
-        bg={Colors.dark.backgroundSecondary}
+        bg={Colors.dark.card}
         pressStyle={{ bg: Colors.dark.backgroundTertiary }}
         onPress={onPress}
+        marginHorizontal={16}
         icon={<AdjustmentsHorizontalIcon size={20} color={Colors.dark.text} />}
-        mx="$1"
+        br={12}
+        borderWidth={1}
+        borderColor={Colors.dark.border}
       >
         <Text color={Colors.dark.text} fontWeight="700">
           Customize
@@ -270,8 +288,8 @@ function HomeScreen() {
       <ScrollView
         f={1}
         contentContainerStyle={{
-          paddingTop: 24,
-          paddingBottom: insets.bottom + 100, // Account for floating navbar
+          paddingTop: insets.top - 20,
+          paddingBottom: insets.bottom,
         }}
         showsVerticalScrollIndicator={false}
       >
