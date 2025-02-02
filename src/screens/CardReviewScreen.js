@@ -5,6 +5,7 @@ import { useNavigation, useRoute, CommonActions } from '@react-navigation/native
 import CardComponent from '@/components/CardComponent';
 import { useState } from 'react';
 import { Paths } from '@/navigation/paths';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Default card configurations for each type
 const DEFAULT_CARD_CONFIGS = {
@@ -29,11 +30,57 @@ const DEFAULT_CARD_CONFIGS = {
 // Mock remaining generations (replace with actual data from your backend)
 const INITIAL_GENERATIONS = 3;
 
+const LIMIT_LABELS = {
+  per_transaction: 'Per Transaction',
+  per_day: 'Per Day',
+  per_week: 'Per Week',
+  per_month: 'Per Month',
+  per_year: 'Per Year',
+  total: 'Total',
+  no_limit: 'No Limit'
+};
+
 const CardReviewScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { cardType, cardData } = route.params;
   const [remainingGenerations, setRemainingGenerations] = useState(INITIAL_GENERATIONS);
+  const insets = useSafeAreaInsets();
+
+  // Function to format limit value
+  const formatLimit = (value) => {
+    if (value === null) return 'No Limit';
+    return `${value.toLocaleString()} KWD`;
+  };
+
+  // Get all non-null limits
+  const getActiveLimits = () => {
+    if (!cardData.limits) return [];
+    return Object.entries(cardData.limits)
+      .filter(([key, value]) => {
+        // Include if it's either a number greater than 0 or explicitly set to null (no limit)
+        return (typeof value === 'number' && value > 0) || value === null;
+      })
+      .map(([key, value]) => ({
+        label: LIMIT_LABELS[key] || key,
+        value: formatLimit(value)
+      }))
+      .sort((a, b) => {
+        // Custom sort order: Per Transaction -> Per Day -> Per Week -> Per Month -> Per Year -> Total -> No Limit
+        const order = {
+          'Per Transaction': 1,
+          'Per Day': 2,
+          'Per Week': 3,
+          'Per Month': 4,
+          'Per Year': 5,
+          'Total': 6,
+          'No Limit': 7
+        };
+        return order[a.label] - order[b.label];
+      });
+  };
+
+  const activeLimits = getActiveLimits();
 
   const handleCreateCard = () => {
     Alert.alert(
@@ -47,10 +94,7 @@ const CardReviewScreen = () => {
         {
           text: 'Create',
           onPress: () => {
-            // Here you would typically make an API call to create the card
             setRemainingGenerations((prev) => prev - 1);
-
-            // Reset navigation state and navigate to Home tab
             navigation.dispatch(
               CommonActions.reset({
                 index: 0,
@@ -74,9 +118,9 @@ const CardReviewScreen = () => {
   return (
     <View f={1} bg={Colors.dark.background}>
       <View style={styles.container}>
-        <View f={1} gap="$4">
+        <View f={1} gap="$5">
           {/* Card Preview Section */}
-          <YStack gap="$2" ai="center">
+          <YStack gap="$3" ai="center">
             <View scale={0.8}>
               <CardComponent
                 displayData={{
@@ -93,72 +137,108 @@ const CardReviewScreen = () => {
           </YStack>
 
           {/* Remaining Generations */}
-          <XStack ai="center" mt="$2" mb="$2" justifyContent="space-between">
-            <Text color={Colors.dark.textSecondary} fontSize="$4" fontWeight="600">
-              Remaining Card Generations:
-            </Text>
-            <Text color={Colors.dark.text} fontSize="$4" fontWeight="700" fontFamily="$heading">
-              {remainingGenerations}
-            </Text>
-          </XStack>
+          <View style={{ 
+            borderRadius: 16, 
+            overflow: 'hidden', 
+            backgroundColor: Colors.dark.backgroundSecondary,
+            borderWidth: 1,
+            borderColor: Colors.dark.border
+          }}>
+            <XStack ai="center" p="$4" justifyContent="space-between">
+              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                Remaining Card Generations
+              </Text>
+              <Text color={Colors.dark.text} fontSize="$4" fontWeight="700" fontFamily="$heading">
+                {remainingGenerations}
+              </Text>
+            </XStack>
+          </View>
 
           {/* Card Details */}
-          <YStack
-            gap="$2"
-            backgroundColor={Colors.dark.backgroundSecondary}
-            p="$3"
-            borderRadius={12}
-          >
-            <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$heading">
-              Card Details
-            </Text>
+          <View style={{ 
+            borderRadius: 16, 
+            overflow: 'hidden', 
+            backgroundColor: Colors.dark.backgroundSecondary,
+            borderWidth: 1,
+            borderColor: Colors.dark.border
+          }}>
+            <YStack p="$4" gap="$4">
+              <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$heading">
+                Card Details
+              </Text>
 
-            <XStack jc="space-between">
-              <Text color={Colors.dark.textSecondary}>Type</Text>
-              <Text color={Colors.dark.text}>{cardType}</Text>
-            </XStack>
+              <YStack gap="$3">
+                <XStack jc="space-between">
+                  <Text color={Colors.dark.textSecondary} fontSize="$3">Type</Text>
+                  <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">{cardType}</Text>
+                </XStack>
 
-            <XStack jc="space-between">
-              <Text color={Colors.dark.textSecondary}>Name</Text>
-              <Text color={Colors.dark.text}>{cardData.name}</Text>
-            </XStack>
+                <XStack jc="space-between">
+                  <Text color={Colors.dark.textSecondary} fontSize="$3">Name</Text>
+                  <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">{cardData.name}</Text>
+                </XStack>
 
-            {cardType === 'Category' && cardData.category && (
-              <XStack jc="space-between">
-                <Text color={Colors.dark.textSecondary}>Category</Text>
-                <Text color={Colors.dark.text}>{cardData.category.name}</Text>
-              </XStack>
-            )}
+                {cardType === 'Category' && cardData.category && (
+                  <XStack jc="space-between">
+                    <Text color={Colors.dark.textSecondary} fontSize="$3">Category</Text>
+                    <XStack gap="$2" ai="center">
+                      <Text fontSize="$3">{cardData.category.emoji}</Text>
+                      <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">
+                        {cardData.category.name}
+                      </Text>
+                    </XStack>
+                  </XStack>
+                )}
 
-            {cardType === 'Location' && (
-              <XStack jc="space-between">
-                <Text color={Colors.dark.textSecondary}>Radius</Text>
-                <Text color={Colors.dark.text}>{cardData.radius}m</Text>
-              </XStack>
-            )}
+                {cardType === 'Location' && (
+                  <XStack jc="space-between">
+                    <Text color={Colors.dark.textSecondary} fontSize="$3">Radius</Text>
+                    <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">
+                      {cardData.radius.toFixed(1)} km
+                    </Text>
+                  </XStack>
+                )}
+              </YStack>
+            </YStack>
+          </View>
 
-            <XStack jc="space-between">
-              <Text color={Colors.dark.textSecondary}>Transaction Limit</Text>
-              <Text color={Colors.dark.text}>{cardData.limits.transaction} KWD</Text>
-            </XStack>
+          {/* Spending Limits */}
+          {activeLimits.length > 0 && (
+            <View style={{ 
+              borderRadius: 16, 
+              overflow: 'hidden', 
+              backgroundColor: Colors.dark.backgroundSecondary,
+              borderWidth: 1,
+              borderColor: Colors.dark.border
+            }}>
+              <YStack p="$4" gap="$4">
+                <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$heading">
+                  Spending Limits
+                </Text>
 
-            <XStack jc="space-between">
-              <Text color={Colors.dark.textSecondary}>Monthly Limit</Text>
-              <Text color={Colors.dark.text}>{cardData.limits.monthly} KWD</Text>
-            </XStack>
-          </YStack>
+                <YStack gap="$3">
+                  {activeLimits.map((limit, index) => (
+                    <XStack key={index} jc="space-between">
+                      <Text color={Colors.dark.textSecondary} fontSize="$3">{limit.label}</Text>
+                      <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">{limit.value}</Text>
+                    </XStack>
+                  ))}
+                </YStack>
+              </YStack>
+            </View>
+          )}
         </View>
 
         {/* Bottom Buttons */}
         <XStack
           width="100%"
-          gap="$10"
+          gap="$12"
           borderTopWidth={1}
           borderTopColor={`${Colors.dark.border}40`}
           pt="$4"
-          mt="$4"
+          mt="auto"
+          mb={insets.bottom + 50}
           jc="space-between"
-          bottom={100}
         >
           <Button
             f={1}
@@ -167,6 +247,8 @@ const CardReviewScreen = () => {
             onPress={() => navigation.goBack()}
             size="$5"
             borderRadius={15}
+            borderWidth={1}
+            borderColor={Colors.dark.border}
           >
             <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$archivo">
               Back

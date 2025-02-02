@@ -38,19 +38,21 @@ const TransactionCard = ({ transaction }) => {
 
   return (
     <XStack
-      backgroundColor={Colors.dark.backgroundSecondary}
+      backgroundColor={Colors.dark.card}
       p={16}
       mb={10}
       br={12}
       ai="center"
       jc="space-between"
+      borderWidth={1}
+      borderColor={Colors.dark.border}
     >
       <XStack ai="center" gap={12} f={1}>
         <View
           width={50}
           height={50}
           br={8}
-          backgroundColor={Colors.dark.backgroundTertiary}
+          backgroundColor={Colors.dark.backgroundSecondary}
           ai="center"
           jc="center"
         >
@@ -121,7 +123,7 @@ const TransactionCardSkeleton = () => {
 
   return (
     <XStack
-      backgroundColor={Colors.dark.backgroundSecondary}
+      backgroundColor={Colors.dark.card}
       p={16}
       mb={10}
       br={12}
@@ -149,9 +151,7 @@ const LoadingSkeleton = () => {
   return (
     <View style={styles.content}>
       <View style={styles.sectionHeader} backgroundColor={Colors.dark.background}>
-        <Text color={Colors.dark.textSecondary} fontSize={16} fontWeight="500">
-          <Animated.View style={styles.skeletonMonth} />
-        </Text>
+        <Animated.View style={styles.skeletonMonth} />
       </View>
 
       {/* Show only 4 items which is typically what fits in the viewport */}

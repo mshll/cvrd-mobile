@@ -17,17 +17,21 @@ const MIN_RADIUS = 0.2; // in km
 const EditLocationScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { cardId } = route.params;
+  const { cardId, initialLocation, initialRadius, onSave } = route.params;
   const { getCardById, updateCard } = useCards();
-  const card = getCardById(cardId);
+  const card = cardId ? getCardById(cardId) : null;
   const mapRef = useRef(null);
 
+  // Get the appropriate color - either from existing card or use primary color
+  const markerColor = card ? Colors.cards[card.card_color] : Colors.dark.primary;
+
   // State
-  const [location, setLocation] = useState({
-    latitude: card?.latitude || 29.3759,
-    longitude: card?.longitude || 47.9774,
-  });
-  const [radius, setRadius] = useState(card?.radius || DEFAULT_RADIUS); // Use radius directly in km
+  const [location, setLocation] = useState(
+    initialLocation || (card?.latitude && card?.longitude 
+      ? { latitude: card.latitude, longitude: card.longitude }
+      : { latitude: 29.3759, longitude: 47.9774 })
+  );
+  const [radius, setRadius] = useState(initialRadius || card?.radius || DEFAULT_RADIUS);
   const [showHelp, setShowHelp] = useState(false);
   const [isEditingRadius, setIsEditingRadius] = useState(false);
   const [tempRadius, setTempRadius] = useState('');
@@ -40,13 +44,19 @@ const EditLocationScreen = () => {
   };
 
   const handleSave = useCallback(() => {
-    updateCard(cardId, {
-      latitude: location.latitude,
-      longitude: location.longitude,
-      radius, // Store radius directly in km
-    });
+    if (cardId) {
+      // If editing an existing card
+      updateCard(cardId, {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        radius,
+      });
+    } else if (onSave) {
+      // If selecting location during card creation
+      onSave(location, radius);
+    }
     navigation.goBack();
-  }, [cardId, location, radius, updateCard, navigation]);
+  }, [cardId, location, radius, updateCard, onSave, navigation]);
 
   const handleRadiusInput = (text) => {
     setTempRadius(text);
@@ -76,14 +86,14 @@ const EditLocationScreen = () => {
           coordinate={location}
           draggable
           onDragEnd={(e) => setLocation(e.nativeEvent.coordinate)}
-          pinColor={Colors.cards[card.card_color]}
+          pinColor={markerColor}
         />
         <MapCircle
           center={location}
           radius={radius * 1000} // Convert km to meters
           strokeWidth={2}
-          strokeColor={Colors.cards[card.card_color]}
-          fillColor={`${Colors.cards[card.card_color]}40`}
+          strokeColor={markerColor}
+          fillColor={`${markerColor}40`}
         />
       </MapView>
 
@@ -169,9 +179,9 @@ const EditLocationScreen = () => {
                 maximumValue={MAX_RADIUS}
                 step={0.1}
                 onValueChange={setRadius}
-                minimumTrackTintColor={Colors.cards[card.card_color]}
+                minimumTrackTintColor={markerColor}
                 maximumTrackTintColor={Colors.dark.backgroundTertiary}
-                thumbTintColor={Colors.cards[card.card_color]}
+                thumbTintColor={markerColor}
               />
             </View>
             <Text color={Colors.dark.textSecondary} fontSize="$3">

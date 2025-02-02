@@ -1,8 +1,8 @@
 import { Colors } from '@/config/colors';
 import { View, Text, Input, XStack, YStack, Button } from 'tamagui';
 import { useState, useCallback, useEffect } from 'react';
-import { Search, ArrowDown, ArrowUp } from '@tamagui/lucide-icons';
-import { StyleSheet, SectionList } from 'react-native';
+import { Search, ArrowDown, ArrowUp, History } from '@tamagui/lucide-icons';
+import { StyleSheet, SectionList, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TransactionCard, { LoadingSkeleton } from '../components/TransactionCard';
 
@@ -236,15 +236,33 @@ const ActivityScreen = () => {
   }, []);
 
   return (
-    <View f={1} bg={Colors.dark.background}>
-      <YStack pt={insets.top - 30} px={16} space={16}>
+    <View 
+      f={1} 
+      bg={Colors.dark.background}
+    >
+      {/* Header Section */}
+      <YStack 
+        pt={insets.top - 20} 
+        px={16} 
+        space={16}
+        backgroundColor={Colors.dark.background}
+      >
+        <XStack ai="center" gap="$2">
+          <History size={20} color={Colors.dark.text} />
+          <Text color={Colors.dark.text} fontSize="$4" fontFamily="$archivoBlack">
+            Activity
+          </Text>
+        </XStack>
+
         <XStack space={8}>
           <XStack
             f={1}
             br={8}
-            backgroundColor={Colors.dark.backgroundSecondary}
+            backgroundColor={Colors.dark.card}
             ai="center"
             px={12}
+            borderWidth={1}
+            borderColor={Colors.dark.border}
           >
             <Search size={20} color={Colors.dark.textSecondary} />
             <Input
@@ -256,14 +274,17 @@ const ActivityScreen = () => {
               backgroundColor="transparent"
               value={searchQuery}
               onChangeText={setSearchQuery}
+              fontFamily="$body"
             />
           </XStack>
 
           <Button
-            backgroundColor={Colors.dark.backgroundSecondary}
+            backgroundColor={Colors.dark.card}
             br={8}
             p={12}
             onPress={toggleDateSort}
+            borderWidth={1}
+            borderColor={Colors.dark.border}
           >
             {dateSort === 'desc' ? (
               <ArrowDown size={20} color={Colors.dark.text} />
@@ -279,11 +300,13 @@ const ActivityScreen = () => {
             backgroundColor={
               statusFilter === FILTER_STATES.ALL && !amountSort
                 ? Colors.dark.primary
-                : Colors.dark.backgroundSecondary
+                : Colors.dark.card
             }
             br={10}
             px={12}
             py={6}
+            borderWidth={1}
+            borderColor={Colors.dark.border}
             onPress={() => {
               setStatusFilter(FILTER_STATES.ALL);
               setAmountSort(null);
@@ -296,6 +319,8 @@ const ActivityScreen = () => {
                   : Colors.dark.textSecondary
               }
               fontSize={14}
+              fontFamily="$body"
+              fontWeight="600"
             >
               All
             </Text>
@@ -303,10 +328,12 @@ const ActivityScreen = () => {
 
           <Button
             f={1}
-            backgroundColor={amountSort ? Colors.dark.primary : Colors.dark.backgroundSecondary}
+            backgroundColor={amountSort ? Colors.dark.primary : Colors.dark.card}
             br={10}
             px={12}
             py={6}
+            borderWidth={1}
+            borderColor={Colors.dark.border}
             onPress={toggleAmountSort}
           >
             <Text color={amountSort ? Colors.dark.text : Colors.dark.textSecondary} fontSize={14}>
@@ -319,11 +346,13 @@ const ActivityScreen = () => {
             backgroundColor={
               statusFilter !== FILTER_STATES.ALL
                 ? Colors.dark.primary
-                : Colors.dark.backgroundSecondary
+                : Colors.dark.card
             }
             br={10}
             px={12}
             py={6}
+            borderWidth={1}
+            borderColor={Colors.dark.border}
             onPress={toggleStatusFilter}
           >
             <Text
@@ -342,15 +371,16 @@ const ActivityScreen = () => {
         </XStack>
       </YStack>
 
-      <View style={styles.listContainer}>
+      {/* Transactions List */}
+      <View style={[styles.listContainer]}>
         {isLoading ? (
           <LoadingSkeleton />
         ) : error ? (
-          <Text color={Colors.dark.primary} ta="center" mt={20}>
+          <Text color={Colors.dark.primary} ta="center" mt={20} fontFamily="$body">
             {error}
           </Text>
         ) : transactions.length === 0 ? (
-          <Text color={Colors.dark.textSecondary} ta="center" mt={20}>
+          <Text color={Colors.dark.textSecondary} ta="center" mt={20} fontFamily="$body">
             No transactions found
           </Text>
         ) : (
@@ -360,7 +390,11 @@ const ActivityScreen = () => {
             renderItem={({ item }) => <TransactionCard transaction={item} />}
             renderSectionHeader={({ section: { title } }) => (
               <View style={styles.sectionHeader} backgroundColor={Colors.dark.background}>
-                <Text color={Colors.dark.textSecondary} fontSize={16} fontWeight="500">
+                <Text 
+                  color={Colors.dark.textSecondary} 
+                  fontSize={16} 
+                  fontFamily="$archivoBlack"
+                >
                   {title}
                 </Text>
               </View>
@@ -379,7 +413,6 @@ const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
     marginTop: 10,
-    marginBottom: 90,
   },
   sectionHeader: {
     paddingVertical: 12,
