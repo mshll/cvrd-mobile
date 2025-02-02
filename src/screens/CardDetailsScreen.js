@@ -1,5 +1,5 @@
 import { View, ScrollView, YStack, Text, Separator, XStack, Button, Input } from 'tamagui';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Colors } from '@/config/colors';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import CardComponent from '@/components/CardComponent';
@@ -28,10 +28,10 @@ const MAP_HEIGHT = 200;
 
 const DURATION_OPTIONS = [
   { name: 'Per Transaction', value: 'per_transaction' },
-  { name: 'Daily', value: 'daily' },
-  { name: 'Weekly', value: 'weekly' },
-  { name: 'Monthly', value: 'monthly' },
-  { name: 'Yearly', value: 'yearly' },
+  { name: 'Per Day', value: 'daily' },
+  { name: 'Per Week', value: 'weekly' },
+  { name: 'Per Month', value: 'monthly' },
+  { name: 'Per Year', value: 'yearly' },
   { name: 'Total', value: 'total' },
 ];
 
@@ -50,7 +50,21 @@ const ActionButton = ({ onPress, children }) => (
   </Button>
 );
 
-const LocationMap = ({ latitude, longitude, radius, color }) => {
+const EditButton = ({ onPress }) => (
+  <Button
+    size="$2"
+    px="$3"
+    backgroundColor={Colors.dark.backgroundTertiary}
+    pressStyle={{ backgroundColor: Colors.dark.border }}
+    onPress={onPress}
+  >
+    <Text color={Colors.dark.text} fontSize="$2" fontWeight="600">
+      Edit
+    </Text>
+  </Button>
+);
+
+const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
   const region = {
     latitude,
     longitude,
@@ -88,152 +102,141 @@ const LocationMap = ({ latitude, longitude, radius, color }) => {
           />
         </MapView>
       </View>
+      {onEdit && (
+        <View position="absolute" top={12} right={12}>
+          <EditButton onPress={onEdit} />
+        </View>
+      )}
     </View>
   );
 };
 
 const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
   const { showActionSheetWithOptions } = useActionSheet();
-  const [hasLimit, setHasLimit] = useState(!!card.spending_limit);
   const [spendingLimit, setSpendingLimit] = useState(card.spending_limit?.toString() || '');
   const [durationLimit, setDurationLimit] = useState(card.duration_limit || 'per_transaction');
 
   const handleSave = useCallback(() => {
-    onSave({
-      spending_limit: parseFloat(spendingLimit),
-      duration_limit: durationLimit,
-      remaining_limit: parseFloat(spendingLimit),
-    });
+    if (durationLimit === 'no_limit') {
+      onSave({
+        spending_limit: null,
+        duration_limit: null,
+        remaining_limit: null,
+      });
+    } else {
+      onSave({
+        spending_limit: parseFloat(spendingLimit),
+        duration_limit: durationLimit,
+        remaining_limit: parseFloat(spendingLimit),
+      });
+    }
     onClose();
   }, [spendingLimit, durationLimit, onSave, onClose]);
 
-  const handleRemoveLimit = useCallback(() => {
-    onSave({
-      spending_limit: null,
-      duration_limit: null,
-      remaining_limit: null,
-    });
-    onClose();
-  }, [onSave, onClose]);
-
-  const handleDurationPress = useCallback(() => {
-    const options = [...DURATION_OPTIONS.map((opt) => opt.name), 'Cancel'];
-    const cancelButtonIndex = options.length - 1;
-
-    showActionSheetWithOptions(
-      {
-        options,
-        cancelButtonIndex,
-        title: 'Select Period',
-        message: 'Choose how often the spending limit resets',
-      },
-      (selectedIndex) => {
-        if (selectedIndex !== cancelButtonIndex) {
-          setDurationLimit(DURATION_OPTIONS[selectedIndex].value);
-        }
-      }
-    );
-  }, [showActionSheetWithOptions]);
-
-  const selectedDuration = DURATION_OPTIONS.find((opt) => opt.value === durationLimit)?.name;
+  const allOptions = [...DURATION_OPTIONS, { name: 'No Limit', value: 'no_limit' }];
+  const numRows = Math.ceil(allOptions.length / 2);
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} aboveAll={false}>
-      <YStack gap="$5" px="$4" mt="$2" pb="$6">
-        <Text color={Colors.dark.text} fontSize="$6" fontFamily={'$archivoBlack'}>
-          Spending Limit
-        </Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <YStack gap="$5" px="$4" mt="$2" pb="$6">
+          <Text color={Colors.dark.text} fontSize="$6" fontFamily={'$archivoBlack'}>
+            Spend Limit
+          </Text>
 
-        <YStack gap="$5">
-          {/* Amount Input */}
-          <YStack gap="$2">
-            <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily={'$heading'}>
-              Amount
-            </Text>
-            <XStack gap="$3" ai="center">
-              <Text
-                color={Colors.dark.text}
-                fontSize="$7"
-                fontWeight="700"
-                opacity={hasLimit ? 1 : 0.5}
-                fontFamily={'$archivo'}
-              >
+          <YStack gap="$5">
+            {/* Amount Input */}
+            <XStack
+              backgroundColor={Colors.dark.backgroundSecondary}
+              borderRadius={16}
+              height={70}
+              alignItems="center"
+              paddingHorizontal="$4"
+              opacity={durationLimit === 'no_limit' ? 0.5 : 1}
+            >
+              <Text color={Colors.dark.text} fontSize="$8" fontWeight="700" fontFamily={'$archivoBlack'} mr="$2">
                 KD
               </Text>
-              <View f={1}>
-                <Input
-                  value={spendingLimit}
-                  onChangeText={setSpendingLimit}
-                  placeholder="0.00"
-                  keyboardType="decimal-pad"
-                  backgroundColor={Colors.dark.backgroundSecondary}
-                  borderWidth={0}
-                  color={Colors.dark.text}
-                  placeholderTextColor={Colors.dark.textTertiary}
-                  fontSize="$7"
-                  fontFamily={'$archivoBlack'}
-                  p={0}
-                  px="$3"
-                  fontWeight="700"
-                  textAlign="left"
-                  disabled={!hasLimit}
-                  opacity={hasLimit ? 1 : 0.5}
-                />
-              </View>
+              <Input
+                value={durationLimit === 'no_limit' ? '' : spendingLimit}
+                onChangeText={setSpendingLimit}
+                placeholder="0.00"
+                keyboardType="decimal-pad"
+                backgroundColor="transparent"
+                borderWidth={0}
+                color={Colors.dark.text}
+                placeholderTextColor={Colors.dark.textTertiary}
+                fontSize="$8"
+                fontFamily={'$archivoBlack'}
+                p={0}
+                fontWeight="700"
+                textAlign="left"
+                flex={1}
+                editable={durationLimit !== 'no_limit'}
+                returnKeyType="done"
+                onSubmitEditing={Keyboard.dismiss}
+              />
+            </XStack>
+
+            {/* Period Selection */}
+            <XStack flexWrap="wrap" gap="$1">
+              {allOptions.map((option, index) => {
+                const isFirstRow = index < 2;
+                const isLastRow = index === allOptions.length - 1;
+                const isFirstInRow = index % 2 === 0;
+                const isLastInRow = index % 2 === 1 || index === allOptions.length - 1;
+
+                let borderRadius = {
+                  borderTopLeftRadius: isFirstRow && isFirstInRow ? 12 : 0,
+                  borderTopRightRadius: isFirstRow && isLastInRow ? 12 : 0,
+                  borderBottomLeftRadius: isLastRow && isFirstInRow ? 12 : 0,
+                  borderBottomRightRadius: isLastRow && isLastInRow ? 12 : 0,
+                };
+
+                return (
+                  <Button
+                    key={option.value}
+                    backgroundColor={
+                      durationLimit === option.value ? Colors.dark.primary : Colors.dark.backgroundSecondary
+                    }
+                    pressStyle={{
+                      backgroundColor:
+                        durationLimit === option.value ? Colors.dark.primaryDark : Colors.dark.backgroundTertiary,
+                    }}
+                    onPress={() => setDurationLimit(option.value)}
+                    flex={isLastRow && index === allOptions.length - 1 ? 2 : 1}
+                    height={50}
+                    minWidth={isLastRow && index === allOptions.length - 1 ? '100%' : '48%'}
+                    {...borderRadius}
+                  >
+                    <Text
+                      color={durationLimit === option.value ? 'white' : Colors.dark.text}
+                      fontSize="$3"
+                      fontWeight="600"
+                    >
+                      {option.name}
+                    </Text>
+                  </Button>
+                );
+              })}
             </XStack>
           </YStack>
 
-          {/* Period Selection */}
-          <YStack gap="$2">
-            <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily={'$heading'}>
-              Period
-            </Text>
-            <Button
-              backgroundColor={Colors.dark.backgroundSecondary}
-              pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
-              onPress={handleDurationPress}
-              disabled={!hasLimit}
-              opacity={hasLimit ? 1 : 0.5}
-              size="$5"
-              borderRadius={12}
-              px="$3"
-            >
-              <XStack f={1} jc="space-between" ai="center">
-                <Text color={Colors.dark.text} fontSize="$4" fontWeight="600">
-                  {selectedDuration}
-                </Text>
-                <ChevronDownIcon size={16} color={Colors.dark.text} />
-              </XStack>
-            </Button>
-          </YStack>
-        </YStack>
-
-        {/* Bottom Buttons */}
-        <YStack gap="$3" mt="$2" borderTopWidth={1} borderTopColor={`${Colors.dark.border}80`} pt="$4">
+          {/* Save Button */}
           <Button
             backgroundColor={Colors.dark.primary}
             pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
             onPress={handleSave}
             size="$5"
             borderRadius={12}
+            mt="$2"
           >
             <Text color="white" fontSize="$4" fontWeight="600">
-              Set Limit
-            </Text>
-          </Button>
-          <Button
-            backgroundColor={Colors.dark.backgroundSecondary}
-            pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
-            onPress={card.spending_limit ? handleRemoveLimit : onClose}
-            size="$5"
-            borderRadius={12}
-          >
-            <Text color={Colors.dark.text} fontSize="$4" fontWeight="600">
-              {card.spending_limit ? 'Remove Limit' : 'Cancel'}
+              Save
             </Text>
           </Button>
         </YStack>
-      </YStack>
+      </TouchableWithoutFeedback>
     </BottomSheet>
   );
 };
@@ -276,6 +279,10 @@ const CardDetailsScreen = () => {
     return DURATION_OPTIONS.find((opt) => opt.value === duration)?.name || duration;
   };
 
+  const handleEditLocation = useCallback(() => {
+    navigation.navigate(Paths.EDIT_LOCATION, { cardId });
+  }, [navigation, cardId]);
+
   return (
     <ScrollView f={1} bg={Colors.dark.background}>
       <YStack f={1} ai="center" pt="$5" pb={150}>
@@ -284,6 +291,15 @@ const CardDetailsScreen = () => {
         {/* Action Buttons */}
         <XStack gap="$5" mt="$5" mb="$5">
           <YStack gap="$2" ai="center" jc="center">
+            <ActionButton onPress={handleTogglePause}>
+              {card.is_paused ? (
+                <PlayIcon size={25} color={Colors.dark.text} />
+              ) : (
+                <PauseIcon size={25} color={Colors.dark.text} />
+              )}
+            </ActionButton>
+          </YStack>
+          <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleEdit}>
               <PaintBrushIcon size={25} color={Colors.dark.text} />
             </ActionButton>
@@ -291,15 +307,6 @@ const CardDetailsScreen = () => {
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleShare}>
               <ArrowUpOnSquareIcon size={25} color={Colors.dark.text} />
-            </ActionButton>
-          </YStack>
-          <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleTogglePause}>
-              {card.is_paused ? (
-                <PlayIcon size={25} color={Colors.dark.text} />
-              ) : (
-                <PauseIcon size={25} color={Colors.dark.text} />
-              )}
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
@@ -312,24 +319,15 @@ const CardDetailsScreen = () => {
         {/* Card Details */}
         <YStack width="100%" px="$4" gap="$4">
           {/* Spending Limit Section */}
-          <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary }}>
-            <YStack p="$4" gap="$3">
-              <XStack jc="space-between" ai="center">
-                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
-                  Spending Limits
-                </Text>
-                <Button
-                  size="$2"
-                  backgroundColor={Colors.dark.backgroundTertiary}
-                  pressStyle={{ backgroundColor: Colors.dark.border }}
-                  onPress={() => setShowSpendLimitSheet(true)}
-                >
-                  <Text color={Colors.dark.text} fontSize="$2" fontWeight="600">
-                    Edit
+          {card.spending_limit ? (
+            <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary }}>
+              <YStack p="$4" gap="$3">
+                <XStack jc="space-between" ai="center">
+                  <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                    Spend Limit
                   </Text>
-                </Button>
-              </XStack>
-              {card.spending_limit ? (
+                  <EditButton onPress={() => setShowSpendLimitSheet(true)} />
+                </XStack>
                 <YStack gap="$2">
                   {card.duration_limit === 'per_transaction' ? (
                     <>
@@ -372,13 +370,28 @@ const CardDetailsScreen = () => {
                     </>
                   )}
                 </YStack>
-              ) : (
-                <Text color={Colors.dark.textSecondary} fontSize="$3">
-                  No spending limit set
+              </YStack>
+            </View>
+          ) : (
+            <Button
+              onPress={() => setShowSpendLimitSheet(true)}
+              height={120}
+              borderRadius={16}
+              borderWidth={1}
+              borderStyle="dashed"
+              borderColor={Colors.dark.border}
+              backgroundColor="transparent"
+              pressStyle={{ backgroundColor: Colors.dark.backgroundSecondary }}
+              alignItems="center"
+              justifyContent="center"
+            >
+              <YStack alignItems="center" gap="$2">
+                <Text color={Colors.dark.textTertiary} fontSize="$3" fontWeight="600">
+                  Set a spend limit
                 </Text>
-              )}
-            </YStack>
-          </View>
+              </YStack>
+            </Button>
+          )}
 
           {/* Location Map (only for location cards) */}
           {card.card_type === 'Location' && card.longitude && card.latitude && (
@@ -387,6 +400,7 @@ const CardDetailsScreen = () => {
               longitude={card.longitude}
               radius={card.radius}
               color={Colors.cards[card.card_color]}
+              onEdit={handleEditLocation}
             />
           )}
 

@@ -9,6 +9,8 @@ import { Image } from 'react-native';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { TransitionPresets } from '@react-navigation/stack';
 import AddCardScreen from '@/screens/AddCardScreen';
+import EditCardScreen from '@/screens/EditCardScreen';
+import EditLocationScreen from '@/screens/EditLocationScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +23,14 @@ const defaultScreenOptions = {
   contentStyle: {
     backgroundColor: Colors.dark.background,
   },
+};
+
+const modalScreenOptions = {
+  headerShown: false,
+  presentation: 'modal',
+  ...TransitionPresets.ModalPresentationIOS,
+  gestureEnabled: true,
+  animationEnabled: true,
 };
 
 export const HomeStack = () => {
@@ -43,6 +53,9 @@ export const HomeStack = () => {
           ),
         }}
       />
+      {/* <Stack.Screen name={Paths.CARD_DETAILS} component={CardDetailsScreen} options={{ headerShown: true }} />
+      <Stack.Screen name={Paths.EDIT_CARD} component={EditCardScreen} options={modalScreenOptions} />
+      <Stack.Screen name={Paths.EDIT_LOCATION} component={EditLocationScreen} options={modalScreenOptions} /> */}
     </Stack.Navigator>
   );
 };
@@ -70,3 +83,20 @@ export const SubscriptionsStack = () => {
     </Stack.Navigator>
   );
 };
+
+export function MainStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        presentation: 'modal',
+      }}
+    >
+      <Stack.Screen name={Paths.HOME} component={HomeScreen} />
+      <Stack.Screen name={Paths.PROFILE} component={ProfileScreen} />
+      <Stack.Screen name={Paths.CARD_DETAILS} component={CardDetailsScreen} />
+      <Stack.Screen name={Paths.EDIT_CARD} component={EditCardScreen} />
+      <Stack.Screen name={Paths.EDIT_LOCATION} component={EditLocationScreen} />
+    </Stack.Navigator>
+  );
+}

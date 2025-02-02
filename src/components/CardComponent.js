@@ -53,7 +53,7 @@ const CardComponent = ({ cardId, displayData, scale = 1 }) => {
   const { cardImg, logoImg, visaImg } = getCardAssets(type, cardTheme);
 
   return (
-    <View width={CARD_WIDTH * scale} height={CARD_HEIGHT * scale} borderRadius={20} overflow="hidden" bg={cardColor}>
+    <View width={CARD_WIDTH * scale} height={CARD_HEIGHT * scale} borderRadius={15} overflow="hidden" bg={cardColor}>
       {/* Background Layer */}
       <View style={StyleSheet.absoluteFill}>
         <Image source={cardImg} style={styles.cardImage} resizeMode="cover" />

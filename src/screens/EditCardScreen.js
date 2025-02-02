@@ -1,8 +1,8 @@
-import { View, Text, YStack, XStack, Button, Input, Circle } from 'tamagui';
+import { View, Text, YStack, XStack, Button, Input, Circle, Slider } from 'tamagui';
 import { Colors } from '@/config/colors';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { PlusIcon, ArrowPathIcon } from 'react-native-heroicons/solid';
+import { PlusIcon, ArrowPathIcon, MapPinIcon } from 'react-native-heroicons/solid';
 import { useCards } from '@/hooks/useCards';
 import { Platform, StatusBar, StyleSheet } from 'react-native';
 import EmojiPicker from 'rn-emoji-keyboard';
@@ -13,6 +13,12 @@ import { ScrollView } from 'react-native-gesture-handler';
 import ColorPicker, { Panel1, Preview, HueSlider } from 'reanimated-color-picker';
 import BottomSheet from '@/components/BottomSheet';
 import { getCardCustomization, saveCardCustomization, resetCardCustomization, Defaults } from '@/utils/storage';
+import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
+
+const MAP_HEIGHT = 200;
+const DEFAULT_RADIUS = 0.3; // in miles
+const MAX_RADIUS = 5; // in miles
+const RADIUS_MULTIPLIER = 10; // To convert between slider integers and actual radius values
 
 const EditCardScreen = () => {
   const navigation = useNavigation();
@@ -102,11 +108,13 @@ const EditCardScreen = () => {
   }, [cardId]);
 
   const handleSave = useCallback(() => {
-    updateCard(cardId, {
+    const updates = {
       card_name: cardName,
       card_icon: emoji,
       card_color: cardColor,
-    });
+    };
+
+    updateCard(cardId, updates);
     navigation.goBack();
   }, [cardId, cardName, emoji, cardColor, updateCard, navigation]);
 
@@ -119,9 +127,6 @@ const EditCardScreen = () => {
             {/* Card Preview */}
             <YStack gap="$1" ai="center" pt="$3">
               <View height={5} width={60} backgroundColor={Colors.dark.backgroundTertiary} borderRadius={50} />
-              {/* <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" mt="$3">
-                Preview
-              </Text> */}
 
               <View
                 height={CARD_HEIGHT * 0.3}
@@ -150,7 +155,7 @@ const EditCardScreen = () => {
 
             {/* Card Name */}
             <YStack gap="$2">
-              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily={'$heading'}>
+              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
                 Card Name
               </Text>
               <Input
@@ -168,26 +173,9 @@ const EditCardScreen = () => {
               />
             </YStack>
 
-            {/* Reset Button */}
-            <Button
-              backgroundColor={'transparent'}
-              pressStyle={{ opacity: 0.7, backgroundColor: 'transparent', borderWidth: 0 }}
-              onPress={resetToDefaults}
-              size="$3"
-              borderRadius={8}
-              flexDirection="row"
-              gap="$1"
-              mb="-$2"
-            >
-              <ArrowPathIcon size={16} color={Colors.dark.primary} />
-              <Text color={Colors.dark.primary} fontSize="$3" fontWeight="600">
-                Reset to Default
-              </Text>
-            </Button>
-
             {/* Emoji Grid */}
             <YStack gap="$2" width="100%">
-              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily={'$heading'}>
+              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
                 Card Icon
               </Text>
               <XStack width="100%" flexWrap="wrap" gap="$2" jc="space-between">
@@ -229,7 +217,7 @@ const EditCardScreen = () => {
 
             {/* Color Grid */}
             <YStack gap="$2" width="100%">
-              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily={'$heading'}>
+              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
                 Card Color
               </Text>
               <XStack width="100%" flexWrap="wrap" gap="$2" jc="space-between">
@@ -276,6 +264,23 @@ const EditCardScreen = () => {
             </YStack>
           </YStack>
 
+          {/* Reset Button */}
+          <Button
+            backgroundColor={'transparent'}
+            pressStyle={{ opacity: 0.7, backgroundColor: 'transparent', borderWidth: 0 }}
+            onPress={resetToDefaults}
+            size="$3"
+            borderRadius={8}
+            flexDirection="row"
+            gap="$1"
+            mb="-$2"
+          >
+            <ArrowPathIcon size={16} color={Colors.dark.primary} />
+            <Text color={Colors.dark.primary} fontSize="$3" fontWeight="600">
+              Reset to Default
+            </Text>
+          </Button>
+
           {/* Bottom Buttons */}
           <YStack width="100%" gap="$2.5" borderTopWidth={1} borderTopColor={`${Colors.dark.border}40`} pt="$4" mt="$4">
             <Button
@@ -285,7 +290,7 @@ const EditCardScreen = () => {
               size="$5"
               borderRadius={15}
             >
-              <Text color="white" fontSize="$4" fontWeight="600" fontFamily={'$archivo'}>
+              <Text color="white" fontSize="$4" fontWeight="600">
                 Save
               </Text>
             </Button>
@@ -296,7 +301,7 @@ const EditCardScreen = () => {
               size="$5"
               borderRadius={15}
             >
-              <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily={'$archivo'}>
+              <Text color={Colors.dark.text} fontSize="$4" fontWeight="600">
                 Cancel
               </Text>
             </Button>
@@ -326,7 +331,7 @@ const EditCardScreen = () => {
               size="$5"
               borderRadius={15}
             >
-              <Text color="white" fontSize="$4" fontWeight="600" fontFamily={'$archivo'}>
+              <Text color="white" fontSize="$3" fontWeight="600">
                 Select
               </Text>
             </Button>
