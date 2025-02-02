@@ -8,7 +8,6 @@ import { Colors } from '@/config/colors';
 import { Image } from 'react-native';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { TransitionPresets } from '@react-navigation/stack';
-import AddCardScreen from '@/screens/AddCardScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -43,6 +42,17 @@ export const HomeStack = () => {
           ),
         }}
       />
+      {/* ADDED TO MAIN NAV INSTEAD */}
+      {/* <Stack.Screen
+        name={Paths.CARD_DETAILS}
+        component={CardDetailsScreen}
+        options={{
+          headerTitle: 'Card Details',
+          animation: 'slide_from_right',
+          gestureEnabled: true,
+          gestureDirection: 'horizontal',
+        }}
+      /> */}
     </Stack.Navigator>
   );
 };
@@ -50,7 +60,15 @@ export const HomeStack = () => {
 export const ActivityStack = () => {
   return (
     <Stack.Navigator screenOptions={defaultScreenOptions}>
-      <Stack.Screen name={Paths.ACTIVITY_SCREEN} component={ActivityScreen} />
+      <Stack.Screen
+        options={{
+          headerTitle: () => (
+            <Image source={require('@/../assets/logo-primary.png')} style={{ height: 24, resizeMode: 'contain' }} />
+          ),
+        }}
+        name={Paths.ACTIVITY_SCREEN}
+        component={ActivityScreen}
+      />
     </Stack.Navigator>
   );
 };
