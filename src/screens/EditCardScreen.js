@@ -1,6 +1,6 @@
 import { View, Text, YStack, XStack, Button, Input, Circle } from 'tamagui';
 import { Colors } from '@/config/colors';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { PlusIcon, ArrowPathIcon } from 'react-native-heroicons/solid';
 import { useCards } from '@/hooks/useCards';
@@ -12,15 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView } from 'react-native-gesture-handler';
 import ColorPicker, { Panel1, Preview, HueSlider } from 'reanimated-color-picker';
 import BottomSheet from '@/components/BottomSheet';
-import {
-  getCardCustomization,
-  saveCardCustomization,
-  resetCardCustomization,
-  DEFAULT_EMOJI,
-  DEFAULT_COLOR,
-  DEFAULT_EMOJIS,
-  DEFAULT_COLORS,
-} from '@/utils/storage';
+import { getCardCustomization, saveCardCustomization, resetCardCustomization, Defaults } from '@/utils/storage';
 
 const EditCardScreen = () => {
   const navigation = useNavigation();
@@ -29,60 +21,94 @@ const EditCardScreen = () => {
   const { getCardById, updateCard } = useCards();
   const card = getCardById(cardId);
 
+  // State management
   const [cardName, setCardName] = useState(card?.card_name || '');
-  const [emoji, setEmoji] = useState(card?.card_icon || DEFAULT_EMOJI);
-  const [cardColor, setCardColor] = useState(card?.card_color || DEFAULT_COLOR);
+  const [emoji, setEmoji] = useState(card?.card_icon || Defaults.EMOJI);
+  const [cardColor, setCardColor] = useState(card?.card_color || Defaults.COLOR);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showColorWheel, setShowColorWheel] = useState(false);
   const [customColor, setCustomColor] = useState('#000000');
   const [customEmojiIndex, setCustomEmojiIndex] = useState(-1);
   const [customColorIndex, setCustomColorIndex] = useState(-1);
-  const [emojiGrid, setEmojiGrid] = useState([...DEFAULT_EMOJIS]);
-  const [colorGrid, setColorGrid] = useState([...DEFAULT_COLORS]);
+  const [emojiGrid, setEmojiGrid] = useState(Defaults.emojis);
+  const [colorGrid, setColorGrid] = useState(Defaults.colors);
 
   // Load saved customizations
   useEffect(() => {
-    const loadCustomizations = async () => {
-      const customization = await getCardCustomization(cardId);
-      setEmojiGrid(customization.emojis);
-      setColorGrid(customization.colors);
-    };
-    loadCustomizations();
+    getCardCustomization(cardId).then(({ emojis, colors }) => {
+      setEmojiGrid(emojis);
+      setColorGrid(colors);
+    });
   }, [cardId]);
 
-  const handleEmojiSelected = ({ emoji }) => {
-    setEmoji(emoji);
-    if (customEmojiIndex >= 0) {
-      const newEmojiGrid = [...emojiGrid];
-      newEmojiGrid[customEmojiIndex] = emoji;
-      setEmojiGrid(newEmojiGrid);
-      saveCardCustomization(cardId, newEmojiGrid, colorGrid);
-    }
-    setShowEmojiPicker(false);
-  };
+  // Handlers
+  const handleEmojiSelected = useCallback(
+    ({ emoji }) => {
+      setEmoji(emoji);
+      if (customEmojiIndex >= 0) {
+        setEmojiGrid((prev) => {
+          const newGrid = [...prev];
+          newGrid[customEmojiIndex] = emoji;
+          saveCardCustomization(cardId, newGrid, colorGrid);
+          return newGrid;
+        });
+      }
+      setShowEmojiPicker(false);
+    },
+    [cardId, customEmojiIndex, colorGrid]
+  );
 
-  const handleColorSelected = ({ hex }) => {
+  const handleColorSelected = useCallback(({ hex }) => {
     setCustomColor(hex);
-  };
+  }, []);
 
-  const resetToDefaults = async () => {
-    await resetCardCustomization(cardId);
-    setEmoji(DEFAULT_EMOJI);
-    setCardColor(DEFAULT_COLOR);
-    setCustomEmojiIndex(-1);
-    setCustomColorIndex(-1);
-    setEmojiGrid([...DEFAULT_EMOJIS]);
-    setColorGrid([...DEFAULT_COLORS]);
-  };
+  const handleColorSave = useCallback(() => {
+    if (customColorIndex >= 0) {
+      setColorGrid((prev) => {
+        const newGrid = [...prev];
+        newGrid[customColorIndex].value = customColor;
+        saveCardCustomization(cardId, emojiGrid, newGrid);
+        return newGrid;
+      });
+    }
+    setCardColor(customColor);
+    setShowColorWheel(false);
+  }, [cardId, customColor, customColorIndex, emojiGrid]);
 
-  const handleSave = () => {
+  const resetToDefaults = useCallback(async () => {
+    try {
+      // First reset the customization in storage
+      const defaultCustomization = await resetCardCustomization(cardId);
+
+      // Then update all states in a specific order
+      setCustomEmojiIndex(-1);
+      setCustomColorIndex(-1);
+
+      // Update grids first
+      setEmojiGrid(defaultCustomization.emojis);
+      setColorGrid(defaultCustomization.colors);
+
+      // Then update the selected values
+      setEmoji(Defaults.EMOJI);
+      setCardColor(Defaults.COLOR);
+
+      // Reset color picker
+      setCustomColor('#000000');
+      setShowColorWheel(false);
+      setShowEmojiPicker(false);
+    } catch (error) {
+      console.error('Failed to reset customizations:', error);
+    }
+  }, [cardId]);
+
+  const handleSave = useCallback(() => {
     updateCard(cardId, {
       card_name: cardName,
       card_icon: emoji,
       card_color: cardColor,
     });
     navigation.goBack();
-  };
+  }, [cardId, cardName, emoji, cardColor, updateCard, navigation]);
 
   return (
     <View f={1} backgroundColor={Colors.dark.background}>
@@ -97,9 +123,17 @@ const EditCardScreen = () => {
                 Preview
               </Text> */}
 
-              <View height={CARD_HEIGHT * 0.3} overflow="hidden" borderTopEndRadius={20} borderTopStartRadius={20} pt="$4" w="100%">
-                <View scale={1.35} transformOrigin="top" perspectiveOrigin="top" ai="center">
+              <View
+                height={CARD_HEIGHT * 0.3}
+                overflow="hidden"
+                borderTopEndRadius={20}
+                borderTopStartRadius={20}
+                pt="$4"
+                w="100%"
+              >
+                <View scale={1.15} transformOrigin="top" perspectiveOrigin="top" ai="center">
                   <CardComponent
+                    scale={1.2}
                     displayData={{
                       type: card?.card_type || 'Burner',
                       label: cardName,
@@ -223,16 +257,19 @@ const EditCardScreen = () => {
                     borderWidth={cardColor === color.value ? 2 : 0}
                     borderColor={Colors.dark.primary}
                   >
-                    <Circle
-                      position="absolute"
-                      top={0}
-                      left={0}
-                      right={0}
-                      bottom={0}
-                      borderWidth={cardColor === color.value ? 2 : 0}
-                      borderColor={Colors.dark.background}
-                    />
-                    {color.name === 'custom' && <PlusIcon size={16} color={Colors.dark.text} />}
+                    {color.name === 'custom' ? (
+                      <PlusIcon size={20} color={Colors.dark.text} />
+                    ) : (
+                      <Circle
+                        position="absolute"
+                        top={0}
+                        left={0}
+                        right={0}
+                        bottom={0}
+                        borderWidth={cardColor === color.value ? 2 : 0}
+                        borderColor={Colors.dark.background}
+                      />
+                    )}
                   </Button>
                 ))}
               </XStack>
@@ -285,16 +322,7 @@ const EditCardScreen = () => {
             <Button
               backgroundColor={Colors.dark.primary}
               pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
-              onPress={() => {
-                if (customColorIndex >= 0) {
-                  const newColorGrid = [...colorGrid];
-                  newColorGrid[customColorIndex].value = customColor;
-                  setColorGrid(newColorGrid);
-                  saveCardCustomization(cardId, emojiGrid, newColorGrid);
-                }
-                setCardColor(customColor);
-                setShowColorWheel(false);
-              }}
+              onPress={handleColorSave}
               size="$5"
               borderRadius={15}
             >

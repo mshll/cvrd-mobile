@@ -10,13 +10,7 @@ import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { AnimatedTabBarNavigator } from '@/lib/react-native-animated-nav-tab-bar/dist/lib';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCards } from '@/hooks/useCards';
-import {
-  WalletIcon,
-  QueueListIcon,
-  BellIcon,
-  UserCircleIcon,
-  PlusIcon,
-} from 'react-native-heroicons/solid';
+import { WalletIcon, QueueListIcon, BellIcon, UserCircleIcon, PlusIcon } from 'react-native-heroicons/solid';
 import {
   WalletIcon as WalletIconOutline,
   QueueListIcon as QueueListIconOutline,
@@ -52,11 +46,7 @@ const TabNavigator = () => {
         component={HomeStack}
         options={{
           tabBarIcon: ({ color, size, focused }) => {
-            return focused ? (
-              <WalletIcon color={color} size={size} />
-            ) : (
-              <WalletIconOutline color={color} size={size} />
-            );
+            return focused ? <WalletIcon color={color} size={size} /> : <WalletIconOutline color={color} size={size} />;
           },
         }}
       />
@@ -75,7 +65,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name={'add-card-tab'}
-        component={HomeStack}
+        component={HomeStack} // Won't be shown
         options={{
           tabBarIcon: ({ color, size }) => (
             <Circle backgroundColor={Colors.dark.card} padding={7} position="absolute">
@@ -100,11 +90,7 @@ const TabNavigator = () => {
         component={SubscriptionsStack}
         options={{
           tabBarIcon: ({ color, size, focused }) => {
-            return focused ? (
-              <BellIcon color={color} size={size} />
-            ) : (
-              <BellIconOutline color={color} size={size} />
-            );
+            return focused ? <BellIcon color={color} size={size} /> : <BellIconOutline color={color} size={size} />;
           },
         }}
       />
@@ -144,16 +130,7 @@ const MainNav = () => {
       }}
     >
       <Stack.Screen name="Main" component={TabNavigator} />
-      <Stack.Screen
-        name={Paths.ADD_CARD_SCREEN}
-        component={AddCardScreen}
-        options={{ presentation: 'modal' }}
-      />
-      <Stack.Screen
-        name={Paths.EDIT_CARD}
-        component={EditCardScreen}
-        options={{ presentation: 'modal' }}
-      />
+      <Stack.Screen name={Paths.EDIT_CARD} component={EditCardScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen
         name={Paths.CARD_DETAILS}
         component={CardDetailsScreen}
@@ -166,6 +143,15 @@ const MainNav = () => {
             gestureEnabled: true,
             gestureDirection: 'horizontal',
           };
+        }}
+      />
+      <Stack.Screen
+        name={Paths.ADD_CARD_SCREEN}
+        component={AddCardScreen}
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Add Card',
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

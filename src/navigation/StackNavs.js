@@ -38,14 +38,12 @@ export const HomeStack = () => {
         component={HomeScreen}
         options={{
           headerTitle: () => (
-            <Image
-              source={require('@/../assets/logo-primary.png')}
-              style={{ height: 24, resizeMode: 'contain' }}
-            />
+            <Image source={require('@/../assets/logo-primary.png')} style={{ height: 24, resizeMode: 'contain' }} />
           ),
         }}
       />
-      <Stack.Screen
+      {/* ADDED TO MAIN NAV INSTEAD */}
+      {/* <Stack.Screen
         name={Paths.CARD_DETAILS}
         component={CardDetailsScreen}
         options={{
@@ -54,7 +52,7 @@ export const HomeStack = () => {
           gestureEnabled: true,
           gestureDirection: 'horizontal',
         }}
-      />
+      /> */}
     </Stack.Navigator>
   );
 };
@@ -65,10 +63,7 @@ export const ActivityStack = () => {
       <Stack.Screen
         options={{
           headerTitle: () => (
-            <Image
-              source={require('@/../assets/logo-primary.png')}
-              style={{ height: 24, resizeMode: 'contain' }}
-            />
+            <Image source={require('@/../assets/logo-primary.png')} style={{ height: 24, resizeMode: 'contain' }} />
           ),
         }}
         name={Paths.ACTIVITY_SCREEN}
