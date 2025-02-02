@@ -6,9 +6,9 @@ import { Colors } from '@/config/colors';
 import { useColorScheme } from 'react-native';
 import AddCardScreen from '@/screens/AddCardScreen';
 import EditCardScreen from '@/screens/EditCardScreen';
+import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import EditLocationScreen from '@/screens/EditLocationScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { useCards } from '@/hooks/useCards';
 import { WalletIcon, QueueListIcon, BellIcon, UserCircleIcon, PlusIcon } from 'react-native-heroicons/solid';
 import {
