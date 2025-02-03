@@ -86,9 +86,7 @@ export default function App() {
                     <BottomSheetModalProvider>
                       <StatusBar animated={true} barStyle="default" />
                       <NavigationContainer>
-                        {/* <Navigation /> */}
                         <MainNav />
-                        {/* <AuthNav /> */}
                       </NavigationContainer>
                       <Toast config={toastConfig} />
                     </BottomSheetModalProvider>

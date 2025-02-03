@@ -25,45 +25,6 @@ const SignupScreen = () => {
   const handleSignup = async () => {
     // Temporarily bypass validation and just navigate
     navigation.navigate(Paths.SIGNUP_DETAILS);
-
-    // Comment out the validation logic for now
-    /*
-    setIsLoading(true);
-    try {
-      // Validate required fields
-      if (!firstName || !lastName || !email || !password || !confirmPassword || !phoneNumber) {
-        throw new Error('All fields are required');
-      }
-
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        throw new Error('Invalid email format');
-      }
-
-      // Validate password match
-      if (password !== confirmPassword) {
-        throw new Error('Passwords do not match');
-      }
-
-      // Collect signup data
-      const signupData = {
-        firstName,
-        lastName,
-        email,
-        password,
-        phoneNumber,
-      };
-
-      // Navigate to details screen with signup data
-      navigation.navigate(Paths.SIGNUP_DETAILS, { signupData });
-    } catch (error) {
-      console.error('Signup error:', error);
-      // TODO: Show error message to user
-    } finally {
-      setIsLoading(false);
-    }
-    */
   };
 
   const handleLogin = () => {
