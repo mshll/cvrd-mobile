@@ -13,14 +13,14 @@ import {
 } from 'react-native-heroicons/solid';
 import { CARD_WIDTH, CARD_HEIGHT, getCardTheme, getCardAssets } from '@/utils/cardUtils';
 
-const getCardIcon = (type, color) => {
-  if (type === 'Location') return <MapPinIcon size={20} color={color} />;
-  if (type === 'Burner') return <FireIcon size={20} color={color} />;
-  if (type === 'Merchant') return <BuildingStorefrontIcon size={20} color={color} />;
-  if (type === 'Category') return <TagIcon size={20} color={color} />;
+const getCardIcon = (type, color, scale) => {
+  if (type === 'Location') return <MapPinIcon size={24 * scale} color={color} />;
+  if (type === 'Burner') return <FireIcon size={24 * scale} color={color} />;
+  if (type === 'Merchant') return <BuildingStorefrontIcon size={24 * scale} color={color} />;
+  if (type === 'Category') return <TagIcon size={24 * scale} color={color} />;
 };
 
-const CardComponent = ({ cardId, displayData, scale = 1 }) => {
+const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) => {
   const { getCardById } = useCards();
   const card = cardId ? getCardById(cardId) : null;
 
@@ -82,13 +82,13 @@ const CardComponent = ({ cardId, displayData, scale = 1 }) => {
             <View
               style={[
                 {
-                  paddingRight: 2,
+                  paddingRight: 6,
                   justifyContent: 'center',
                   alignItems: 'center',
                 },
               ]}
             >
-              {getCardIcon(type, textColor)}
+              {getCardIcon(type, textColor, scale)}
             </View>
           </XStack>
 
@@ -118,14 +118,16 @@ const CardComponent = ({ cardId, displayData, scale = 1 }) => {
         </View>
 
         {/* Bottom Row */}
-        <View style={styles.bottomRow}>
-          <Text fontSize={16} color={textColor} fontWeight="600" pb="$1" pl="$1">
-            •••• &nbsp;{lastFourDigits}
-          </Text>
-          <View style={styles.visaContainer}>
-            <Image source={visaImg} style={styles.visaLogo} resizeMode="contain" />
+        {!isPreview && (
+          <View style={styles.bottomRow}>
+            <Text fontSize={16} color={textColor} fontWeight="600" pb="$1" pl="$1">
+              •••• &nbsp;{lastFourDigits}
+            </Text>
+            <View style={styles.visaContainer}>
+              <Image source={visaImg} style={styles.visaLogo} resizeMode="contain" />
+            </View>
           </View>
-        </View>
+        )}
       </YStack>
     </View>
   );
@@ -161,6 +163,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    gap: 2,
   },
   statusBadge: {
     alignSelf: 'flex-start',
