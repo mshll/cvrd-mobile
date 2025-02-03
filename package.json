@@ -18,6 +18,7 @@
     "@gorhom/bottom-sheet": "^5.0.6",
     "@gorhom/portal": "^1.0.14",
     "@react-native-async-storage/async-storage": "^2.1.0",
+    "@react-native-community/datetimepicker": "^8.2.0",
     "@react-native-community/slider": "4.5.5",
     "@react-native-menu/menu": "^1.2.1",
     "@react-navigation/bottom-tabs": "^7.2.0",

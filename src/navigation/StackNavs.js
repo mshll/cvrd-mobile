@@ -5,12 +5,14 @@ import ActivityScreen from '@/screens/ActivityScreen';
 import { Paths } from './paths';
 import SubscriptionsScreen from '@/screens/SubscriptionsScreen';
 import { Colors } from '@/config/colors';
-import { Image } from 'react-native';
+import { Image, TouchableOpacity } from 'react-native';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { TransitionPresets } from '@react-navigation/stack';
 import AddCardScreen from '@/screens/AddCardScreen';
 import EditCardScreen from '@/screens/EditCardScreen';
 import EditLocationScreen from '@/screens/EditLocationScreen';
+import { PowerIcon } from 'react-native-heroicons/outline';
+import { useNavigation } from '@react-navigation/native';
 
 const Stack = createNativeStackNavigator();
 
@@ -74,9 +76,28 @@ export const ActivityStack = () => {
 };
 
 export const ProfileStack = () => {
+  const navigation = useNavigation();
+
+  const handleLogout = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Auth' }],
+    });
+  };
+
   return (
     <Stack.Navigator screenOptions={defaultScreenOptions}>
-      <Stack.Screen name={Paths.PROFILE_SCREEN} component={ProfileScreen} />
+      <Stack.Screen
+        name={Paths.PROFILE_SCREEN}
+        component={ProfileScreen}
+        options={{
+          headerRight: () => (
+            <TouchableOpacity onPress={handleLogout} style={{ marginRight: 8 }}>
+              <PowerIcon size={24} color={Colors.dark.text} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Stack.Navigator>
   );
 };

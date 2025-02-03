@@ -7,6 +7,7 @@ import { StatusBar, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { PortalProvider } from '@gorhom/portal';
 import {
   useFonts,
   Inter_100Thin,
@@ -81,15 +82,17 @@ export default function App() {
             <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
               <AuthProvider>
                 <BreadcrumbProvider>
-                  <BottomSheetModalProvider>
-                    <StatusBar animated={true} barStyle="default" />
-                    <NavigationContainer>
-                      {/* <Navigation /> */}
-                      <MainNav />
-                      {/* <AuthNav /> */}
-                    </NavigationContainer>
-                    <Toast config={toastConfig} />
-                  </BottomSheetModalProvider>
+                  <PortalProvider>
+                    <BottomSheetModalProvider>
+                      <StatusBar animated={true} barStyle="default" />
+                      <NavigationContainer>
+                        {/* <Navigation /> */}
+                        <MainNav />
+                        {/* <AuthNav /> */}
+                      </NavigationContainer>
+                      <Toast config={toastConfig} />
+                    </BottomSheetModalProvider>
+                  </PortalProvider>
                 </BreadcrumbProvider>
               </AuthProvider>
             </Theme>

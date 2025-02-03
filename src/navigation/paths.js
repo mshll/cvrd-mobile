@@ -22,4 +22,5 @@ export const Paths = {
   ONBOARDING: 'Onboarding',
   LOGIN: 'Login',
   SIGNUP: 'Signup',
+  SIGNUP_DETAILS: 'SignupDetails',
 };

@@ -1,5 +1,5 @@
 import { StyleSheet, Alert } from 'react-native';
-import { View, Text, XStack, Button, YStack } from 'tamagui';
+import { View, Text, XStack, Button, YStack, Separator } from 'tamagui';
 import { Colors } from '@/config/colors';
 import CardComponent from '@/components/CardComponent';
 import { useState } from 'react';
@@ -36,7 +36,7 @@ const LIMIT_LABELS = {
   per_month: 'Per Month',
   per_year: 'Per Year',
   total: 'Total',
-  no_limit: 'No Limit'
+  no_limit: 'No Limit',
 };
 
 const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
@@ -59,7 +59,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
       })
       .map(([key, value]) => ({
         label: LIMIT_LABELS[key] || key,
-        value: formatLimit(value)
+        value: formatLimit(value),
       }))
       .sort((a, b) => {
         // Custom sort order: Per Transaction -> Per Day -> Per Week -> Per Month -> Per Year -> Total -> No Limit
@@ -69,8 +69,8 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
           'Per Week': 3,
           'Per Month': 4,
           'Per Year': 5,
-          'Total': 6,
-          'No Limit': 7
+          Total: 6,
+          'No Limit': 7,
         };
         return order[a.label] - order[b.label];
       });
@@ -120,13 +120,15 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
           </YStack>
 
           {/* Remaining Generations */}
-          <View style={{ 
-            borderRadius: 16, 
-            overflow: 'hidden', 
-            backgroundColor: Colors.dark.backgroundSecondary,
-            borderWidth: 1,
-            borderColor: Colors.dark.border
-          }}>
+          <View
+            style={{
+              borderRadius: 16,
+              overflow: 'hidden',
+              backgroundColor: Colors.dark.backgroundSecondary,
+              borderWidth: 1,
+              borderColor: Colors.dark.border,
+            }}
+          >
             <XStack ai="center" p="$4" justifyContent="space-between">
               <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
                 Remaining Card Generations
@@ -138,13 +140,15 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
           </View>
 
           {/* Card Details */}
-          <View style={{ 
-            borderRadius: 16, 
-            overflow: 'hidden', 
-            backgroundColor: Colors.dark.backgroundSecondary,
-            borderWidth: 1,
-            borderColor: Colors.dark.border
-          }}>
+          <View
+            style={{
+              borderRadius: 16,
+              overflow: 'hidden',
+              backgroundColor: Colors.dark.backgroundSecondary,
+              borderWidth: 1,
+              borderColor: Colors.dark.border,
+            }}
+          >
             <YStack p="$4" gap="$4">
               <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$heading">
                 Card Details
@@ -152,18 +156,65 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
 
               <YStack gap="$3">
                 <XStack jc="space-between">
-                  <Text color={Colors.dark.textSecondary} fontSize="$3">Type</Text>
-                  <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">{cardType}</Text>
+                  <Text color={Colors.dark.textSecondary} fontSize="$3">
+                    Type
+                  </Text>
+                  <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">
+                    {cardType}
+                  </Text>
                 </XStack>
 
                 <XStack jc="space-between">
-                  <Text color={Colors.dark.textSecondary} fontSize="$3">Name</Text>
-                  <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">{cardData.name}</Text>
+                  <Text color={Colors.dark.textSecondary} fontSize="$3">
+                    Name
+                  </Text>
+                  <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">
+                    {cardData.name}
+                  </Text>
                 </XStack>
+
+                {cardType === 'Location' && (
+                  <>
+                    <XStack jc="space-between">
+                      <Text color={Colors.dark.textSecondary} fontSize="$3">
+                        Street
+                      </Text>
+                      <Text
+                        color={Colors.dark.text}
+                        fontSize="$3"
+                        fontWeight="600"
+                        maxWidth="60%"
+                        textAlign="right"
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {cardData.location?.address?.split(', ')[0] || 'Select location'}
+                      </Text>
+                    </XStack>
+                    <XStack jc="space-between">
+                      <Text color={Colors.dark.textSecondary} fontSize="$3">
+                        Country
+                      </Text>
+                      <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">
+                        {cardData.location?.country || '-'}
+                      </Text>
+                    </XStack>
+                    <XStack jc="space-between">
+                      <Text color={Colors.dark.textSecondary} fontSize="$3">
+                        Radius
+                      </Text>
+                      <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">
+                        {cardData.radius.toFixed(1)} km
+                      </Text>
+                    </XStack>
+                  </>
+                )}
 
                 {cardType === 'Category' && cardData.category && (
                   <XStack jc="space-between">
-                    <Text color={Colors.dark.textSecondary} fontSize="$3">Category</Text>
+                    <Text color={Colors.dark.textSecondary} fontSize="$3">
+                      Category
+                    </Text>
                     <XStack gap="$2" ai="center">
                       <Text fontSize="$3">{cardData.category.emoji}</Text>
                       <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">
@@ -172,28 +223,21 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
                     </XStack>
                   </XStack>
                 )}
-
-                {cardType === 'Location' && (
-                  <XStack jc="space-between">
-                    <Text color={Colors.dark.textSecondary} fontSize="$3">Radius</Text>
-                    <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">
-                      {cardData.radius.toFixed(1)} km
-                    </Text>
-                  </XStack>
-                )}
               </YStack>
             </YStack>
           </View>
 
           {/* Spending Limits */}
           {activeLimits.length > 0 && (
-            <View style={{ 
-              borderRadius: 16, 
-              overflow: 'hidden', 
-              backgroundColor: Colors.dark.backgroundSecondary,
-              borderWidth: 1,
-              borderColor: Colors.dark.border
-            }}>
+            <View
+              style={{
+                borderRadius: 16,
+                overflow: 'hidden',
+                backgroundColor: Colors.dark.backgroundSecondary,
+                borderWidth: 1,
+                borderColor: Colors.dark.border,
+              }}
+            >
               <YStack p="$4" gap="$4">
                 <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$heading">
                   Spending Limits
@@ -202,8 +246,12 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
                 <YStack gap="$3">
                   {activeLimits.map((limit, index) => (
                     <XStack key={index} jc="space-between">
-                      <Text color={Colors.dark.textSecondary} fontSize="$3">{limit.label}</Text>
-                      <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">{limit.value}</Text>
+                      <Text color={Colors.dark.textSecondary} fontSize="$3">
+                        {limit.label}
+                      </Text>
+                      <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">
+                        {limit.value}
+                      </Text>
                     </XStack>
                   ))}
                 </YStack>
@@ -238,9 +286,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
             </Button>
             <Button
               f={1}
-              backgroundColor={
-                remainingGenerations > 0 ? Colors.dark.primary : Colors.dark.backgroundTertiary
-              }
+              backgroundColor={remainingGenerations > 0 ? Colors.dark.primary : Colors.dark.backgroundTertiary}
               pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
               onPress={handleCreateCard}
               disabled={remainingGenerations === 0}

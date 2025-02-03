@@ -1,0 +1,365 @@
+import { View, Text, YStack, Input, Button, XStack } from 'tamagui';
+import { Colors } from '@/config/colors';
+import { useState } from 'react';
+import {
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  Pressable,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { CalendarIcon, ChevronDownIcon, ChevronLeftIcon } from 'react-native-heroicons/outline';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
+const GENDER_OPTIONS = [
+  { label: 'Male', value: 'male' },
+  { label: 'Female', value: 'female' },
+];
+
+const SignupDetailsScreen = () => {
+  const [civilId, setCivilId] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [gender, setGender] = useState('');
+  const [showGenderSheet, setShowGenderSheet] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
+  const route = useRoute();
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validate Civil ID (12 digits)
+    if (!civilId || civilId.length !== 12 || !/^\d+$/.test(civilId)) {
+      newErrors.civilId = 'Civil ID must be 12 digits';
+    }
+
+    // Validate Date of Birth (18+ years)
+    if (!dateOfBirth) {
+      newErrors.dateOfBirth = 'Date of birth is required';
+    } else {
+      const today = new Date();
+      const birthDate = new Date(dateOfBirth);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if (age < 18) {
+        newErrors.dateOfBirth = 'You must be 18 or older';
+      }
+    }
+
+    // Validate Gender
+    if (!gender) {
+      newErrors.gender = 'Gender is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateForm()) {
+      setIsLoading(true);
+      try {
+        // Combine with previous signup data and proceed
+        const signupData = {
+          ...route.params?.signupData,
+          civilId,
+          dateOfBirth,
+          gender,
+        };
+        console.log('Complete signup data:', signupData);
+
+        // Navigate to main app
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Main' }],
+        });
+      } catch (error) {
+        console.error('Signup error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleBack = () => {
+    navigation.goBack();
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    if (selectedDate) {
+      setDateOfBirth(selectedDate);
+    }
+  };
+
+  const handleSelectGender = (selectedGender) => {
+    setGender(selectedGender);
+    setShowGenderSheet(false);
+  };
+
+  return (
+    <View f={1} bg={Colors.dark.background}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+        <ScrollView
+          bounces={false}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingTop: insets.top,
+          }}
+        >
+          <YStack f={1} px="$4" gap="$6">
+            {/* Header with Back Button */}
+            <XStack ai="center" mt="$4">
+              <Button
+                size="$3"
+                circular
+                backgroundColor={Colors.dark.backgroundSecondary}
+                pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+                onPress={handleBack}
+                borderWidth={1}
+                borderColor={Colors.dark.border}
+                mr="$4"
+              >
+                <ChevronLeftIcon size={20} color={Colors.dark.text} />
+              </Button>
+              <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+                Additional Details
+              </Text>
+            </XStack>
+
+            {/* Form */}
+            <YStack gap="$4">
+              {/* Civil ID */}
+              <YStack gap="$2">
+                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                  Civil ID
+                </Text>
+                <Input
+                  value={civilId}
+                  onChangeText={(text) => setCivilId(text.replace(/[^0-9]/g, ''))}
+                  placeholder="Enter your Civil ID"
+                  keyboardType="numeric"
+                  maxLength={12}
+                  backgroundColor={Colors.dark.backgroundSecondary}
+                  borderWidth={1}
+                  borderColor={errors.civilId ? Colors.dark.primary : Colors.dark.border}
+                  color={Colors.dark.text}
+                  placeholderTextColor={Colors.dark.textTertiary}
+                  fontSize="$4"
+                  height={45}
+                  px="$4"
+                  br={12}
+                />
+                {errors.civilId && (
+                  <Text color={Colors.dark.primary} fontSize="$2">
+                    {errors.civilId}
+                  </Text>
+                )}
+              </YStack>
+
+              {/* Date of Birth */}
+              <YStack gap="$2">
+                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                  Date of Birth
+                </Text>
+                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                  <XStack
+                    backgroundColor={Colors.dark.backgroundSecondary}
+                    borderWidth={1}
+                    borderColor={errors.dateOfBirth ? Colors.dark.primary : Colors.dark.border}
+                    br={12}
+                    height={45}
+                    px="$4"
+                    ai="center"
+                    jc="space-between"
+                  >
+                    <Text color={dateOfBirth ? Colors.dark.text : Colors.dark.textTertiary} fontSize="$4">
+                      {dateOfBirth ? dateOfBirth.toLocaleDateString() : 'Select date'}
+                    </Text>
+                    <CalendarIcon size={20} color={Colors.dark.textSecondary} />
+                  </XStack>
+                </TouchableOpacity>
+                {errors.dateOfBirth && (
+                  <Text color={Colors.dark.primary} fontSize="$2">
+                    {errors.dateOfBirth}
+                  </Text>
+                )}
+              </YStack>
+
+              {/* Gender */}
+              <YStack gap="$2">
+                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                  Gender
+                </Text>
+                <TouchableOpacity onPress={() => setShowGenderSheet(true)}>
+                  <XStack
+                    backgroundColor={Colors.dark.backgroundSecondary}
+                    borderWidth={1}
+                    borderColor={errors.gender ? Colors.dark.primary : Colors.dark.border}
+                    br={12}
+                    height={45}
+                    px="$4"
+                    ai="center"
+                    jc="space-between"
+                  >
+                    <Text color={gender ? Colors.dark.text : Colors.dark.textTertiary} fontSize="$4">
+                      {gender ? GENDER_OPTIONS.find((opt) => opt.value === gender)?.label : 'Select gender'}
+                    </Text>
+                    <ChevronDownIcon size={20} color={Colors.dark.textSecondary} />
+                  </XStack>
+                </TouchableOpacity>
+                {errors.gender && (
+                  <Text color={Colors.dark.primary} fontSize="$2">
+                    {errors.gender}
+                  </Text>
+                )}
+              </YStack>
+            </YStack>
+          </YStack>
+        </ScrollView>
+
+        {/* Actions - Sticky Bottom */}
+        <YStack
+          gap="$4"
+          px="$4"
+          pb={insets.bottom + 16}
+          pt="$4"
+          position="absolute"
+          bottom={0}
+          left={0}
+          right={0}
+          borderTopWidth={1}
+          borderTopColor={`${Colors.dark.border}40`}
+          backgroundColor={Colors.dark.background}
+        >
+          <Button
+            backgroundColor={Colors.dark.primary}
+            pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+            onPress={handleNext}
+            disabled={isLoading}
+            size="$5"
+            borderRadius={15}
+          >
+            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+              {isLoading ? 'Creating Account...' : 'Next'}
+            </Text>
+          </Button>
+        </YStack>
+      </KeyboardAvoidingView>
+
+      {/* Date Picker Modal */}
+      <Modal visible={showDatePicker} transparent animationType="fade">
+        <Pressable style={styles.modalOverlay} onPress={() => setShowDatePicker(false)}>
+          <Pressable style={styles.datePickerContainer}>
+            <YStack
+              backgroundColor={Colors.dark.backgroundSecondary}
+              br={16}
+              borderWidth={1}
+              borderColor={Colors.dark.border}
+              overflow="hidden"
+            >
+              <XStack
+                backgroundColor={Colors.dark.backgroundTertiary}
+                py="$3"
+                px="$4"
+                jc="space-between"
+                ai="center"
+                borderBottomWidth={1}
+                borderBottomColor={Colors.dark.border}
+              >
+                <Text color={Colors.dark.text} fontSize="$4" fontWeight="600">
+                  Select Date
+                </Text>
+                <Button
+                  size="$3"
+                  backgroundColor={Colors.dark.primary}
+                  pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+                  onPress={() => setShowDatePicker(false)}
+                  br={8}
+                >
+                  <Text color="white" fontSize="$3" fontWeight="600">
+                    Done
+                  </Text>
+                </Button>
+              </XStack>
+
+              <DateTimePicker
+                value={dateOfBirth || new Date()}
+                justifyContent="center"
+                ai="center"
+                mode="date"
+                display="spinner"
+                onChange={handleDateChange}
+                maximumDate={new Date()}
+                textColor={Colors.dark.text}
+                style={styles.datePicker}
+              />
+            </YStack>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Gender Selection Modal */}
+      <Modal visible={showGenderSheet} transparent animationType="fade">
+        <Pressable style={styles.modalOverlay} onPress={() => setShowGenderSheet(false)}>
+          <Pressable style={styles.datePickerContainer}>
+            <YStack
+              backgroundColor={Colors.dark.backgroundSecondary}
+              br={16}
+              borderWidth={1}
+              borderColor={Colors.dark.border}
+              overflow="hidden"
+              p="$4"
+              gap="$3"
+            >
+              {GENDER_OPTIONS.map((option) => (
+                <Button
+                  key={option.value}
+                  backgroundColor={gender === option.value ? Colors.dark.primary : Colors.dark.backgroundTertiary}
+                  pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+                  onPress={() => handleSelectGender(option.value)}
+                  size="$5"
+                  borderRadius={12}
+                >
+                  <Text color={gender === option.value ? 'white' : Colors.dark.text} fontSize="$4" fontWeight="600">
+                    {option.label}
+                  </Text>
+                </Button>
+              ))}
+            </YStack>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  datePickerContainer: {
+    width: '90%',
+    maxWidth: 400,
+  },
+  datePicker: {
+    height: 200,
+    backgroundColor: Colors.dark.backgroundSecondary,
+    alignSelf: 'center',
+  },
+});
+
+export default SignupDetailsScreen;

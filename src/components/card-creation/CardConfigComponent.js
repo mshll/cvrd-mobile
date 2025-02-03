@@ -1,7 +1,14 @@
 import { View, Text, YStack, XStack, Button, Input, Circle, Switch, Slider } from 'tamagui';
 import { Colors } from '@/config/colors';
 import { useState, useEffect, useCallback } from 'react';
-import { PlusIcon, ArrowPathIcon, MapPinIcon, ChevronLeftIcon, QuestionMarkCircleIcon, PencilIcon } from 'react-native-heroicons/solid';
+import {
+  PlusIcon,
+  ArrowPathIcon,
+  MapPinIcon,
+  ChevronLeftIcon,
+  QuestionMarkCircleIcon,
+  PencilIcon,
+} from 'react-native-heroicons/solid';
 import { Platform, StatusBar, StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import EmojiPicker from 'rn-emoji-keyboard';
 import CardComponent from '@/components/CardComponent';
@@ -70,7 +77,7 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
       }));
     }
     // Add this limit type to the set of selected limits
-    setSelectedLimits(prev => new Set([...prev, selectedLimitType]));
+    setSelectedLimits((prev) => new Set([...prev, selectedLimitType]));
   };
 
   return (
@@ -103,14 +110,23 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
           Spending Limits
         </Text>
 
-        <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary, borderWidth: 1, borderColor: Colors.dark.border, marginBottom:16 }}>
+        <View
+          style={{
+            borderRadius: 16,
+            overflow: 'hidden',
+            backgroundColor: Colors.dark.backgroundSecondary,
+            borderWidth: 1,
+            borderColor: Colors.dark.border,
+            marginBottom: 16,
+          }}
+        >
           <YStack p="$4" gap="$4">
             {/* Amount Input */}
-            <XStack 
-              backgroundColor={Colors.dark.backgroundTertiary} 
-              br={12} 
-              height={70} 
-              ai="center" 
+            <XStack
+              backgroundColor={Colors.dark.backgroundTertiary}
+              br={12}
+              height={70}
+              ai="center"
               px="$4"
               opacity={selectedLimitType === 'no_limit' ? 0.5 : 1}
             >
@@ -118,7 +134,13 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
                 KD
               </Text>
               <Input
-                value={selectedLimitType === 'no_limit' ? '' : limits[selectedLimitType] === '0' ? '' : limits[selectedLimitType]}
+                value={
+                  selectedLimitType === 'no_limit'
+                    ? ''
+                    : limits[selectedLimitType] === '0'
+                    ? ''
+                    : limits[selectedLimitType]
+                }
                 onChangeText={(text) => {
                   if (selectedLimitType !== 'no_limit') {
                     const value = parseInt(text.replace(/[^0-9]/g, '')) || 0;
@@ -150,15 +172,15 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
                 const rowSize = 2;
                 const totalRows = Math.ceil(totalOptions / rowSize);
                 const currentRow = Math.floor(index / rowSize) + 1;
-                
+
                 const isFirstRow = currentRow === 1;
                 const isLastRow = currentRow === totalRows;
                 const isFirstInRow = index % rowSize === 0;
                 const isLastInRow = index % rowSize === 1 || index === totalOptions - 1;
 
                 const isSelected = selectedLimitType === option.id;
-                const hasValue = selectedLimits.has(option.id) && 
-                  (option.id === 'no_limit' || parseInt(limits[option.id]) > 0);
+                const hasValue =
+                  selectedLimits.has(option.id) && (option.id === 'no_limit' || parseInt(limits[option.id]) > 0);
 
                 let borderRadius = {
                   borderTopLeftRadius: isFirstRow && isFirstInRow ? 12 : 0,
@@ -171,12 +193,14 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
                   <Button
                     key={option.id}
                     backgroundColor={
-                      isSelected ? Colors.dark.primary : 
-                      hasValue ? Colors.dark.primaryDark : Colors.dark.backgroundTertiary
+                      isSelected
+                        ? Colors.dark.primary
+                        : hasValue
+                        ? Colors.dark.primaryDark
+                        : Colors.dark.backgroundTertiary
                     }
                     pressStyle={{
-                      backgroundColor:
-                        isSelected ? Colors.dark.primaryDark : Colors.dark.backgroundTertiary,
+                      backgroundColor: isSelected ? Colors.dark.primaryDark : Colors.dark.backgroundTertiary,
                     }}
                     onPress={() => {
                       setSelectedLimitType(option.id);
@@ -189,11 +213,7 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
                     minWidth="48%"
                     {...borderRadius}
                   >
-                    <Text
-                      color={isSelected || hasValue ? 'white' : Colors.dark.text}
-                      fontSize="$3"
-                      fontWeight="600"
-                    >
+                    <Text color={isSelected || hasValue ? 'white' : Colors.dark.text} fontSize="$3" fontWeight="600">
                       {option.label}
                     </Text>
                   </Button>
@@ -217,7 +237,6 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
 const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
   const [countryRadius, setCountryRadius] = useState(null);
   const [countryName, setCountryName] = useState('');
-  const [address, setAddress] = useState('');
   const [showHelp, setShowHelp] = useState(false);
   const navigation = useNavigation();
 
@@ -229,18 +248,20 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
       });
 
       if (response && response[0]) {
-        const location = response[0];
-        setCountryName(location.country);
-        
-        // Construct address string
-        const addressParts = [
-          location.street,
-          location.district,
-          location.city,
-          location.region,
-        ].filter(Boolean);
-        
-        setAddress(addressParts.join(', '));
+        const locationInfo = response[0];
+        setCountryName(locationInfo.country);
+
+        // Create formatted address with just street and country
+        const formattedAddress = [locationInfo.street, locationInfo.country].filter(Boolean).join(', ');
+
+        // Update the location object with the address
+        setLocation((prev) => ({
+          ...prev,
+          latitude,
+          longitude,
+          address: formattedAddress,
+          country: locationInfo.country,
+        }));
       }
     } catch (error) {
       console.error('Error getting location info:', error);
@@ -249,7 +270,7 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
 
   useEffect(() => {
     getLocationInfo(location.latitude, location.longitude);
-  }, [location]);
+  }, [location.latitude, location.longitude]);
 
   const handleMaximizeMap = () => {
     navigation.navigate(Paths.EDIT_LOCATION, {
@@ -259,7 +280,7 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
         setLocation(newLocation);
         setRadius(newRadius);
       },
-      cardColor: 'primary'
+      cardColor: 'primary',
     });
   };
 
@@ -283,10 +304,7 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
             zoomEnabled={false}
             rotateEnabled={false}
           >
-            <Marker
-              coordinate={location}
-              pinColor={Colors.dark.primary}
-            />
+            <Marker coordinate={location} pinColor={Colors.dark.primary} />
             <MapCircle
               center={location}
               radius={radius * 1000}
@@ -297,9 +315,10 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
           </MapView>
 
           {/* Top right buttons */}
-          <XStack position="absolute" top={12} left={12} gap="$2">
+
+          <XStack position="absolute" top={12} right={12} gap="$2">
             <Button
-              size="$3"
+              size="$2"
               backgroundColor={Colors.dark.backgroundSecondary}
               pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
               onPress={handleMaximizeMap}
@@ -313,35 +332,23 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
               </Text>
             </Button>
           </XStack>
-          <XStack position="absolute" top={12} right={12} gap="$2">
-          <Button
-              size="$3"
-              circular
-              backgroundColor={Colors.dark.backgroundSecondary}
-              pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
-              onPress={() => setShowHelp(true)}
-              borderWidth={1}
-              borderColor={Colors.dark.border}
-              icon={<QuestionMarkCircleIcon size={20} color={Colors.dark.text} />}
-            />
-          </XStack>
         </View>
 
         {/* Location Info */}
-        <YStack px={12} py={12} gap={8}>
-          {address ? (
+        <YStack px={12} py={12} gap={2}>
+          {location.address ? (
             <Text color={Colors.dark.text} fontSize="$3" numberOfLines={2}>
-              {address}
+              {location.address}
             </Text>
           ) : (
             <Text color={Colors.dark.textSecondary} fontSize="$3">
               Loading address...
             </Text>
           )}
-          
+
           {/* Radius Display */}
-          <XStack backgroundColor={Colors.dark.backgroundTertiary} px="$3" py="$2" br={8} gap="$2" ai="center">
-            <Text color={Colors.dark.text} fontSize="$4" fontFamily="$archivoBlack">
+          <XStack py="$2" br={8} gap="$2" ai="center">
+            <Text color={Colors.dark.text} fontSize="$5" fontFamily="$archivoBlack">
               {radius.toFixed(1)} km
             </Text>
           </XStack>
@@ -384,9 +391,7 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
 
 const CategorySettings = ({ selectedCategory, setSelectedCategory }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const filteredCategories = CATEGORIES.filter((c) =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCategories = CATEGORIES.filter((c) => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <YStack gap="$4">
@@ -425,9 +430,7 @@ const CategorySettings = ({ selectedCategory, setSelectedCategory }) => {
             <Button
               key={category.id}
               backgroundColor={
-                selectedCategory?.id === category.id
-                  ? Colors.dark.primary
-                  : Colors.dark.backgroundTertiary
+                selectedCategory?.id === category.id ? Colors.dark.primary : Colors.dark.backgroundTertiary
               }
               pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
               onPress={() => setSelectedCategory(category)}
@@ -437,9 +440,7 @@ const CategorySettings = ({ selectedCategory, setSelectedCategory }) => {
             >
               <XStack ai="center" gap="$2">
                 <Text fontSize={20}>{category.emoji}</Text>
-                <Text color={selectedCategory?.id === category.id ? 'white' : Colors.dark.text}>
-                  {category.name}
-                </Text>
+                <Text color={selectedCategory?.id === category.id ? 'white' : Colors.dark.text}>{category.name}</Text>
               </XStack>
             </Button>
           ))}
@@ -462,7 +463,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
     per_year: '0',
     total: '0',
   });
-  
+
   // Keep track of which limits have been selected/modified
   const [selectedLimits, setSelectedLimits] = useState(new Set());
 
@@ -478,7 +479,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   const handleNext = () => {
     // Convert limits to numbers and filter out unselected ones
     const selectedLimitsData = {};
-    
+
     // Process each limit
     Object.entries(limits).forEach(([key, value]) => {
       if (selectedLimits.has(key)) {
@@ -502,12 +503,18 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
     if (cardType === 'Merchant') {
       cardData.merchant = selectedMerchant;
     } else if (cardType === 'Location') {
-      cardData.location = location;
+      cardData.location = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        address: location.address,
+        country: location.country,
+      };
       cardData.radius = radius;
     } else if (cardType === 'Category') {
       cardData.category = selectedCategory;
     }
 
+    // Pass the data to parent through onNext
     onNext(cardData);
   };
 
@@ -515,21 +522,9 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   const renderTypeSpecificSettings = () => {
     switch (cardType) {
       case 'Location':
-        return (
-          <LocationSettings
-            location={location}
-            setLocation={setLocation}
-            radius={radius}
-            setRadius={setRadius}
-          />
-        );
+        return <LocationSettings location={location} setLocation={setLocation} radius={radius} setRadius={setRadius} />;
       case 'Category':
-        return (
-          <CategorySettings
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-          />
-        );
+        return <CategorySettings selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />;
       default:
         return null;
     }

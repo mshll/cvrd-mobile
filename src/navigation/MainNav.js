@@ -19,6 +19,7 @@ import {
 } from 'react-native-heroicons/outline';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { CustomTabBar } from '@/components/CustomTabBar';
+import AuthNav from './AuthNav';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -105,6 +106,7 @@ const MainNav = () => {
         },
       }}
     >
+      <Stack.Screen name="Auth" component={AuthNav} />
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen name={Paths.EDIT_CARD} component={EditCardScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name={Paths.EDIT_LOCATION} component={EditLocationScreen} options={{ presentation: 'modal' }} />
