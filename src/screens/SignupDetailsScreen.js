@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { CalendarIcon, ChevronDownIcon, ChevronLeftIcon } from 'react-native-heroicons/outline';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Paths } from '@/navigation/paths';
 
 const GENDER_OPTIONS = [
   { label: 'Male', value: 'male' },
@@ -66,29 +67,8 @@ const SignupDetailsScreen = () => {
   };
 
   const handleNext = () => {
-    if (validateForm()) {
-      setIsLoading(true);
-      try {
-        // Combine with previous signup data and proceed
-        const signupData = {
-          ...route.params?.signupData,
-          civilId,
-          dateOfBirth,
-          gender,
-        };
-        console.log('Complete signup data:', signupData);
-
-        // Navigate to main app
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Main' }],
-        });
-      } catch (error) {
-        console.error('Signup error:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    // Temporarily bypass validation and just navigate
+    navigation.navigate(Paths.CONNECT_BANK);
   };
 
   const handleBack = () => {

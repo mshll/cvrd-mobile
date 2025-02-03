@@ -23,4 +23,5 @@ export const Paths = {
   LOGIN: 'Login',
   SIGNUP: 'Signup',
   SIGNUP_DETAILS: 'SignupDetails',
+  CONNECT_BANK: 'ConnectBank',
 };
