@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { Paths } from './paths';
 import LoginScreen from '@/screens/LoginScreen';
 import SignupScreen from '@/screens/SignupScreen';
@@ -10,12 +10,13 @@ import ConnectBankScreen from '@/screens/ConnectBankScreen';
 const Stack = createNativeStackNavigator();
 
 const AuthNav = () => {
+  const colors = useColors();
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
         contentStyle: {
-          backgroundColor: Colors.dark.background,
+          backgroundColor: colors.background,
         },
         animation: 'fade',
         presentation: 'transparentModal',

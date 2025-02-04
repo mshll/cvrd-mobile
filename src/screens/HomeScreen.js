@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Colors } from '../config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'react-native';
 import CardCarousel from '../components/CardCarousel';
@@ -62,15 +62,16 @@ const SECTION_CONFIG = {
 // ============================================================================
 
 function StatCard({ icon: Icon, iconColor, label, value, dotColor }) {
+  const colors = useColors();
   return (
-    <Card f={1} bg={Colors.dark.backgroundSecondary} p="$4" br="$5" gap="$1">
+    <Card f={1} bg={colors.backgroundSecondary} p="$4" br="$5" gap="$1">
       <XStack ai="center" gap="$2" mb="$1">
         {dotColor ? <View w={12} h={12} br="$6" bg={dotColor} /> : <Icon size={12} color={iconColor} />}
-        <Text color={Colors.dark.textSecondary} fontSize="$3">
+        <Text color={colors.textSecondary} fontSize="$3">
           {label}
         </Text>
       </XStack>
-      <Text color={Colors.dark.text} fontSize="$5" fontWeight="700">
+      <Text color={colors.text} fontSize="$5" fontWeight="700">
         {value}
       </Text>
     </Card>
@@ -82,47 +83,54 @@ function StatCard({ icon: Icon, iconColor, label, value, dotColor }) {
 // ============================================================================
 
 function UserGreeting() {
+  const colors = useColors();
   return (
-    <XStack ai="center" mb="$2" gap="$3">
-      {/* <Avatar circular size="$6">
-        <Avatar.Image source={{ uri: user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random` }} />
-        <Avatar.Fallback backgroundColor={Colors.dark.backgroundSecondary} />
-      </Avatar>
-      <XStack>
-        <Text color={Colors.dark.text} fontSize="$7" fontFamily="$archivoBlack">
-          Hi,{' '}
-        </Text>
-        <Text color={Colors.dark.primary} fontSize="$7" fontFamily="$archivoBlack">
-          {user.name.split(' ')[0]}
-        </Text>
-      </XStack> */}
-    </XStack>
+    // <XStack ai="center" mb="$2" gap="$3">
+    //   <Avatar circular size="$6">
+    //     <Avatar.Image
+    //       source={{
+    //         uri: user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`,
+    //       }}
+    //     />
+    //     <Avatar.Fallback backgroundColor={colors.backgroundSecondary} />
+    //   </Avatar>
+    //   <XStack>
+    //     <Text color={colors.text} fontSize="$7" fontFamily="$archivoBlack">
+    //       Hi,{' '}
+    //     </Text>
+    //     <Text color={colors.primary} fontSize="$7" fontFamily="$archivoBlack">
+    //       {user.name.split(' ')[0]}
+    //     </Text>
+    //   </XStack>
+    // </XStack>
+    <></>
   );
 }
 
 function SpendingStats() {
+  const colors = useColors();
   return (
     <YStack gap="$3" mb="$2" px={16}>
       <XStack ai="center" mb="$2" gap="$2">
-        <BanknotesIcon size={20} color={Colors.dark.text} />
-        <Text color={Colors.dark.text} fontSize="$4" fontFamily="$archivoBlack">
+        <BanknotesIcon size={20} color={colors.text} />
+        <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
           Spend
         </Text>
       </XStack>
       <XStack gap="$3">
-        <Card f={1} bg={Colors.dark.card} p="$4" br={12} borderWidth={1} borderColor={Colors.dark.border}>
-          <Text color={Colors.dark.textSecondary} fontSize="$3" mb="$2">
+        <Card f={1} bg={colors.card} p="$4" br={12} borderWidth={1} borderColor={colors.border}>
+          <Text color={colors.textSecondary} fontSize="$3" mb="$2">
             Today
           </Text>
-          <Text color={Colors.dark.text} fontSize="$5" fontWeight="700">
+          <Text color={colors.text} fontSize="$5" fontWeight="700">
             {formatCurrency(user.spend_today)}
           </Text>
         </Card>
-        <Card f={1} bg={Colors.dark.card} p="$4" br={12} borderWidth={1} borderColor={Colors.dark.border}>
-          <Text color={Colors.dark.textSecondary} fontSize="$3" mb="$2">
+        <Card f={1} bg={colors.card} p="$4" br={12} borderWidth={1} borderColor={colors.border}>
+          <Text color={colors.textSecondary} fontSize="$3" mb="$2">
             This Month
           </Text>
-          <Text color={Colors.dark.text} fontSize="$5" fontWeight="700">
+          <Text color={colors.text} fontSize="$5" fontWeight="700">
             {formatCurrency(user.spend_month)}
           </Text>
         </Card>
@@ -150,8 +158,8 @@ function CardStats() {
   return (
     // <YStack gap="$3">
     //   <XStack ai="center" gap="$2">
-    //     <CreditCardIcon size={20} color={Colors.dark.text} />
-    //     <Text color={Colors.dark.text} fontSize="$4" fontFamily="$archivoBlack">
+    //     <CreditCardIcon size={20} color={getColors().text} />
+    //     <Text color={getColors().text} fontSize="$4" fontFamily="$archivoBlack">
     //       Cards
     //     </Text>
     //   </XStack>
@@ -171,7 +179,7 @@ function CardStats() {
 function SpendingSummary() {
   return (
     <YStack mb="$4" gap="$4">
-      {/* <UserGreeting /> */}
+      <UserGreeting />
       <SpendingStats />
       {/* <CardStats /> */}
     </YStack>
@@ -179,21 +187,22 @@ function SpendingSummary() {
 }
 
 function CustomizeButton({ onPress }) {
+  const colors = useColors();
   return (
     <XStack>
       <Button
         f={1}
         size="$5"
-        bg={Colors.dark.card}
-        pressStyle={{ bg: Colors.dark.backgroundTertiary }}
+        bg={colors.card}
+        pressStyle={{ bg: colors.backgroundTertiary }}
         onPress={onPress}
         marginHorizontal={16}
-        icon={<AdjustmentsHorizontalIcon size={20} color={Colors.dark.text} />}
+        icon={<AdjustmentsHorizontalIcon size={20} color={colors.text} />}
         br={12}
         borderWidth={1}
-        borderColor={Colors.dark.border}
+        borderColor={colors.border}
       >
-        <Text color={Colors.dark.text} fontWeight="700">
+        <Text color={colors.text} fontWeight="700">
           Customize
         </Text>
       </Button>
@@ -202,28 +211,29 @@ function CustomizeButton({ onPress }) {
 }
 
 function ReorganizeSheet({ isOpen, onOpenChange, sections, onReorder, onReset }) {
+  const colors = useColors();
   return (
     <BottomSheet isOpen={isOpen} onClose={onOpenChange} enableContentPanningGesture={false}>
       <YStack px="$4" pt="$5" pb="$10">
         <XStack jc="space-between" ai="center" mb="$3">
-          <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
             Customize
           </Text>
           <XStack gap="$2">
-            <Button size="$3" bg="transparent" pressStyle={{ bg: Colors.dark.backgroundTertiary }} onPress={onReset}>
-              <Text color={Colors.dark.textSecondary}>Reset</Text>
+            <Button size="$3" bg="transparent" pressStyle={{ bg: colors.backgroundTertiary }} onPress={onReset}>
+              <Text color={colors.textSecondary}>Reset</Text>
             </Button>
             <Button
               size="$3"
-              bg={Colors.dark.backgroundSecondary}
-              pressStyle={{ bg: Colors.dark.backgroundTertiary }}
+              bg={colors.backgroundSecondary}
+              pressStyle={{ bg: colors.backgroundTertiary }}
               onPress={() => onOpenChange(false)}
             >
-              <Text color={Colors.dark.text}>Done</Text>
+              <Text color={colors.text}>Done</Text>
             </Button>
           </XStack>
         </XStack>
-        <View backgroundColor={Colors.dark.background}>
+        <View backgroundColor={colors.background}>
           <DraggableList sections={sections} onReorder={onReorder} />
         </View>
       </YStack>
@@ -242,8 +252,8 @@ const styles = StyleSheet.create({
 // ============================================================================
 
 function HomeScreen() {
+  const colors = useColors();
   const insets = useSafeAreaInsets();
-  const colors = Colors.dark;
   const { cardsByType, getCardDisplayData } = useCards();
   const { order, isLoading, saveOrder, resetOrder } = useSectionOrder();
   const [isReorganizing, setIsReorganizing] = useState(false);
@@ -253,13 +263,11 @@ function HomeScreen() {
       ...SECTION_CONFIG[sectionId],
       data: (cardsByType[SECTION_CONFIG[sectionId].title.split(' ')[0]] || [])
         .sort((a, b) => {
-          // Helper function to get priority (0 for active, 1 for paused, 2 for closed)
           const getPriority = (card) => {
             if (card.is_closed) return 2;
             if (card.is_paused) return 1;
             return 0;
           };
-
           return getPriority(a) - getPriority(b);
         })
         .map(getCardDisplayData),

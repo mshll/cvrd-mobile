@@ -1,6 +1,6 @@
 import { StyleSheet, Alert } from 'react-native';
 import { View, Text, XStack, Button, YStack } from 'tamagui';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useNavigation, useRoute, CommonActions } from '@react-navigation/native';
 import CardComponent from '@/components/CardComponent';
 import { useState } from 'react';
@@ -37,10 +37,11 @@ const LIMIT_LABELS = {
   per_month: 'Per Month',
   per_year: 'Per Year',
   total: 'Total',
-  no_limit: 'No Limit'
+  no_limit: 'No Limit',
 };
 
 const CardReviewScreen = () => {
+  const colors = useColors();
   const navigation = useNavigation();
   const route = useRoute();
   const { cardType, cardData } = route.params;
@@ -63,7 +64,7 @@ const CardReviewScreen = () => {
       })
       .map(([key, value]) => ({
         label: LIMIT_LABELS[key] || key,
-        value: formatLimit(value)
+        value: formatLimit(value),
       }))
       .sort((a, b) => {
         // Custom sort order: Per Transaction -> Per Day -> Per Week -> Per Month -> Per Year -> Total -> No Limit
@@ -73,8 +74,8 @@ const CardReviewScreen = () => {
           'Per Week': 3,
           'Per Month': 4,
           'Per Year': 5,
-          'Total': 6,
-          'No Limit': 7
+          Total: 6,
+          'No Limit': 7,
         };
         return order[a.label] - order[b.label];
       });
@@ -116,7 +117,7 @@ const CardReviewScreen = () => {
   };
 
   return (
-    <View f={1} bg={Colors.dark.background}>
+    <View f={1} bg={colors.background}>
       <View style={styles.container}>
         <View f={1} gap="$5">
           {/* Card Preview Section */}
@@ -137,53 +138,67 @@ const CardReviewScreen = () => {
           </YStack>
 
           {/* Remaining Generations */}
-          <View style={{ 
-            borderRadius: 16, 
-            overflow: 'hidden', 
-            backgroundColor: Colors.dark.backgroundSecondary,
-            borderWidth: 1,
-            borderColor: Colors.dark.border
-          }}>
+          <View
+            style={{
+              borderRadius: 16,
+              overflow: 'hidden',
+              backgroundColor: colors.backgroundSecondary,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
             <XStack ai="center" p="$4" justifyContent="space-between">
-              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+              <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                 Remaining Card Generations
               </Text>
-              <Text color={Colors.dark.text} fontSize="$4" fontWeight="700" fontFamily="$heading">
+              <Text color={colors.text} fontSize="$4" fontWeight="700" fontFamily="$heading">
                 {remainingGenerations}
               </Text>
             </XStack>
           </View>
 
           {/* Card Details */}
-          <View style={{ 
-            borderRadius: 16, 
-            overflow: 'hidden', 
-            backgroundColor: Colors.dark.backgroundSecondary,
-            borderWidth: 1,
-            borderColor: Colors.dark.border
-          }}>
+          <View
+            style={{
+              borderRadius: 16,
+              overflow: 'hidden',
+              backgroundColor: colors.backgroundSecondary,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
             <YStack p="$4" gap="$4">
-              <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$heading">
+              <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="$heading">
                 Card Details
               </Text>
 
               <YStack gap="$3">
                 <XStack jc="space-between">
-                  <Text color={Colors.dark.textSecondary} fontSize="$3">Type</Text>
-                  <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">{cardType}</Text>
+                  <Text color={colors.textSecondary} fontSize="$3">
+                    Type
+                  </Text>
+                  <Text color={colors.text} fontSize="$3" fontWeight="600">
+                    {cardType}
+                  </Text>
                 </XStack>
 
                 <XStack jc="space-between">
-                  <Text color={Colors.dark.textSecondary} fontSize="$3">Name</Text>
-                  <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">{cardData.name}</Text>
+                  <Text color={colors.textSecondary} fontSize="$3">
+                    Name
+                  </Text>
+                  <Text color={colors.text} fontSize="$3" fontWeight="600">
+                    {cardData.name}
+                  </Text>
                 </XStack>
 
                 {cardType === 'Category' && cardData.category && (
                   <XStack jc="space-between">
-                    <Text color={Colors.dark.textSecondary} fontSize="$3">Category</Text>
+                    <Text color={colors.textSecondary} fontSize="$3">
+                      Category
+                    </Text>
                     <XStack gap="$2" ai="center">
                       <Text fontSize="$3">{cardData.category.emoji}</Text>
-                      <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">
+                      <Text color={colors.text} fontSize="$3" fontWeight="600">
                         {cardData.category.name}
                       </Text>
                     </XStack>
@@ -192,8 +207,10 @@ const CardReviewScreen = () => {
 
                 {cardType === 'Location' && (
                   <XStack jc="space-between">
-                    <Text color={Colors.dark.textSecondary} fontSize="$3">Radius</Text>
-                    <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">
+                    <Text color={colors.textSecondary} fontSize="$3">
+                      Radius
+                    </Text>
+                    <Text color={colors.text} fontSize="$3" fontWeight="600">
                       {cardData.radius.toFixed(1)} km
                     </Text>
                   </XStack>
@@ -204,23 +221,29 @@ const CardReviewScreen = () => {
 
           {/* Spending Limits */}
           {activeLimits.length > 0 && (
-            <View style={{ 
-              borderRadius: 16, 
-              overflow: 'hidden', 
-              backgroundColor: Colors.dark.backgroundSecondary,
-              borderWidth: 1,
-              borderColor: Colors.dark.border
-            }}>
+            <View
+              style={{
+                borderRadius: 16,
+                overflow: 'hidden',
+                backgroundColor: colors.backgroundSecondary,
+                borderWidth: 1,
+                borderColor: colors.border,
+              }}
+            >
               <YStack p="$4" gap="$4">
-                <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$heading">
+                <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="$heading">
                   Spending Limits
                 </Text>
 
                 <YStack gap="$3">
                   {activeLimits.map((limit, index) => (
                     <XStack key={index} jc="space-between">
-                      <Text color={Colors.dark.textSecondary} fontSize="$3">{limit.label}</Text>
-                      <Text color={Colors.dark.text} fontSize="$3" fontWeight="600">{limit.value}</Text>
+                      <Text color={colors.textSecondary} fontSize="$3">
+                        {limit.label}
+                      </Text>
+                      <Text color={colors.text} fontSize="$3" fontWeight="600">
+                        {limit.value}
+                      </Text>
                     </XStack>
                   ))}
                 </YStack>
@@ -234,7 +257,7 @@ const CardReviewScreen = () => {
           width="100%"
           gap="$12"
           borderTopWidth={1}
-          borderTopColor={`${Colors.dark.border}40`}
+          borderTopColor={`${colors.border}40`}
           pt="$4"
           mt="auto"
           mb={insets.bottom + 50}
@@ -242,31 +265,29 @@ const CardReviewScreen = () => {
         >
           <Button
             f={1}
-            backgroundColor={Colors.dark.backgroundSecondary}
-            pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+            backgroundColor={colors.backgroundSecondary}
+            pressStyle={{ backgroundColor: colors.backgroundTertiary }}
             onPress={() => navigation.goBack()}
             size="$5"
             borderRadius={15}
             borderWidth={1}
-            borderColor={Colors.dark.border}
+            borderColor={colors.border}
           >
-            <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$archivo">
+            <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="$archivo">
               Back
             </Text>
           </Button>
           <Button
             f={1}
-            backgroundColor={
-              remainingGenerations > 0 ? Colors.dark.primary : Colors.dark.backgroundTertiary
-            }
-            pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+            backgroundColor={remainingGenerations > 0 ? colors.primary : colors.backgroundTertiary}
+            pressStyle={{ backgroundColor: colors.primaryDark }}
             onPress={handleCreateCard}
             disabled={remainingGenerations === 0}
             size="$5"
             borderRadius={15}
           >
             <Text
-              color={remainingGenerations > 0 ? 'white' : Colors.dark.textSecondary}
+              color={remainingGenerations > 0 ? 'white' : colors.textSecondary}
               fontSize="$4"
               fontWeight="600"
               fontFamily="$archivo"

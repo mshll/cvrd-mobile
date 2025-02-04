@@ -1,5 +1,5 @@
 import { View, Text, Button } from 'tamagui';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { StyleSheet, Animated, Dimensions, Image, FlatList } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -90,13 +90,14 @@ const AnimatedScreen = ({ fadeAnim, logoColorAnim, currentIndex }) => {
 };
 
 const ContentScreen = ({ title, description }) => {
+  const colors = useColors();
   return (
     <View style={styles.screen}>
       <View style={styles.contentContainer}>
-        <Text color={Colors.dark.text} fontSize="$8" fontFamily="$archivoBlack" textAlign="center">
+        <Text color={colors.text} fontSize="$8" fontFamily="$archivoBlack" textAlign="center">
           {title}
         </Text>
-        <Text color={Colors.dark.textSecondary} fontSize="$4" textAlign="center" mt="$4">
+        <Text color={colors.textSecondary} fontSize="$4" textAlign="center" mt="$4">
           {description}
         </Text>
       </View>
@@ -105,6 +106,7 @@ const ContentScreen = ({ title, description }) => {
 };
 
 const OnboardingScreen = () => {
+  const colors = useColors();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -185,23 +187,23 @@ const OnboardingScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} backgroundColor={colors.background}>
       {/* Skip Button */}
       <Button
         position="absolute"
         top={insets.top + 16}
         right={16}
         size="$3"
-        backgroundColor={Colors.dark.backgroundSecondary}
-        pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+        backgroundColor={colors.backgroundSecondary}
+        pressStyle={{ backgroundColor: colors.backgroundTertiary }}
         onPress={handleSkip}
         opacity={0.8}
         br={8}
         zIndex={1}
-        borderColor={Colors.dark.border}
+        borderColor={colors.border}
         borderWidth={1}
       >
-        <Text color={Colors.dark.text} fontSize="$3">
+        <Text color={colors.text} fontSize="$3">
           Skip
         </Text>
       </Button>
@@ -226,7 +228,7 @@ const OnboardingScreen = () => {
             width={8}
             height={8}
             br={4}
-            backgroundColor={index === currentScreen ? Colors.dark.primary : Colors.dark.backgroundSecondary}
+            backgroundColor={index === currentScreen ? colors.primary : colors.backgroundSecondary}
           />
         ))}
       </View>
@@ -237,7 +239,6 @@ const OnboardingScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.dark.background,
   },
   screen: {
     width,

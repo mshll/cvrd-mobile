@@ -1,5 +1,5 @@
 import { View, Text, YStack, XStack, Button, Input, ScrollView } from 'tamagui';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { user } from '@/data/user';
@@ -16,34 +16,38 @@ const GENDER_OPTIONS = [
   { label: 'Other', value: 'other' },
 ];
 
-const FormInput = ({ label, value, onChangeText, placeholder, keyboardType = 'default', secureTextEntry = false }) => (
-  <YStack gap="$2">
-    <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
-      {label}
-    </Text>
-    <Input
-      value={value}
-      onChangeText={onChangeText}
-      placeholder={placeholder}
-      keyboardType={keyboardType}
-      secureTextEntry={secureTextEntry}
-      backgroundColor={Colors.dark.backgroundSecondary}
-      borderWidth={1}
-      borderColor={Colors.dark.border}
-      color={Colors.dark.text}
-      placeholderTextColor={Colors.dark.textTertiary}
-      fontSize="$4"
-      height={45}
-      px="$4"
-      borderRadius={12}
-    />
-  </YStack>
-);
+const FormInput = ({ label, value, onChangeText, placeholder, keyboardType = 'default', secureTextEntry = false }) => {
+  const colors = useColors();
+
+  return (
+    <YStack gap="$2">
+      <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
+        {label}
+      </Text>
+      <Input
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
+        backgroundColor={colors.backgroundSecondary}
+        borderWidth={1}
+        borderColor={colors.border}
+        color={colors.text}
+        placeholderTextColor={colors.textTertiary}
+        fontSize="$4"
+        height={45}
+        px="$4"
+        borderRadius={12}
+      />
+    </YStack>
+  );
+};
 
 const PersonalInfoScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-
+  const colors = useColors();
   // Form state
   const [firstName, setFirstName] = useState(user.name.split(' ')[0]);
   const [lastName, setLastName] = useState(user.name.split(' ')[1] || '');
@@ -77,7 +81,7 @@ const PersonalInfoScreen = () => {
   };
 
   return (
-    <View f={1} bg={Colors.dark.background}>
+    <View f={1} bg={colors.background}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 24 }}>
         <YStack gap="$6">
           {/* Name */}
@@ -115,14 +119,14 @@ const PersonalInfoScreen = () => {
 
           {/* Date of Birth */}
           <YStack gap="$2">
-            <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+            <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
               Date of Birth
             </Text>
             <TouchableOpacity onPress={() => setShowDatePicker(true)}>
               <View
-                backgroundColor={Colors.dark.backgroundSecondary}
+                backgroundColor={colors.backgroundSecondary}
                 borderWidth={1}
-                borderColor={Colors.dark.border}
+                borderColor={colors.border}
                 height={45}
                 px="$4"
                 borderRadius={12}
@@ -130,24 +134,24 @@ const PersonalInfoScreen = () => {
                 justifyContent="space-between"
                 alignItems="center"
               >
-                <Text color={Colors.dark.text} fontSize="$4">
+                <Text color={colors.text} fontSize="$4">
                   {dateOfBirth.toLocaleDateString()}
                 </Text>
-                <CalendarIcon size={20} color={Colors.dark.textSecondary} />
+                <CalendarIcon size={20} color={colors.textSecondary} />
               </View>
             </TouchableOpacity>
           </YStack>
 
           {/* Gender */}
           <YStack gap="$2">
-            <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+            <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
               Gender
             </Text>
             <TouchableOpacity onPress={() => setShowGenderPicker(true)}>
               <View
-                backgroundColor={Colors.dark.backgroundSecondary}
+                backgroundColor={colors.backgroundSecondary}
                 borderWidth={1}
-                borderColor={Colors.dark.border}
+                borderColor={colors.border}
                 height={45}
                 px="$4"
                 borderRadius={12}
@@ -155,10 +159,10 @@ const PersonalInfoScreen = () => {
                 justifyContent="space-between"
                 alignItems="center"
               >
-                <Text color={Colors.dark.text} fontSize="$4">
+                <Text color={colors.text} fontSize="$4">
                   {GENDER_OPTIONS.find((option) => option.value === gender)?.label || 'Select Gender'}
                 </Text>
-                <ChevronDownIcon size={20} color={Colors.dark.textSecondary} />
+                <ChevronDownIcon size={20} color={colors.textSecondary} />
               </View>
             </TouchableOpacity>
           </YStack>
@@ -167,8 +171,8 @@ const PersonalInfoScreen = () => {
         {/* Save Button */}
         <Button
           mt="$6"
-          backgroundColor={Colors.dark.primary}
-          pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+          backgroundColor={colors.primary}
+          pressStyle={{ backgroundColor: colors.primaryDark }}
           onPress={handleSave}
           size="$5"
           borderRadius={12}
@@ -183,13 +187,13 @@ const PersonalInfoScreen = () => {
       <BottomSheet isOpen={showDatePicker} onClose={() => setShowDatePicker(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
           <XStack jc="space-between" ai="center">
-            <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
               Date of Birth
             </Text>
             <Button
               size="$3"
-              backgroundColor={Colors.dark.primary}
-              pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+              backgroundColor={colors.primary}
+              pressStyle={{ backgroundColor: colors.primaryDark }}
               onPress={() => setShowDatePicker(false)}
               borderRadius={8}
             >
@@ -198,13 +202,7 @@ const PersonalInfoScreen = () => {
               </Text>
             </Button>
           </XStack>
-          <View
-            backgroundColor={Colors.dark.backgroundSecondary}
-            br={12}
-            p="$4"
-            borderWidth={1}
-            borderColor={Colors.dark.border}
-          >
+          <View backgroundColor={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
             <DateTimePicker
               value={dateOfBirth}
               mode="date"
@@ -212,7 +210,7 @@ const PersonalInfoScreen = () => {
               onChange={handleDateChange}
               maximumDate={new Date()}
               minimumDate={new Date(1900, 0, 1)}
-              textColor={Colors.dark.text}
+              textColor={colors.text}
               themeVariant="dark"
             />
           </View>
@@ -222,24 +220,24 @@ const PersonalInfoScreen = () => {
       {/* Gender Selection Sheet */}
       <BottomSheet isOpen={showGenderPicker} onClose={() => setShowGenderPicker(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
             Select Gender
           </Text>
           <YStack gap="$2">
             {GENDER_OPTIONS.map((option) => (
               <Button
                 key={option.value}
-                backgroundColor={gender === option.value ? Colors.dark.primary : Colors.dark.backgroundSecondary}
+                backgroundColor={gender === option.value ? colors.primary : colors.backgroundSecondary}
                 pressStyle={{
-                  backgroundColor: gender === option.value ? Colors.dark.primaryDark : Colors.dark.backgroundTertiary,
+                  backgroundColor: gender === option.value ? colors.primaryDark : colors.backgroundTertiary,
                 }}
                 onPress={() => handleGenderSelect(option.value)}
                 size="$5"
                 borderRadius={12}
                 borderWidth={1}
-                borderColor={gender === option.value ? Colors.dark.primary : Colors.dark.border}
+                borderColor={gender === option.value ? colors.primary : colors.border}
               >
-                <Text color={gender === option.value ? 'white' : Colors.dark.text} fontSize="$4" fontWeight="600">
+                <Text color={gender === option.value ? 'white' : colors.text} fontSize="$4" fontWeight="600">
                   {option.label}
                 </Text>
               </Button>

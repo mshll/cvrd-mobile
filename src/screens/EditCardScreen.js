@@ -1,5 +1,5 @@
 import { View, Text, YStack, XStack, Button, Input, Circle, Slider } from 'tamagui';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { PlusIcon, ArrowPathIcon, MapPinIcon } from 'react-native-heroicons/solid';
@@ -13,14 +13,9 @@ import { ScrollView } from 'react-native-gesture-handler';
 import ColorPicker, { Panel1, Preview, HueSlider } from 'reanimated-color-picker';
 import BottomSheet from '@/components/BottomSheet';
 import { getCardCustomization, saveCardCustomization, resetCardCustomization, Defaults } from '@/utils/storage';
-import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
-
-const MAP_HEIGHT = 200;
-const DEFAULT_RADIUS = 0.3; // in miles
-const MAX_RADIUS = 5; // in miles
-const RADIUS_MULTIPLIER = 10; // To convert between slider integers and actual radius values
 
 const EditCardScreen = () => {
+  const colors = useColors();
   const navigation = useNavigation();
   const route = useRoute();
   const { cardId } = route.params;
@@ -119,14 +114,14 @@ const EditCardScreen = () => {
   }, [cardId, cardName, emoji, cardColor, updateCard, navigation]);
 
   return (
-    <View f={1} backgroundColor={Colors.dark.background}>
+    <View f={1} backgroundColor={colors.background}>
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <YStack px="$4" gap="$4" pb="$8" jc="space-between" f={1}>
           <YStack gap="$4" f={1}>
             {/* Card Preview */}
             <YStack gap="$1" ai="center" pt="$3">
-              <View height={5} width={60} backgroundColor={Colors.dark.backgroundTertiary} borderRadius={50} />
+              <View height={5} width={60} backgroundColor={colors.backgroundTertiary} borderRadius={50} />
 
               <View
                 height={CARD_HEIGHT * 0.3}
@@ -155,18 +150,18 @@ const EditCardScreen = () => {
 
             {/* Card Name */}
             <YStack gap="$2">
-              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+              <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                 Card Name
               </Text>
               <Input
                 value={cardName}
                 onChangeText={setCardName}
                 placeholder="Enter card name"
-                backgroundColor={Colors.dark.backgroundSecondary}
+                backgroundColor={colors.backgroundSecondary}
                 borderWidth={1}
-                borderColor={Colors.dark.border}
-                color={Colors.dark.text}
-                placeholderTextColor={Colors.dark.textTertiary}
+                borderColor={colors.border}
+                color={colors.text}
+                placeholderTextColor={colors.textTertiary}
                 fontSize="$4"
                 p={0}
                 px="$4"
@@ -177,7 +172,7 @@ const EditCardScreen = () => {
 
             {/* Emoji Grid */}
             <YStack gap="$2" width="100%">
-              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+              <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                 Card Icon
               </Text>
               <XStack width="100%" flexWrap="wrap" gap="$2" jc="space-between">
@@ -187,10 +182,10 @@ const EditCardScreen = () => {
                     width="15%"
                     aspectRatio={1}
                     borderRadius={12}
-                    backgroundColor={Colors.dark.backgroundSecondary}
+                    backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={emoji === emojiItem ? Colors.dark.primary : Colors.dark.border}
-                    pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+                    borderColor={emoji === emojiItem ? colors.primary : colors.border}
+                    pressStyle={{ backgroundColor: colors.backgroundTertiary }}
                     onPress={() => setEmoji(emojiItem)}
                     p={0}
                   >
@@ -201,10 +196,10 @@ const EditCardScreen = () => {
                   width="15%"
                   aspectRatio={1}
                   borderRadius={12}
-                  backgroundColor={Colors.dark.backgroundSecondary}
+                  backgroundColor={colors.backgroundSecondary}
                   borderWidth={1}
-                  borderColor={Colors.dark.border}
-                  pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+                  borderColor={colors.border}
+                  pressStyle={{ backgroundColor: colors.backgroundTertiary }}
                   onPress={() => {
                     const lastSelectedIndex = emojiGrid.indexOf(emoji);
                     setCustomEmojiIndex(lastSelectedIndex >= 0 ? lastSelectedIndex : 0);
@@ -214,14 +209,14 @@ const EditCardScreen = () => {
                   ai="center"
                   jc="center"
                 >
-                  <PlusIcon size={20} color={Colors.dark.text} />
+                  <PlusIcon size={20} color={colors.text} />
                 </Button>
               </XStack>
             </YStack>
 
             {/* Color Grid */}
             <YStack gap="$2" width="100%">
-              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+              <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                 Card Color
               </Text>
               <XStack width="100%" flexWrap="wrap" gap="$2" jc="space-between">
@@ -231,7 +226,7 @@ const EditCardScreen = () => {
                     width="15%"
                     aspectRatio={1}
                     borderRadius={1000}
-                    backgroundColor={color.value}
+                    backgroundColor={color.name === 'custom' ? colors.backgroundTertiary : color.value}
                     pressStyle={{ opacity: 0.8 }}
                     m={0}
                     p={0}
@@ -247,10 +242,10 @@ const EditCardScreen = () => {
                       }
                     }}
                     borderWidth={cardColor === color.value ? 2 : 0}
-                    borderColor={Colors.dark.primary}
+                    borderColor={colors.primary}
                   >
                     {color.name === 'custom' ? (
-                      <PlusIcon size={20} color={Colors.dark.text} />
+                      <PlusIcon size={20} color={colors.text} />
                     ) : (
                       <Circle
                         position="absolute"
@@ -259,7 +254,7 @@ const EditCardScreen = () => {
                         right={0}
                         bottom={0}
                         borderWidth={cardColor === color.value ? 2 : 0}
-                        borderColor={Colors.dark.background}
+                        borderColor={colors.background}
                       />
                     )}
                   </Button>
@@ -280,17 +275,17 @@ const EditCardScreen = () => {
             mb="-$2"
             borderWidth={0}
           >
-            <ArrowPathIcon size={16} color={Colors.dark.primary} />
-            <Text color={Colors.dark.primary} fontSize="$3" fontWeight="600">
+            <ArrowPathIcon size={16} color={colors.primary} />
+            <Text color={colors.primary} fontSize="$3" fontWeight="600">
               Reset to Default
             </Text>
           </Button>
 
           {/* Bottom Buttons */}
-          <YStack width="100%" gap="$2.5" borderTopWidth={1} borderTopColor={Colors.dark.border} pt="$4" mt="$4">
+          <YStack width="100%" gap="$2.5" borderTopWidth={1} borderTopColor={colors.border} pt="$4" mt="$4">
             <Button
-              backgroundColor={Colors.dark.primary}
-              pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+              backgroundColor={colors.primary}
+              pressStyle={{ backgroundColor: colors.primaryDark }}
               onPress={handleSave}
               size="$5"
               borderRadius={12}
@@ -300,15 +295,15 @@ const EditCardScreen = () => {
               </Text>
             </Button>
             <Button
-              backgroundColor={Colors.dark.backgroundSecondary}
-              pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
               onPress={() => navigation.goBack()}
               size="$5"
               borderRadius={12}
               borderWidth={1}
-              borderColor={Colors.dark.border}
+              borderColor={colors.border}
             >
-              <Text color={Colors.dark.text} fontSize="$4" fontWeight="600">
+              <Text color={colors.text} fontSize="$4" fontWeight="600">
                 Cancel
               </Text>
             </Button>
@@ -318,7 +313,7 @@ const EditCardScreen = () => {
 
       <BottomSheet isOpen={showColorWheel} onClose={() => setShowColorWheel(false)}>
         <YStack gap="$5" px="$4" mt="$2" pb="$6">
-          <Text color={Colors.dark.text} fontSize="$6" fontFamily={'$archivoBlack'}>
+          <Text color={colors.text} fontSize="$6" fontFamily={'$archivoBlack'}>
             Custom Color
           </Text>
 
@@ -332,8 +327,8 @@ const EditCardScreen = () => {
 
           <YStack gap="$3">
             <Button
-              backgroundColor={Colors.dark.primary}
-              pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+              backgroundColor={colors.primary}
+              pressStyle={{ backgroundColor: colors.primaryDark }}
               onPress={handleColorSave}
               size="$5"
               borderRadius={15}
@@ -353,23 +348,23 @@ const EditCardScreen = () => {
         categoryPosition="bottom"
         enableSearchBar
         theme={{
-          backdrop: `${Colors.dark.background}88`,
-          knob: Colors.dark.primary,
-          container: Colors.dark.backgroundSecondary,
-          header: Colors.dark.text,
-          skinTonesContainer: Colors.dark.backgroundTertiary,
+          backdrop: `${colors.background}88`,
+          knob: colors.primary,
+          container: colors.backgroundSecondary,
+          header: colors.text,
+          skinTonesContainer: colors.backgroundTertiary,
           category: {
-            icon: Colors.dark.textSecondary,
-            iconActive: Colors.dark.text,
-            container: Colors.dark.backgroundSecondary,
-            containerActive: Colors.dark.primary,
+            icon: colors.textSecondary,
+            iconActive: colors.text,
+            container: colors.backgroundSecondary,
+            containerActive: colors.primary,
           },
           search: {
-            text: Colors.dark.text,
-            placeholder: Colors.dark.textTertiary,
-            icon: Colors.dark.text,
-            background: Colors.dark.backgroundTertiary,
-            border: Colors.dark.border,
+            text: colors.text,
+            placeholder: colors.textTertiary,
+            icon: colors.text,
+            background: colors.backgroundTertiary,
+            border: colors.border,
           },
         }}
       />

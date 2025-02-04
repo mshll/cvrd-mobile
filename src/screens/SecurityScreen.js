@@ -1,5 +1,5 @@
 import { View, Text, YStack, XStack, Button, Input, ScrollView } from 'tamagui';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,54 +15,58 @@ const FormInput = ({
   showPasswordToggle = false,
   onTogglePassword,
   isPasswordVisible,
-}) => (
-  <YStack gap="$2">
-    <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
-      {label}
-    </Text>
-    <XStack ai="center">
-      <Input
-        flex={1}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        secureTextEntry={secureTextEntry && !isPasswordVisible}
-        backgroundColor={Colors.dark.backgroundSecondary}
-        borderWidth={1}
-        borderColor={Colors.dark.border}
-        color={Colors.dark.text}
-        placeholderTextColor={Colors.dark.textTertiary}
-        fontSize="$4"
-        height={45}
-        px="$4"
-        borderRadius={12}
-        textContentType="none"
-        autoComplete="off"
-      />
-      {showPasswordToggle && (
-        <Button
-          position="absolute"
-          right={8}
-          backgroundColor="transparent"
-          onPress={onTogglePassword}
-          pressStyle={{ opacity: 0.7 }}
-          p="$2"
-        >
-          {isPasswordVisible ? (
-            <EyeSlashIcon size={20} color={Colors.dark.textSecondary} />
-          ) : (
-            <EyeIcon size={20} color={Colors.dark.textSecondary} />
-          )}
-        </Button>
-      )}
-    </XStack>
-  </YStack>
-);
+}) => {
+  const colors = useColors();
+
+  return (
+    <YStack gap="$2">
+      <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
+        {label}
+      </Text>
+      <XStack ai="center">
+        <Input
+          flex={1}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          secureTextEntry={secureTextEntry && !isPasswordVisible}
+          backgroundColor={colors.backgroundSecondary}
+          borderWidth={1}
+          borderColor={colors.border}
+          color={colors.text}
+          placeholderTextColor={colors.textTertiary}
+          fontSize="$4"
+          height={45}
+          px="$4"
+          borderRadius={12}
+          textContentType="none"
+          autoComplete="off"
+        />
+        {showPasswordToggle && (
+          <Button
+            position="absolute"
+            right={8}
+            backgroundColor="transparent"
+            onPress={onTogglePassword}
+            pressStyle={{ opacity: 0.7 }}
+            p="$2"
+          >
+            {isPasswordVisible ? (
+              <EyeSlashIcon size={20} color={colors.textSecondary} />
+            ) : (
+              <EyeIcon size={20} color={colors.textSecondary} />
+            )}
+          </Button>
+        )}
+      </XStack>
+    </YStack>
+  );
+};
 
 const SecurityScreen = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-
+  const colors = useColors();
   // Form state
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -107,10 +111,10 @@ const SecurityScreen = () => {
   };
 
   return (
-    <View f={1} bg={Colors.dark.background}>
+    <View f={1} bg={colors.background}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 24 }}>
         <YStack gap="$6">
-          <Text color={Colors.dark.text} fontSize="$5" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$5" fontFamily="$archivoBlack">
             Change Password
           </Text>
 
@@ -154,8 +158,8 @@ const SecurityScreen = () => {
         {/* Save Button */}
         <Button
           mt="$6"
-          backgroundColor={Colors.dark.primary}
-          pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+          backgroundColor={colors.primary}
+          pressStyle={{ backgroundColor: colors.primaryDark }}
           onPress={handleSave}
           size="$5"
           borderRadius={12}

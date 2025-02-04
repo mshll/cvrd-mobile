@@ -1,4 +1,4 @@
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { View, Text, Input, XStack, YStack, Button } from 'tamagui';
 import { useState, useCallback, useEffect } from 'react';
 import { Search, ArrowDown, ArrowUp, History } from '@tamagui/lucide-icons';
@@ -151,6 +151,7 @@ const groupTransactionsByMonth = (transactions) => {
 };
 
 const ActivityScreen = () => {
+  const colors = useColors();
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
   const [dateSort, setDateSort] = useState('desc');
@@ -229,27 +230,18 @@ const ActivityScreen = () => {
 
   const toggleStatusFilter = useCallback(() => {
     setStatusFilter((prev) => {
-      if (prev === FILTER_STATES.ALL || prev === FILTER_STATES.DECLINED)
-        return FILTER_STATES.SETTLED;
+      if (prev === FILTER_STATES.ALL || prev === FILTER_STATES.DECLINED) return FILTER_STATES.SETTLED;
       return FILTER_STATES.DECLINED;
     });
   }, []);
 
   return (
-    <View 
-      f={1} 
-      bg={Colors.dark.background}
-    >
+    <View f={1} bg={colors.background}>
       {/* Header Section */}
-      <YStack 
-        pt={insets.top - 20} 
-        px={16} 
-        space={16}
-        backgroundColor={Colors.dark.background}
-      >
+      <YStack pt={insets.top - 20} px={16} space={16} backgroundColor={colors.background}>
         <XStack ai="center" gap="$2">
-          <History size={20} color={Colors.dark.text} />
-          <Text color={Colors.dark.text} fontSize="$4" fontFamily="$archivoBlack">
+          <History size={20} color={colors.text} />
+          <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
             Activity
           </Text>
         </XStack>
@@ -258,18 +250,18 @@ const ActivityScreen = () => {
           <XStack
             f={1}
             br={8}
-            backgroundColor={Colors.dark.card}
+            backgroundColor={colors.card}
             ai="center"
             px={12}
             borderWidth={1}
-            borderColor={Colors.dark.border}
+            borderColor={colors.border}
           >
-            <Search size={20} color={Colors.dark.textSecondary} />
+            <Search size={20} color={colors.textSecondary} />
             <Input
               f={1}
               placeholder="Search"
-              placeholderTextColor={Colors.dark.textSecondary}
-              color={Colors.dark.text}
+              placeholderTextColor={colors.textSecondary}
+              color={colors.text}
               borderWidth={0}
               backgroundColor="transparent"
               value={searchQuery}
@@ -279,17 +271,17 @@ const ActivityScreen = () => {
           </XStack>
 
           <Button
-            backgroundColor={Colors.dark.card}
+            backgroundColor={colors.card}
             br={8}
             p={12}
             onPress={toggleDateSort}
             borderWidth={1}
-            borderColor={Colors.dark.border}
+            borderColor={colors.border}
           >
             {dateSort === 'desc' ? (
-              <ArrowDown size={20} color={Colors.dark.text} />
+              <ArrowDown size={20} color={colors.text} />
             ) : (
-              <ArrowUp size={20} color={Colors.dark.text} />
+              <ArrowUp size={20} color={colors.text} />
             )}
           </Button>
         </XStack>
@@ -297,27 +289,19 @@ const ActivityScreen = () => {
         <XStack gap={8}>
           <Button
             f={1}
-            backgroundColor={
-              statusFilter === FILTER_STATES.ALL && !amountSort
-                ? Colors.dark.primary
-                : Colors.dark.card
-            }
+            backgroundColor={statusFilter === FILTER_STATES.ALL && !amountSort ? colors.primary : colors.card}
             br={10}
             px={12}
             py={6}
             borderWidth={1}
-            borderColor={Colors.dark.border}
+            borderColor={colors.border}
             onPress={() => {
               setStatusFilter(FILTER_STATES.ALL);
               setAmountSort(null);
             }}
           >
             <Text
-              color={
-                statusFilter === FILTER_STATES.ALL && !amountSort
-                  ? Colors.dark.text
-                  : Colors.dark.textSecondary
-              }
+              color={statusFilter === FILTER_STATES.ALL && !amountSort ? colors.text : colors.textSecondary}
               fontSize={14}
               fontFamily="$body"
               fontWeight="600"
@@ -328,39 +312,30 @@ const ActivityScreen = () => {
 
           <Button
             f={1}
-            backgroundColor={amountSort ? Colors.dark.primary : Colors.dark.card}
+            backgroundColor={amountSort ? colors.primary : colors.card}
             br={10}
             px={12}
             py={6}
             borderWidth={1}
-            borderColor={Colors.dark.border}
+            borderColor={colors.border}
             onPress={toggleAmountSort}
           >
-            <Text color={amountSort ? Colors.dark.text : Colors.dark.textSecondary} fontSize={14}>
+            <Text color={amountSort ? colors.text : colors.textSecondary} fontSize={14}>
               {!amountSort ? 'Amount' : amountSort === 'desc' ? 'Lowest' : 'Highest'}
             </Text>
           </Button>
 
           <Button
             f={1}
-            backgroundColor={
-              statusFilter !== FILTER_STATES.ALL
-                ? Colors.dark.primary
-                : Colors.dark.card
-            }
+            backgroundColor={statusFilter !== FILTER_STATES.ALL ? colors.primary : colors.card}
             br={10}
             px={12}
             py={6}
             borderWidth={1}
-            borderColor={Colors.dark.border}
+            borderColor={colors.border}
             onPress={toggleStatusFilter}
           >
-            <Text
-              color={
-                statusFilter !== FILTER_STATES.ALL ? Colors.dark.text : Colors.dark.textSecondary
-              }
-              fontSize={14}
-            >
+            <Text color={statusFilter !== FILTER_STATES.ALL ? colors.text : colors.textSecondary} fontSize={14}>
               {statusFilter === FILTER_STATES.ALL
                 ? 'Status'
                 : statusFilter === FILTER_STATES.SETTLED
@@ -376,11 +351,11 @@ const ActivityScreen = () => {
         {isLoading ? (
           <LoadingSkeleton />
         ) : error ? (
-          <Text color={Colors.dark.primary} ta="center" mt={20} fontFamily="$body">
+          <Text color={colors.primary} ta="center" mt={20} fontFamily="$body">
             {error}
           </Text>
         ) : transactions.length === 0 ? (
-          <Text color={Colors.dark.textSecondary} ta="center" mt={20} fontFamily="$body">
+          <Text color={colors.textSecondary} ta="center" mt={20} fontFamily="$body">
             No transactions found
           </Text>
         ) : (
@@ -389,12 +364,8 @@ const ActivityScreen = () => {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <TransactionCard transaction={item} />}
             renderSectionHeader={({ section: { title } }) => (
-              <View style={styles.sectionHeader} backgroundColor={Colors.dark.background}>
-                <Text 
-                  color={Colors.dark.textSecondary} 
-                  fontSize={16} 
-                  fontFamily="$archivoBlack"
-                >
+              <View style={styles.sectionHeader} backgroundColor={colors.background}>
+                <Text color={colors.textSecondary} fontSize={16} fontFamily="$archivoBlack">
                   {title}
                 </Text>
               </View>

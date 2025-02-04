@@ -1,4 +1,4 @@
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { View, Button, Text } from 'tamagui';
 import Animated, {
   useAnimatedStyle,
@@ -52,7 +52,7 @@ const SAMPLE_CARDS = [
     type: 'Category',
     label: 'Groceries',
     emoji: '🫐',
-    backgroundColor: Colors.dark.primary,
+    backgroundColor: Colors.cards.red,
     title: 'Category-Locked',
     description: 'Use your card for one category of expenses. Only shop for groceries with this card',
     isPaused: false,
@@ -137,7 +137,7 @@ const CarouselCard = memo(({ item, index, scrollX, showCarousel }) => {
   );
 });
 
-const AnimatedTitle = memo(({ scrollX, showCarousel }) => {
+const AnimatedTitle = memo(({ scrollX, showCarousel, colors }) => {
   const titleContainerStyle = useAnimatedStyle(() => {
     return {
       opacity: showCarousel ? withDelay(200, withSpring(1, { damping: 12, stiffness: 35 })) : 0,
@@ -218,7 +218,7 @@ const AnimatedTitle = memo(({ scrollX, showCarousel }) => {
               style={{
                 fontSize: 24,
                 fontWeight: '600',
-                color: Colors.dark.text,
+                color: colors.text,
                 textAlign: 'center',
                 includeFontPadding: false,
                 textAlignVertical: 'center',
@@ -234,7 +234,7 @@ const AnimatedTitle = memo(({ scrollX, showCarousel }) => {
   );
 });
 
-const AnimatedDescription = memo(({ scrollX, showCarousel }) => {
+const AnimatedDescription = memo(({ scrollX, showCarousel, colors }) => {
   const descriptionContainerStyle = useAnimatedStyle(() => {
     return {
       opacity: showCarousel ? withDelay(200, withSpring(1, { damping: 12, stiffness: 35 })) : 0,
@@ -314,7 +314,7 @@ const AnimatedDescription = memo(({ scrollX, showCarousel }) => {
             <Text
               style={{
                 fontSize: 14,
-                color: Colors.dark.textSecondary,
+                color: colors.textSecondary,
                 textAlign: 'center',
                 lineHeight: 20,
               }}
@@ -328,7 +328,7 @@ const AnimatedDescription = memo(({ scrollX, showCarousel }) => {
   );
 });
 
-const SelectButton = memo(({ showCarousel, selectedCard, onSelect }) => {
+const SelectButton = memo(({ showCarousel, selectedCard, onSelect, colors }) => {
   const buttonStyle = useAnimatedStyle(() => {
     return {
       opacity: showCarousel ? withDelay(400, withSpring(1, { damping: 15 })) : 0,
@@ -343,12 +343,12 @@ const SelectButton = memo(({ showCarousel, selectedCard, onSelect }) => {
   return (
     <Animated.View style={[{ width: CARD_WIDTH }, buttonStyle]}>
       <Button
-        backgroundColor={Colors.dark.backgroundSecondary}
-        color={Colors.dark.text}
+        backgroundColor={colors.backgroundSecondary}
+        color={colors.text}
         size="$5"
         fontWeight="600"
         borderRadius={12}
-        pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+        pressStyle={{ backgroundColor: colors.backgroundTertiary }}
         onPress={() => onSelect(selectedCard)}
       >
         Select Card
@@ -357,7 +357,7 @@ const SelectButton = memo(({ showCarousel, selectedCard, onSelect }) => {
   );
 });
 
-const Carousel = memo(({ scrollX, showCarousel, selectedCard, setSelectedCard, onSelect, initialIndex }) => {
+const Carousel = ({ scrollX, showCarousel, selectedCard, setSelectedCard, onSelect, initialIndex, colors }) => {
   const flatListRef = useAnimatedRef();
 
   const renderCard = useCallback(
@@ -383,7 +383,7 @@ const Carousel = memo(({ scrollX, showCarousel, selectedCard, setSelectedCard, o
 
   return (
     <View>
-      <AnimatedTitle scrollX={scrollX} showCarousel={showCarousel} />
+      <AnimatedTitle scrollX={scrollX} showCarousel={showCarousel} colors={colors} />
       <Animated.FlatList
         ref={flatListRef}
         data={SAMPLE_CARDS}
@@ -406,12 +406,13 @@ const Carousel = memo(({ scrollX, showCarousel, selectedCard, setSelectedCard, o
         initialScrollIndex={initialIndex}
         initialNumToRender={SAMPLE_CARDS.length}
       />
-      <AnimatedDescription scrollX={scrollX} showCarousel={showCarousel} />
+      <AnimatedDescription scrollX={scrollX} showCarousel={showCarousel} colors={colors} />
     </View>
   );
-});
+};
 
 const AddCardScreen = () => {
+  const colors = useColors();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const [showCard, setShowCard] = useState(false);
@@ -635,6 +636,7 @@ const AddCardScreen = () => {
                 setSelectedCard={setSelectedCard}
                 onSelect={handleSelectCard}
                 initialIndex={selectedIndex}
+                colors={colors}
               />
             </View>
           </>
@@ -666,7 +668,7 @@ const AddCardScreen = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View f={1} bg={Colors.dark.background}>
+      <View f={1} bg={colors.background}>
         <View width={WINDOW_WIDTH} height={WINDOW_HEIGHT} ai="center">
           {/* Card Section */}
           <View
@@ -684,7 +686,12 @@ const AddCardScreen = () => {
           {/* Button Section */}
           {step === 'select' && (
             <View position="absolute" bottom={BOTTOM_NAV_HEIGHT + insets.bottom + 20} width={WINDOW_WIDTH} ai="center">
-              <SelectButton showCarousel={showCarousel} selectedCard={selectedCard} onSelect={handleSelectCard} />
+              <SelectButton
+                showCarousel={showCarousel}
+                selectedCard={selectedCard}
+                onSelect={handleSelectCard}
+                colors={colors}
+              />
             </View>
           )}
         </View>

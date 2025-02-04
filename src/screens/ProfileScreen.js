@@ -1,4 +1,4 @@
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { View, Text, YStack, XStack, Button, Avatar, ScrollView, Separator, Circle } from 'tamagui';
 import { user } from '@/data/user';
 import { useCards } from '@/hooks/useCards';
@@ -25,64 +25,71 @@ import { useState } from 'react';
 import BottomSheet from '@/components/BottomSheet';
 import { Paths } from '@/navigation/paths';
 
-const MenuItem = ({ icon: Icon, label, value, onPress, showArrow = true }) => (
-  <Button
-    height={60}
-    backgroundColor={Colors.dark.backgroundSecondary}
-    pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary, scale: 0.98 }}
-    onPress={onPress}
-    px="$4"
-    mx="$4"
-    borderRadius={12}
-    borderWidth={1}
-    borderColor={Colors.dark.border}
-    animation="quick"
-  >
-    <XStack ai="center" jc="space-between" f={1}>
-      <XStack ai="center" gap="$3">
-        <View backgroundColor={`${Colors.dark.backgroundTertiary}80`} p="$2" borderRadius={8}>
-          <Icon size={20} color={Colors.dark.text} />
-        </View>
-        <Text color={Colors.dark.text} fontSize="$4" fontWeight="500">
-          {label}
-        </Text>
-      </XStack>
-      <XStack ai="center" gap="$2">
-        {value && (
-          <Text color={Colors.dark.textSecondary} fontSize="$3">
-            {value}
+const MenuItem = ({ icon: Icon, label, value, onPress, showArrow = true }) => {
+  const colors = useColors();
+  return (
+    <Button
+      height={60}
+      backgroundColor={colors.backgroundSecondary}
+      pressStyle={{ backgroundColor: colors.backgroundTertiary, scale: 0.98 }}
+      onPress={onPress}
+      px="$4"
+      mx="$4"
+      borderRadius={12}
+      borderWidth={1}
+      borderColor={colors.border}
+      animation="quick"
+    >
+      <XStack ai="center" jc="space-between" f={1}>
+        <XStack ai="center" gap="$3">
+          <View backgroundColor={`${colors.backgroundTertiary}80`} p="$2" borderRadius={8}>
+            <Icon size={20} color={colors.text} />
+          </View>
+          <Text color={colors.text} fontSize="$4" fontWeight="500">
+            {label}
           </Text>
-        )}
-        {showArrow && <ChevronRightIcon size={16} color={Colors.dark.textSecondary} />}
+        </XStack>
+        <XStack ai="center" gap="$2">
+          {value && (
+            <Text color={colors.textSecondary} fontSize="$3">
+              {value}
+            </Text>
+          )}
+          {showArrow && <ChevronRightIcon size={16} color={colors.textSecondary} />}
+        </XStack>
       </XStack>
-    </XStack>
-  </Button>
-);
+    </Button>
+  );
+};
 
-const StatCard = ({ icon: Icon, label, value, color }) => (
-  <View
-    f={1}
-    backgroundColor={Colors.dark.backgroundSecondary}
-    borderRadius={12}
-    p="$4"
-    borderWidth={1}
-    borderColor={Colors.dark.border}
-  >
-    <YStack gap="$2">
-      <XStack ai="center" gap="$2">
-        <Icon size={16} color={color || Colors.dark.textSecondary} />
-        <Text color={Colors.dark.textSecondary} fontSize="$3">
-          {label}
+const StatCard = ({ icon: Icon, label, value, color }) => {
+  const colors = useColors();
+  return (
+    <View
+      f={1}
+      backgroundColor={colors.backgroundSecondary}
+      borderRadius={12}
+      p="$4"
+      borderWidth={1}
+      borderColor={colors.border}
+    >
+      <YStack gap="$2">
+        <XStack ai="center" gap="$2">
+          <Icon size={16} color={color || colors.textSecondary} />
+          <Text color={colors.textSecondary} fontSize="$3">
+            {label}
+          </Text>
+        </XStack>
+        <Text color={colors.text} fontSize="$5" fontWeight="700">
+          {value}
         </Text>
-      </XStack>
-      <Text color={Colors.dark.text} fontSize="$5" fontWeight="700">
-        {value}
-      </Text>
-    </YStack>
-  </View>
-);
+      </YStack>
+    </View>
+  );
+};
 
 const ProfileScreen = () => {
+  const colors = useColors();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { cards } = useCards();
@@ -120,16 +127,11 @@ const ProfileScreen = () => {
   };
 
   return (
-    <View f={1} bg={Colors.dark.background}>
+    <View f={1} bg={colors.background}>
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}>
         {/* Profile Header */}
         <YStack ai="center" pt={'$5'} pb="$6" px="$4" gap="$4">
-          <Circle
-            backgroundColor={Colors.dark.background}
-            p="$1.5"
-            borderWidth={'$1.5'}
-            borderColor={Colors.dark.primary}
-          >
+          <Circle backgroundColor={colors.background} p="$1.5" borderWidth={'$1.5'} borderColor={colors.primary}>
             <Avatar circular size="$12">
               <Avatar.Image
                 source={{
@@ -138,14 +140,14 @@ const ProfileScreen = () => {
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`,
                 }}
               />
-              <Avatar.Fallback backgroundColor={Colors.dark.backgroundSecondary} />
+              <Avatar.Fallback backgroundColor={colors.backgroundSecondary} />
             </Avatar>
           </Circle>
           <YStack ai="center" gap="$1">
-            <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
               {user.name}
             </Text>
-            <Text color={Colors.dark.textSecondary} fontSize="$3">
+            <Text color={colors.textSecondary} fontSize="$3">
               {user.email}
             </Text>
           </YStack>
@@ -176,7 +178,7 @@ const ProfileScreen = () => {
         {/* Menu Items */}
         <YStack gap="$6">
           <YStack gap="$3">
-            <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" px="$4">
+            <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
               Account
             </Text>
             <YStack gap="$2">
@@ -188,7 +190,7 @@ const ProfileScreen = () => {
           </YStack>
 
           <YStack gap="$3">
-            <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" px="$4">
+            <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
               Support
             </Text>
             <YStack gap="$2">
@@ -203,11 +205,11 @@ const ProfileScreen = () => {
           mx="$4"
           mt="$6"
           size="$5"
-          backgroundColor={Colors.dark.backgroundSecondary}
-          pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary, scale: 0.98 }}
+          backgroundColor={colors.backgroundSecondary}
+          pressStyle={{ backgroundColor: colors.backgroundTertiary, scale: 0.98 }}
           onPress={() => setShowLogoutConfirm(true)}
           borderWidth={1}
-          borderColor={Colors.dark.border}
+          borderColor={colors.border}
           br={12}
           animation="quick"
         >
@@ -223,10 +225,10 @@ const ProfileScreen = () => {
       {/* Logout Confirmation Sheet */}
       <BottomSheet isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
             Log Out
           </Text>
-          <Text color={Colors.dark.textSecondary} fontSize="$4">
+          <Text color={colors.textSecondary} fontSize="$4">
             Are you sure you want to log out?
           </Text>
           <YStack gap="$3">
@@ -242,15 +244,15 @@ const ProfileScreen = () => {
               </Text>
             </Button>
             <Button
-              backgroundColor={Colors.dark.backgroundSecondary}
-              pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
               onPress={() => setShowLogoutConfirm(false)}
               size="$5"
               borderRadius={12}
               borderWidth={1}
-              borderColor={Colors.dark.border}
+              borderColor={colors.border}
             >
-              <Text color={Colors.dark.text} fontSize="$4" fontWeight="600">
+              <Text color={colors.text} fontSize="$4" fontWeight="600">
                 Cancel
               </Text>
             </Button>

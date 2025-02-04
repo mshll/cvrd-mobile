@@ -1,4 +1,4 @@
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, YStack } from 'tamagui';
 import Animated, { useAnimatedStyle, interpolate, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -29,6 +29,7 @@ const DUMMY_DATA = Array(20)
   }));
 
 const CreditCard = ({ item, index, scrollY, totalLength, onPress }) => {
+  const colors = useColors();
   const animatedStyle = useAnimatedStyle(() => {
     const inputRange = [
       Math.max(0, (index - 2) * CARD_OFFSET - SEPARATION_OFFSET),
@@ -68,7 +69,7 @@ const CreditCard = ({ item, index, scrollY, totalLength, onPress }) => {
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.25,
             shadowRadius: 3.84,
-            backgroundColor: Colors.dark.background,
+            backgroundColor: colors.background,
           },
           animatedStyle,
         ]}
@@ -88,6 +89,7 @@ const CreditCard = ({ item, index, scrollY, totalLength, onPress }) => {
 };
 
 const ActivityScreen = () => {
+  const colors = useColors();
   const navigation = useNavigation();
   const scrollY = useSharedValue(0);
 
@@ -105,7 +107,7 @@ const ActivityScreen = () => {
   const contentHeight = CARD_OFFSET * (DUMMY_DATA.length - 1) + CARD_HEIGHT + TOP_PADDING + BOTTOM_PADDING;
 
   return (
-    <View f={1} bg={Colors.dark.background}>
+    <View f={1} bg={colors.background}>
       <YStack f={1} ai="center">
         <View f={1} w="100%" ai="center">
           <View width={CARD_WIDTH} height={WINDOW_HEIGHT}>

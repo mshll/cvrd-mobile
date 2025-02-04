@@ -38,6 +38,7 @@ import { BreadcrumbProvider } from '@/context/BreadcrumbContext';
 import toastConfig from '@/config/toastConfig';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ColorSchemeProvider } from '@/context/ColorSchemeContext';
 
 const queryClient = new QueryClient();
 
@@ -80,19 +81,21 @@ export default function App() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <TamaguiProvider config={tamaguiConfig}>
             <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
-              <AuthProvider>
-                <BreadcrumbProvider>
-                  <PortalProvider>
-                    <BottomSheetModalProvider>
-                      <StatusBar animated={true} barStyle="default" />
-                      <NavigationContainer>
-                        <MainNav />
-                      </NavigationContainer>
-                      <Toast config={toastConfig} />
-                    </BottomSheetModalProvider>
-                  </PortalProvider>
-                </BreadcrumbProvider>
-              </AuthProvider>
+              <ColorSchemeProvider>
+                <AuthProvider>
+                  <BreadcrumbProvider>
+                    <PortalProvider>
+                      <BottomSheetModalProvider>
+                        <StatusBar animated={true} barStyle="default" />
+                        <NavigationContainer>
+                          <MainNav />
+                        </NavigationContainer>
+                        <Toast config={toastConfig} />
+                      </BottomSheetModalProvider>
+                    </PortalProvider>
+                  </BreadcrumbProvider>
+                </AuthProvider>
+              </ColorSchemeProvider>
             </Theme>
           </TamaguiProvider>
         </GestureHandlerRootView>

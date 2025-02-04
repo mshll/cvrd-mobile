@@ -1,5 +1,5 @@
 import { View, Text, YStack, XStack, Button, Input, Circle, Switch, Slider } from 'tamagui';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useState, useEffect, useCallback } from 'react';
 import {
   PlusIcon,
@@ -63,6 +63,7 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
   const [selectedLimitType, setSelectedLimitType] = useState('per_transaction');
   const selectedOption = LIMIT_OPTIONS.find((opt) => opt.id === selectedLimitType);
   const insets = useSafeAreaInsets();
+  const colors = useColors();
 
   const handleLimitChange = (value) => {
     if (selectedLimitType === 'no_limit') {
@@ -84,18 +85,18 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
     <YStack gap="$5" mt={insets.top - 30}>
       {/* Card Name Input */}
       <YStack gap="$3">
-        <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
+        <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
           Card Name
         </Text>
         <Input
           value={cardName}
           onChangeText={setCardName}
           placeholder="Enter card name"
-          backgroundColor={Colors.dark.backgroundSecondary}
+          backgroundColor={colors.backgroundSecondary}
           borderWidth={1}
-          borderColor={Colors.dark.border}
-          color={Colors.dark.text}
-          placeholderTextColor={Colors.dark.textTertiary}
+          borderColor={colors.border}
+          color={colors.text}
+          placeholderTextColor={colors.textTertiary}
           fontSize="$4"
           height={45}
           px="$4"
@@ -106,7 +107,7 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
 
       {/* Spending Limits */}
       <YStack gap="$3">
-        <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
+        <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
           Spending Limits
         </Text>
 
@@ -114,23 +115,23 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
           style={{
             borderRadius: 16,
             overflow: 'hidden',
-            backgroundColor: Colors.dark.backgroundSecondary,
+            backgroundColor: colors.backgroundSecondary,
             borderWidth: 1,
-            borderColor: Colors.dark.border,
+            borderColor: colors.border,
             marginBottom: 16,
           }}
         >
           <YStack p="$4" gap="$4">
             {/* Amount Input */}
             <XStack
-              backgroundColor={Colors.dark.backgroundTertiary}
+              backgroundColor={colors.backgroundTertiary}
               br={12}
               height={70}
               ai="center"
               px="$4"
               opacity={selectedLimitType === 'no_limit' ? 0.5 : 1}
             >
-              <Text color={Colors.dark.text} fontSize="$8" fontWeight="700" fontFamily="$archivoBlack" mr="$2">
+              <Text color={colors.text} fontSize="$8" fontWeight="700" fontFamily="$archivoBlack" mr="$2">
                 KD
               </Text>
               <Input
@@ -151,8 +152,8 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
                 keyboardType="decimal-pad"
                 backgroundColor="transparent"
                 borderWidth={0}
-                color={Colors.dark.text}
-                placeholderTextColor={Colors.dark.textTertiary}
+                color={colors.text}
+                placeholderTextColor={colors.textTertiary}
                 fontSize="$8"
                 fontFamily="$archivoBlack"
                 p={0}
@@ -193,14 +194,10 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
                   <Button
                     key={option.id}
                     backgroundColor={
-                      isSelected
-                        ? Colors.dark.primary
-                        : hasValue
-                        ? Colors.dark.primaryDark
-                        : Colors.dark.backgroundTertiary
+                      isSelected ? colors.primary : hasValue ? colors.primaryDark : colors.backgroundTertiary
                     }
                     pressStyle={{
-                      backgroundColor: isSelected ? Colors.dark.primaryDark : Colors.dark.backgroundTertiary,
+                      backgroundColor: isSelected ? colors.primaryDark : colors.backgroundTertiary,
                     }}
                     onPress={() => {
                       setSelectedLimitType(option.id);
@@ -213,7 +210,7 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
                     minWidth="48%"
                     {...borderRadius}
                   >
-                    <Text color={isSelected || hasValue ? 'white' : Colors.dark.text} fontSize="$3" fontWeight="600">
+                    <Text color={isSelected || hasValue ? 'white' : colors.text} fontSize="$3" fontWeight="600">
                       {option.label}
                     </Text>
                   </Button>
@@ -223,7 +220,7 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
 
             {/* Max Amount Display */}
             {selectedLimitType !== 'no_limit' && (
-              <Text color={Colors.dark.textSecondary} fontSize="$3">
+              <Text color={colors.textSecondary} fontSize="$3">
                 Maximum amount: {selectedOption.max.toLocaleString()} KWD
               </Text>
             )}
@@ -239,6 +236,7 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
   const [countryName, setCountryName] = useState('');
   const [showHelp, setShowHelp] = useState(false);
   const navigation = useNavigation();
+  const colors = useColors();
 
   const getLocationInfo = async (latitude, longitude) => {
     try {
@@ -286,11 +284,11 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
 
   return (
     <YStack gap="$4">
-      <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
+      <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
         Select Location
       </Text>
 
-      <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary }}>
+      <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: colors.backgroundSecondary }}>
         <View style={{ height: MAP_HEIGHT }}>
           <MapView
             style={StyleSheet.absoluteFill}
@@ -304,12 +302,12 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
             zoomEnabled={false}
             rotateEnabled={false}
           >
-            <Marker coordinate={location} pinColor={Colors.dark.primary} />
+            <Marker coordinate={location} pinColor={colors.primary} />
             <MapCircle
               center={location}
               radius={radius * 1000}
-              fillColor={`${Colors.dark.primary}20`}
-              strokeColor={Colors.dark.primary}
+              fillColor={`${colors.primary}20`}
+              strokeColor={colors.primary}
               strokeWidth={2}
             />
           </MapView>
@@ -319,15 +317,15 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
           <XStack position="absolute" top={12} right={12} gap="$2">
             <Button
               size="$2"
-              backgroundColor={Colors.dark.backgroundSecondary}
-              pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
               onPress={handleMaximizeMap}
               borderWidth={1}
-              borderColor={Colors.dark.border}
+              borderColor={colors.border}
               br={8}
               px="$3"
             >
-              <Text color={Colors.dark.text} fontSize="$2" fontWeight="600">
+              <Text color={colors.text} fontSize="$2" fontWeight="600">
                 Edit
               </Text>
             </Button>
@@ -337,18 +335,18 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
         {/* Location Info */}
         <YStack px={12} py={12} gap={2}>
           {location.address ? (
-            <Text color={Colors.dark.text} fontSize="$3" numberOfLines={2}>
+            <Text color={colors.text} fontSize="$3" numberOfLines={2}>
               {location.address}
             </Text>
           ) : (
-            <Text color={Colors.dark.textSecondary} fontSize="$3">
+            <Text color={colors.textSecondary} fontSize="$3">
               Loading address...
             </Text>
           )}
 
           {/* Radius Display */}
           <XStack py="$2" br={8} gap="$2" ai="center">
-            <Text color={Colors.dark.text} fontSize="$5" fontFamily="$archivoBlack">
+            <Text color={colors.text} fontSize="$5" fontFamily="$archivoBlack">
               {radius.toFixed(1)} km
             </Text>
           </XStack>
@@ -358,27 +356,27 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
       {/* Help Sheet */}
       <BottomSheet isOpen={showHelp} onClose={() => setShowHelp(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
             How to Edit Location
           </Text>
           <YStack gap="$3">
             <XStack gap="$2" ai="center">
-              <View w={8} h={8} br={4} bg={Colors.dark.primary} />
-              <Text color={Colors.dark.text} fontSize="$4">
+              <View w={8} h={8} br={4} bg={colors.primary} />
+              <Text color={colors.text} fontSize="$4">
                 Move Pin
               </Text>
             </XStack>
-            <Text color={Colors.dark.textSecondary} fontSize="$3" pl={20}>
+            <Text color={colors.textSecondary} fontSize="$3" pl={20}>
               Press and hold anywhere on the map to move the pin, or drag the existing pin
             </Text>
 
             <XStack gap="$2" ai="center">
-              <View w={8} h={8} br={4} bg={Colors.dark.primary} />
-              <Text color={Colors.dark.text} fontSize="$4">
+              <View w={8} h={8} br={4} bg={colors.primary} />
+              <Text color={colors.text} fontSize="$4">
                 Adjust Radius
               </Text>
             </XStack>
-            <Text color={Colors.dark.textSecondary} fontSize="$3" pl={20}>
+            <Text color={colors.textSecondary} fontSize="$3" pl={20}>
               Use the slider to adjust the radius, or tap the radius display at the top to enter a specific value
               between {MIN_RADIUS} and {MAX_RADIUS} km
             </Text>
@@ -391,33 +389,34 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
 
 const CategorySettings = ({ selectedCategory, setSelectedCategory }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const colors = useColors();
   const filteredCategories = CATEGORIES.filter((c) => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <YStack gap="$4">
-      <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
+      <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
         Select Category
       </Text>
       <Input
         value={searchQuery}
         onChangeText={setSearchQuery}
         placeholder="Search categories..."
-        backgroundColor={Colors.dark.backgroundSecondary}
+        backgroundColor={colors.backgroundSecondary}
         borderWidth={1}
-        borderColor={Colors.dark.border}
-        color={Colors.dark.text}
-        placeholderTextColor={Colors.dark.textTertiary}
+        borderColor={colors.border}
+        color={colors.text}
+        placeholderTextColor={colors.textTertiary}
         br={12}
         height={45}
         px="$4"
       />
       <View
         height={245}
-        backgroundColor={Colors.dark.backgroundSecondary}
+        backgroundColor={colors.backgroundSecondary}
         borderRadius={12}
         overflow="hidden"
         borderWidth={1}
-        borderColor={Colors.dark.border}
+        borderColor={colors.border}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -429,18 +428,16 @@ const CategorySettings = ({ selectedCategory, setSelectedCategory }) => {
           {filteredCategories.map((category) => (
             <Button
               key={category.id}
-              backgroundColor={
-                selectedCategory?.id === category.id ? Colors.dark.primary : Colors.dark.backgroundTertiary
-              }
-              pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+              backgroundColor={selectedCategory?.id === category.id ? colors.primary : colors.backgroundTertiary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
               onPress={() => setSelectedCategory(category)}
               mb="$2"
               borderWidth={1}
-              borderColor={Colors.dark.border}
+              borderColor={colors.border}
             >
               <XStack ai="center" gap="$2">
                 <Text fontSize={20}>{category.emoji}</Text>
-                <Text color={selectedCategory?.id === category.id ? 'white' : Colors.dark.text}>{category.name}</Text>
+                <Text color={selectedCategory?.id === category.id ? 'white' : colors.text}>{category.name}</Text>
               </XStack>
             </Button>
           ))}
@@ -452,6 +449,7 @@ const CategorySettings = ({ selectedCategory, setSelectedCategory }) => {
 
 const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   const insets = useSafeAreaInsets();
+  const colors = useColors();
 
   // Common state
   const [cardName, setCardName] = useState(initialData?.label || '');
@@ -531,7 +529,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   };
 
   return (
-    <View f={1} backgroundColor={Colors.dark.background}>
+    <View f={1} backgroundColor={colors.background}>
       <ScrollView contentContainerStyle={styles.container}>
         {/* Common Settings */}
         <CommonSettings
@@ -551,7 +549,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
           width="100%"
           gap="$12"
           borderTopWidth={1}
-          borderTopColor={`${Colors.dark.border}40`}
+          borderTopColor={`${colors.border}40`}
           pt="$4"
           mt="auto"
           mb={insets.bottom + 50}
@@ -559,22 +557,22 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
         >
           <Button
             f={1}
-            backgroundColor={Colors.dark.backgroundSecondary}
-            pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+            backgroundColor={colors.backgroundSecondary}
+            pressStyle={{ backgroundColor: colors.backgroundTertiary }}
             onPress={onBack}
             size="$5"
             borderRadius={15}
             borderWidth={1}
-            borderColor={Colors.dark.border}
+            borderColor={colors.border}
           >
-            <Text color={Colors.dark.text} fontSize="$4" fontWeight="600" fontFamily="$archivo">
+            <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="$archivo">
               Back
             </Text>
           </Button>
           <Button
             f={1}
-            backgroundColor={Colors.dark.primary}
-            pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+            backgroundColor={colors.primary}
+            pressStyle={{ backgroundColor: colors.primaryDark }}
             onPress={handleNext}
             size="$5"
             borderRadius={15}

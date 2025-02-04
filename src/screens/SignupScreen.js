@@ -1,5 +1,5 @@
 import { View, Text, YStack, Input, Button, XStack } from 'tamagui';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
@@ -10,6 +10,7 @@ import { Paths } from '@/navigation/paths';
 import { EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
 
 const SignupScreen = () => {
+  const colors = useColors();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -32,7 +33,7 @@ const SignupScreen = () => {
   };
 
   return (
-    <View f={1} bg={Colors.dark.background}>
+    <View f={1} bg={colors.background}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView
           bounces={false}
@@ -53,15 +54,15 @@ const SignupScreen = () => {
 
             {/* Title */}
             <YStack gap="$2">
-              <Text color={Colors.dark.text} fontSize="$10" fontWeight="900" fontFamily="$archivoBlack">
+              <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="$archivoBlack">
                 Create a New Account
               </Text>
               <XStack ai="center" gap="$2">
-                <Text color={Colors.dark.textSecondary} fontSize="$3">
+                <Text color={colors.textSecondary} fontSize="$3">
                   Already have an account?
                 </Text>
                 <TouchableOpacity backgroundColor="transparent" onPress={handleLogin} pressStyle={{ opacity: 0.7 }}>
-                  <Text color={Colors.dark.primary} fontSize="$3" fontWeight="600">
+                  <Text color={colors.primary} fontSize="$3" fontWeight="600">
                     Login
                   </Text>
                 </TouchableOpacity>
@@ -73,18 +74,18 @@ const SignupScreen = () => {
               {/* Name Fields */}
               <XStack gap="$3">
                 <YStack gap="$2" f={1}>
-                  <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                  <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                     First Name
                   </Text>
                   <Input
                     value={firstName}
                     onChangeText={setFirstName}
                     placeholder="John"
-                    backgroundColor={Colors.dark.backgroundSecondary}
+                    backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={Colors.dark.border}
-                    color={Colors.dark.text}
-                    placeholderTextColor={Colors.dark.textTertiary}
+                    borderColor={colors.border}
+                    color={colors.text}
+                    placeholderTextColor={colors.textTertiary}
                     fontSize="$4"
                     height={45}
                     px="$4"
@@ -92,18 +93,18 @@ const SignupScreen = () => {
                   />
                 </YStack>
                 <YStack gap="$2" f={1}>
-                  <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                  <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                     Last Name
                   </Text>
                   <Input
                     value={lastName}
                     onChangeText={setLastName}
                     placeholder="Doe"
-                    backgroundColor={Colors.dark.backgroundSecondary}
+                    backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={Colors.dark.border}
-                    color={Colors.dark.text}
-                    placeholderTextColor={Colors.dark.textTertiary}
+                    borderColor={colors.border}
+                    color={colors.text}
+                    placeholderTextColor={colors.textTertiary}
                     fontSize="$4"
                     height={45}
                     px="$4"
@@ -113,7 +114,7 @@ const SignupScreen = () => {
               </XStack>
 
               <YStack gap="$2">
-                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                   Email
                 </Text>
                 <Input
@@ -122,11 +123,11 @@ const SignupScreen = () => {
                   placeholder="johndoe@gmail.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  backgroundColor={Colors.dark.backgroundSecondary}
+                  backgroundColor={colors.backgroundSecondary}
                   borderWidth={1}
-                  borderColor={Colors.dark.border}
-                  color={Colors.dark.text}
-                  placeholderTextColor={Colors.dark.textTertiary}
+                  borderColor={colors.border}
+                  color={colors.text}
+                  placeholderTextColor={colors.textTertiary}
                   fontSize="$4"
                   height={45}
                   px="$4"
@@ -135,7 +136,7 @@ const SignupScreen = () => {
               </YStack>
 
               <YStack gap="$2">
-                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                   Password
                 </Text>
                 <XStack ai="center">
@@ -144,11 +145,11 @@ const SignupScreen = () => {
                     onChangeText={setPassword}
                     placeholder="••••••"
                     secureTextEntry={!showPassword}
-                    backgroundColor={Colors.dark.backgroundSecondary}
+                    backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={Colors.dark.border}
-                    color={Colors.dark.text}
-                    placeholderTextColor={Colors.dark.textTertiary}
+                    borderColor={colors.border}
+                    color={colors.text}
+                    placeholderTextColor={colors.textTertiary}
                     fontSize="$4"
                     height={45}
                     px="$4"
@@ -169,16 +170,16 @@ const SignupScreen = () => {
                     p="$2"
                   >
                     {showPassword ? (
-                      <EyeSlashIcon size={20} color={Colors.dark.textSecondary} />
+                      <EyeSlashIcon size={20} color={colors.textSecondary} />
                     ) : (
-                      <EyeIcon size={20} color={Colors.dark.textSecondary} />
+                      <EyeIcon size={20} color={colors.textSecondary} />
                     )}
                   </Button>
                 </XStack>
               </YStack>
 
               <YStack gap="$2">
-                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                   Confirm Password
                 </Text>
                 <XStack ai="center">
@@ -187,11 +188,11 @@ const SignupScreen = () => {
                     onChangeText={setConfirmPassword}
                     placeholder="••••••"
                     secureTextEntry={!showConfirmPassword}
-                    backgroundColor={Colors.dark.backgroundSecondary}
+                    backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={Colors.dark.border}
-                    color={Colors.dark.text}
-                    placeholderTextColor={Colors.dark.textTertiary}
+                    borderColor={colors.border}
+                    color={colors.text}
+                    placeholderTextColor={colors.textTertiary}
                     fontSize="$4"
                     height={45}
                     px="$4"
@@ -212,16 +213,16 @@ const SignupScreen = () => {
                     p="$2"
                   >
                     {showConfirmPassword ? (
-                      <EyeSlashIcon size={20} color={Colors.dark.textSecondary} />
+                      <EyeSlashIcon size={20} color={colors.textSecondary} />
                     ) : (
-                      <EyeIcon size={20} color={Colors.dark.textSecondary} />
+                      <EyeIcon size={20} color={colors.textSecondary} />
                     )}
                   </Button>
                 </XStack>
               </YStack>
 
               <YStack gap="$2">
-                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                   Phone Number
                 </Text>
                 <Input
@@ -229,11 +230,11 @@ const SignupScreen = () => {
                   onChangeText={setPhoneNumber}
                   placeholder="+123 12345678"
                   keyboardType="phone-pad"
-                  backgroundColor={Colors.dark.backgroundSecondary}
+                  backgroundColor={colors.backgroundSecondary}
                   borderWidth={1}
-                  borderColor={Colors.dark.border}
-                  color={Colors.dark.text}
-                  placeholderTextColor={Colors.dark.textTertiary}
+                  borderColor={colors.border}
+                  color={colors.text}
+                  placeholderTextColor={colors.textTertiary}
                   fontSize="$4"
                   height={45}
                   px="$4"
@@ -255,12 +256,12 @@ const SignupScreen = () => {
           left={0}
           right={0}
           borderTopWidth={1}
-          borderTopColor={`${Colors.dark.border}40`}
-          backgroundColor={Colors.dark.background}
+          borderTopColor={`${colors.border}40`}
+          backgroundColor={colors.background}
         >
           <Button
-            backgroundColor={Colors.dark.primary}
-            pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+            backgroundColor={colors.primary}
+            pressStyle={{ backgroundColor: colors.primaryDark }}
             onPress={handleSignup}
             disabled={isLoading}
             size="$5"
