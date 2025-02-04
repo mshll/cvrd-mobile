@@ -39,6 +39,7 @@ import toastConfig from '@/config/toastConfig';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ColorSchemeProvider } from '@/context/ColorSchemeContext';
+import { getToken } from '@/api/storage';
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,33 @@ const LoadingScreen = () => (
     <Spinner size="large" color="$color" />
   </YStack>
 );
+
+const Navigation = () => {
+  const { user, setUser } = useAuthContext();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // await deleteToken();
+        const token = await getToken();
+        if (token) {
+          setUser(token);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [setUser]);
+
+  if (isLoading) return <LoadingScreen />;
+  if (!user) return <AuthNav />;
+  return <MainNav />;
+};
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -88,7 +116,7 @@ export default function App() {
                       <BottomSheetModalProvider>
                         <StatusBar animated={true} barStyle="default" />
                         <NavigationContainer>
-                          <MainNav />
+                          <Navigation />
                         </NavigationContainer>
                         <Toast config={toastConfig} />
                       </BottomSheetModalProvider>

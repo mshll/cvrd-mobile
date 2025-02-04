@@ -101,29 +101,23 @@ export const ProfileStack = () => {
 
   return (
     <Stack.Navigator screenOptions={defaultScreenOptions(colors)}>
-      <Stack.Screen
-        name={Paths.PROFILE_SCREEN}
-        component={ProfileScreen}
-        options={{
-          headerRight: () => (
-            <TouchableOpacity onPress={handleLogout} style={{ marginRight: 8 }}>
-              <PowerIcon size={24} color={colors.text} />
-            </TouchableOpacity>
-          ),
-        }}
-      />
+      <Stack.Screen name={Paths.PROFILE} component={ProfileScreen} />
       <Stack.Screen
         name={Paths.PERSONAL_INFO}
         component={PersonalInfoScreen}
         options={{
-          title: 'Personal Information',
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name={Paths.SECURITY}
         component={SecurityScreen}
         options={{
-          title: 'Security',
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

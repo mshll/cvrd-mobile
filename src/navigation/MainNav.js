@@ -106,7 +106,6 @@ const MainNav = () => {
         },
       }}
     >
-      <Stack.Screen name="Auth" component={AuthNav} />
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen name={Paths.EDIT_CARD} component={EditCardScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name={Paths.EDIT_LOCATION} component={EditLocationScreen} options={{ presentation: 'modal' }} />
