@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { Text, XStack } from 'tamagui';
 import DragList from 'react-native-draglist';
 import { Bars3Icon } from 'react-native-heroicons/solid';
@@ -8,6 +8,7 @@ import { Bars3Icon } from 'react-native-heroicons/solid';
 const ITEM_HEIGHT = 56;
 
 const DraggableList = ({ sections, onReorder }) => {
+  const colors = useColors();
   const keyExtractor = (section) => section.id;
 
   const renderItem = ({ item: section, onDragStart, onDragEnd, isActive }) => {
@@ -20,15 +21,15 @@ const DraggableList = ({ sections, onReorder }) => {
         style={[
           styles.itemContainer,
           {
-            backgroundColor: isActive ? Colors.dark.backgroundTertiary : Colors.dark.backgroundSecondary,
+            backgroundColor: isActive ? colors.backgroundTertiary : colors.backgroundSecondary,
             opacity: isActive ? 0.9 : 1,
           },
         ]}
       >
         <XStack ai="center" gap="$3">
-          <Bars3Icon size={20} color={Colors.dark.textSecondary} />
-          <Icon size={20} color={Colors.dark.text} />
-          <Text color={Colors.dark.text} fontSize="$4" fontWeight="500">
+          <Bars3Icon size={20} color={colors.textSecondary} />
+          <Icon size={20} color={colors.text} />
+          <Text color={colors.text} fontSize="$4" fontWeight="500">
             {section.title}
           </Text>
         </XStack>
@@ -43,7 +44,15 @@ const DraggableList = ({ sections, onReorder }) => {
     onReorder(copy);
   };
 
-  return <DragList data={sections} keyExtractor={keyExtractor} onReordered={onReordered} renderItem={renderItem} style={styles.container} />;
+  return (
+    <DragList
+      data={sections}
+      keyExtractor={keyExtractor}
+      onReordered={onReordered}
+      renderItem={renderItem}
+      style={styles.container}
+    />
+  );
 };
 
 const styles = StyleSheet.create({

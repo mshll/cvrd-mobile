@@ -1,5 +1,5 @@
 import { View, Text, YStack, Input, Button, XStack } from 'tamagui';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useState } from 'react';
 import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import { Paths } from '@/navigation/paths';
 import { EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
 
 const LoginScreen = () => {
+  const colors = useColors();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -37,7 +38,7 @@ const LoginScreen = () => {
   };
 
   return (
-    <View f={1} bg={Colors.dark.background}>
+    <View f={1} bg={colors.background}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView
           bounces={false}
@@ -58,15 +59,15 @@ const LoginScreen = () => {
 
             {/* Title */}
             <YStack gap="$2">
-              <Text color={Colors.dark.text} fontSize="$10" fontWeight="900" fontFamily="$archivoBlack">
+              <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="$archivoBlack">
                 Sign in to Your Account
               </Text>
               <XStack ai="center" gap="$2">
-                <Text color={Colors.dark.textSecondary} fontSize="$3">
+                <Text color={colors.textSecondary} fontSize="$3">
                   Don't have an account?
                 </Text>
                 <TouchableOpacity backgroundColor="transparent" onPress={handleSignUp} pressStyle={{ opacity: 0.7 }}>
-                  <Text color={Colors.dark.primary} fontSize="$3" fontWeight="600">
+                  <Text color={colors.primary} fontSize="$3" fontWeight="600">
                     Sign up
                   </Text>
                 </TouchableOpacity>
@@ -76,7 +77,7 @@ const LoginScreen = () => {
             {/* Form */}
             <YStack gap="$4">
               <YStack gap="$2">
-                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                   Email
                 </Text>
                 <Input
@@ -85,11 +86,11 @@ const LoginScreen = () => {
                   placeholder="Enter your email"
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  backgroundColor={Colors.dark.backgroundSecondary}
+                  backgroundColor={colors.backgroundSecondary}
                   borderWidth={1}
-                  borderColor={Colors.dark.border}
-                  color={Colors.dark.text}
-                  placeholderTextColor={Colors.dark.textTertiary}
+                  borderColor={colors.border}
+                  color={colors.text}
+                  placeholderTextColor={colors.textTertiary}
                   fontSize="$4"
                   height={45}
                   px="$4"
@@ -98,7 +99,7 @@ const LoginScreen = () => {
               </YStack>
 
               <YStack gap="$2">
-                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                   Password
                 </Text>
                 <XStack ai="center">
@@ -107,11 +108,11 @@ const LoginScreen = () => {
                     onChangeText={setPassword}
                     placeholder="Enter your password"
                     secureTextEntry={!showPassword}
-                    backgroundColor={Colors.dark.backgroundSecondary}
+                    backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={Colors.dark.border}
-                    color={Colors.dark.text}
-                    placeholderTextColor={Colors.dark.textTertiary}
+                    borderColor={colors.border}
+                    color={colors.text}
+                    placeholderTextColor={colors.textTertiary}
                     fontSize="$4"
                     height={45}
                     px="$4"
@@ -129,16 +130,16 @@ const LoginScreen = () => {
                     p="$2"
                   >
                     {showPassword ? (
-                      <EyeSlashIcon size={20} color={Colors.dark.textSecondary} />
+                      <EyeSlashIcon size={20} color={colors.textSecondary} />
                     ) : (
-                      <EyeIcon size={20} color={Colors.dark.textSecondary} />
+                      <EyeIcon size={20} color={colors.textSecondary} />
                     )}
                   </Button>
                 </XStack>
               </YStack>
               <XStack jc="flex-end">
                 <Button backgroundColor="transparent" onPress={() => {}} pressStyle={{ opacity: 0.7 }}>
-                  <Text color={Colors.dark.primary} fontSize="$3">
+                  <Text color={colors.primary} fontSize="$3">
                     Forgot Password?
                   </Text>
                 </Button>
@@ -158,12 +159,12 @@ const LoginScreen = () => {
           left={0}
           right={0}
           borderTopWidth={1}
-          borderTopColor={`${Colors.dark.border}40`}
-          backgroundColor={Colors.dark.background}
+          borderTopColor={`${colors.border}40`}
+          backgroundColor={colors.background}
         >
           <Button
-            backgroundColor={Colors.dark.primary}
-            pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+            backgroundColor={colors.primary}
+            pressStyle={{ backgroundColor: colors.primaryDark }}
             onPress={handleLogin}
             disabled={isLoading}
             size="$5"

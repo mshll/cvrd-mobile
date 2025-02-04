@@ -48,7 +48,7 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
 
   let cardColor = Colors.cards[backgroundColor] || backgroundColor;
   const cardTheme = getCardTheme(cardColor);
-  const blurTint = cardTheme === 'light' ? 'systemThickMaterialDark' : 'systemThickMaterialLight';
+  const blurTint = cardTheme === 'light' ? 'regular' : 'regular';
   const textColor = cardTheme === 'light' ? 'white' : 'black';
   const { cardImg, logoImg, visaImg } = getCardAssets(type, cardTheme);
 
@@ -65,7 +65,7 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
         {/* Top Row */}
         <YStack gap={8}>
           <XStack style={styles.topRow}>
-            <BlurView intensity={20} tint={blurTint} style={styles.badge}>
+            <BlurView intensity={10} tint={blurTint} style={styles.badge}>
               <Text fontSize={14}>{emoji}</Text>
               <Text
                 fontSize={12}
@@ -94,7 +94,7 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
 
           {/* Status Badges */}
           {(isPaused || isClosed) && (
-            <BlurView intensity={20} tint={blurTint} style={[styles.badge, styles.statusBadge]}>
+            <BlurView intensity={10} tint={blurTint} style={[styles.badge, styles.statusBadge]}>
               {isPaused && <PauseCircleIcon size={16} color={textColor} />}
               {isClosed && <XCircleIcon size={16} color={textColor} />}
               <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600">
@@ -157,8 +157,8 @@ const styles = StyleSheet.create({
   },
   badge: {
     borderRadius: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 14,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

@@ -3,10 +3,11 @@ import { StyleSheet, Platform } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { BlurView } from 'expo-blur';
 import { FullWindowOverlay } from 'react-native-screens';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { View } from 'tamagui';
 
 const BottomSheet = ({ isOpen, onClose, children, aboveAll = true, ...props }) => {
+  const colors = useColors();
   const bottomSheetModalRef = useRef(null);
   const containerComp = useCallback((props) => <FullWindowOverlay>{props.children}</FullWindowOverlay>, []);
   const containerComponent = Platform.OS === 'ios' ? containerComp : undefined;
@@ -21,10 +22,10 @@ const BottomSheet = ({ isOpen, onClose, children, aboveAll = true, ...props }) =
         style={{ backgroundColor: 'transparent', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
       >
         <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
-        <View f={1} bg={Colors.dark.backgroundSecondary} o={0.5} />
+        <View f={1} bg={colors.backgroundSecondary} o={0.5} />
       </BottomSheetBackdrop>
     ),
-    []
+    [colors]
   );
 
   // Present/dismiss handlers
@@ -58,12 +59,11 @@ const BottomSheet = ({ isOpen, onClose, children, aboveAll = true, ...props }) =
       ref={bottomSheetModalRef}
       backdropComponent={renderBackdrop}
       backgroundStyle={{
-        backgroundColor: Colors.dark.background,
+        backgroundColor: colors.background,
       }}
       handleIndicatorStyle={{
-        backgroundColor: Colors.dark.backgroundTertiary,
+        backgroundColor: colors.backgroundTertiary,
       }}
-      // containerComponent={Platform.OS === 'ios' ? containerComponent : undefined}
       containerComponent={aboveAll ? containerComponent : undefined}
       onDismiss={handleDismiss}
       {...props}

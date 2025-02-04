@@ -1,3 +1,6 @@
+import { useColorScheme } from 'react-native';
+import { createContext, useContext } from 'react';
+
 export const Colors = {
   dark: {
     primary: '#d6515b',
@@ -13,17 +16,17 @@ export const Colors = {
     borderSecondary: '#333d51',
   },
   light: {
-    primary: '#d6515b',
-    primaryDark: '#b9444d',
-    background: '#ffffff',
-    backgroundSecondary: '#f5f5f5',
-    backgroundTertiary: '#e0e0e0',
-    card: '#f5f5f5',
-    text: '#0f1218',
-    textSecondary: '#666666',
-    textTertiary: '#999999',
-    border: '#e0e0e0',
-    borderSecondary: '#cccccc',
+    primary: '#d6515b', // Keep brand color consistent
+    primaryDark: '#b9444d', // Slightly darker for pressed states
+    background: '#ffffff', // Pure white base
+    backgroundSecondary: '#f8f9fa', // Subtle off-white for layered surfaces
+    backgroundTertiary: '#e9ecef', // Light gray for contrast
+    card: '#ffffff', // Clean white for cards/modals
+    text: '#212529', // High-contrast charcoal
+    textSecondary: '#495057', // Medium gray for secondary text
+    textTertiary: '#868e96', // Light gray for disabled/tertiary
+    border: '#dee2e6', // Soft borders for light mode
+    borderSecondary: '#ced4da', // Slightly darker borders when needed
   },
   cards: {
     red: '#d6515b',
@@ -40,4 +43,19 @@ export const Colors = {
     brown: '#A65C39',
     gray: '#808080',
   },
+};
+
+// Create a context for the color scheme
+export const ColorSchemeContext = createContext(null);
+
+// Custom hook to get the current color scheme
+export const useAppColorScheme = () => {
+  const systemColorScheme = useColorScheme();
+  return systemColorScheme || 'light'; // Default to light if system preference is not available
+};
+
+// Custom hook to get the current colors based on the color scheme
+export const useColors = () => {
+  const colorScheme = useAppColorScheme();
+  return Colors[colorScheme];
 };
