@@ -23,6 +23,7 @@ import { Paths } from '@/navigation/paths';
 import { ArrowUpOnSquareIcon } from 'react-native-heroicons/outline';
 import BottomSheet from '@/components/BottomSheet';
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import SpendLimitMenu from '@/components/SpendLimitMenu';
 
 const MAP_HEIGHT = 200;
 
@@ -132,129 +133,27 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
 };
 
 const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
+
   const colors = useColors();
   const { showActionSheetWithOptions } = useActionSheet();
+
   const [spendingLimit, setSpendingLimit] = useState(card.spending_limit?.toString() || '');
   const [durationLimit, setDurationLimit] = useState(card.duration_limit || 'per_transaction');
 
-  const handleSave = useCallback(() => {
-    if (durationLimit === 'no_limit') {
-      onSave({
-        spending_limit: null,
-        duration_limit: null,
-        remaining_limit: null,
-      });
-    } else {
-      onSave({
-        spending_limit: parseFloat(spendingLimit),
-        duration_limit: durationLimit,
-        remaining_limit: parseFloat(spendingLimit),
-      });
-    }
-    onClose();
-  }, [spendingLimit, durationLimit, onSave, onClose]);
-
-  const allOptions = [...DURATION_OPTIONS, { name: 'No Limit', value: 'no_limit' }];
-  const numRows = Math.ceil(allOptions.length / 2);
-
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} aboveAll={false}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <YStack gap="$5" px="$4" mt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily={'$archivoBlack'}>
-            Spend Limit
-          </Text>
 
-          <YStack gap="$5">
-            {/* Amount Input */}
-            <XStack
-              backgroundColor={colors.backgroundSecondary}
-              borderRadius={12}
-              height={70}
-              alignItems="center"
-              paddingHorizontal="$4"
-              opacity={durationLimit === 'no_limit' ? 0.5 : 1}
-              borderWidth={1}
-              borderColor={colors.border}
-            >
-              <Text color={colors.text} fontSize="$8" fontWeight="700" fontFamily={'$archivoBlack'} mr="$2">
-                KD
-              </Text>
-              <Input
-                value={durationLimit === 'no_limit' ? '' : spendingLimit}
-                onChangeText={setSpendingLimit}
-                placeholder="0.00"
-                keyboardType="decimal-pad"
-                backgroundColor="transparent"
-                borderWidth={0}
-                color={colors.text}
-                placeholderTextColor={colors.textTertiary}
-                fontSize="$8"
-                fontFamily={'$archivoBlack'}
-                p={0}
-                fontWeight="700"
-                textAlign="left"
-                flex={1}
-                editable={durationLimit !== 'no_limit'}
-                returnKeyType="done"
-                onSubmitEditing={Keyboard.dismiss}
-              />
-            </XStack>
+      <SpendLimitMenu
+        spendingLimit={spendingLimit}
+        setSpendingLimit={setSpendingLimit}
+        durationLimit={durationLimit}
+        setDurationLimit={setDurationLimit}
+        onSave={(updates) => {
+          onSave(updates);
+          onClose();
+        }}
+      />
 
-            {/* Period Selection */}
-            <XStack flexWrap="wrap" gap="$1">
-              {allOptions.map((option, index) => {
-                const isFirstRow = index < 2;
-                const isLastRow = index === allOptions.length - 1;
-                const isFirstInRow = index % 2 === 0;
-                const isLastInRow = index % 2 === 1 || index === allOptions.length - 1;
-
-                let borderRadius = {
-                  borderTopLeftRadius: isFirstRow && isFirstInRow ? 12 : 0,
-                  borderTopRightRadius: isFirstRow && isLastInRow ? 12 : 0,
-                  borderBottomLeftRadius: isLastRow && isFirstInRow ? 12 : 0,
-                  borderBottomRightRadius: isLastRow && isLastInRow ? 12 : 0,
-                };
-
-                return (
-                  <Button
-                    key={option.value}
-                    backgroundColor={durationLimit === option.value ? colors.primary : colors.backgroundSecondary}
-                    pressStyle={{
-                      backgroundColor: durationLimit === option.value ? colors.primaryDark : colors.backgroundTertiary,
-                    }}
-                    onPress={() => setDurationLimit(option.value)}
-                    flex={isLastRow && index === allOptions.length - 1 ? 2 : 1}
-                    height={50}
-                    minWidth={isLastRow && index === allOptions.length - 1 ? '100%' : '48%'}
-                    {...borderRadius}
-                    borderWidth={1}
-                    borderColor={durationLimit === option.value ? colors.primary : colors.border}
-                  >
-                    <Text color={durationLimit === option.value ? 'white' : colors.text} fontSize="$3" fontWeight="600">
-                      {option.name}
-                    </Text>
-                  </Button>
-                );
-              })}
-            </XStack>
-          </YStack>
-
-          {/* Save Button */}
-          <Button
-            backgroundColor={colors.primary}
-            pressStyle={{ backgroundColor: colors.primaryDark }}
-            onPress={handleSave}
-            size="$5"
-            borderRadius={12}
-            mt="$2"
-          >
-            <Text color="white" fontSize="$4" fontWeight="600">
-              Save
-            </Text>
-          </Button>
-        </YStack>
-      </TouchableWithoutFeedback>
     </BottomSheet>
   );
 };
