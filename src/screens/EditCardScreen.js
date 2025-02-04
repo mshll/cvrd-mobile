@@ -163,13 +163,15 @@ const EditCardScreen = () => {
                 onChangeText={setCardName}
                 placeholder="Enter card name"
                 backgroundColor={Colors.dark.backgroundSecondary}
-                borderWidth={0}
+                borderWidth={1}
+                borderColor={Colors.dark.border}
                 color={Colors.dark.text}
                 placeholderTextColor={Colors.dark.textTertiary}
                 fontSize="$4"
                 p={0}
                 px="$4"
                 fontWeight="700"
+                borderRadius={12}
               />
             </YStack>
 
@@ -186,8 +188,8 @@ const EditCardScreen = () => {
                     aspectRatio={1}
                     borderRadius={12}
                     backgroundColor={Colors.dark.backgroundSecondary}
-                    borderWidth={emoji === emojiItem ? 2 : 0}
-                    borderColor={Colors.dark.primary}
+                    borderWidth={1}
+                    borderColor={emoji === emojiItem ? Colors.dark.primary : Colors.dark.border}
                     pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
                     onPress={() => setEmoji(emojiItem)}
                     p={0}
@@ -200,6 +202,8 @@ const EditCardScreen = () => {
                   aspectRatio={1}
                   borderRadius={12}
                   backgroundColor={Colors.dark.backgroundSecondary}
+                  borderWidth={1}
+                  borderColor={Colors.dark.border}
                   pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
                   onPress={() => {
                     const lastSelectedIndex = emojiGrid.indexOf(emoji);
@@ -267,13 +271,14 @@ const EditCardScreen = () => {
           {/* Reset Button */}
           <Button
             backgroundColor={'transparent'}
-            pressStyle={{ opacity: 0.7, backgroundColor: 'transparent', borderWidth: 0 }}
+            pressStyle={{ opacity: 0.7 }}
             onPress={resetToDefaults}
             size="$3"
             borderRadius={8}
             flexDirection="row"
             gap="$1"
             mb="-$2"
+            borderWidth={0}
           >
             <ArrowPathIcon size={16} color={Colors.dark.primary} />
             <Text color={Colors.dark.primary} fontSize="$3" fontWeight="600">
@@ -282,13 +287,13 @@ const EditCardScreen = () => {
           </Button>
 
           {/* Bottom Buttons */}
-          <YStack width="100%" gap="$2.5" borderTopWidth={1} borderTopColor={`${Colors.dark.border}40`} pt="$4" mt="$4">
+          <YStack width="100%" gap="$2.5" borderTopWidth={1} borderTopColor={Colors.dark.border} pt="$4" mt="$4">
             <Button
               backgroundColor={Colors.dark.primary}
               pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
               onPress={handleSave}
               size="$5"
-              borderRadius={15}
+              borderRadius={12}
             >
               <Text color="white" fontSize="$4" fontWeight="600">
                 Save
@@ -299,7 +304,9 @@ const EditCardScreen = () => {
               pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
               onPress={() => navigation.goBack()}
               size="$5"
-              borderRadius={15}
+              borderRadius={12}
+              borderWidth={1}
+              borderColor={Colors.dark.border}
             >
               <Text color={Colors.dark.text} fontSize="$4" fontWeight="600">
                 Cancel

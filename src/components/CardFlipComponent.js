@@ -211,11 +211,7 @@ const CardFlipComponent = ({ cardId }) => {
           {/* Copy Button */}
           {isFlipped && (
             <TouchableOpacity onPress={handleCopyCardNumber} style={styles.copyButton} hitSlop={10}>
-              <BlurView
-                intensity={20}
-                tint={cardTheme === 'light' ? 'systemThickMaterialDark' : 'systemThickMaterialLight'}
-                style={styles.blurView}
-              >
+              <BlurView intensity={10} tint={'regular'} style={styles.blurView}>
                 <ClipboardDocumentIcon size={14} color={textColor} />
                 <Text color={textColor} fos={12} fontWeight="600" ml="$2">
                   Copy

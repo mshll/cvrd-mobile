@@ -7,11 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Paths } from '../navigation/paths';
 import { Text } from 'tamagui';
 import CardComponent from './CardComponent';
-import {
-  WINDOW_WIDTH,
-  CARD_WIDTH as CARD_WIDTH_DEFAULT,
-  CARD_HEIGHT as CARD_HEIGHT_DEFAULT,
-} from '@/utils/cardUtils';
+import { WINDOW_WIDTH, CARD_WIDTH as CARD_WIDTH_DEFAULT, CARD_HEIGHT as CARD_HEIGHT_DEFAULT } from '@/utils/cardUtils';
 
 const CARD_SCALE = 0.9;
 const CARD_HEIGHT = CARD_HEIGHT_DEFAULT * CARD_SCALE;
@@ -111,7 +107,8 @@ function CardCarousel({ title, data, icon: Icon }) {
           showsHorizontalScrollIndicator={false}
           snapToInterval={ITEM_WIDTH}
           decelerationRate={0.8}
-          bounces={true}
+          bounces={false}
+          snapToAlignment="start"
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
             useNativeDriver: true,
           })}

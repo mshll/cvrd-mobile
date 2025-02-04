@@ -101,7 +101,6 @@ function UserGreeting() {
 }
 
 function SpendingStats() {
-
   return (
     <YStack gap="$3" mb="$2" px={16}>
       <XStack ai="center" mb="$2" gap="$2">
@@ -111,14 +110,7 @@ function SpendingStats() {
         </Text>
       </XStack>
       <XStack gap="$3">
-        <Card 
-          f={1} 
-          bg={Colors.dark.card} 
-          p="$4" 
-          br={12}
-          borderWidth={1}
-          borderColor={Colors.dark.border}
-        >
+        <Card f={1} bg={Colors.dark.card} p="$4" br={12} borderWidth={1} borderColor={Colors.dark.border}>
           <Text color={Colors.dark.textSecondary} fontSize="$3" mb="$2">
             Today
           </Text>
@@ -126,14 +118,7 @@ function SpendingStats() {
             {formatCurrency(user.spend_today)}
           </Text>
         </Card>
-        <Card 
-          f={1} 
-          bg={Colors.dark.card} 
-          p="$4" 
-          br={12}
-          borderWidth={1}
-          borderColor={Colors.dark.border}
-        >
+        <Card f={1} bg={Colors.dark.card} p="$4" br={12} borderWidth={1} borderColor={Colors.dark.border}>
           <Text color={Colors.dark.textSecondary} fontSize="$3" mb="$2">
             This Month
           </Text>
@@ -195,7 +180,7 @@ function SpendingSummary() {
 
 function CustomizeButton({ onPress }) {
   return (
-    <XStack >
+    <XStack>
       <Button
         f={1}
         size="$5"
@@ -266,7 +251,18 @@ function HomeScreen() {
   const sections = useMemo(() => {
     return order.map((sectionId) => ({
       ...SECTION_CONFIG[sectionId],
-      data: (cardsByType[SECTION_CONFIG[sectionId].title.split(' ')[0]] || []).map(getCardDisplayData),
+      data: (cardsByType[SECTION_CONFIG[sectionId].title.split(' ')[0]] || [])
+        .sort((a, b) => {
+          // Helper function to get priority (0 for active, 1 for paused, 2 for closed)
+          const getPriority = (card) => {
+            if (card.is_closed) return 2;
+            if (card.is_paused) return 1;
+            return 0;
+          };
+
+          return getPriority(a) - getPriority(b);
+        })
+        .map(getCardDisplayData),
     }));
   }, [order, cardsByType]);
 

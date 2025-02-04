@@ -27,9 +27,10 @@ const EditLocationScreen = () => {
 
   // State
   const [location, setLocation] = useState(
-    initialLocation || (card?.latitude && card?.longitude 
-      ? { latitude: card.latitude, longitude: card.longitude }
-      : { latitude: 29.3759, longitude: 47.9774 })
+    initialLocation ||
+      (card?.latitude && card?.longitude
+        ? { latitude: card.latitude, longitude: card.longitude }
+        : { latitude: 29.3759, longitude: 47.9774 })
   );
   const [radius, setRadius] = useState(initialRadius || card?.radius || DEFAULT_RADIUS);
   const [showHelp, setShowHelp] = useState(false);
@@ -106,6 +107,8 @@ const EditLocationScreen = () => {
           pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
           onPress={() => navigation.goBack()}
           icon={<ChevronLeftIcon size={20} color={Colors.dark.text} />}
+          borderWidth={1}
+          borderColor={Colors.dark.border}
         />
         <TouchableOpacity
           onPress={() => {
@@ -113,7 +116,16 @@ const EditLocationScreen = () => {
             setIsEditingRadius(true);
           }}
         >
-          <XStack backgroundColor={Colors.dark.backgroundSecondary} px="$3" py="$2" br={8} gap="$2" ai="center">
+          <XStack
+            backgroundColor={Colors.dark.backgroundSecondary}
+            px="$3"
+            py="$2"
+            br={8}
+            gap="$2"
+            ai="center"
+            borderWidth={1}
+            borderColor={Colors.dark.border}
+          >
             {isEditingRadius ? (
               <Input
                 keyboardType="decimal-pad"
@@ -149,6 +161,8 @@ const EditLocationScreen = () => {
           pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
           onPress={() => setShowHelp(true)}
           icon={<QuestionMarkCircleIcon size={20} color={Colors.dark.text} />}
+          borderWidth={1}
+          borderColor={Colors.dark.border}
         />
       </XStack>
 
@@ -161,7 +175,9 @@ const EditLocationScreen = () => {
         gap="$4"
         backgroundColor={Colors.dark.backgroundSecondary}
         p="$4"
-        br={15}
+        br={12}
+        borderWidth={1}
+        borderColor={Colors.dark.border}
       >
         <YStack gap="$2">
           <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
@@ -195,7 +211,7 @@ const EditLocationScreen = () => {
           pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
           onPress={handleSave}
           size="$5"
-          br="$5"
+          br={12}
         >
           <Text color="white" fontSize="$4" fontWeight="600" fontFamily={'$archivo'}>
             Save Changes

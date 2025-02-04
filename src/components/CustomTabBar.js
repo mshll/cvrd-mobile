@@ -10,7 +10,7 @@ export function CustomTabBar({ state, descriptors, navigation }) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 10) }]}>
+    <View style={[styles.container, { paddingBottom: insets.bottom - 15 }]}>
       <View style={styles.background}>
         <View style={styles.content}>
           {state.routes.map((route, index) => {

@@ -13,11 +13,14 @@ import EditCardScreen from '@/screens/EditCardScreen';
 import EditLocationScreen from '@/screens/EditLocationScreen';
 import { PowerIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
+import PersonalInfoScreen from '@/screens/PersonalInfoScreen';
+import SecurityScreen from '@/screens/SecurityScreen';
 
 const Stack = createNativeStackNavigator();
 
 const defaultScreenOptions = {
   headerShown: true,
+  headerBackButtonDisplayMode: 'minimal',
   headerStyle: {
     backgroundColor: Colors.dark.background,
   },
@@ -25,6 +28,14 @@ const defaultScreenOptions = {
   contentStyle: {
     backgroundColor: Colors.dark.background,
   },
+  headerTitleStyle: {
+    fontFamily: '$archivoBlack',
+    fontSize: 20,
+  },
+  headerBackTitleVisible: false,
+  animation: 'slide_from_right',
+  gestureEnabled: true,
+  gestureDirection: 'horizontal',
 };
 
 const modalScreenOptions = {
@@ -96,6 +107,20 @@ export const ProfileStack = () => {
               <PowerIcon size={24} color={Colors.dark.text} />
             </TouchableOpacity>
           ),
+        }}
+      />
+      <Stack.Screen
+        name={Paths.PERSONAL_INFO}
+        component={PersonalInfoScreen}
+        options={{
+          title: 'Personal Information',
+        }}
+      />
+      <Stack.Screen
+        name={Paths.SECURITY}
+        component={SecurityScreen}
+        options={{
+          title: 'Security',
         }}
       />
     </Stack.Navigator>

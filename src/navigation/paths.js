@@ -17,6 +17,8 @@ export const Paths = {
   ADD_CARD_SCREEN: 'AddCardScreen',
   CARD_CONFIG_SCREEN: 'CardConfigScreen',
   CARD_REVIEW_SCREEN: 'CardReviewScreen',
+  PERSONAL_INFO: 'PersonalInfo',
+  SECURITY: 'Security',
 
   // Auth paths
   ONBOARDING: 'Onboarding',

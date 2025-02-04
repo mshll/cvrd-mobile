@@ -48,7 +48,6 @@ const LoadingScreen = () => (
 );
 
 export default function App() {
-  const colorScheme = useColorScheme();
   const [fontsLoaded] = useFonts({
     Inter_100Thin,
     Inter_200ExtraLight,
@@ -71,6 +70,7 @@ export default function App() {
     Archivo_900Black,
     Archivo_900Black_Italic,
   });
+  const colorScheme = useColorScheme();
 
   if (!fontsLoaded) return null;
 

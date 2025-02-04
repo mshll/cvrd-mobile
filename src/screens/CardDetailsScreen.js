@@ -39,12 +39,14 @@ const ActionButton = ({ onPress, children }) => (
   <Button
     width={60}
     height={60}
-    borderRadius={15}
+    borderRadius={12}
     backgroundColor={Colors.dark.backgroundSecondary}
     pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
     onPress={onPress}
     alignItems="center"
     justifyContent="center"
+    borderWidth={1}
+    borderColor={Colors.dark.border}
   >
     {children}
   </Button>
@@ -54,9 +56,12 @@ const EditButton = ({ onPress }) => (
   <Button
     size="$2"
     px="$3"
-    backgroundColor={Colors.dark.backgroundTertiary}
-    pressStyle={{ backgroundColor: Colors.dark.border }}
+    backgroundColor={Colors.dark.backgroundSecondary}
+    pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
     onPress={onPress}
+    borderWidth={1}
+    borderColor={Colors.dark.border}
+    borderRadius={8}
   >
     <Text color={Colors.dark.text} fontSize="$2" fontWeight="600">
       Edit
@@ -73,8 +78,16 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
   };
 
   return (
-    <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary }}>
-      <View style={{ height: MAP_HEIGHT, borderRadius: 16, overflow: 'hidden' }}>
+    <View
+      style={{
+        borderRadius: 12,
+        overflow: 'hidden',
+        backgroundColor: Colors.dark.backgroundSecondary,
+        borderWidth: 1,
+        borderColor: Colors.dark.border,
+      }}
+    >
+      <View style={{ height: MAP_HEIGHT, borderRadius: 12, overflow: 'hidden' }}>
         <MapView
           style={StyleSheet.absoluteFill}
           initialRegion={region}
@@ -148,11 +161,13 @@ const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
             {/* Amount Input */}
             <XStack
               backgroundColor={Colors.dark.backgroundSecondary}
-              borderRadius={16}
+              borderRadius={12}
               height={70}
               alignItems="center"
               paddingHorizontal="$4"
               opacity={durationLimit === 'no_limit' ? 0.5 : 1}
+              borderWidth={1}
+              borderColor={Colors.dark.border}
             >
               <Text color={Colors.dark.text} fontSize="$8" fontWeight="700" fontFamily={'$archivoBlack'} mr="$2">
                 KD
@@ -208,6 +223,8 @@ const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
                     height={50}
                     minWidth={isLastRow && index === allOptions.length - 1 ? '100%' : '48%'}
                     {...borderRadius}
+                    borderWidth={1}
+                    borderColor={durationLimit === option.value ? Colors.dark.primary : Colors.dark.border}
                   >
                     <Text
                       color={durationLimit === option.value ? 'white' : Colors.dark.text}
@@ -320,7 +337,15 @@ const CardDetailsScreen = () => {
         <YStack width="100%" px="$4" gap="$4">
           {/* Spending Limit Section */}
           {card.spending_limit ? (
-            <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary }}>
+            <View
+              style={{
+                borderRadius: 12,
+                overflow: 'hidden',
+                backgroundColor: Colors.dark.backgroundSecondary,
+                borderWidth: 1,
+                borderColor: Colors.dark.border,
+              }}
+            >
               <YStack p="$4" gap="$3">
                 <XStack jc="space-between" ai="center">
                   <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
@@ -376,12 +401,12 @@ const CardDetailsScreen = () => {
             <Button
               onPress={() => setShowSpendLimitSheet(true)}
               height={120}
-              borderRadius={16}
+              borderRadius={12}
               borderWidth={1}
               borderStyle="dashed"
               borderColor={Colors.dark.border}
-              backgroundColor="transparent"
-              pressStyle={{ backgroundColor: Colors.dark.backgroundSecondary }}
+              backgroundColor={Colors.dark.backgroundSecondary}
+              pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
               alignItems="center"
               justifyContent="center"
             >
@@ -405,7 +430,15 @@ const CardDetailsScreen = () => {
           )}
 
           {/* Additional Details */}
-          <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary }}>
+          <View
+            style={{
+              borderRadius: 12,
+              overflow: 'hidden',
+              backgroundColor: Colors.dark.backgroundSecondary,
+              borderWidth: 1,
+              borderColor: Colors.dark.border,
+            }}
+          >
             <YStack p="$4" gap="$4">
               <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
                 Card Details
