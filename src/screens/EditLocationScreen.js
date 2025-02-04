@@ -1,5 +1,5 @@
 import { View, Text, YStack, XStack, Button, Input } from 'tamagui';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useState, useCallback, useRef } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useCards } from '@/hooks/useCards';
@@ -15,6 +15,7 @@ const MAX_RADIUS = 100; // in km
 const MIN_RADIUS = 0.2; // in km
 
 const EditLocationScreen = () => {
+  const colors = useColors();
   const navigation = useNavigation();
   const route = useRoute();
   const { cardId, initialLocation, initialRadius, onSave } = route.params;
@@ -23,13 +24,14 @@ const EditLocationScreen = () => {
   const mapRef = useRef(null);
 
   // Get the appropriate color - either from existing card or use primary color
-  const markerColor = card ? Colors.cards[card.card_color] : Colors.dark.primary;
+  const markerColor = card ? Colors.cards[card.card_color] : colors.primary;
 
   // State
   const [location, setLocation] = useState(
-    initialLocation || (card?.latitude && card?.longitude 
-      ? { latitude: card.latitude, longitude: card.longitude }
-      : { latitude: 29.3759, longitude: 47.9774 })
+    initialLocation ||
+      (card?.latitude && card?.longitude
+        ? { latitude: card.latitude, longitude: card.longitude }
+        : { latitude: 29.3759, longitude: 47.9774 })
   );
   const [radius, setRadius] = useState(initialRadius || card?.radius || DEFAULT_RADIUS);
   const [showHelp, setShowHelp] = useState(false);
@@ -72,7 +74,7 @@ const EditLocationScreen = () => {
   };
 
   return (
-    <View f={1} backgroundColor={Colors.dark.background}>
+    <View f={1} backgroundColor={colors.background}>
       <StatusBar barStyle="light-content" />
 
       {/* Full Screen Map */}
@@ -102,10 +104,12 @@ const EditLocationScreen = () => {
         <Button
           size="$3"
           circular
-          backgroundColor={Colors.dark.backgroundSecondary}
-          pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+          backgroundColor={colors.backgroundSecondary}
+          pressStyle={{ backgroundColor: colors.backgroundTertiary }}
           onPress={() => navigation.goBack()}
-          icon={<ChevronLeftIcon size={20} color={Colors.dark.text} />}
+          icon={<ChevronLeftIcon size={20} color={colors.text} />}
+          borderWidth={1}
+          borderColor={colors.border}
         />
         <TouchableOpacity
           onPress={() => {
@@ -113,7 +117,16 @@ const EditLocationScreen = () => {
             setIsEditingRadius(true);
           }}
         >
-          <XStack backgroundColor={Colors.dark.backgroundSecondary} px="$3" py="$2" br={8} gap="$2" ai="center">
+          <XStack
+            backgroundColor={colors.backgroundSecondary}
+            px="$3"
+            py="$2"
+            br={8}
+            gap="$2"
+            ai="center"
+            borderWidth={1}
+            borderColor={colors.border}
+          >
             {isEditingRadius ? (
               <Input
                 keyboardType="decimal-pad"
@@ -127,17 +140,17 @@ const EditLocationScreen = () => {
                 width={80}
                 textAlign="center"
                 fontSize="$4"
-                color={Colors.dark.text}
+                color={colors.text}
                 borderWidth={0}
                 backgroundColor="transparent"
                 fontFamily="$archivoBlack"
               />
             ) : (
               <>
-                <Text color={Colors.dark.text} fontSize="$4" fontFamily="$archivoBlack">
+                <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
                   {radius.toFixed(1)} km
                 </Text>
-                <PencilIcon size={14} color={Colors.dark.textSecondary} />
+                <PencilIcon size={14} color={colors.textSecondary} />
               </>
             )}
           </XStack>
@@ -145,10 +158,12 @@ const EditLocationScreen = () => {
         <Button
           size="$3"
           circular
-          backgroundColor={Colors.dark.backgroundSecondary}
-          pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+          backgroundColor={colors.backgroundSecondary}
+          pressStyle={{ backgroundColor: colors.backgroundTertiary }}
           onPress={() => setShowHelp(true)}
-          icon={<QuestionMarkCircleIcon size={20} color={Colors.dark.text} />}
+          icon={<QuestionMarkCircleIcon size={20} color={colors.text} />}
+          borderWidth={1}
+          borderColor={colors.border}
         />
       </XStack>
 
@@ -159,16 +174,18 @@ const EditLocationScreen = () => {
         left="$4"
         right="$4"
         gap="$4"
-        backgroundColor={Colors.dark.backgroundSecondary}
+        backgroundColor={colors.backgroundSecondary}
         p="$4"
-        br={15}
+        br={12}
+        borderWidth={1}
+        borderColor={colors.border}
       >
         <YStack gap="$2">
-          <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+          <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
             Coverage Radius
           </Text>
           <XStack ai="center" gap="$2">
-            <Text color={Colors.dark.textSecondary} fontSize="$3">
+            <Text color={colors.textSecondary} fontSize="$3">
               {MIN_RADIUS}
             </Text>
             <View f={1} h={40} jc="center">
@@ -180,22 +197,22 @@ const EditLocationScreen = () => {
                 step={0.1}
                 onValueChange={setRadius}
                 minimumTrackTintColor={markerColor}
-                maximumTrackTintColor={Colors.dark.backgroundTertiary}
+                maximumTrackTintColor={colors.backgroundTertiary}
                 thumbTintColor={markerColor}
               />
             </View>
-            <Text color={Colors.dark.textSecondary} fontSize="$3">
+            <Text color={colors.textSecondary} fontSize="$3">
               {MAX_RADIUS}
             </Text>
           </XStack>
         </YStack>
 
         <Button
-          backgroundColor={Colors.dark.primary}
-          pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+          backgroundColor={colors.primary}
+          pressStyle={{ backgroundColor: colors.primaryDark }}
           onPress={handleSave}
           size="$5"
-          br="$5"
+          br={12}
         >
           <Text color="white" fontSize="$4" fontWeight="600" fontFamily={'$archivo'}>
             Save Changes
@@ -206,27 +223,27 @@ const EditLocationScreen = () => {
       {/* Help Sheet */}
       <BottomSheet isOpen={showHelp} onClose={() => setShowHelp(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
             How to Edit Location
           </Text>
           <YStack gap="$3">
             <XStack gap="$2" ai="center">
-              <View w={8} h={8} br={4} bg={Colors.dark.primary} />
-              <Text color={Colors.dark.text} fontSize="$4">
+              <View w={8} h={8} br={4} bg={colors.primary} />
+              <Text color={colors.text} fontSize="$4">
                 Move Pin
               </Text>
             </XStack>
-            <Text color={Colors.dark.textSecondary} fontSize="$3" pl={20}>
+            <Text color={colors.textSecondary} fontSize="$3" pl={20}>
               Press and hold anywhere on the map to move the pin, or drag the existing pin
             </Text>
 
             <XStack gap="$2" ai="center">
-              <View w={8} h={8} br={4} bg={Colors.dark.primary} />
-              <Text color={Colors.dark.text} fontSize="$4">
+              <View w={8} h={8} br={4} bg={colors.primary} />
+              <Text color={colors.text} fontSize="$4">
                 Adjust Radius
               </Text>
             </XStack>
-            <Text color={Colors.dark.textSecondary} fontSize="$3" pl={20}>
+            <Text color={colors.textSecondary} fontSize="$3" pl={20}>
               Use the slider to adjust the radius, or tap the radius display at the top to enter a specific value
               between {MIN_RADIUS} and {MAX_RADIUS} km
             </Text>

@@ -1,5 +1,5 @@
 import { View, Text, YStack, Input, Button, XStack } from 'tamagui';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useState } from 'react';
 import {
   StyleSheet,
@@ -22,6 +22,7 @@ const GENDER_OPTIONS = [
 ];
 
 const SignupDetailsScreen = () => {
+  const colors = useColors();
   const [civilId, setCivilId] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -87,7 +88,7 @@ const SignupDetailsScreen = () => {
   };
 
   return (
-    <View f={1} bg={Colors.dark.background}>
+    <View f={1} bg={colors.background}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView
           bounces={false}
@@ -103,16 +104,16 @@ const SignupDetailsScreen = () => {
               <Button
                 size="$3"
                 circular
-                backgroundColor={Colors.dark.backgroundSecondary}
-                pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+                backgroundColor={colors.backgroundSecondary}
+                pressStyle={{ backgroundColor: colors.backgroundTertiary }}
                 onPress={handleBack}
                 borderWidth={1}
-                borderColor={Colors.dark.border}
+                borderColor={colors.border}
                 mr="$4"
               >
-                <ChevronLeftIcon size={20} color={Colors.dark.text} />
+                <ChevronLeftIcon size={20} color={colors.text} />
               </Button>
-              <Text color={Colors.dark.text} fontSize="$6" fontFamily="$archivoBlack">
+              <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
                 Additional Details
               </Text>
             </XStack>
@@ -121,7 +122,7 @@ const SignupDetailsScreen = () => {
             <YStack gap="$4">
               {/* Civil ID */}
               <YStack gap="$2">
-                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                   Civil ID
                 </Text>
                 <Input
@@ -130,18 +131,18 @@ const SignupDetailsScreen = () => {
                   placeholder="Enter your Civil ID"
                   keyboardType="numeric"
                   maxLength={12}
-                  backgroundColor={Colors.dark.backgroundSecondary}
+                  backgroundColor={colors.backgroundSecondary}
                   borderWidth={1}
-                  borderColor={errors.civilId ? Colors.dark.primary : Colors.dark.border}
-                  color={Colors.dark.text}
-                  placeholderTextColor={Colors.dark.textTertiary}
+                  borderColor={errors.civilId ? colors.primary : colors.border}
+                  color={colors.text}
+                  placeholderTextColor={colors.textTertiary}
                   fontSize="$4"
                   height={45}
                   px="$4"
                   br={12}
                 />
                 {errors.civilId && (
-                  <Text color={Colors.dark.primary} fontSize="$2">
+                  <Text color={colors.primary} fontSize="$2">
                     {errors.civilId}
                   </Text>
                 )}
@@ -149,28 +150,28 @@ const SignupDetailsScreen = () => {
 
               {/* Date of Birth */}
               <YStack gap="$2">
-                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                   Date of Birth
                 </Text>
                 <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                   <XStack
-                    backgroundColor={Colors.dark.backgroundSecondary}
+                    backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={errors.dateOfBirth ? Colors.dark.primary : Colors.dark.border}
+                    borderColor={errors.dateOfBirth ? colors.primary : colors.border}
                     br={12}
                     height={45}
                     px="$4"
                     ai="center"
                     jc="space-between"
                   >
-                    <Text color={dateOfBirth ? Colors.dark.text : Colors.dark.textTertiary} fontSize="$4">
+                    <Text color={dateOfBirth ? colors.text : colors.textTertiary} fontSize="$4">
                       {dateOfBirth ? dateOfBirth.toLocaleDateString() : 'Select date'}
                     </Text>
-                    <CalendarIcon size={20} color={Colors.dark.textSecondary} />
+                    <CalendarIcon size={20} color={colors.textSecondary} />
                   </XStack>
                 </TouchableOpacity>
                 {errors.dateOfBirth && (
-                  <Text color={Colors.dark.primary} fontSize="$2">
+                  <Text color={colors.primary} fontSize="$2">
                     {errors.dateOfBirth}
                   </Text>
                 )}
@@ -178,28 +179,28 @@ const SignupDetailsScreen = () => {
 
               {/* Gender */}
               <YStack gap="$2">
-                <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                   Gender
                 </Text>
                 <TouchableOpacity onPress={() => setShowGenderSheet(true)}>
                   <XStack
-                    backgroundColor={Colors.dark.backgroundSecondary}
+                    backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={errors.gender ? Colors.dark.primary : Colors.dark.border}
+                    borderColor={errors.gender ? colors.primary : colors.border}
                     br={12}
                     height={45}
                     px="$4"
                     ai="center"
                     jc="space-between"
                   >
-                    <Text color={gender ? Colors.dark.text : Colors.dark.textTertiary} fontSize="$4">
+                    <Text color={gender ? colors.text : colors.textTertiary} fontSize="$4">
                       {gender ? GENDER_OPTIONS.find((opt) => opt.value === gender)?.label : 'Select gender'}
                     </Text>
-                    <ChevronDownIcon size={20} color={Colors.dark.textSecondary} />
+                    <ChevronDownIcon size={20} color={colors.textSecondary} />
                   </XStack>
                 </TouchableOpacity>
                 {errors.gender && (
-                  <Text color={Colors.dark.primary} fontSize="$2">
+                  <Text color={colors.primary} fontSize="$2">
                     {errors.gender}
                   </Text>
                 )}
@@ -219,12 +220,12 @@ const SignupDetailsScreen = () => {
           left={0}
           right={0}
           borderTopWidth={1}
-          borderTopColor={`${Colors.dark.border}40`}
-          backgroundColor={Colors.dark.background}
+          borderTopColor={`${colors.border}40`}
+          backgroundColor={colors.background}
         >
           <Button
-            backgroundColor={Colors.dark.primary}
-            pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+            backgroundColor={colors.primary}
+            pressStyle={{ backgroundColor: colors.primaryDark }}
             onPress={handleNext}
             disabled={isLoading}
             size="$5"
@@ -242,28 +243,28 @@ const SignupDetailsScreen = () => {
         <Pressable style={styles.modalOverlay} onPress={() => setShowDatePicker(false)}>
           <Pressable style={styles.datePickerContainer}>
             <YStack
-              backgroundColor={Colors.dark.backgroundSecondary}
+              backgroundColor={colors.backgroundSecondary}
               br={16}
               borderWidth={1}
-              borderColor={Colors.dark.border}
+              borderColor={colors.border}
               overflow="hidden"
             >
               <XStack
-                backgroundColor={Colors.dark.backgroundTertiary}
+                backgroundColor={colors.backgroundTertiary}
                 py="$3"
                 px="$4"
                 jc="space-between"
                 ai="center"
                 borderBottomWidth={1}
-                borderBottomColor={Colors.dark.border}
+                borderBottomColor={colors.border}
               >
-                <Text color={Colors.dark.text} fontSize="$4" fontWeight="600">
+                <Text color={colors.text} fontSize="$4" fontWeight="600">
                   Select Date
                 </Text>
                 <Button
                   size="$3"
-                  backgroundColor={Colors.dark.primary}
-                  pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+                  backgroundColor={colors.primary}
+                  pressStyle={{ backgroundColor: colors.primaryDark }}
                   onPress={() => setShowDatePicker(false)}
                   br={8}
                 >
@@ -281,7 +282,7 @@ const SignupDetailsScreen = () => {
                 display="spinner"
                 onChange={handleDateChange}
                 maximumDate={new Date()}
-                textColor={Colors.dark.text}
+                textColor={colors.text}
                 style={styles.datePicker}
               />
             </YStack>
@@ -294,10 +295,10 @@ const SignupDetailsScreen = () => {
         <Pressable style={styles.modalOverlay} onPress={() => setShowGenderSheet(false)}>
           <Pressable style={styles.datePickerContainer}>
             <YStack
-              backgroundColor={Colors.dark.backgroundSecondary}
+              backgroundColor={colors.backgroundSecondary}
               br={16}
               borderWidth={1}
-              borderColor={Colors.dark.border}
+              borderColor={colors.border}
               overflow="hidden"
               p="$4"
               gap="$3"
@@ -305,13 +306,13 @@ const SignupDetailsScreen = () => {
               {GENDER_OPTIONS.map((option) => (
                 <Button
                   key={option.value}
-                  backgroundColor={gender === option.value ? Colors.dark.primary : Colors.dark.backgroundTertiary}
-                  pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+                  backgroundColor={gender === option.value ? colors.primary : colors.backgroundTertiary}
+                  pressStyle={{ backgroundColor: colors.backgroundTertiary }}
                   onPress={() => handleSelectGender(option.value)}
                   size="$5"
                   borderRadius={12}
                 >
-                  <Text color={gender === option.value ? 'white' : Colors.dark.text} fontSize="$4" fontWeight="600">
+                  <Text color={gender === option.value ? 'white' : colors.text} fontSize="$4" fontWeight="600">
                     {option.label}
                   </Text>
                 </Button>
@@ -337,7 +338,7 @@ const styles = StyleSheet.create({
   },
   datePicker: {
     height: 200,
-    backgroundColor: Colors.dark.backgroundSecondary,
+    backgroundColor: 'transparent',
     alignSelf: 'center',
   },
 });

@@ -19,7 +19,7 @@ const DEFAULT_CUSTOMIZATION = {
     { name: 'indigo', value: '#4762FF' },
     { name: 'lime', value: '#B1FF47' },
     { name: 'cyan', value: '#47FFF4' },
-    { name: 'custom', value: Colors.dark.backgroundTertiary },
+    { name: 'custom', value: '' },
   ],
 };
 

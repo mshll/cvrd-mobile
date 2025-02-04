@@ -1,6 +1,6 @@
 import { View, ScrollView, YStack, Text, Separator, XStack, Button, Input } from 'tamagui';
 import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import CardComponent from '@/components/CardComponent';
 import { useCards } from '@/hooks/useCards';
@@ -36,46 +36,66 @@ const DURATION_OPTIONS = [
   { name: 'Total', value: 'total' },
 ];
 
-const ActionButton = ({ onPress, children }) => (
-  <Button
-    width={60}
-    height={60}
-    borderRadius={15}
-    backgroundColor={Colors.dark.backgroundSecondary}
-    pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
-    onPress={onPress}
-    alignItems="center"
-    justifyContent="center"
-  >
-    {children}
-  </Button>
-);
+const ActionButton = ({ onPress, children }) => {
+  const colors = useColors();
+  return (
+    <Button
+      width={60}
+      height={60}
+      borderRadius={12}
+      backgroundColor={colors.backgroundSecondary}
+      pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+      onPress={onPress}
+      alignItems="center"
+      justifyContent="center"
+      borderWidth={1}
+      borderColor={colors.border}
+    >
+      {children}
+    </Button>
+  );
+};
 
-const EditButton = ({ onPress }) => (
-  <Button
-    size="$2"
-    px="$3"
-    backgroundColor={Colors.dark.backgroundTertiary}
-    pressStyle={{ backgroundColor: Colors.dark.border }}
-    onPress={onPress}
-  >
-    <Text color={Colors.dark.text} fontSize="$2" fontWeight="600">
-      Edit
-    </Text>
-  </Button>
-);
+const EditButton = ({ onPress }) => {
+  const colors = useColors();
+  return (
+    <Button
+      size="$2"
+      px="$3"
+      backgroundColor={colors.backgroundSecondary}
+      pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+      onPress={onPress}
+      borderWidth={1}
+      borderColor={colors.border}
+      borderRadius={8}
+    >
+      <Text color={colors.text} fontSize="$2" fontWeight="600">
+        Edit
+      </Text>
+    </Button>
+  );
+};
 
 const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
+  const colors = useColors();
   const region = {
     latitude,
     longitude,
-    latitudeDelta: (radius * 2) / 69, // Convert miles to approximate degrees
+    latitudeDelta: (radius * 2) / 69,
     longitudeDelta: (radius * 2) / 69,
   };
 
   return (
-    <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary }}>
-      <View style={{ height: MAP_HEIGHT, borderRadius: 16, overflow: 'hidden' }}>
+    <View
+      style={{
+        borderRadius: 12,
+        overflow: 'hidden',
+        backgroundColor: colors.backgroundSecondary,
+        borderWidth: 1,
+        borderColor: colors.border,
+      }}
+    >
+      <View style={{ height: MAP_HEIGHT, borderRadius: 12, overflow: 'hidden' }}>
         <MapView
           style={StyleSheet.absoluteFill}
           initialRegion={region}
@@ -96,7 +116,7 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
               latitude,
               longitude,
             }}
-            radius={radius * 1609.34} // Convert miles to meters
+            radius={radius * 1609.34}
             strokeWidth={1}
             strokeColor={color}
             fillColor={`${color}40`}
@@ -113,11 +133,16 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
 };
 
 const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
+
+  const colors = useColors();
+  const { showActionSheetWithOptions } = useActionSheet();
+
   const [spendingLimit, setSpendingLimit] = useState(card.spending_limit?.toString() || '');
   const [durationLimit, setDurationLimit] = useState(card.duration_limit || 'per_transaction');
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} aboveAll={false}>
+
       <SpendLimitMenu
         spendingLimit={spendingLimit}
         setSpendingLimit={setSpendingLimit}
@@ -128,11 +153,13 @@ const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
           onClose();
         }}
       />
+
     </BottomSheet>
   );
 };
 
 const CardDetailsScreen = () => {
+  const colors = useColors();
   const route = useRoute();
   const navigation = useNavigation();
   const { cardId } = route.params;
@@ -175,7 +202,7 @@ const CardDetailsScreen = () => {
   }, [navigation, cardId]);
 
   return (
-    <ScrollView f={1} bg={Colors.dark.background}>
+    <ScrollView f={1} bg={colors.background}>
       <YStack f={1} ai="center" pt="$5" pb={150}>
         <CardFlipComponent cardId={cardId} />
 
@@ -184,20 +211,20 @@ const CardDetailsScreen = () => {
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleTogglePause}>
               {card.is_paused ? (
-                <PlayIcon size={25} color={Colors.dark.text} />
+                <PlayIcon size={25} color={colors.text} />
               ) : (
-                <PauseIcon size={25} color={Colors.dark.text} />
+                <PauseIcon size={25} color={colors.text} />
               )}
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleEdit}>
-              <PaintBrushIcon size={25} color={Colors.dark.text} />
+              <PaintBrushIcon size={25} color={colors.text} />
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleShare}>
-              <ArrowUpOnSquareIcon size={25} color={Colors.dark.text} />
+              <ArrowUpOnSquareIcon size={25} color={colors.text} />
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
@@ -211,10 +238,18 @@ const CardDetailsScreen = () => {
         <YStack width="100%" px="$4" gap="$4">
           {/* Spending Limit Section */}
           {card.spending_limit ? (
-            <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary }}>
+            <View
+              style={{
+                borderRadius: 12,
+                overflow: 'hidden',
+                backgroundColor: colors.backgroundSecondary,
+                borderWidth: 1,
+                borderColor: colors.border,
+              }}
+            >
               <YStack p="$4" gap="$3">
                 <XStack jc="space-between" ai="center">
-                  <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+                  <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                     Spend Limit
                   </Text>
                   <EditButton onPress={() => setShowSpendLimitSheet(true)} />
@@ -222,30 +257,30 @@ const CardDetailsScreen = () => {
                 <YStack gap="$2">
                   {card.duration_limit === 'per_transaction' ? (
                     <>
-                      <Text color={Colors.dark.text} fontSize="$6" fontWeight="700">
+                      <Text color={colors.text} fontSize="$6" fontWeight="700">
                         {formatCurrency(card.spending_limit)}
                       </Text>
-                      <Text color={Colors.dark.textSecondary} fontSize="$3">
+                      <Text color={colors.textSecondary} fontSize="$3">
                         per transaction
                       </Text>
                     </>
                   ) : (
                     <>
                       <XStack jc="space-between">
-                        <Text color={Colors.dark.text} fontSize="$6" fontWeight="700">
+                        <Text color={colors.text} fontSize="$6" fontWeight="700">
                           {formatCurrency(card.remaining_limit)}
                         </Text>
-                        <Text color={Colors.dark.textSecondary} fontSize="$4">
+                        <Text color={colors.textSecondary} fontSize="$4">
                           {remainingPercentage}%
                         </Text>
                       </XStack>
-                      <Text color={Colors.dark.textSecondary} fontSize="$3">
+                      <Text color={colors.textSecondary} fontSize="$3">
                         of {formatCurrency(card.spending_limit)} {formatDurationLimit(card.duration_limit)}
                       </Text>
                       {/* Progress Bar */}
                       <XStack
                         height={4}
-                        backgroundColor={Colors.dark.backgroundTertiary}
+                        backgroundColor={colors.backgroundTertiary}
                         borderRadius="$4"
                         mt="$2"
                         overflow="hidden"
@@ -267,17 +302,17 @@ const CardDetailsScreen = () => {
             <Button
               onPress={() => setShowSpendLimitSheet(true)}
               height={120}
-              borderRadius={16}
+              borderRadius={12}
               borderWidth={1}
               borderStyle="dashed"
-              borderColor={Colors.dark.border}
-              backgroundColor="transparent"
-              pressStyle={{ backgroundColor: Colors.dark.backgroundSecondary }}
+              borderColor={colors.border}
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
               alignItems="center"
               justifyContent="center"
             >
               <YStack alignItems="center" gap="$2">
-                <Text color={Colors.dark.textTertiary} fontSize="$3" fontWeight="600">
+                <Text color={colors.textTertiary} fontSize="$3" fontWeight="600">
                   Set a spend limit
                 </Text>
               </YStack>
@@ -296,54 +331,62 @@ const CardDetailsScreen = () => {
           )}
 
           {/* Additional Details */}
-          <View style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: Colors.dark.backgroundSecondary }}>
+          <View
+            style={{
+              borderRadius: 12,
+              overflow: 'hidden',
+              backgroundColor: colors.backgroundSecondary,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
             <YStack p="$4" gap="$4">
-              <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600">
+              <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                 Card Details
               </Text>
 
               <YStack gap="$3">
                 <XStack jc="space-between">
-                  <Text color={Colors.dark.textSecondary}>Card Number</Text>
-                  <Text color={Colors.dark.text}>•••• {card.card_number.slice(-4)}</Text>
+                  <Text color={colors.textSecondary}>Card Number</Text>
+                  <Text color={colors.text}>•••• {card.card_number.slice(-4)}</Text>
                 </XStack>
-                <Separator backgroundColor={Colors.dark.border} />
+                <Separator backgroundColor={colors.border} />
 
                 <XStack jc="space-between">
-                  <Text color={Colors.dark.textSecondary}>Expiry Date</Text>
-                  <Text color={Colors.dark.text}>{new Date(card.expiry_date).toLocaleDateString()}</Text>
+                  <Text color={colors.textSecondary}>Expiry Date</Text>
+                  <Text color={colors.text}>{new Date(card.expiry_date).toLocaleDateString()}</Text>
                 </XStack>
-                <Separator backgroundColor={Colors.dark.border} />
+                <Separator backgroundColor={colors.border} />
 
                 <XStack jc="space-between">
-                  <Text color={Colors.dark.textSecondary}>Created</Text>
-                  <Text color={Colors.dark.text}>{new Date(card.created_at).toLocaleDateString()}</Text>
+                  <Text color={colors.textSecondary}>Created</Text>
+                  <Text color={colors.text}>{new Date(card.created_at).toLocaleDateString()}</Text>
                 </XStack>
-                <Separator backgroundColor={Colors.dark.border} />
+                <Separator backgroundColor={colors.border} />
 
                 {card.merchant_name && (
                   <>
                     <XStack jc="space-between">
-                      <Text color={Colors.dark.textSecondary}>Merchant</Text>
-                      <Text color={Colors.dark.text}>{card.merchant_name}</Text>
+                      <Text color={colors.textSecondary}>Merchant</Text>
+                      <Text color={colors.text}>{card.merchant_name}</Text>
                     </XStack>
-                    <Separator backgroundColor={Colors.dark.border} />
+                    <Separator backgroundColor={colors.border} />
                   </>
                 )}
 
                 {card.category_name && (
                   <>
                     <XStack jc="space-between">
-                      <Text color={Colors.dark.textSecondary}>Category</Text>
-                      <Text color={Colors.dark.text}>{card.category_name}</Text>
+                      <Text color={colors.textSecondary}>Category</Text>
+                      <Text color={colors.text}>{card.category_name}</Text>
                     </XStack>
-                    <Separator backgroundColor={Colors.dark.border} />
+                    <Separator backgroundColor={colors.border} />
                   </>
                 )}
 
                 <XStack jc="space-between">
-                  <Text color={Colors.dark.textSecondary}>Shared</Text>
-                  <Text color={Colors.dark.text}>{card.is_shared ? 'Yes' : 'No'}</Text>
+                  <Text color={colors.textSecondary}>Shared</Text>
+                  <Text color={colors.text}>{card.is_shared ? 'Yes' : 'No'}</Text>
                 </XStack>
               </YStack>
             </YStack>

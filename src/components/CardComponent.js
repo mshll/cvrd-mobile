@@ -13,14 +13,14 @@ import {
 } from 'react-native-heroicons/solid';
 import { CARD_WIDTH, CARD_HEIGHT, getCardTheme, getCardAssets } from '@/utils/cardUtils';
 
-const getCardIcon = (type, color) => {
-  if (type === 'Location') return <MapPinIcon size={20} color={color} />;
-  if (type === 'Burner') return <FireIcon size={20} color={color} />;
-  if (type === 'Merchant') return <BuildingStorefrontIcon size={20} color={color} />;
-  if (type === 'Category') return <TagIcon size={20} color={color} />;
+const getCardIcon = (type, color, scale) => {
+  if (type === 'Location') return <MapPinIcon size={24 * scale} color={color} />;
+  if (type === 'Burner') return <FireIcon size={24 * scale} color={color} />;
+  if (type === 'Merchant') return <BuildingStorefrontIcon size={24 * scale} color={color} />;
+  if (type === 'Category') return <TagIcon size={24 * scale} color={color} />;
 };
 
-const CardComponent = ({ cardId, displayData, scale = 1 }) => {
+const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) => {
   const { getCardById } = useCards();
   const card = cardId ? getCardById(cardId) : null;
 
@@ -48,7 +48,7 @@ const CardComponent = ({ cardId, displayData, scale = 1 }) => {
 
   let cardColor = Colors.cards[backgroundColor] || backgroundColor;
   const cardTheme = getCardTheme(cardColor);
-  const blurTint = cardTheme === 'light' ? 'systemThickMaterialDark' : 'systemThickMaterialLight';
+  const blurTint = cardTheme === 'light' ? 'regular' : 'regular';
   const textColor = cardTheme === 'light' ? 'white' : 'black';
   const { cardImg, logoImg, visaImg } = getCardAssets(type, cardTheme);
 
@@ -65,7 +65,7 @@ const CardComponent = ({ cardId, displayData, scale = 1 }) => {
         {/* Top Row */}
         <YStack gap={8}>
           <XStack style={styles.topRow}>
-            <BlurView intensity={20} tint={blurTint} style={styles.badge}>
+            <BlurView intensity={10} tint={blurTint} style={styles.badge}>
               <Text fontSize={14}>{emoji}</Text>
               <Text
                 fontSize={12}
@@ -82,19 +82,19 @@ const CardComponent = ({ cardId, displayData, scale = 1 }) => {
             <View
               style={[
                 {
-                  paddingRight: 2,
+                  paddingRight: 6,
                   justifyContent: 'center',
                   alignItems: 'center',
                 },
               ]}
             >
-              {getCardIcon(type, textColor)}
+              {getCardIcon(type, textColor, scale)}
             </View>
           </XStack>
 
           {/* Status Badges */}
           {(isPaused || isClosed) && (
-            <BlurView intensity={20} tint={blurTint} style={[styles.badge, styles.statusBadge]}>
+            <BlurView intensity={10} tint={blurTint} style={[styles.badge, styles.statusBadge]}>
               {isPaused && <PauseCircleIcon size={16} color={textColor} />}
               {isClosed && <XCircleIcon size={16} color={textColor} />}
               <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600">
@@ -118,14 +118,16 @@ const CardComponent = ({ cardId, displayData, scale = 1 }) => {
         </View>
 
         {/* Bottom Row */}
-        <View style={styles.bottomRow}>
-          <Text fontSize={16} color={textColor} fontWeight="600" pb="$1" pl="$1">
-            •••• &nbsp;{lastFourDigits}
-          </Text>
-          <View style={styles.visaContainer}>
-            <Image source={visaImg} style={styles.visaLogo} resizeMode="contain" />
+        {!isPreview && (
+          <View style={styles.bottomRow}>
+            <Text fontSize={16} color={textColor} fontWeight="600" pb="$1" pl="$1">
+              •••• &nbsp;{lastFourDigits}
+            </Text>
+            <View style={styles.visaContainer}>
+              <Image source={visaImg} style={styles.visaLogo} resizeMode="contain" />
+            </View>
           </View>
-        </View>
+        )}
       </YStack>
     </View>
   );
@@ -155,12 +157,13 @@ const styles = StyleSheet.create({
   },
   badge: {
     borderRadius: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 14,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    gap: 2,
   },
   statusBadge: {
     alignSelf: 'flex-start',

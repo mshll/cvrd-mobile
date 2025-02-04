@@ -1,5 +1,5 @@
 import { View, Text, Button } from 'tamagui';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { StyleSheet, Animated, Dimensions, Image, FlatList, Pressable } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -229,6 +229,7 @@ const ContentScreen = ({ title, description, pattern, color }) => {
 };
 
 const OnboardingScreen = () => {
+  const colors = useColors();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const [currentScreen, setCurrentScreen] = useState(0);
@@ -384,23 +385,23 @@ const OnboardingScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} backgroundColor={colors.background}>
       {/* Skip Button */}
       <Button
         position="absolute"
         top={insets.top + 16}
         right={16}
         size="$3"
-        backgroundColor={Colors.dark.backgroundSecondary}
-        pressStyle={{ backgroundColor: Colors.dark.backgroundTertiary }}
+        backgroundColor={colors.backgroundSecondary}
+        pressStyle={{ backgroundColor: colors.backgroundTertiary }}
         onPress={handleSkip}
         opacity={0.8}
         br={8}
         zIndex={1}
-        borderColor={Colors.dark.border}
+        borderColor={colors.border}
         borderWidth={1}
       >
-        <Text color={Colors.dark.text} fontSize="$3">
+        <Text color={colors.text} fontSize="$3">
           Skip
         </Text>
       </Button>
@@ -466,7 +467,6 @@ const OnboardingScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.dark.background,
   },
   screen: {
     width,

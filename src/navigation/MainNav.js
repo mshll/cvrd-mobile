@@ -2,7 +2,7 @@ import { Paths } from './paths';
 import { ActivityStack, HomeStack, ProfileStack, SubscriptionsStack } from './StackNavs';
 import { Circle } from 'tamagui';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useColorScheme } from 'react-native';
 import AddCardScreen from '@/screens/AddCardScreen';
 import EditCardScreen from '@/screens/EditCardScreen';
@@ -89,7 +89,7 @@ const TabNavigator = () => {
 };
 
 const MainNav = () => {
-  const colorScheme = useColorScheme();
+  const colors = useColors();
   const { getCardById } = useCards();
 
   return (
@@ -98,11 +98,11 @@ const MainNav = () => {
         headerShown: false,
         headerBackButtonDisplayMode: 'minimal',
         headerStyle: {
-          backgroundColor: Colors.dark.background,
+          backgroundColor: colors.background,
         },
-        headerTintColor: Colors.dark.text,
+        headerTintColor: colors.text,
         contentStyle: {
-          backgroundColor: Colors.dark.background,
+          backgroundColor: colors.background,
         },
       }}
     >
