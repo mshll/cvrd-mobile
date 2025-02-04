@@ -22,6 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '@/navigation/paths';
+import SpendLimitMenu from '@/components/SpendLimitMenu';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const MAP_HEIGHT = 200;
@@ -60,24 +61,12 @@ const LIMIT_OPTIONS = [
 ];
 
 const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimits, setSelectedLimits }) => {
-  const [selectedLimitType, setSelectedLimitType] = useState('per_transaction');
-  const selectedOption = LIMIT_OPTIONS.find((opt) => opt.id === selectedLimitType);
   const insets = useSafeAreaInsets();
+  const [spendingLimit, setSpendingLimit] = useState('');
+  const [durationLimit, setDurationLimit] = useState('per_transaction');
 
-  const handleLimitChange = (value) => {
-    if (selectedLimitType === 'no_limit') {
-      setLimits((prev) => ({
-        ...prev,
-        [selectedLimitType]: null,
-      }));
-    } else {
-      setLimits((prev) => ({
-        ...prev,
-        [selectedLimitType]: value,
-      }));
-    }
-    // Add this limit type to the set of selected limits
-    setSelectedLimits((prev) => new Set([...prev, selectedLimitType]));
+  const handleSaveLimits = (updates) => {
+    setLimits(updates);
   };
 
   return (
@@ -105,131 +94,24 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
       </YStack>
 
       {/* Spending Limits */}
-      <YStack gap="$3">
-        <Text color={Colors.dark.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
-          Spending Limits
-        </Text>
-
-        <View
-          style={{
-            borderRadius: 16,
-            overflow: 'hidden',
-            backgroundColor: Colors.dark.backgroundSecondary,
-            borderWidth: 1,
-            borderColor: Colors.dark.border,
-            marginBottom: 16,
-          }}
-        >
-          <YStack p="$4" gap="$4">
-            {/* Amount Input */}
-            <XStack
-              backgroundColor={Colors.dark.backgroundTertiary}
-              br={12}
-              height={70}
-              ai="center"
-              px="$4"
-              opacity={selectedLimitType === 'no_limit' ? 0.5 : 1}
-            >
-              <Text color={Colors.dark.text} fontSize="$8" fontWeight="700" fontFamily="$archivoBlack" mr="$2">
-                KD
-              </Text>
-              <Input
-                value={
-                  selectedLimitType === 'no_limit'
-                    ? ''
-                    : limits[selectedLimitType] === '0'
-                    ? ''
-                    : limits[selectedLimitType]
-                }
-                onChangeText={(text) => {
-                  if (selectedLimitType !== 'no_limit') {
-                    const value = parseInt(text.replace(/[^0-9]/g, '')) || 0;
-                    handleLimitChange(Math.min(value, selectedOption.max).toString());
-                  }
-                }}
-                placeholder="0.00"
-                keyboardType="decimal-pad"
-                backgroundColor="transparent"
-                borderWidth={0}
-                color={Colors.dark.text}
-                placeholderTextColor={Colors.dark.textTertiary}
-                fontSize="$8"
-                fontFamily="$archivoBlack"
-                p={0}
-                fontWeight="700"
-                textAlign="left"
-                flex={1}
-                returnKeyType="done"
-                onSubmitEditing={Keyboard.dismiss}
-                editable={selectedLimitType !== 'no_limit'}
-              />
-            </XStack>
-
-            {/* Period Selection */}
-            <XStack flexWrap="wrap" gap="$1">
-              {LIMIT_OPTIONS.map((option, index) => {
-                const totalOptions = LIMIT_OPTIONS.length;
-                const rowSize = 2;
-                const totalRows = Math.ceil(totalOptions / rowSize);
-                const currentRow = Math.floor(index / rowSize) + 1;
-
-                const isFirstRow = currentRow === 1;
-                const isLastRow = currentRow === totalRows;
-                const isFirstInRow = index % rowSize === 0;
-                const isLastInRow = index % rowSize === 1 || index === totalOptions - 1;
-
-                const isSelected = selectedLimitType === option.id;
-                const hasValue =
-                  selectedLimits.has(option.id) && (option.id === 'no_limit' || parseInt(limits[option.id]) > 0);
-
-                let borderRadius = {
-                  borderTopLeftRadius: isFirstRow && isFirstInRow ? 12 : 0,
-                  borderTopRightRadius: isFirstRow && isLastInRow ? 12 : 0,
-                  borderBottomLeftRadius: isLastRow && isFirstInRow ? 12 : 0,
-                  borderBottomRightRadius: isLastRow && isLastInRow ? 12 : 0,
-                };
-
-                return (
-                  <Button
-                    key={option.id}
-                    backgroundColor={
-                      isSelected
-                        ? Colors.dark.primary
-                        : hasValue
-                        ? Colors.dark.primaryDark
-                        : Colors.dark.backgroundTertiary
-                    }
-                    pressStyle={{
-                      backgroundColor: isSelected ? Colors.dark.primaryDark : Colors.dark.backgroundTertiary,
-                    }}
-                    onPress={() => {
-                      setSelectedLimitType(option.id);
-                      if (option.id === 'no_limit') {
-                        handleLimitChange(null);
-                      }
-                    }}
-                    flex={1}
-                    height={50}
-                    minWidth="48%"
-                    {...borderRadius}
-                  >
-                    <Text color={isSelected || hasValue ? 'white' : Colors.dark.text} fontSize="$3" fontWeight="600">
-                      {option.label}
-                    </Text>
-                  </Button>
-                );
-              })}
-            </XStack>
-
-            {/* Max Amount Display */}
-            {selectedLimitType !== 'no_limit' && (
-              <Text color={Colors.dark.textSecondary} fontSize="$3">
-                Maximum amount: {selectedOption.max.toLocaleString()} KWD
-              </Text>
-            )}
-          </YStack>
-        </View>
-      </YStack>
+      <View
+        style={{
+          borderRadius: 16,
+          overflow: 'hidden',
+          backgroundColor: Colors.dark.backgroundSecondary,
+          borderWidth: 1,
+          borderColor: Colors.dark.border,
+        }}
+      >
+        <SpendLimitMenu
+          spendingLimit={spendingLimit}
+          setSpendingLimit={setSpendingLimit}
+          durationLimit={durationLimit}
+          setDurationLimit={setDurationLimit}
+          onSave={handleSaveLimits}
+          darkButtons={true}
+        />
+      </View>
     </YStack>
   );
 };
