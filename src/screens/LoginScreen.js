@@ -6,30 +6,61 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '@/navigation/paths';
 import { EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
+import { useLogin } from '@/hooks/useAuth';
+import Toast from 'react-native-toast-message';
 
 const LoginScreen = () => {
   const colors = useColors();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const loginMutation = useLogin();
+
+  const validateForm = () => {
+    console.log('🔍 Validating login form with:', { email });
+    const newErrors = {};
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      newErrors.email = 'Valid email is required';
+    }
+
+    // Validate password
+    if (!password || password.length < 2) {
+      newErrors.password = 'Password must be at least 2 characters';
+    }
+
+    console.log('📋 Validation errors:', Object.keys(newErrors).length ? newErrors : 'No errors');
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleLogin = async () => {
-    setIsLoading(true);
-    try {
-      // TODO: Implement login logic
-      console.log('Login with:', { email, password });
-      // Temporarily navigate to main app without authentication
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
+    console.log('👉 Starting login process...');
+    if (validateForm()) {
+      try {
+        console.log('✅ Form validation passed, attempting login');
+        await loginMutation.mutateAsync({ email, password });
+        console.log('🎉 Login successful, navigating to main app');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Main' }],
+        });
+      } catch (error) {
+        console.log('❌ Login failed');
+        // Error handling is done in the mutation
+      }
+    } else {
+      console.log('❌ Form validation failed');
+      Toast.show({
+        type: 'error',
+        text1: 'Validation Error',
+        text2: 'Please check the form for errors',
       });
-    } catch (error) {
-      console.error('Login error:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -88,7 +119,7 @@ const LoginScreen = () => {
                   autoCapitalize="none"
                   backgroundColor={colors.backgroundSecondary}
                   borderWidth={1}
-                  borderColor={colors.border}
+                  borderColor={errors.email ? colors.primary : colors.border}
                   color={colors.text}
                   placeholderTextColor={colors.textTertiary}
                   fontSize="$4"
@@ -96,6 +127,11 @@ const LoginScreen = () => {
                   px="$4"
                   br={12}
                 />
+                {errors.email && (
+                  <Text color={colors.primary} fontSize="$2">
+                    {errors.email}
+                  </Text>
+                )}
               </YStack>
 
               <YStack gap="$2">
@@ -110,7 +146,7 @@ const LoginScreen = () => {
                     secureTextEntry={!showPassword}
                     backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={colors.border}
+                    borderColor={errors.password ? colors.primary : colors.border}
                     color={colors.text}
                     placeholderTextColor={colors.textTertiary}
                     fontSize="$4"
@@ -136,6 +172,11 @@ const LoginScreen = () => {
                     )}
                   </Button>
                 </XStack>
+                {errors.password && (
+                  <Text color={colors.primary} fontSize="$2">
+                    {errors.password}
+                  </Text>
+                )}
               </YStack>
               <XStack jc="flex-end">
                 <Button backgroundColor="transparent" onPress={() => {}} pressStyle={{ opacity: 0.7 }}>
@@ -166,12 +207,12 @@ const LoginScreen = () => {
             backgroundColor={colors.primary}
             pressStyle={{ backgroundColor: colors.primaryDark }}
             onPress={handleLogin}
-            disabled={isLoading}
+            disabled={loginMutation.isPending}
             size="$5"
             borderRadius={15}
           >
             <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
-              {isLoading ? 'Signing in...' : 'Login'}
+              {loginMutation.isPending ? 'Signing in...' : 'Login'}
             </Text>
           </Button>
         </YStack>

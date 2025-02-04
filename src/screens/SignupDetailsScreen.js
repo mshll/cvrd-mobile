@@ -15,6 +15,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { CalendarIcon, ChevronDownIcon, ChevronLeftIcon } from 'react-native-heroicons/outline';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Paths } from '@/navigation/paths';
+import { useAuthContext } from '@/context/AuthContext';
+import { useSignup } from '@/hooks/useAuth';
+import Toast from 'react-native-toast-message';
 
 const GENDER_OPTIONS = [
   { label: 'Male', value: 'male' },
@@ -23,31 +26,34 @@ const GENDER_OPTIONS = [
 
 const SignupDetailsScreen = () => {
   const colors = useColors();
-  const [civilId, setCivilId] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState(null);
+  const { signupData, updateSignupData, resetSignupData } = useAuthContext();
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [gender, setGender] = useState('');
   const [showGenderSheet, setShowGenderSheet] = useState(false);
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
+  const signupMutation = useSignup();
 
   const validateForm = () => {
+    console.log('🔍 Validating details form with data:', {
+      civilId: signupData.civilId,
+      dateOfBirth: signupData.dateOfBirth,
+      gender: signupData.gender,
+    });
     const newErrors = {};
 
     // Validate Civil ID (12 digits)
-    if (!civilId || civilId.length !== 12 || !/^\d+$/.test(civilId)) {
+    if (!signupData.civilId || signupData.civilId.length !== 12 || !/^\d+$/.test(signupData.civilId)) {
       newErrors.civilId = 'Civil ID must be 12 digits';
     }
 
     // Validate Date of Birth (18+ years)
-    if (!dateOfBirth) {
+    if (!signupData.dateOfBirth) {
       newErrors.dateOfBirth = 'Date of birth is required';
     } else {
       const today = new Date();
-      const birthDate = new Date(dateOfBirth);
+      const birthDate = new Date(signupData.dateOfBirth);
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
@@ -59,17 +65,45 @@ const SignupDetailsScreen = () => {
     }
 
     // Validate Gender
-    if (!gender) {
+    if (!signupData.gender) {
       newErrors.gender = 'Gender is required';
     }
 
+    console.log('📋 Validation errors:', Object.keys(newErrors).length ? newErrors : 'No errors');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleNext = () => {
-    // Temporarily bypass validation and just navigate
-    navigation.navigate(Paths.CONNECT_BANK);
+  const handleNext = async () => {
+    console.log('👉 Starting account creation process...');
+    if (validateForm()) {
+      try {
+        // Format date to ISO string for API
+        const formattedData = {
+          ...signupData,
+          dateOfBirth: signupData.dateOfBirth.toISOString().split('T')[0],
+        };
+
+        console.log('📤 Submitting signup data to API:', formattedData);
+        await signupMutation.mutateAsync(formattedData);
+        console.log('✅ Account created successfully, navigating to main app');
+        resetSignupData(); // Reset signup data after successful registration
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Main' }],
+        });
+      } catch (error) {
+        console.error('❌ Account creation failed:', error);
+        // Error handling is done in the mutation
+      }
+    } else {
+      console.log('❌ Details form validation failed');
+      Toast.show({
+        type: 'error',
+        text1: 'Validation Error',
+        text2: 'Please check the form for errors',
+      });
+    }
   };
 
   const handleBack = () => {
@@ -78,12 +112,15 @@ const SignupDetailsScreen = () => {
 
   const handleDateChange = (event, selectedDate) => {
     if (selectedDate) {
-      setDateOfBirth(selectedDate);
+      console.log('📅 Date selected:', selectedDate);
+      updateSignupData({ dateOfBirth: selectedDate });
+      setShowDatePicker(false);
     }
   };
 
   const handleSelectGender = (selectedGender) => {
-    setGender(selectedGender);
+    console.log('👤 Gender selected:', selectedGender);
+    updateSignupData({ gender: selectedGender });
     setShowGenderSheet(false);
   };
 
@@ -126,8 +163,8 @@ const SignupDetailsScreen = () => {
                   Civil ID
                 </Text>
                 <Input
-                  value={civilId}
-                  onChangeText={(text) => setCivilId(text.replace(/[^0-9]/g, ''))}
+                  value={signupData.civilId}
+                  onChangeText={(text) => updateSignupData({ civilId: text.replace(/[^0-9]/g, '') })}
                   placeholder="Enter your Civil ID"
                   keyboardType="numeric"
                   maxLength={12}
@@ -164,8 +201,8 @@ const SignupDetailsScreen = () => {
                     ai="center"
                     jc="space-between"
                   >
-                    <Text color={dateOfBirth ? colors.text : colors.textTertiary} fontSize="$4">
-                      {dateOfBirth ? dateOfBirth.toLocaleDateString() : 'Select date'}
+                    <Text color={signupData.dateOfBirth ? colors.text : colors.textTertiary} fontSize="$4">
+                      {signupData.dateOfBirth ? signupData.dateOfBirth.toLocaleDateString() : 'Select date'}
                     </Text>
                     <CalendarIcon size={20} color={colors.textSecondary} />
                   </XStack>
@@ -193,8 +230,10 @@ const SignupDetailsScreen = () => {
                     ai="center"
                     jc="space-between"
                   >
-                    <Text color={gender ? colors.text : colors.textTertiary} fontSize="$4">
-                      {gender ? GENDER_OPTIONS.find((opt) => opt.value === gender)?.label : 'Select gender'}
+                    <Text color={signupData.gender ? colors.text : colors.textTertiary} fontSize="$4">
+                      {signupData.gender
+                        ? GENDER_OPTIONS.find((opt) => opt.value === signupData.gender)?.label
+                        : 'Select gender'}
                     </Text>
                     <ChevronDownIcon size={20} color={colors.textSecondary} />
                   </XStack>
@@ -227,12 +266,12 @@ const SignupDetailsScreen = () => {
             backgroundColor={colors.primary}
             pressStyle={{ backgroundColor: colors.primaryDark }}
             onPress={handleNext}
-            disabled={isLoading}
+            disabled={signupMutation.isPending}
             size="$5"
             borderRadius={15}
           >
             <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
-              {isLoading ? 'Creating Account...' : 'Next'}
+              {signupMutation.isPending ? 'Creating Account...' : 'Create Account'}
             </Text>
           </Button>
         </YStack>
@@ -275,7 +314,7 @@ const SignupDetailsScreen = () => {
               </XStack>
 
               <DateTimePicker
-                value={dateOfBirth || new Date()}
+                value={signupData.dateOfBirth || new Date()}
                 justifyContent="center"
                 ai="center"
                 mode="date"
@@ -306,13 +345,17 @@ const SignupDetailsScreen = () => {
               {GENDER_OPTIONS.map((option) => (
                 <Button
                   key={option.value}
-                  backgroundColor={gender === option.value ? colors.primary : colors.backgroundTertiary}
+                  backgroundColor={signupData.gender === option.value ? colors.primary : colors.backgroundTertiary}
                   pressStyle={{ backgroundColor: colors.backgroundTertiary }}
                   onPress={() => handleSelectGender(option.value)}
                   size="$5"
                   borderRadius={12}
                 >
-                  <Text color={gender === option.value ? 'white' : colors.text} fontSize="$4" fontWeight="600">
+                  <Text
+                    color={signupData.gender === option.value ? 'white' : colors.text}
+                    fontSize="$4"
+                    fontWeight="600"
+                  >
                     {option.label}
                   </Text>
                 </Button>

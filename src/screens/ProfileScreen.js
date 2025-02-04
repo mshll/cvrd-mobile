@@ -1,11 +1,10 @@
 import { Colors, useColors } from '@/config/colors';
-import { View, Text, YStack, XStack, Button, Avatar, ScrollView, Separator, Circle } from 'tamagui';
-import { user } from '@/data/user';
+import { View, Text, YStack, XStack, Button, Avatar, ScrollView, Circle, Spinner } from 'tamagui';
+import { useUser } from '@/hooks/useUser';
 import { useCards } from '@/hooks/useCards';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { formatCurrency } from '@/utils/utils';
-import { BlurView } from 'expo-blur';
 import { StyleSheet } from 'react-native';
 import {
   BellIcon,
@@ -24,6 +23,8 @@ import {
 import { useState } from 'react';
 import BottomSheet from '@/components/BottomSheet';
 import { Paths } from '@/navigation/paths';
+import { deleteToken } from '@/api/storage';
+import { useAuthContext } from '@/context/AuthContext';
 
 const MenuItem = ({ icon: Icon, label, value, onPress, showArrow = true }) => {
   const colors = useColors();
@@ -89,11 +90,13 @@ const StatCard = ({ icon: Icon, label, value, color }) => {
 };
 
 const ProfileScreen = () => {
+  const { setUser } = useAuthContext();
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { cards } = useCards();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const { user, isLoading, error } = useUser();
 
   // Calculate card stats
   const cardStats = cards.reduce(
@@ -107,24 +110,34 @@ const ProfileScreen = () => {
     { active: 0, paused: 0, closed: 0, shared: 0 }
   );
 
-  const handleLogout = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Auth' }],
-    });
+  const handleLogout = async () => {
+    await deleteToken();
+    setUser(null);
   };
 
   const handlePersonalInfo = () => {
-    navigation.navigate('Profile', {
-      screen: Paths.PERSONAL_INFO,
-    });
+    navigation.navigate(Paths.PERSONAL_INFO);
   };
 
   const handleSecurity = () => {
-    navigation.navigate('Profile', {
-      screen: Paths.SECURITY,
-    });
+    navigation.navigate(Paths.SECURITY);
   };
+
+  if (isLoading) {
+    return (
+      <View f={1} ai="center" jc="center" bg={colors.background}>
+        <Spinner size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View f={1} ai="center" jc="center" bg={colors.background}>
+        <Text color={colors.primary}>Error loading profile</Text>
+      </View>
+    );
+  }
 
   return (
     <View f={1} bg={colors.background}>
@@ -136,19 +149,23 @@ const ProfileScreen = () => {
               <Avatar.Image
                 source={{
                   uri:
-                    user.avatar ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`,
+                    user?.profilePic ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      `${user?.firstName || ''} ${user?.lastName || ''}`
+                    )}&background=random`,
                 }}
               />
-              <Avatar.Fallback backgroundColor={colors.backgroundSecondary} />
+              <Avatar.Fallback backgroundColor={colors.backgroundSecondary}>
+                <UserIcon size={32} color={colors.textSecondary} />
+              </Avatar.Fallback>
             </Avatar>
           </Circle>
           <YStack ai="center" gap="$1">
             <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
-              {user.name}
+              {user ? `${user.firstName} ${user.lastName}` : 'User'}
             </Text>
             <Text color={colors.textSecondary} fontSize="$3">
-              {user.email}
+              {user?.email}
             </Text>
           </YStack>
         </YStack>
@@ -156,12 +173,7 @@ const ProfileScreen = () => {
         {/* Stats Grid */}
         <YStack px="$4" gap="$4" mb="$6">
           <XStack gap="$3">
-            <StatCard
-              icon={BanknotesIcon}
-              label="Monthly Spend"
-              value={formatCurrency(user.spend_month)}
-              color={Colors.cards.green}
-            />
+            <StatCard icon={BanknotesIcon} label="Monthly Spend" value={formatCurrency(0)} color={Colors.cards.green} />
             <StatCard icon={CreditCardIcon} label="Active Cards" value={cardStats.active} color={Colors.cards.blue} />
           </XStack>
           <XStack gap="$3">
@@ -169,7 +181,7 @@ const ProfileScreen = () => {
             <StatCard
               icon={ClockIcon}
               label="Member Since"
-              value={new Date(user.created_at).toLocaleDateString()}
+              value={user ? new Date(user.dateOfBirth).toLocaleDateString() : '-'}
               color={Colors.cards.pink}
             />
           </XStack>

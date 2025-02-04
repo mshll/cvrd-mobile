@@ -8,24 +8,73 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '@/navigation/paths';
 import { EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
+import { useAuthContext } from '@/context/AuthContext';
+import Toast from 'react-native-toast-message';
 
 const SignupScreen = () => {
   const colors = useColors();
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const { signupData, updateSignupData } = useAuthContext();
+  const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
 
-  const handleSignup = async () => {
-    // Temporarily bypass validation and just navigate
-    navigation.navigate(Paths.SIGNUP_DETAILS);
+  const validateForm = () => {
+    console.log('🔍 Validating signup form with data:', signupData);
+    const newErrors = {};
+
+    // Validate first name
+    if (!signupData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+    }
+
+    // Validate last name
+    if (!signupData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!signupData.email || !emailRegex.test(signupData.email)) {
+      newErrors.email = 'Valid email is required';
+    }
+
+    // Validate password
+    if (!signupData.password || signupData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    // Validate confirm password
+    if (signupData.password !== confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    // Validate phone number
+    const phoneRegex = /^\+?[\d\s-]{8,}$/;
+    if (!signupData.phoneNumber || !phoneRegex.test(signupData.phoneNumber)) {
+      newErrors.phoneNumber = 'Valid phone number is required';
+    }
+
+    console.log('📋 Validation errors:', Object.keys(newErrors).length ? newErrors : 'No errors');
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSignup = () => {
+    console.log('👉 Starting signup process...');
+    if (validateForm()) {
+      console.log('✅ Form validation passed, navigating to details screen');
+      navigation.navigate(Paths.SIGNUP_DETAILS);
+    } else {
+      console.log('❌ Form validation failed');
+      Toast.show({
+        type: 'error',
+        text1: 'Validation Error',
+        text2: 'Please check the form for errors',
+      });
+    }
   };
 
   const handleLogin = () => {
@@ -78,12 +127,12 @@ const SignupScreen = () => {
                     First Name
                   </Text>
                   <Input
-                    value={firstName}
-                    onChangeText={setFirstName}
+                    value={signupData.firstName}
+                    onChangeText={(text) => updateSignupData({ firstName: text })}
                     placeholder="John"
                     backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={colors.border}
+                    borderColor={errors.firstName ? colors.primary : colors.border}
                     color={colors.text}
                     placeholderTextColor={colors.textTertiary}
                     fontSize="$4"
@@ -91,18 +140,23 @@ const SignupScreen = () => {
                     px="$4"
                     br={12}
                   />
+                  {errors.firstName && (
+                    <Text color={colors.primary} fontSize="$2">
+                      {errors.firstName}
+                    </Text>
+                  )}
                 </YStack>
                 <YStack gap="$2" f={1}>
                   <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                     Last Name
                   </Text>
                   <Input
-                    value={lastName}
-                    onChangeText={setLastName}
+                    value={signupData.lastName}
+                    onChangeText={(text) => updateSignupData({ lastName: text })}
                     placeholder="Doe"
                     backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={colors.border}
+                    borderColor={errors.lastName ? colors.primary : colors.border}
                     color={colors.text}
                     placeholderTextColor={colors.textTertiary}
                     fontSize="$4"
@@ -110,6 +164,11 @@ const SignupScreen = () => {
                     px="$4"
                     br={12}
                   />
+                  {errors.lastName && (
+                    <Text color={colors.primary} fontSize="$2">
+                      {errors.lastName}
+                    </Text>
+                  )}
                 </YStack>
               </XStack>
 
@@ -118,14 +177,14 @@ const SignupScreen = () => {
                   Email
                 </Text>
                 <Input
-                  value={email}
-                  onChangeText={setEmail}
+                  value={signupData.email}
+                  onChangeText={(text) => updateSignupData({ email: text })}
                   placeholder="johndoe@gmail.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   backgroundColor={colors.backgroundSecondary}
                   borderWidth={1}
-                  borderColor={colors.border}
+                  borderColor={errors.email ? colors.primary : colors.border}
                   color={colors.text}
                   placeholderTextColor={colors.textTertiary}
                   fontSize="$4"
@@ -133,6 +192,11 @@ const SignupScreen = () => {
                   px="$4"
                   br={12}
                 />
+                {errors.email && (
+                  <Text color={colors.primary} fontSize="$2">
+                    {errors.email}
+                  </Text>
+                )}
               </YStack>
 
               <YStack gap="$2">
@@ -141,13 +205,13 @@ const SignupScreen = () => {
                 </Text>
                 <XStack ai="center">
                   <Input
-                    value={password}
-                    onChangeText={setPassword}
+                    value={signupData.password}
+                    onChangeText={(text) => updateSignupData({ password: text })}
                     placeholder="••••••"
                     secureTextEntry={!showPassword}
                     backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={colors.border}
+                    borderColor={errors.password ? colors.primary : colors.border}
                     color={colors.text}
                     placeholderTextColor={colors.textTertiary}
                     fontSize="$4"
@@ -176,6 +240,11 @@ const SignupScreen = () => {
                     )}
                   </Button>
                 </XStack>
+                {errors.password && (
+                  <Text color={colors.primary} fontSize="$2">
+                    {errors.password}
+                  </Text>
+                )}
               </YStack>
 
               <YStack gap="$2">
@@ -190,7 +259,7 @@ const SignupScreen = () => {
                     secureTextEntry={!showConfirmPassword}
                     backgroundColor={colors.backgroundSecondary}
                     borderWidth={1}
-                    borderColor={colors.border}
+                    borderColor={errors.confirmPassword ? colors.primary : colors.border}
                     color={colors.text}
                     placeholderTextColor={colors.textTertiary}
                     fontSize="$4"
@@ -219,6 +288,11 @@ const SignupScreen = () => {
                     )}
                   </Button>
                 </XStack>
+                {errors.confirmPassword && (
+                  <Text color={colors.primary} fontSize="$2">
+                    {errors.confirmPassword}
+                  </Text>
+                )}
               </YStack>
 
               <YStack gap="$2">
@@ -226,13 +300,13 @@ const SignupScreen = () => {
                   Phone Number
                 </Text>
                 <Input
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
+                  value={signupData.phoneNumber}
+                  onChangeText={(text) => updateSignupData({ phoneNumber: text })}
                   placeholder="+123 12345678"
                   keyboardType="phone-pad"
                   backgroundColor={colors.backgroundSecondary}
                   borderWidth={1}
-                  borderColor={colors.border}
+                  borderColor={errors.phoneNumber ? colors.primary : colors.border}
                   color={colors.text}
                   placeholderTextColor={colors.textTertiary}
                   fontSize="$4"
@@ -240,6 +314,11 @@ const SignupScreen = () => {
                   px="$4"
                   br={12}
                 />
+                {errors.phoneNumber && (
+                  <Text color={colors.primary} fontSize="$2">
+                    {errors.phoneNumber}
+                  </Text>
+                )}
               </YStack>
             </YStack>
           </YStack>
@@ -263,7 +342,6 @@ const SignupScreen = () => {
             backgroundColor={colors.primary}
             pressStyle={{ backgroundColor: colors.primaryDark }}
             onPress={handleSignup}
-            disabled={isLoading}
             size="$5"
             borderRadius={15}
           >
