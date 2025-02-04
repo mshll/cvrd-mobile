@@ -1,10 +1,11 @@
 import { View, Text, Button } from 'tamagui';
 import { Colors } from '@/config/colors';
-import { StyleSheet, Animated, Dimensions, Image, FlatList } from 'react-native';
+import { StyleSheet, Animated, Dimensions, Image, FlatList, Pressable } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '@/navigation/paths';
+import { BlurView } from 'expo-blur';
 
 const { width, height } = Dimensions.get('window');
 
@@ -33,10 +34,34 @@ const CARD_SLIDES = [
 
 const ONBOARDING_SCREENS = [
   { id: 1, type: 'animation' },
-  { id: 2, title: 'Create Virtual Cards', description: 'Generate virtual cards for different purposes' },
-  { id: 3, title: 'Set Spending Limits', description: 'Control your spending with customizable limits' },
-  { id: 4, title: 'Location Locking', description: 'Lock your cards to specific locations' },
-  { id: 5, title: 'Get Started', description: 'Create your account to begin' },
+  {
+    id: 2,
+    title: 'ONE AND\nDONE',
+    description: 'Secure your one-time purchases\nwith disposable cards',
+    pattern: require('@/../assets/patterns/pattern1.png'),
+    color: Colors.cards.yellow,
+  },
+  {
+    id: 3,
+    title: 'STAY ON\nTRACK',
+    description: 'Spend only on what you choose',
+    pattern: require('@/../assets/patterns/pattern2.png'),
+    color: Colors.cards.blue,
+  },
+  {
+    id: 4,
+    title: 'KEEP YOUR\nCONTROL',
+    description: 'See all your subscriptions in one\nplace and cancel with ease',
+    pattern: require('@/../assets/patterns/pattern3.png'),
+    color: Colors.cards.green,
+  },
+  {
+    id: 5,
+    title: 'SPEND\nWHERE IT\nCOUNTS',
+    description: 'Your card works only where you\nneed it',
+    pattern: require('@/../assets/patterns/pattern4.png'),
+    color: Colors.cards.pink,
+  },
 ];
 
 const SLIDE_DURATION = 500;
@@ -89,14 +114,113 @@ const AnimatedScreen = ({ fadeAnim, logoColorAnim, currentIndex }) => {
   );
 };
 
-const ContentScreen = ({ title, description }) => {
+const ContentScreen = ({ title, description, pattern, color }) => {
+  const circlePosition = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const circleVelocity = useRef({ x: 2, y: 2 }).current;
+  const animationFrame = useRef(null);
+  const circleOpacity = useRef(new Animated.Value(0)).current;
+  const circleScale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    // Fade in the circle
+    Animated.timing(circleOpacity, {
+      toValue: 0.2,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+
+    // Continuous animation
+    const CIRCLE_SIZE = 300; // Increased size for more visible blur
+    const BOUNDS = {
+      xMin: -width / 2 + CIRCLE_SIZE / 2,
+      xMax: width / 2 - CIRCLE_SIZE / 2,
+      yMin: -height / 2 + CIRCLE_SIZE / 2,
+      yMax: height / 2 - CIRCLE_SIZE / 2,
+    };
+
+    const animate = () => {
+      // Update position based on velocity
+      const newX = circlePosition.x._value + circleVelocity.x;
+      const newY = circlePosition.y._value + circleVelocity.y;
+
+      // Check bounds and reverse velocity if needed
+      if (newX <= BOUNDS.xMin || newX >= BOUNDS.xMax) {
+        circleVelocity.x *= -1;
+      }
+      if (newY <= BOUNDS.yMin || newY >= BOUNDS.yMax) {
+        circleVelocity.y *= -1;
+      }
+
+      // Apply new position
+      circlePosition.setValue({
+        x: newX,
+        y: newY,
+      });
+
+      // Subtle scale animation
+      const time = Date.now() / 1000;
+      const scale = 1 + Math.sin(time) * 0.1; // Subtle pulsing between 0.9 and 1.1
+      circleScale.setValue(scale);
+
+      animationFrame.current = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
+    };
+  }, []);
+
   return (
     <View style={styles.screen}>
+      {/* Background Pattern */}
+      <View style={styles.patternContainer}>
+        <Image
+          source={pattern}
+          style={[
+            styles.pattern,
+            {
+              opacity: 0.6,
+            },
+          ]}
+          resizeMode="contain"
+        />
+
+        {/* Animated Blurred Circle */}
+        <Animated.View
+          style={[
+            styles.animatedCircleContainer,
+            {
+              transform: [{ translateX: circlePosition.x }, { translateY: circlePosition.y }, { scale: circleScale }],
+              opacity: circleOpacity,
+            },
+          ]}
+        >
+          <BlurView intensity={100} tint="dark" style={styles.blurView}>
+            <View style={[styles.animatedCircle, { backgroundColor: color }]} />
+          </BlurView>
+          {/* Additional blur layers for hazier edges */}
+          <BlurView intensity={60} tint="dark" style={[styles.blurView, styles.outerBlur]} />
+          <BlurView intensity={40} tint="dark" style={[styles.blurView, styles.outerMostBlur]} />
+        </Animated.View>
+      </View>
+
+      {/* Content */}
       <View style={styles.contentContainer}>
-        <Text color={Colors.dark.text} fontSize="$8" fontFamily="$archivoBlack" textAlign="center">
+        <Text color={color} fontSize={64} fontFamily="Archivo_900Black_Italic" textAlign="center" lineHeight={58}>
           {title}
         </Text>
-        <Text color={Colors.dark.textSecondary} fontSize="$4" textAlign="center" mt="$4">
+        <Text
+          color={Colors.dark.textSecondary}
+          fontSize="$4"
+          textAlign="center"
+          mt="$4"
+          lineHeight={24}
+          fontFamily="$archivo"
+        >
           {description}
         </Text>
       </View>
@@ -107,12 +231,85 @@ const ContentScreen = ({ title, description }) => {
 const OnboardingScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [currentScreen, setCurrentScreen] = useState(0);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const logoColorAnim = useRef(new Animated.Value(0)).current;
   const slideTimer = useRef(null);
   const flatListRef = useRef(null);
+
+  // Animation values for morphing
+  const containerWidth = useRef(new Animated.Value(160)).current; // Initial width for indicators
+  const containerHeight = useRef(new Animated.Value(40)).current; // Initial height for indicators
+  const containerBorderRadius = useRef(new Animated.Value(20)).current;
+  const textOpacity = useRef(new Animated.Value(0)).current;
+  const indicatorsOpacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (currentScreen === ONBOARDING_SCREENS.length - 1) {
+      // Morph to button
+      Animated.parallel([
+        Animated.timing(containerWidth, {
+          toValue: 200,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.timing(containerHeight, {
+          toValue: 50,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.timing(containerBorderRadius, {
+          toValue: 12,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.sequence([
+          Animated.timing(indicatorsOpacity, {
+            toValue: 0,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+          Animated.timing(textOpacity, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]).start();
+    } else {
+      // Morph back to indicators
+      Animated.parallel([
+        Animated.timing(containerWidth, {
+          toValue: 160,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.timing(containerHeight, {
+          toValue: 40,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.timing(containerBorderRadius, {
+          toValue: 20,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.sequence([
+          Animated.timing(textOpacity, {
+            toValue: 0,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+          Animated.timing(indicatorsOpacity, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]).start();
+    }
+  }, [currentScreen]);
 
   // Handle auto-play for first screen only
   useEffect(() => {
@@ -181,7 +378,9 @@ const OnboardingScreen = () => {
     if (item.type === 'animation') {
       return <AnimatedScreen fadeAnim={fadeAnim} logoColorAnim={logoColorAnim} currentIndex={currentCardIndex} />;
     }
-    return <ContentScreen title={item.title} description={item.description} />;
+    return (
+      <ContentScreen title={item.title} description={item.description} pattern={item.pattern} color={item.color} />
+    );
   };
 
   return (
@@ -216,20 +415,50 @@ const OnboardingScreen = () => {
         onScroll={handleScroll}
         scrollEventThrottle={16}
         keyExtractor={(item) => item.id.toString()}
+        bounces={false}
       />
 
-      {/* Progress Indicators */}
-      <View style={[styles.progressContainer, { bottom: insets.bottom + 40 }]}>
-        {ONBOARDING_SCREENS.map((_, index) => (
-          <View
-            key={index}
-            width={8}
-            height={8}
-            br={4}
-            backgroundColor={index === currentScreen ? Colors.dark.primary : Colors.dark.backgroundSecondary}
-          />
-        ))}
-      </View>
+      {/* Morphing Container */}
+      <Animated.View
+        style={[
+          styles.morphContainer,
+          {
+            bottom: insets.bottom + 40,
+            width: containerWidth,
+            height: containerHeight,
+            borderRadius: containerBorderRadius,
+            backgroundColor:
+              currentScreen === ONBOARDING_SCREENS.length - 1 ? Colors.dark.primary : Colors.dark.backgroundSecondary,
+            borderWidth: currentScreen === ONBOARDING_SCREENS.length - 1 ? 0 : 1,
+            borderColor: Colors.dark.border,
+          },
+        ]}
+      >
+        {/* Progress Indicators */}
+        <Animated.View style={[styles.indicatorsWrapper, { opacity: indicatorsOpacity }]}>
+          {ONBOARDING_SCREENS.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.indicator,
+                {
+                  backgroundColor: index === currentScreen ? Colors.dark.primary : Colors.dark.backgroundTertiary,
+                  width: index === currentScreen ? 24 : 8,
+                },
+              ]}
+            />
+          ))}
+        </Animated.View>
+
+        {/* Button Text */}
+        <Animated.View style={[styles.buttonTextWrapper, { opacity: textOpacity }]}>
+          <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+            Get Started
+          </Text>
+        </Animated.View>
+
+        <Pressable style={StyleSheet.absoluteFill} onPress={handleSkip} />
+      </Animated.View>
     </View>
   );
 };
@@ -244,6 +473,7 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   backgroundContainer: {
     ...StyleSheet.absoluteFillObject,
@@ -269,14 +499,77 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 32,
-  },
-  progressContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 1,
+  },
+  patternContainer: {
+    position: 'absolute',
+    width: width,
+    height: height,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pattern: {
+    width: width,
+    height: height,
+    transform: [{ scale: 1.3 }],
+  },
+  morphContainer: {
+    position: 'absolute',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+    overflow: 'hidden',
+    width: width,
+  },
+  indicatorsWrapper: {
+    flexDirection: 'row',
     gap: 8,
+    position: 'absolute',
+  },
+  buttonTextWrapper: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  indicator: {
+    height: 8,
+    borderRadius: 4,
+    transition: '0.3s',
+  },
+  animatedCircleContainer: {
+    position: 'absolute',
+    width: 300, // Increased size
+    height: 300, // Increased size
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  blurView: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 150,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  outerBlur: {
+    position: 'absolute',
+    width: '120%',
+    height: '120%',
+    borderRadius: 180,
+  },
+  outerMostBlur: {
+    position: 'absolute',
+    width: '140%',
+    height: '140%',
+    borderRadius: 210,
+  },
+  animatedCircle: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 150,
   },
 });
 
