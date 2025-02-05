@@ -144,7 +144,7 @@ const ProfileScreen = () => {
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}>
         {/* Profile Header */}
         <YStack ai="center" pt={'$5'} pb="$6" px="$4" gap="$4">
-          <Circle backgroundColor={colors.background} p="$1.5" borderWidth={'$1.5'} borderColor={colors.primary}>
+          <Circle backgroundColor={colors.border} borderWidth={'$2'} borderColor={colors.border}>
             <Avatar circular size="$12">
               <Avatar.Image
                 source={user?.profilePic ? { uri: user?.profilePic } : require('@/../assets/default.png')}
