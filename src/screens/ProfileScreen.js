@@ -147,13 +147,7 @@ const ProfileScreen = () => {
           <Circle backgroundColor={colors.background} p="$1.5" borderWidth={'$1.5'} borderColor={colors.primary}>
             <Avatar circular size="$12">
               <Avatar.Image
-                source={{
-                  uri:
-                    user?.profilePic ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      `${user?.firstName || ''} ${user?.lastName || ''}`
-                    )}&background=random`,
-                }}
+                source={user?.profilePic ? { uri: user?.profilePic } : require('@/../assets/default.png')}
               />
               <Avatar.Fallback backgroundColor={colors.backgroundSecondary}>
                 <UserIcon size={32} color={colors.textSecondary} />
