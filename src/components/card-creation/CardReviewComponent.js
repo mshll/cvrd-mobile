@@ -5,6 +5,7 @@ import CardComponent from '@/components/CardComponent';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useCardMutations } from '@/hooks/useCardMutations';
 
 // Default card configurations for each type
 const DEFAULT_CARD_CONFIGS = {
@@ -43,6 +44,12 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
   const colors = useColors();
   const [remainingGenerations, setRemainingGenerations] = useState(INITIAL_GENERATIONS);
   const insets = useSafeAreaInsets();
+  const {
+    createBurnerCardMutation,
+    createCategoryCardMutation,
+    createMerchantCardMutation,
+    createLocationCardMutation,
+  } = useCardMutations();
 
   // Function to format limit value
   const formatLimit = (value) => {
@@ -90,9 +97,31 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
         },
         {
           text: 'Create',
-          onPress: () => {
+          onPress: async () => {
             setRemainingGenerations((prev) => prev - 1);
-            onCreateCard(cardData);
+
+            try {
+              // Call the appropriate mutation based on card type
+              switch (cardType) {
+                case 'Burner':
+                  await createBurnerCardMutation.mutateAsync(cardData);
+                  break;
+                case 'Category':
+                  await createCategoryCardMutation.mutateAsync(cardData);
+                  break;
+                case 'Merchant':
+                  await createMerchantCardMutation.mutateAsync(cardData);
+                  break;
+                case 'Location':
+                  await createLocationCardMutation.mutateAsync(cardData);
+                  break;
+              }
+
+              onCreateCard(cardData);
+            } catch (error) {
+              // Error is already handled by the mutation
+              setRemainingGenerations((prev) => prev + 1); // Restore the generation count on error
+            }
           },
         },
       ]

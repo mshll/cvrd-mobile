@@ -1,10 +1,10 @@
-import { View, ScrollView, YStack, Text, Separator, XStack, Button, Input } from 'tamagui';
+import { View, ScrollView, YStack, Text, Separator, XStack, Button, Input, Spinner } from 'tamagui';
 import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Colors, useColors } from '@/config/colors';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import CardComponent from '@/components/CardComponent';
 import { useCards } from '@/hooks/useCards';
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { Edit3, Pause, PauseCircle, Play, Share2, Trash2, BanknotesIcon } from '@tamagui/lucide-icons';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
 import CardFlipComponent from '@/components/CardFlipComponent';
@@ -133,16 +133,36 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
 };
 
 const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
-
   const colors = useColors();
   const { showActionSheetWithOptions } = useActionSheet();
 
-  const [spendingLimit, setSpendingLimit] = useState(card.spending_limit?.toString() || '');
-  const [durationLimit, setDurationLimit] = useState(card.duration_limit || 'per_transaction');
+  // Add null checks and default values for card properties
+  const initialSpendingLimit = card?.spending_limit?.toString() || '';
+  const initialDurationLimit = card?.duration_limit || 'per_transaction';
+
+  const [spendingLimit, setSpendingLimit] = useState(initialSpendingLimit);
+  const [durationLimit, setDurationLimit] = useState(initialDurationLimit);
+
+  // Reset state when card changes
+  useEffect(() => {
+    setSpendingLimit(card?.spending_limit?.toString() || '');
+    setDurationLimit(card?.duration_limit || 'per_transaction');
+  }, [card]);
+
+  // Debug log
+  console.log('💰 SpendLimitSheet:', {
+    cardId: card?.id,
+    hasCard: !!card,
+    spendingLimit,
+    durationLimit,
+  });
+
+  if (!card) {
+    return null;
+  }
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} aboveAll={false}>
-
       <SpendLimitMenu
         spendingLimit={spendingLimit}
         setSpendingLimit={setSpendingLimit}
@@ -153,7 +173,6 @@ const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
           onClose();
         }}
       />
-
     </BottomSheet>
   );
 };
@@ -162,10 +181,63 @@ const CardDetailsScreen = () => {
   const colors = useColors();
   const route = useRoute();
   const navigation = useNavigation();
-  const { cardId } = route.params;
-  const { getCardById, updateCard } = useCards();
-  const card = getCardById(cardId);
+  const { cardId } = route.params || {};
+  const { getCardById, updateCard, isLoading, error, refetch } = useCards();
   const [showSpendLimitSheet, setShowSpendLimitSheet] = useState(false);
+
+  // Get card data
+  const card = useMemo(() => {
+    const foundCard = cardId ? getCardById(cardId) : null;
+    console.log('📇 Card details:', { cardId, found: !!foundCard, card: foundCard });
+    return foundCard;
+  }, [cardId, getCardById]);
+
+  // Refetch data when screen focuses
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      refetch();
+    });
+
+    return unsubscribe;
+  }, [navigation, refetch]);
+
+  // Show loading state while fetching card data
+  if (isLoading) {
+    return (
+      <View f={1} ai="center" jc="center" bg={colors.background}>
+        <Spinner size="large" color={colors.text} />
+      </View>
+    );
+  }
+
+  // Show error state if card not found
+  if (!card || error) {
+    return (
+      <View f={1} ai="center" jc="center" bg={colors.background} p="$4">
+        <Text color={colors.text} fontSize="$5" textAlign="center" mb="$4">
+          {error ? 'Error loading card' : 'Card not found'}
+        </Text>
+        <YStack gap="$4" ai="center">
+          {error && (
+            <Button
+              onPress={refetch}
+              backgroundColor={colors.primary}
+              pressStyle={{ backgroundColor: colors.primaryDark }}
+            >
+              <Text color="white">Try Again</Text>
+            </Button>
+          )}
+          <Button
+            onPress={() => navigation.goBack()}
+            backgroundColor={error ? colors.backgroundSecondary : colors.primary}
+            pressStyle={{ backgroundColor: error ? colors.backgroundTertiary : colors.primaryDark }}
+          >
+            <Text color={error ? colors.text : 'white'}>Go Back</Text>
+          </Button>
+        </YStack>
+      </View>
+    );
+  }
 
   const remainingPercentage = useMemo(() => {
     if (!card.spending_limit || card.duration_limit === 'per_transaction') return null;
@@ -189,6 +261,7 @@ const CardDetailsScreen = () => {
   };
 
   const handleSpendLimitSave = (updates) => {
+    if (!cardId) return;
     updateCard(cardId, updates);
   };
 
@@ -210,11 +283,7 @@ const CardDetailsScreen = () => {
         <XStack gap="$5" mt="$5" mb="$5">
           <YStack gap="$2" ai="center" jc="center">
             <ActionButton onPress={handleTogglePause}>
-              {card.is_paused ? (
-                <PlayIcon size={25} color={colors.text} />
-              ) : (
-                <PauseIcon size={25} color={colors.text} />
-              )}
+              {card.paused ? <PlayIcon size={25} color={colors.text} /> : <PauseIcon size={25} color={colors.text} />}
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
@@ -289,7 +358,7 @@ const CardDetailsScreen = () => {
                           style={{
                             width: `${remainingPercentage}%`,
                             height: '100%',
-                            backgroundColor: Colors.cards[card.card_color] || card.card_color,
+                            backgroundColor: Colors.cards[card.cardColor] || card.cardColor,
                           }}
                         />
                       </XStack>
@@ -320,12 +389,12 @@ const CardDetailsScreen = () => {
           )}
 
           {/* Location Map (only for location cards) */}
-          {card.card_type === 'Location' && card.longitude && card.latitude && (
+          {card.cardType === 'LOCATION' && card.longitude && card.latitude && (
             <LocationMap
               latitude={card.latitude}
               longitude={card.longitude}
               radius={card.radius}
-              color={Colors.cards[card.card_color]}
+              color={Colors.cards[card.cardColor]}
               onEdit={handleEditLocation}
             />
           )}
@@ -348,37 +417,41 @@ const CardDetailsScreen = () => {
               <YStack gap="$3">
                 <XStack jc="space-between">
                   <Text color={colors.textSecondary}>Card Number</Text>
-                  <Text color={colors.text}>•••• {card.card_number.slice(-4)}</Text>
+                  <Text color={colors.text}>•••• {card.cardNumber?.slice(-4) || '••••'}</Text>
                 </XStack>
                 <Separator backgroundColor={colors.border} />
 
                 <XStack jc="space-between">
                   <Text color={colors.textSecondary}>Expiry Date</Text>
-                  <Text color={colors.text}>{new Date(card.expiry_date).toLocaleDateString()}</Text>
+                  <Text color={colors.text}>
+                    {card.expiryDate ? new Date(card.expiryDate).toLocaleDateString() : '-'}
+                  </Text>
                 </XStack>
                 <Separator backgroundColor={colors.border} />
 
                 <XStack jc="space-between">
                   <Text color={colors.textSecondary}>Created</Text>
-                  <Text color={colors.text}>{new Date(card.created_at).toLocaleDateString()}</Text>
+                  <Text color={colors.text}>
+                    {card.createdAt ? new Date(card.createdAt).toLocaleDateString() : '-'}
+                  </Text>
                 </XStack>
                 <Separator backgroundColor={colors.border} />
 
-                {card.merchant_name && (
+                {card.merchantName && (
                   <>
                     <XStack jc="space-between">
                       <Text color={colors.textSecondary}>Merchant</Text>
-                      <Text color={colors.text}>{card.merchant_name}</Text>
+                      <Text color={colors.text}>{card.merchantName}</Text>
                     </XStack>
                     <Separator backgroundColor={colors.border} />
                   </>
                 )}
 
-                {card.category_name && (
+                {card.categoryName && (
                   <>
                     <XStack jc="space-between">
                       <Text color={colors.textSecondary}>Category</Text>
-                      <Text color={colors.text}>{card.category_name}</Text>
+                      <Text color={colors.text}>{card.categoryName}</Text>
                     </XStack>
                     <Separator backgroundColor={colors.border} />
                   </>
@@ -386,7 +459,7 @@ const CardDetailsScreen = () => {
 
                 <XStack jc="space-between">
                   <Text color={colors.textSecondary}>Shared</Text>
-                  <Text color={colors.text}>{card.is_shared ? 'Yes' : 'No'}</Text>
+                  <Text color={colors.text}>{card.shared ? 'Yes' : 'No'}</Text>
                 </XStack>
               </YStack>
             </YStack>

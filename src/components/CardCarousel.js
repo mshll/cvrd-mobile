@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { StyleSheet, Pressable, Animated } from 'react-native';
-import { View, XStack } from 'tamagui';
+import { View, XStack, Text } from 'tamagui';
 import { Colors } from '../config/colors';
 import { useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '../navigation/paths';
-import { Text } from 'tamagui';
 import CardComponent from './CardComponent';
 import { WINDOW_WIDTH, CARD_WIDTH as CARD_WIDTH_DEFAULT, CARD_HEIGHT as CARD_HEIGHT_DEFAULT } from '@/utils/cardUtils';
 
@@ -18,12 +17,24 @@ const SIDE_SPACING = (WINDOW_WIDTH - CARD_WIDTH) / 2;
 
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
-function CardCarousel({ title, data, icon: Icon }) {
+function CardCarousel({ title, data = [], icon: Icon }) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme || 'light'];
   const navigation = useNavigation();
   const scrollX = React.useRef(new Animated.Value(0)).current;
   const flatListRef = React.useRef(null);
+
+  // Debug logging
+  console.log('🎠 CardCarousel:', {
+    title,
+    dataLength: data?.length || 0,
+    data: data,
+  });
+
+  // Don't render if no data
+  if (!data || data.length === 0) {
+    return null;
+  }
 
   const handleCardPress = React.useCallback(
     (item, index) => {
@@ -120,6 +131,7 @@ function CardCarousel({ title, data, icon: Icon }) {
             index,
           })}
           initialScrollIndex={0}
+          keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
         />
       </View>
     </View>

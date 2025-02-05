@@ -1,4 +1,4 @@
-import { Text, View, Image, XStack, YStack } from 'tamagui';
+import { Text, View, Image, XStack, YStack, Spinner } from 'tamagui';
 import { BlurView } from 'expo-blur';
 import { StyleSheet } from 'react-native';
 import { Colors } from '@/config/colors';
@@ -14,49 +14,80 @@ import {
 import { CARD_WIDTH, CARD_HEIGHT, getCardTheme, getCardAssets } from '@/utils/cardUtils';
 
 const getCardIcon = (type, color, scale) => {
-  if (type === 'Location') return <MapPinIcon size={24 * scale} color={color} />;
-  if (type === 'Burner') return <FireIcon size={24 * scale} color={color} />;
-  if (type === 'Merchant') return <BuildingStorefrontIcon size={24 * scale} color={color} />;
-  if (type === 'Category') return <TagIcon size={24 * scale} color={color} />;
+  const cleanType = type?.replace('_LOCKED', '');
+  if (cleanType === 'LOCATION') return <MapPinIcon size={24 * scale} color={color} />;
+  if (cleanType === 'BURNER') return <FireIcon size={24 * scale} color={color} />;
+  if (cleanType === 'MERCHANT') return <BuildingStorefrontIcon size={24 * scale} color={color} />;
+  if (cleanType === 'CATEGORY') return <TagIcon size={24 * scale} color={color} />;
 };
 
 const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) => {
   const { getCardById } = useCards();
   const card = cardId ? getCardById(cardId) : null;
 
+  // If no displayData and no card, show loading state
+  if (!displayData && !card) {
+    return (
+      <View
+        width={CARD_WIDTH * scale}
+        height={CARD_HEIGHT * scale}
+        borderRadius={15}
+        backgroundColor="$backgroundSecondary"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Spinner size="large" color="$primary" />
+      </View>
+    );
+  }
+
   // If displayData is provided, use it directly, otherwise generate from card
+  const data = displayData || {
+    type: card.cardType,
+    label: card.cardName,
+    emoji: card.cardIcon,
+    lastFourDigits: card.cardNumber.slice(-4),
+    backgroundColor: card.cardColor,
+    isPaused: card.paused,
+    isClosed: card.closed,
+  };
+
   const {
     type = '-',
     label = '-',
     emoji = '❌',
     lastFourDigits = '1234',
     backgroundColor = 'red',
-    isPaused = card?.is_paused || false,
-    isClosed = card?.is_closed || false,
-  } = displayData ||
-  (card
-    ? {
-        type: card.card_type,
-        label: card.card_name,
-        emoji: card.card_icon,
-        lastFourDigits: card.card_number.slice(-4),
-        backgroundColor: card.card_color,
-        isPaused: card.is_paused,
-        isClosed: card.is_closed,
-      }
-    : {});
+    isPaused = false,
+    isClosed = false,
+  } = data;
 
-  let cardColor = Colors.cards[backgroundColor] || backgroundColor;
+  // Log the processed card data for debugging
+  console.log('🎴 Rendering card:', { type, label, emoji, lastFourDigits, backgroundColor, isPaused, isClosed });
+
+  let cardColor = backgroundColor;
   const cardTheme = getCardTheme(cardColor);
   const blurTint = cardTheme === 'light' ? 'regular' : 'regular';
   const textColor = cardTheme === 'light' ? 'white' : 'black';
-  const { cardImg, logoImg, visaImg } = getCardAssets(type, cardTheme);
+
+  // Get card assets with proper type normalization
+  const normalizedType = type?.replace('_LOCKED', '')?.toUpperCase() || 'BURNER';
+  const { cardImg, logoImg, visaImg } = getCardAssets(normalizedType, cardTheme);
+
+  // Debug log for assets
+  console.log('🎨 Card assets:', {
+    normalizedType,
+    cardTheme,
+    hasCardImg: !!cardImg,
+    hasLogoImg: !!logoImg,
+    hasVisaImg: !!visaImg,
+  });
 
   return (
     <View width={CARD_WIDTH * scale} height={CARD_HEIGHT * scale} borderRadius={15} overflow="hidden" bg={cardColor}>
       {/* Background Layer */}
       <View style={StyleSheet.absoluteFill}>
-        <Image source={cardImg} style={styles.cardImage} resizeMode="cover" />
+        {cardImg && <Image source={cardImg} style={styles.cardImage} resizeMode="cover" />}
         {isClosed && <View style={styles.closedOverlay} />}
       </View>
 
@@ -105,17 +136,19 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
         </YStack>
 
         {/* Logo */}
-        <View
-          w={CARD_WIDTH * scale * 0.5}
-          h={100}
-          jc="center"
-          ai="center"
-          pos="absolute"
-          t={CARD_HEIGHT * scale * 0.5 - 50}
-          r={30}
-        >
-          <Image source={logoImg} w="100%" h="100%" resizeMode="contain" />
-        </View>
+        {logoImg && (
+          <View
+            w={CARD_WIDTH * scale * 0.5}
+            h={100}
+            jc="center"
+            ai="center"
+            pos="absolute"
+            t={CARD_HEIGHT * scale * 0.5 - 50}
+            r={30}
+          >
+            <Image source={logoImg} w="100%" h="100%" resizeMode="contain" />
+          </View>
+        )}
 
         {/* Bottom Row */}
         {!isPreview && (
@@ -123,9 +156,11 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
             <Text fontSize={16} color={textColor} fontWeight="600" pb="$1" pl="$1">
               •••• &nbsp;{lastFourDigits}
             </Text>
-            <View style={styles.visaContainer}>
-              <Image source={visaImg} style={styles.visaLogo} resizeMode="contain" />
-            </View>
+            {visaImg && (
+              <View style={styles.visaContainer}>
+                <Image source={visaImg} style={styles.visaLogo} resizeMode="contain" />
+              </View>
+            )}
           </View>
         )}
       </YStack>
