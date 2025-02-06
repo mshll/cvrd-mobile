@@ -265,17 +265,14 @@ const CardDetailsScreen = () => {
   const handleSpendLimitSave = (updates) => {
     if (!cardId) return;
 
-    // Find the first non-zero limit
-    const activeLimit = Object.entries(updates).find(([_, value]) => value > 0);
+    // Get the first limit update (we only allow one limit at a time)
+    const [limitType, amount] = Object.entries(updates)[0];
 
-    if (activeLimit) {
-      const [limitType, amount] = activeLimit;
-      updateCardLimitMutation.mutate({
-        cardId,
-        limitType,
-        amount,
-      });
-    }
+    updateCardLimitMutation.mutate({
+      cardId,
+      limitType,
+      amount,
+    });
   };
 
   const handleEditLocation = useCallback(() => {

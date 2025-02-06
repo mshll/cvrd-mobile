@@ -1,8 +1,11 @@
 import axios from 'axios';
 import { getToken } from './storage';
 
+let IP = '';
+// IP = '192.168.2.37';
+
 const instance = axios.create({
-  baseURL: 'http://192.168.2.37:8080',
+  baseURL: `http://${IP || 'localhost'}:8080`,
 });
 
 instance.interceptors.request.use(async (config) => {

@@ -1,6 +1,6 @@
 import { YStack, XStack, Button, Input, Text } from 'tamagui';
 import { TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Colors } from '@/config/colors';
+import { Colors, useColors } from '@/config/colors';
 import { useState, useEffect, useCallback } from 'react';
 
 const DURATION_OPTIONS = [
@@ -13,7 +13,8 @@ const DURATION_OPTIONS = [
   { name: 'Total', value: 'total' },
 ];
 
-const SpendLimitMenu = ({ card, onSave, darkButtons, showSaveButton = false }) => {
+const SpendLimitMenu = ({ card, onSave, darkButtons = false, showSaveButton = false }) => {
+  const colors = useColors();
   const [spendingLimit, setSpendingLimit] = useState('');
   const [durationLimit, setDurationLimit] = useState('no_limit');
 
@@ -41,54 +42,16 @@ const SpendLimitMenu = ({ card, onSave, darkButtons, showSaveButton = false }) =
     }
   }, [card]);
 
-  const handleLimitChange = useCallback(() => {
-    // Only auto-save if not showing save button
-    if (showSaveButton) return;
-
-    const updates = {
-      per_transaction: 0,
-      per_day: 0,
-      per_week: 0,
-      per_month: 0,
-      per_year: 0,
-      total: 0,
-    };
-
-    if (durationLimit !== 'no_limit' && spendingLimit) {
-      const amount = parseFloat(spendingLimit);
-      if (amount > 0) {
-        updates[durationLimit] = amount;
-      }
-    }
-
-    // Log the updates being saved
-    console.log('💾 Auto-saving spend limits:', updates);
-
-    // Call onSave with the updates
-    if (onSave) {
-      onSave(updates);
-    }
-  }, [durationLimit, spendingLimit, onSave, showSaveButton]);
-
   const handleSave = useCallback(() => {
-    const updates = {
-      per_transaction: 0,
-      per_day: 0,
-      per_week: 0,
-      per_month: 0,
-      per_year: 0,
-      total: 0,
-    };
+    const updates = {};
 
-    if (durationLimit !== 'no_limit' && spendingLimit) {
-      const amount = parseFloat(spendingLimit);
-      if (amount > 0) {
-        updates[durationLimit] = amount;
-      }
+    if (durationLimit === 'no_limit') {
+      // If "No Limit" is selected, we want to remove all limits
+      updates[DURATION_OPTIONS[1].value] = null; // Use per_transaction as the type to remove limits
+    } else if (spendingLimit) {
+      // If a limit is set, use that specific limit type
+      updates[durationLimit] = spendingLimit === '0' ? null : parseFloat(spendingLimit);
     }
-
-    // Log the updates being saved
-    console.log('💾 Manually saving spend limits:', updates);
 
     // Call onSave with the updates
     if (onSave) {
@@ -96,21 +59,14 @@ const SpendLimitMenu = ({ card, onSave, darkButtons, showSaveButton = false }) =
     }
   }, [durationLimit, spendingLimit, onSave]);
 
-  // Debounce the limit changes
-  useEffect(() => {
-    if (showSaveButton) return; // Don't auto-save if showing save button
-    const timeoutId = setTimeout(handleLimitChange, 500);
-    return () => clearTimeout(timeoutId);
-  }, [spendingLimit, durationLimit, showSaveButton]);
-
   const getButtonBackgroundColor = (isSelected) => {
-    if (isSelected) return Colors.dark.primary;
-    return darkButtons ? Colors.dark.backgroundTertiary : Colors.dark.backgroundSecondary;
+    if (isSelected) return colors.primary;
+    return darkButtons ? colors.backgroundTertiary : colors.backgroundSecondary;
   };
 
   const getButtonPressedColor = (isSelected) => {
-    if (isSelected) return Colors.dark.primaryDark;
-    return darkButtons ? Colors.dark.background : Colors.dark.backgroundTertiary;
+    if (isSelected) return colors.primaryDark;
+    return darkButtons ? colors.background : colors.backgroundTertiary;
   };
 
   return (
@@ -119,14 +75,14 @@ const SpendLimitMenu = ({ card, onSave, darkButtons, showSaveButton = false }) =
         <YStack gap="$5">
           {/* Amount Input */}
           <XStack
-            backgroundColor={darkButtons ? Colors.dark.backgroundTertiary : Colors.dark.backgroundSecondary}
+            backgroundColor={darkButtons ? colors.backgroundTertiary : colors.backgroundSecondary}
             borderRadius={16}
             height={70}
             alignItems="center"
             paddingHorizontal="$4"
             opacity={durationLimit === 'no_limit' ? 0.5 : 1}
           >
-            <Text color={Colors.dark.text} fontSize="$8" fontWeight="700" fontFamily={'$archivoBlack'} mr="$2">
+            <Text color={colors.text} fontSize="$8" fontWeight="700" fontFamily={'$archivoBlack'} mr="$2">
               KD
             </Text>
             <Input
@@ -138,8 +94,8 @@ const SpendLimitMenu = ({ card, onSave, darkButtons, showSaveButton = false }) =
               keyboardType="decimal-pad"
               backgroundColor="transparent"
               borderWidth={0}
-              color={Colors.dark.text}
-              placeholderTextColor={Colors.dark.textTertiary}
+              color={colors.text}
+              placeholderTextColor={colors.textTertiary}
               fontSize="$8"
               fontFamily={'$archivoBlack'}
               p={0}
@@ -190,7 +146,7 @@ const SpendLimitMenu = ({ card, onSave, darkButtons, showSaveButton = false }) =
                   minWidth={isNoLimit ? '100%' : '48%'}
                   {...borderRadius}
                 >
-                  <Text color={isSelected ? 'white' : Colors.dark.text} fontSize="$3" fontWeight="600">
+                  <Text color={isSelected ? 'white' : colors.text} fontSize="$3" fontWeight="600">
                     {option.name}
                   </Text>
                 </Button>
@@ -201,8 +157,8 @@ const SpendLimitMenu = ({ card, onSave, darkButtons, showSaveButton = false }) =
           {/* Save Button */}
           {showSaveButton && (
             <Button
-              backgroundColor={Colors.dark.primary}
-              pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+              backgroundColor={colors.primary}
+              pressStyle={{ backgroundColor: colors.primaryDark }}
               onPress={handleSave}
               height={50}
               borderRadius={12}

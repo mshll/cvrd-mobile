@@ -171,7 +171,7 @@ export async function fetchUserCards() {
  * Updates a card's spending limit
  * @param {string} cardId - The ID of the card to update
  * @param {string} limitType - The type of limit to update (PER_TRANSACTION, PER_DAY, etc.)
- * @param {number} amount - The amount to set for the limit
+ * @param {number|null} amount - The amount to set for the limit, or null to remove the limit
  * @returns {Promise<Object>} The updated card data
  */
 export async function updateCardLimit(cardId, limitType, amount) {
@@ -180,7 +180,7 @@ export async function updateCardLimit(cardId, limitType, amount) {
 
   const requestBody = {
     limitType: limitType.toUpperCase(),
-    amount: parseFloat(amount),
+    ...(amount === null ? { removeLimit: true } : { amount: parseFloat(amount) }),
   };
 
   const response = await instance.put(`/card/update/${cardId}/limit`, requestBody);
@@ -194,5 +194,13 @@ export async function togglePause(cardId) {
 
 export async function closeCard(cardId) {
   const response = await instance.put(`/card/${cardId}/close`);
+  return response.data;
+}
+
+export async function updateCard(cardId, updates) {
+  // Log the update request
+  console.log('📝 Updating card:', { cardId, updates });
+
+  const response = await instance.put(`/card/update/${cardId}`, updates);
   return response.data;
 }

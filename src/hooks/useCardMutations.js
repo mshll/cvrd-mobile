@@ -7,6 +7,7 @@ import {
   updateCardLimit,
   togglePause,
   closeCard,
+  updateCard,
 } from '@/api/cards';
 import Toast from 'react-native-toast-message';
 
@@ -111,6 +112,25 @@ export function useCardMutations() {
     ...createMutationOptions('Your location-locked card has been created successfully'),
   });
 
+  const updateCardMutation = useMutation({
+    mutationFn: ({ cardId, updates }) => updateCard(cardId, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
+      Toast.show({
+        type: 'success',
+        text1: 'Card Updated',
+        text2: 'Card has been updated successfully',
+      });
+    },
+    onError: (error) => {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Failed to update card',
+      });
+    },
+  });
+
   return {
     createBurnerCardMutation,
     createCategoryCardMutation,
@@ -119,5 +139,6 @@ export function useCardMutations() {
     updateCardLimitMutation,
     togglePauseMutation,
     closeCardMutation,
+    updateCardMutation,
   };
 }
