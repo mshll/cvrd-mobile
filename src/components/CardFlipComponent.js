@@ -57,6 +57,8 @@ const CardFlipComponent = ({ cardId }) => {
   }, [isFlipped]);
 
   const handleCopyCardNumber = async () => {
+    if (card.closed) return;
+
     await Clipboard.setStringAsync(card.cardNumber);
     Toast.show({
       type: 'success',
@@ -66,6 +68,9 @@ const CardFlipComponent = ({ cardId }) => {
   };
 
   const flipCard = () => {
+    // Don't allow flipping if card is closed
+    if (card.closed) return;
+
     // Clear any existing timeout when manually flipping
     if (autoFlipTimeout.current) {
       clearTimeout(autoFlipTimeout.current);
@@ -75,24 +80,12 @@ const CardFlipComponent = ({ cardId }) => {
     const preFlipValue = isFlipped ? 225 : -45;
 
     Animated.sequence([
-      // Pre-flip in opposite direction
-      // Animated.spring(flipAnim, {
-      //   toValue: preFlipValue,
-      //   useNativeDriver: true,
-      //   tension: 20,
-      //   friction: 10,
-      //   velocity: isFlipped ? -10 : 10,
-      //   restSpeedThreshold: 100,
-      //   restDisplacementThreshold: 40,
-      //   overshootClamping: true,
-      // }),
-      // Main flip
       Animated.spring(flipAnim, {
         toValue,
         useNativeDriver: true,
-        tension: 10, // Less tension for smoother movement
-        friction: 10, // Less friction for more natural bounce
-        velocity: isFlipped ? -10 : 10, // Reversed velocity for natural continuation
+        tension: 10,
+        friction: 10,
+        velocity: isFlipped ? -10 : 10,
         restSpeedThreshold: 100,
         restDisplacementThreshold: 40,
         overshootClamping: true,
@@ -227,7 +220,7 @@ const CardFlipComponent = ({ cardId }) => {
   return (
     <View w={CARD_WIDTH} h={CARD_HEIGHT} zi={1}>
       <TouchableWithoutFeedback onPress={flipCard}>
-        <View w={CARD_WIDTH} h={CARD_HEIGHT} pos="relative" jc="center" ai="center">
+        <View w={CARD_WIDTH} h={CARD_HEIGHT} pos="relative" jc="center" ai="center" opacity={card.closed ? 0.7 : 1}>
           <Animated.View style={[styles.cardContainer, frontAnimatedStyle]}>{renderFront()}</Animated.View>
           <Animated.View style={[styles.cardContainer, styles.cardBack, backAnimatedStyle]}>
             {renderBack()}

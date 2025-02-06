@@ -106,27 +106,29 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ActionSheetProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <TamaguiProvider config={tamaguiConfig}>
-            <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
-              <ColorSchemeProvider>
-                <AuthProvider>
-                  <BreadcrumbProvider>
-                    <PortalProvider>
-                      <BottomSheetModalProvider>
-                        <StatusBar animated={true} barStyle="default" />
-                        <NavigationContainer>
-                          <Navigation />
-                        </NavigationContainer>
-                        <Toast config={toastConfig} />
-                      </BottomSheetModalProvider>
-                    </PortalProvider>
-                  </BreadcrumbProvider>
-                </AuthProvider>
-              </ColorSchemeProvider>
-            </Theme>
-          </TamaguiProvider>
-        </GestureHandlerRootView>
+        <SafeAreaProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <TamaguiProvider config={tamaguiConfig}>
+              <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
+                <ColorSchemeProvider>
+                  <AuthProvider>
+                    <BreadcrumbProvider>
+                      <PortalProvider>
+                        <BottomSheetModalProvider>
+                          <StatusBar animated={true} barStyle="default" />
+                          <NavigationContainer>
+                            <Navigation />
+                          </NavigationContainer>
+                          <Toast config={toastConfig} />
+                        </BottomSheetModalProvider>
+                      </PortalProvider>
+                    </BreadcrumbProvider>
+                  </AuthProvider>
+                </ColorSchemeProvider>
+              </Theme>
+            </TamaguiProvider>
+          </GestureHandlerRootView>
+        </SafeAreaProvider>
       </ActionSheetProvider>
     </QueryClientProvider>
   );

@@ -14,6 +14,10 @@ export const Colors = {
     textTertiary: '#666666',
     border: '#262d3d',
     borderSecondary: '#333d51',
+    danger: '#F4405E',
+    success: '#00c851',
+    warning: '#ffbb33',
+    info: '#33b5e5',
   },
   light: {
     primary: '#d6515b', // Keep brand color consistent
@@ -27,6 +31,10 @@ export const Colors = {
     textTertiary: '#868e96', // Light gray for disabled/tertiary
     border: '#dee2e6', // Soft borders for light mode
     borderSecondary: '#ced4da', // Slightly darker borders when needed
+    danger: '#F4405E',
+    success: '#7bd497',
+    warning: '#EBE14B',
+    info: '#47D5FF',
   },
   cards: {
     red: '#d6515b',

@@ -262,31 +262,29 @@ function HomeScreen() {
     // Debug logging for cardsByType
     console.log('🗂️ cardsByType:', cardsByType);
 
-    return order
-      .map((sectionId) => {
-        const sectionCards = cardsByType[sectionId] || [];
+    return order.map((sectionId) => {
+      const sectionCards = cardsByType[sectionId] || [];
 
-        // Debug logging for each section
-        console.log(`📊 Section ${sectionId}:`, {
-          cardCount: sectionCards.length,
-          config: SECTION_CONFIG[sectionId],
-        });
+      // Debug logging for each section
+      console.log(`📊 Section ${sectionId}:`, {
+        cardCount: sectionCards.length,
+        config: SECTION_CONFIG[sectionId],
+      });
 
-        return {
-          ...SECTION_CONFIG[sectionId],
-          data: sectionCards
-            .sort((a, b) => {
-              const getPriority = (card) => {
-                if (card.closed) return 2;
-                if (card.paused) return 1;
-                return 0;
-              };
-              return getPriority(a) - getPriority(b);
-            })
-            .map(getCardDisplayData),
-        };
-      })
-      .filter((section) => section.data.length > 0); // Only show sections with cards
+      return {
+        ...SECTION_CONFIG[sectionId],
+        data: sectionCards
+          .sort((a, b) => {
+            const getPriority = (card) => {
+              if (card.closed) return 2;
+              if (card.paused) return 1;
+              return 0;
+            };
+            return getPriority(a) - getPriority(b);
+          })
+          .map(getCardDisplayData),
+      };
+    });
   }, [order, cardsByType, getCardDisplayData]);
 
   const handleReorder = async (reorderedSections) => {

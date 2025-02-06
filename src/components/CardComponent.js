@@ -123,14 +123,24 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
             </View>
           </XStack>
 
-          {/* Status Badges */}
-          {(isPaused || isClosed) && (
+          {/* Status Badge - Show only one badge with closed taking precedence */}
+          {(isClosed || isPaused) && (
             <BlurView intensity={10} tint={blurTint} style={[styles.badge, styles.statusBadge]}>
-              {isPaused && <PauseCircleIcon size={16} color={textColor} />}
-              {isClosed && <XCircleIcon size={16} color={textColor} />}
-              <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600">
-                {isClosed ? 'Closed' : isPaused ? 'Paused' : ''}
-              </Text>
+              {isClosed ? (
+                <>
+                  <XCircleIcon size={16} color={textColor} />
+                  <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600">
+                    Closed
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <PauseCircleIcon size={16} color={textColor} />
+                  <Text fontSize={12} color={textColor} marginLeft={4} fontWeight="600">
+                    Paused
+                  </Text>
+                </>
+              )}
             </BlurView>
           )}
         </YStack>

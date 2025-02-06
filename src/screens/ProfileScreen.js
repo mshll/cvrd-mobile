@@ -220,8 +220,8 @@ const ProfileScreen = () => {
           animation="quick"
         >
           <XStack ai="center" gap="$2">
-            <PowerIcon size={20} color={Colors.cards.pink} />
-            <Text color={Colors.cards.pink} fontSize="$4" fontWeight="600">
+            <PowerIcon size={20} color={colors.danger} />
+            <Text color={colors.danger} fontSize="$4" fontWeight="600">
               Log Out
             </Text>
           </XStack>
@@ -239,8 +239,8 @@ const ProfileScreen = () => {
           </Text>
           <YStack gap="$3">
             <Button
-              backgroundColor={Colors.cards.pink}
-              pressStyle={{ backgroundColor: Colors.cards.pink }}
+              backgroundColor={colors.danger}
+              pressStyle={{ backgroundColor: colors.danger }}
               onPress={handleLogout}
               size="$5"
               borderRadius={12}

@@ -4,6 +4,7 @@ import { Colors, useColors } from '@/config/colors';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import CardComponent from '@/components/CardComponent';
 import { useCards } from '@/hooks/useCards';
+import { useCardMutations } from '@/hooks/useCardMutations';
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { Edit3, Pause, PauseCircle, Play, Share2, Trash2, BanknotesIcon } from '@tamagui/lucide-icons';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
@@ -24,6 +25,7 @@ import { ArrowUpOnSquareIcon } from 'react-native-heroicons/outline';
 import BottomSheet from '@/components/BottomSheet';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import SpendLimitMenu from '@/components/SpendLimitMenu';
+import Toast from 'react-native-toast-message';
 
 const MAP_HEIGHT = 200;
 
@@ -54,7 +56,7 @@ const DURATION_OPTIONS = [
   { name: 'Total', value: 'total' },
 ];
 
-const ActionButton = ({ onPress, children }) => {
+const ActionButton = ({ onPress, children, disabled }) => {
   const colors = useColors();
   return (
     <Button
@@ -68,13 +70,15 @@ const ActionButton = ({ onPress, children }) => {
       justifyContent="center"
       borderWidth={1}
       borderColor={colors.border}
+      opacity={disabled ? 0.5 : 1}
+      disabled={disabled}
     >
       {children}
     </Button>
   );
 };
 
-const EditButton = ({ onPress }) => {
+const EditButton = ({ onPress, disabled }) => {
   const colors = useColors();
   return (
     <Button
@@ -86,6 +90,8 @@ const EditButton = ({ onPress }) => {
       borderWidth={1}
       borderColor={colors.border}
       borderRadius={8}
+      opacity={disabled ? 0.5 : 1}
+      disabled={disabled}
     >
       <Text color={colors.text} fontSize="$2" fontWeight="600">
         Edit
@@ -162,6 +168,7 @@ const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
           onClose();
         }}
         darkButtons
+        showSaveButton
       />
     </BottomSheet>
   );
@@ -172,8 +179,10 @@ const CardDetailsScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const { cardId } = route.params || {};
-  const { getCardById, updateCard, isLoading: isCardsLoading } = useCards();
+  const { getCardById, isLoading: isCardsLoading } = useCards();
+  const { updateCardLimitMutation, togglePauseMutation, closeCardMutation } = useCardMutations();
   const [showSpendLimitSheet, setShowSpendLimitSheet] = useState(false);
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   // Get card data
   const card = useMemo(() => {
@@ -221,18 +230,52 @@ const CardDetailsScreen = () => {
   };
 
   const handleTogglePause = () => {
-    if (card) {
-      updateCard(card.id, { paused: !card.paused });
+    if (card && !card.closed) {
+      togglePauseMutation.mutate(cardId);
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Cannot Toggle Pause',
+        text2: 'This card is closed and cannot be modified',
+      });
     }
   };
 
   const handleDelete = () => {
-    // TODO: Implement delete functionality with confirmation
+    if (card && !card.closed) {
+      setShowConfirmClose(true);
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Cannot Close Card',
+        text2: 'This card is already closed',
+      });
+    }
+  };
+
+  const handleConfirmClose = () => {
+    closeCardMutation.mutate(cardId, {
+      onSuccess: () => {
+        setShowConfirmClose(false);
+        navigation.goBack();
+      },
+    });
   };
 
   const handleSpendLimitSave = (updates) => {
     if (!cardId) return;
-    updateCard(cardId, updates);
+
+    // Find the first non-zero limit
+    const activeLimit = Object.entries(updates).find(([_, value]) => value > 0);
+
+    if (activeLimit) {
+      const [limitType, amount] = activeLimit;
+      updateCardLimitMutation.mutate({
+        cardId,
+        limitType,
+        amount,
+      });
+    }
   };
 
   const handleEditLocation = useCallback(() => {
@@ -247,23 +290,23 @@ const CardDetailsScreen = () => {
         {/* Action Buttons */}
         <XStack gap="$5" mt="$5" mb="$5">
           <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleTogglePause}>
+            <ActionButton onPress={handleTogglePause} disabled={card.closed}>
               {card.paused ? <PlayIcon size={25} color={colors.text} /> : <PauseIcon size={25} color={colors.text} />}
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleEdit}>
+            <ActionButton onPress={handleEdit} disabled={card.closed}>
               <PaintBrushIcon size={25} color={colors.text} />
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleShare}>
+            <ActionButton onPress={handleShare} disabled={card.closed}>
               <ArrowUpOnSquareIcon size={25} color={colors.text} />
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleDelete}>
-              <TrashIcon size={25} color={Colors.cards.pink} />
+            <ActionButton onPress={handleDelete} disabled={card.closed}>
+              <TrashIcon size={25} color={colors.danger} />
             </ActionButton>
           </YStack>
         </XStack>
@@ -286,7 +329,7 @@ const CardDetailsScreen = () => {
                   <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                     Spend Limit
                   </Text>
-                  <EditButton onPress={() => setShowSpendLimitSheet(true)} />
+                  <EditButton onPress={() => setShowSpendLimitSheet(true)} disabled={card.closed} />
                 </XStack>
                 <YStack gap="$2">
                   <Text color={colors.text} fontSize="$6" fontWeight="700">
@@ -299,24 +342,26 @@ const CardDetailsScreen = () => {
               </YStack>
             </View>
           ) : (
-            <Button
-              onPress={() => setShowSpendLimitSheet(true)}
-              height={120}
-              borderRadius={12}
-              borderWidth={1}
-              borderStyle="dashed"
-              borderColor={colors.border}
-              backgroundColor={'transparent'}
-              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
-              alignItems="center"
-              justifyContent="center"
-            >
-              <YStack alignItems="center" gap="$2">
-                <Text color={colors.textTertiary} fontSize="$3" fontWeight="600">
-                  Set a spend limit
-                </Text>
-              </YStack>
-            </Button>
+            !card.closed && (
+              <Button
+                onPress={() => setShowSpendLimitSheet(true)}
+                height={120}
+                borderRadius={12}
+                borderWidth={1}
+                borderStyle="dashed"
+                borderColor={colors.border}
+                backgroundColor={'transparent'}
+                pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+                alignItems="center"
+                justifyContent="center"
+              >
+                <YStack alignItems="center" gap="$2">
+                  <Text color={colors.textTertiary} fontSize="$3" fontWeight="600">
+                    Set a spend limit
+                  </Text>
+                </YStack>
+              </Button>
+            )
           )}
 
           {/* Location Map (only for location cards) */}
@@ -404,6 +449,44 @@ const CardDetailsScreen = () => {
         card={card}
         onSave={handleSpendLimitSave}
       />
+
+      {/* Confirmation Sheet for Card Closure */}
+      <BottomSheet isOpen={showConfirmClose} onClose={() => setShowConfirmClose(false)}>
+        <YStack gap="$4" px="$4" pt="$2" pb="$6">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            Close Card
+          </Text>
+          <Text color={colors.textSecondary} fontSize="$4">
+            Are you sure you want to close this card? This action cannot be undone.
+          </Text>
+          <YStack gap="$3">
+            <Button
+              backgroundColor={colors.danger}
+              pressStyle={{ opacity: 0.8 }}
+              onPress={handleConfirmClose}
+              size="$5"
+              borderRadius={12}
+            >
+              <Text color="white" fontSize="$4" fontWeight="600">
+                Yes, Close Card
+              </Text>
+            </Button>
+            <Button
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={() => setShowConfirmClose(false)}
+              size="$5"
+              borderRadius={12}
+              borderWidth={1}
+              borderColor={colors.border}
+            >
+              <Text color={colors.text} fontSize="$4" fontWeight="600">
+                Cancel
+              </Text>
+            </Button>
+          </YStack>
+        </YStack>
+      </BottomSheet>
     </ScrollView>
   );
 };

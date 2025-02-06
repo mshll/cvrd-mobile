@@ -1,7 +1,7 @@
 import { YStack, XStack, Button, Input, Text } from 'tamagui';
 import { TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Colors } from '@/config/colors';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const DURATION_OPTIONS = [
   { name: 'No Limit', value: 'no_limit' },
@@ -13,7 +13,7 @@ const DURATION_OPTIONS = [
   { name: 'Total', value: 'total' },
 ];
 
-const SpendLimitMenu = ({ card, onSave, darkButtons }) => {
+const SpendLimitMenu = ({ card, onSave, darkButtons, showSaveButton = false }) => {
   const [spendingLimit, setSpendingLimit] = useState('');
   const [durationLimit, setDurationLimit] = useState('no_limit');
 
@@ -41,8 +41,10 @@ const SpendLimitMenu = ({ card, onSave, darkButtons }) => {
     }
   }, [card]);
 
-  // Update limits whenever duration or spending limit changes
-  useEffect(() => {
+  const handleLimitChange = useCallback(() => {
+    // Only auto-save if not showing save button
+    if (showSaveButton) return;
+
     const updates = {
       per_transaction: 0,
       per_day: 0,
@@ -61,8 +63,45 @@ const SpendLimitMenu = ({ card, onSave, darkButtons }) => {
 
     // Log the updates being saved
     console.log('💾 Auto-saving spend limits:', updates);
-    onSave(updates);
-  }, [durationLimit, spendingLimit]);
+
+    // Call onSave with the updates
+    if (onSave) {
+      onSave(updates);
+    }
+  }, [durationLimit, spendingLimit, onSave, showSaveButton]);
+
+  const handleSave = useCallback(() => {
+    const updates = {
+      per_transaction: 0,
+      per_day: 0,
+      per_week: 0,
+      per_month: 0,
+      per_year: 0,
+      total: 0,
+    };
+
+    if (durationLimit !== 'no_limit' && spendingLimit) {
+      const amount = parseFloat(spendingLimit);
+      if (amount > 0) {
+        updates[durationLimit] = amount;
+      }
+    }
+
+    // Log the updates being saved
+    console.log('💾 Manually saving spend limits:', updates);
+
+    // Call onSave with the updates
+    if (onSave) {
+      onSave(updates);
+    }
+  }, [durationLimit, spendingLimit, onSave]);
+
+  // Debounce the limit changes
+  useEffect(() => {
+    if (showSaveButton) return; // Don't auto-save if showing save button
+    const timeoutId = setTimeout(handleLimitChange, 500);
+    return () => clearTimeout(timeoutId);
+  }, [spendingLimit, durationLimit, showSaveButton]);
 
   const getButtonBackgroundColor = (isSelected) => {
     if (isSelected) return Colors.dark.primary;
@@ -94,7 +133,6 @@ const SpendLimitMenu = ({ card, onSave, darkButtons }) => {
               value={durationLimit === 'no_limit' ? '' : spendingLimit}
               onChangeText={(text) => {
                 setSpendingLimit(text);
-                Keyboard.dismiss();
               }}
               placeholder="0.00"
               keyboardType="decimal-pad"
@@ -159,6 +197,22 @@ const SpendLimitMenu = ({ card, onSave, darkButtons }) => {
               );
             })}
           </XStack>
+
+          {/* Save Button */}
+          {showSaveButton && (
+            <Button
+              backgroundColor={Colors.dark.primary}
+              pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
+              onPress={handleSave}
+              height={50}
+              borderRadius={12}
+              marginTop="$4"
+            >
+              <Text color="white" fontSize="$4" fontWeight="600">
+                Save Changes
+              </Text>
+            </Button>
+          )}
         </YStack>
       </YStack>
     </TouchableWithoutFeedback>

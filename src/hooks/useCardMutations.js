@@ -1,5 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createBurnerCard, createCategoryCard, createMerchantCard, createLocationCard } from '@/api/cards';
+import {
+  createBurnerCard,
+  createCategoryCard,
+  createMerchantCard,
+  createLocationCard,
+  updateCardLimit,
+  togglePause,
+  closeCard,
+} from '@/api/cards';
 import Toast from 'react-native-toast-message';
 
 export function useCardMutations() {
@@ -22,6 +30,63 @@ export function useCardMutations() {
         type: 'error',
         text1: 'Error',
         text2: error.response?.data?.message || 'Failed to create card',
+      });
+    },
+  });
+
+  const updateCardLimitMutation = useMutation({
+    mutationFn: ({ cardId, limitType, amount }) => updateCardLimit(cardId, limitType, amount),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
+      Toast.show({
+        type: 'success',
+        text1: 'Limit Updated',
+        text2: 'Card limit has been updated successfully',
+      });
+    },
+    onError: (error) => {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Failed to update card limit',
+      });
+    },
+  });
+
+  const togglePauseMutation = useMutation({
+    mutationFn: togglePause,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
+      Toast.show({
+        type: 'success',
+        text1: data.paused ? 'Card Paused' : 'Card Unpaused',
+        text2: data.paused ? 'Card has been paused successfully' : 'Card has been unpaused successfully',
+      });
+    },
+    onError: (error) => {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Failed to toggle card pause state',
+      });
+    },
+  });
+
+  const closeCardMutation = useMutation({
+    mutationFn: closeCard,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
+      Toast.show({
+        type: 'success',
+        text1: 'Card Closed',
+        text2: 'Card has been closed successfully',
+      });
+    },
+    onError: (error) => {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Failed to close card',
       });
     },
   });
@@ -51,5 +116,8 @@ export function useCardMutations() {
     createCategoryCardMutation,
     createMerchantCardMutation,
     createLocationCardMutation,
+    updateCardLimitMutation,
+    togglePauseMutation,
+    closeCardMutation,
   };
 }
