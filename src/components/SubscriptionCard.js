@@ -33,8 +33,21 @@ const SubscriptionCard = ({ subscription }) => {
       overflow="hidden"
       backgroundColor={backgroundColor}
       marginRight={16}
-      opacity={isPaused ? 0.7 : 1}
     >
+      {/* Dimming Overlay */}
+      {isPaused && (
+        <View
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          backgroundColor="black"
+          opacity={0.6}
+          zIndex={1}
+        />
+      )}
+
       {/* Background Pattern */}
       <View position="absolute" width="100%" height="100%" ai="center" jc="center" overflow="hidden">
         <Image
@@ -53,7 +66,7 @@ const SubscriptionCard = ({ subscription }) => {
       </View>
 
       {/* Content */}
-      <View flex={1} padding={20} justifyContent="space-between">
+      <View flex={1} padding={20} justifyContent="space-between" zIndex={1}>
         {/* Top Section with Logo and Pause Button */}
         <XStack jc="space-between" ai="center">
           <Image
@@ -63,6 +76,7 @@ const SubscriptionCard = ({ subscription }) => {
               height: 50,
               resizeMode: 'contain',
               tintColor: textColor,
+              opacity: isPaused ? 0.4 : 1,
             }}
           />
           <View
@@ -71,6 +85,7 @@ const SubscriptionCard = ({ subscription }) => {
               borderRadius: 10,
               borderWidth: StyleSheet.hairlineWidth,
               borderColor: `${textColor}40`,
+              zIndex: 2,
             }}
           >
             <BlurView intensity={10} tint={theme === 'dark' ? 'dark' : 'light'}>
@@ -92,12 +107,18 @@ const SubscriptionCard = ({ subscription }) => {
 
         {/* Bottom Section */}
         <View gap={4}>
-          <Text color={textColor} fontSize={24} fontWeight="700" fontFamily={'$archivoBlack'}>
+          <Text
+            color={textColor}
+            fontSize={24}
+            fontWeight="700"
+            fontFamily={'$archivoBlack'}
+            opacity={isPaused ? 0.4 : 1}
+          >
             {amount}
           </Text>
           <View flexDirection="row" alignItems="center" gap={4}>
-            <CalendarIcon size={16} color={`${textColor}CC`} />
-            <Text color={`${textColor}CC`} fontSize={14} fontWeight={'500'}>
+            <CalendarIcon size={16} color={`${textColor}CC`} opacity={isPaused ? 0.4 : 1} />
+            <Text color={`${textColor}CC`} fontSize={14} fontWeight={'500'} opacity={isPaused ? 0.4 : 1}>
               Next billing date: {nextBillingDate}
             </Text>
           </View>

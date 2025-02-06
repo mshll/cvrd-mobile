@@ -1,5 +1,5 @@
 import { Colors, useColors } from '@/config/colors';
-import { View, Text, ScrollView, YStack } from 'tamagui';
+import { View, Text, ScrollView, YStack, XStack } from 'tamagui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SubscriptionCard from '@/components/SubscriptionCard';
 import { BellIcon } from 'react-native-heroicons/solid';
@@ -38,23 +38,20 @@ const SubscriptionsScreen = () => {
   const insets = useSafeAreaInsets();
 
   return (
-    <View f={1} bg={colors.background}>
+    <View f={1} bg={colors.background} pt={insets.top - 20} pb={insets.bottom}>
       <ScrollView
         contentContainerStyle={[
-          styles.container,
-          {
-            paddingTop: insets.top,
-          },
+          styles.container
         ]}
       >
-        {/* Header */}
+        {/* Subscriptions Section */}
         <YStack px="$4" gap="$4" mb="$6">
-          <View flexDirection="row" alignItems="center" gap={8}>
+          <XStack ai="center" gap="$2">
             <BellIcon size={20} color={colors.text} />
             <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
               Subscriptions
             </Text>
-          </View>
+          </XStack>
         </YStack>
 
         {/* Subscription Cards */}

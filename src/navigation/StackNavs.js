@@ -128,7 +128,15 @@ export const SubscriptionsStack = () => {
   const colors = useColors();
   return (
     <Stack.Navigator screenOptions={defaultScreenOptions(colors)}>
-      <Stack.Screen name={Paths.SUBSCRIPTIONS_SCREEN} component={SubscriptionsScreen} />
+      <Stack.Screen
+        name={Paths.SUBSCRIPTIONS_SCREEN}
+        component={SubscriptionsScreen}
+        options={{
+          headerTitle: () => (
+            <Image source={require('@/../assets/logo-primary.png')} style={{ height: 24, resizeMode: 'contain' }} />
+          ),
+        }}
+      />
     </Stack.Navigator>
   );
 };
