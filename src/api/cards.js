@@ -17,7 +17,7 @@ export const CARD_DEFAULTS = {
   },
   LOCATION_LOCKED: {
     icon: '📍',
-    color: Colors.cards.blue,
+    color: Colors.cards.navy,
   },
 };
 
@@ -29,12 +29,30 @@ export const CARD_DEFAULTS = {
 function processLimits(limits) {
   if (!limits) return {};
 
-  return Object.entries(limits).reduce((acc, [key, value]) => {
-    if (value !== null && value > 0) {
-      acc[key] = parseFloat(value);
+  // Log the incoming limits
+  console.log('📊 Processing limits:', limits);
+
+  // Initialize all limits to 0
+  const processedLimits = {
+    per_transaction: 0,
+    per_day: 0,
+    per_week: 0,
+    per_month: 0,
+    per_year: 0,
+    total: 0,
+  };
+
+  // Update with any non-zero values from the input
+  Object.entries(limits).forEach(([key, value]) => {
+    if (value && value > 0) {
+      processedLimits[key] = parseFloat(value);
     }
-    return acc;
-  }, {});
+  });
+
+  // Log the processed limits
+  console.log('✅ Processed limits:', processedLimits);
+
+  return processedLimits;
 }
 
 /**
@@ -51,6 +69,9 @@ export async function createBurnerCard(cardData) {
     cardColor: CARD_DEFAULTS.BURNER.color,
     ...processLimits(cardData.limits),
   };
+
+  // Log the full request body
+  console.log('📤 Creating burner card with request body:', requestBody);
 
   const response = await instance.post('/card/create/burner', requestBody);
   return response.data;
@@ -73,6 +94,9 @@ export async function createCategoryCard(cardData) {
     ...processLimits(cardData.limits),
   };
 
+  // Log the full request body
+  console.log('📤 Creating category card with request body:', requestBody);
+
   const response = await instance.post('/card/create/category-locked', requestBody);
   return response.data;
 }
@@ -92,6 +116,9 @@ export async function createMerchantCard(cardData) {
     cardColor: CARD_DEFAULTS.MERCHANT_LOCKED.color,
     ...processLimits(cardData.limits),
   };
+
+  // Log the full request body
+  console.log('📤 Creating merchant card with request body:', requestBody);
 
   const response = await instance.post('/card/create/merchant-locked', requestBody);
   return response.data;
@@ -116,6 +143,9 @@ export async function createLocationCard(cardData) {
     radius: cardData.radius,
     ...processLimits(cardData.limits),
   };
+
+  // Log the full request body
+  console.log('📤 Creating location card with request body:', requestBody);
 
   const response = await instance.post('/card/create/location-locked', requestBody);
   return response.data;

@@ -1,41 +1,68 @@
 import { YStack, XStack, Button, Input, Text } from 'tamagui';
 import { TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Colors } from '@/config/colors';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const DURATION_OPTIONS = [
   { name: 'No Limit', value: 'no_limit' },
   { name: 'Per Transaction', value: 'per_transaction' },
-  { name: 'Per Day', value: 'daily' },
-  { name: 'Per Week', value: 'weekly' },
-  { name: 'Per Month', value: 'monthly' },
-  { name: 'Per Year', value: 'yearly' },
+  { name: 'Per Day', value: 'per_day' },
+  { name: 'Per Week', value: 'per_week' },
+  { name: 'Per Month', value: 'per_month' },
+  { name: 'Per Year', value: 'per_year' },
   { name: 'Total', value: 'total' },
 ];
 
-const SpendLimitMenu = ({ spendingLimit, setSpendingLimit, durationLimit, setDurationLimit, onSave, darkButtons }) => {
-  // Set no_limit as default
-  useState(() => {
-    if (!durationLimit) {
-      setDurationLimit('no_limit');
-    }
-  }, []);
+const SpendLimitMenu = ({ card, onSave, darkButtons }) => {
+  const [spendingLimit, setSpendingLimit] = useState('');
+  const [durationLimit, setDurationLimit] = useState('no_limit');
 
-  const handleSave = () => {
-    if (durationLimit === 'no_limit') {
-      onSave({
-        spending_limit: null,
-        duration_limit: null,
-        remaining_limit: null,
-      });
-    } else {
-      onSave({
-        spending_limit: parseFloat(spendingLimit),
-        duration_limit: durationLimit,
-        remaining_limit: parseFloat(spendingLimit),
-      });
+  // Initialize with existing limit if any
+  useEffect(() => {
+    if (card) {
+      const limits = {
+        per_transaction: card.per_transaction,
+        per_day: card.per_day,
+        per_week: card.per_week,
+        per_month: card.per_month,
+        per_year: card.per_year,
+        total: card.total,
+      };
+
+      // Find the first non-zero limit
+      const activeLimit = Object.entries(limits).find(([_, value]) => value > 0);
+      if (activeLimit) {
+        setDurationLimit(activeLimit[0]);
+        setSpendingLimit(activeLimit[1].toString());
+      } else {
+        setDurationLimit('no_limit');
+        setSpendingLimit('');
+      }
     }
-  };
+  }, [card]);
+
+  // Update limits whenever duration or spending limit changes
+  useEffect(() => {
+    const updates = {
+      per_transaction: 0,
+      per_day: 0,
+      per_week: 0,
+      per_month: 0,
+      per_year: 0,
+      total: 0,
+    };
+
+    if (durationLimit !== 'no_limit' && spendingLimit) {
+      const amount = parseFloat(spendingLimit);
+      if (amount > 0) {
+        updates[durationLimit] = amount;
+      }
+    }
+
+    // Log the updates being saved
+    console.log('💾 Auto-saving spend limits:', updates);
+    onSave(updates);
+  }, [durationLimit, spendingLimit]);
 
   const getButtonBackgroundColor = (isSelected) => {
     if (isSelected) return Colors.dark.primary;
@@ -65,7 +92,10 @@ const SpendLimitMenu = ({ spendingLimit, setSpendingLimit, durationLimit, setDur
             </Text>
             <Input
               value={durationLimit === 'no_limit' ? '' : spendingLimit}
-              onChangeText={setSpendingLimit}
+              onChangeText={(text) => {
+                setSpendingLimit(text);
+                Keyboard.dismiss();
+              }}
               placeholder="0.00"
               keyboardType="decimal-pad"
               backgroundColor="transparent"
@@ -111,7 +141,12 @@ const SpendLimitMenu = ({ spendingLimit, setSpendingLimit, durationLimit, setDur
                   pressStyle={{
                     backgroundColor: getButtonPressedColor(isSelected),
                   }}
-                  onPress={() => setDurationLimit(option.value)}
+                  onPress={() => {
+                    setDurationLimit(option.value);
+                    if (isNoLimit) {
+                      setSpendingLimit('');
+                    }
+                  }}
                   flex={isNoLimit ? 2 : 1}
                   height={50}
                   minWidth={isNoLimit ? '100%' : '48%'}
@@ -125,20 +160,6 @@ const SpendLimitMenu = ({ spendingLimit, setSpendingLimit, durationLimit, setDur
             })}
           </XStack>
         </YStack>
-
-        {/* Save Button */}
-        <Button
-          backgroundColor={Colors.dark.primary}
-          pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
-          onPress={handleSave}
-          size="$5"
-          borderRadius={12}
-          mt="$2"
-        >
-          <Text color="white" fontSize="$4" fontWeight="600">
-            Save
-          </Text>
-        </Button>
       </YStack>
     </TouchableWithoutFeedback>
   );

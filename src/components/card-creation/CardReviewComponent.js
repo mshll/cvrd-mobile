@@ -6,26 +6,10 @@ import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useCardMutations } from '@/hooks/useCardMutations';
+import { CARD_DEFAULTS } from '@/api/cards';
 
 // Default card configurations for each type
-const DEFAULT_CARD_CONFIGS = {
-  Merchant: {
-    emoji: '🛍️',
-    color: Colors.cards.green,
-  },
-  Category: {
-    emoji: '📅',
-    color: Colors.cards.pink,
-  },
-  Location: {
-    emoji: '📍',
-    color: Colors.cards.blue,
-  },
-  Burner: {
-    emoji: '🔥',
-    color: Colors.cards.yellow,
-  },
-};
+const DEFAULT_CARD_CONFIGS = CARD_DEFAULTS;
 
 // Mock remaining generations (replace with actual data from your backend)
 const INITIAL_GENERATIONS = 3;

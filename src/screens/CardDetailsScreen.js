@@ -27,6 +27,24 @@ import SpendLimitMenu from '@/components/SpendLimitMenu';
 
 const MAP_HEIGHT = 200;
 
+// Helper function to get active spending limit
+function getActiveSpendingLimit(card) {
+  if (!card) return null;
+
+  const limits = [
+    { type: 'per_transaction', value: card.per_transaction, label: 'Per Transaction' },
+    { type: 'per_day', value: card.per_day, label: 'Per Day' },
+    { type: 'per_week', value: card.per_week, label: 'Per Week' },
+    { type: 'per_month', value: card.per_month, label: 'Per Month' },
+    { type: 'per_year', value: card.per_year, label: 'Per Year' },
+    { type: 'total', value: card.total, label: 'Total' },
+  ];
+
+  // Find the first non-zero limit
+  const activeLimit = limits.find((limit) => limit.value > 0);
+  return activeLimit || null;
+}
+
 const DURATION_OPTIONS = [
   { name: 'Per Transaction', value: 'per_transaction' },
   { name: 'Per Day', value: 'daily' },
@@ -133,45 +151,17 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
 };
 
 const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
-  const colors = useColors();
-  const { showActionSheetWithOptions } = useActionSheet();
-
-  // Add null checks and default values for card properties
-  const initialSpendingLimit = card?.spending_limit?.toString() || '';
-  const initialDurationLimit = card?.duration_limit || 'per_transaction';
-
-  const [spendingLimit, setSpendingLimit] = useState(initialSpendingLimit);
-  const [durationLimit, setDurationLimit] = useState(initialDurationLimit);
-
-  // Reset state when card changes
-  useEffect(() => {
-    setSpendingLimit(card?.spending_limit?.toString() || '');
-    setDurationLimit(card?.duration_limit || 'per_transaction');
-  }, [card]);
-
-  // Debug log
-  console.log('💰 SpendLimitSheet:', {
-    cardId: card?.id,
-    hasCard: !!card,
-    spendingLimit,
-    durationLimit,
-  });
-
-  if (!card) {
-    return null;
-  }
+  if (!card) return null;
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} aboveAll={false}>
       <SpendLimitMenu
-        spendingLimit={spendingLimit}
-        setSpendingLimit={setSpendingLimit}
-        durationLimit={durationLimit}
-        setDurationLimit={setDurationLimit}
+        card={card}
         onSave={(updates) => {
           onSave(updates);
           onClose();
         }}
+        darkButtons
       />
     </BottomSheet>
   );
@@ -182,7 +172,7 @@ const CardDetailsScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const { cardId } = route.params || {};
-  const { getCardById, updateCard, isLoading, error, refetch } = useCards();
+  const { getCardById, updateCard, isLoading: isCardsLoading } = useCards();
   const [showSpendLimitSheet, setShowSpendLimitSheet] = useState(false);
 
   // Get card data
@@ -192,17 +182,11 @@ const CardDetailsScreen = () => {
     return foundCard;
   }, [cardId, getCardById]);
 
-  // Refetch data when screen focuses
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      refetch();
-    });
-
-    return unsubscribe;
-  }, [navigation, refetch]);
+  // Get active spending limit
+  const activeSpendingLimit = useMemo(() => getActiveSpendingLimit(card), [card]);
 
   // Show loading state while fetching card data
-  if (isLoading) {
+  if (isCardsLoading) {
     return (
       <View f={1} ai="center" jc="center" bg={colors.background}>
         <Spinner size="large" color={colors.text} />
@@ -211,38 +195,22 @@ const CardDetailsScreen = () => {
   }
 
   // Show error state if card not found
-  if (!card || error) {
+  if (!card) {
     return (
       <View f={1} ai="center" jc="center" bg={colors.background} p="$4">
         <Text color={colors.text} fontSize="$5" textAlign="center" mb="$4">
-          {error ? 'Error loading card' : 'Card not found'}
+          Card not found
         </Text>
-        <YStack gap="$4" ai="center">
-          {error && (
-            <Button
-              onPress={refetch}
-              backgroundColor={colors.primary}
-              pressStyle={{ backgroundColor: colors.primaryDark }}
-            >
-              <Text color="white">Try Again</Text>
-            </Button>
-          )}
-          <Button
-            onPress={() => navigation.goBack()}
-            backgroundColor={error ? colors.backgroundSecondary : colors.primary}
-            pressStyle={{ backgroundColor: error ? colors.backgroundTertiary : colors.primaryDark }}
-          >
-            <Text color={error ? colors.text : 'white'}>Go Back</Text>
-          </Button>
-        </YStack>
+        <Button
+          onPress={() => navigation.goBack()}
+          backgroundColor={colors.primary}
+          pressStyle={{ backgroundColor: colors.primaryDark }}
+        >
+          <Text color="white">Go Back</Text>
+        </Button>
       </View>
     );
   }
-
-  const remainingPercentage = useMemo(() => {
-    if (!card.spending_limit || card.duration_limit === 'per_transaction') return null;
-    return ((card.remaining_limit / card.spending_limit) * 100).toFixed(0);
-  }, [card.remaining_limit, card.spending_limit, card.duration_limit]);
 
   const handleEdit = () => {
     navigation.navigate(Paths.EDIT_CARD, { cardId });
@@ -253,7 +221,9 @@ const CardDetailsScreen = () => {
   };
 
   const handleTogglePause = () => {
-    // TODO: Implement pause/unpause functionality
+    if (card) {
+      updateCard(card.id, { paused: !card.paused });
+    }
   };
 
   const handleDelete = () => {
@@ -263,11 +233,6 @@ const CardDetailsScreen = () => {
   const handleSpendLimitSave = (updates) => {
     if (!cardId) return;
     updateCard(cardId, updates);
-  };
-
-  const formatDurationLimit = (duration) => {
-    if (!duration) return '';
-    return DURATION_OPTIONS.find((opt) => opt.value === duration)?.name || duration;
   };
 
   const handleEditLocation = useCallback(() => {
@@ -306,7 +271,7 @@ const CardDetailsScreen = () => {
         {/* Card Details */}
         <YStack width="100%" px="$4" gap="$4">
           {/* Spending Limit Section */}
-          {card.spending_limit ? (
+          {activeSpendingLimit ? (
             <View
               style={{
                 borderRadius: 12,
@@ -324,46 +289,12 @@ const CardDetailsScreen = () => {
                   <EditButton onPress={() => setShowSpendLimitSheet(true)} />
                 </XStack>
                 <YStack gap="$2">
-                  {card.duration_limit === 'per_transaction' ? (
-                    <>
-                      <Text color={colors.text} fontSize="$6" fontWeight="700">
-                        {formatCurrency(card.spending_limit)}
-                      </Text>
-                      <Text color={colors.textSecondary} fontSize="$3">
-                        per transaction
-                      </Text>
-                    </>
-                  ) : (
-                    <>
-                      <XStack jc="space-between">
-                        <Text color={colors.text} fontSize="$6" fontWeight="700">
-                          {formatCurrency(card.remaining_limit)}
-                        </Text>
-                        <Text color={colors.textSecondary} fontSize="$4">
-                          {remainingPercentage}%
-                        </Text>
-                      </XStack>
-                      <Text color={colors.textSecondary} fontSize="$3">
-                        of {formatCurrency(card.spending_limit)} {formatDurationLimit(card.duration_limit)}
-                      </Text>
-                      {/* Progress Bar */}
-                      <XStack
-                        height={4}
-                        backgroundColor={colors.backgroundTertiary}
-                        borderRadius="$4"
-                        mt="$2"
-                        overflow="hidden"
-                      >
-                        <View
-                          style={{
-                            width: `${remainingPercentage}%`,
-                            height: '100%',
-                            backgroundColor: Colors.cards[card.cardColor] || card.cardColor,
-                          }}
-                        />
-                      </XStack>
-                    </>
-                  )}
+                  <Text color={colors.text} fontSize="$6" fontWeight="700">
+                    {formatCurrency(activeSpendingLimit.value)}
+                  </Text>
+                  <Text color={colors.textSecondary} fontSize="$3">
+                    {activeSpendingLimit.label}
+                  </Text>
                 </YStack>
               </YStack>
             </View>
@@ -375,7 +306,7 @@ const CardDetailsScreen = () => {
               borderWidth={1}
               borderStyle="dashed"
               borderColor={colors.border}
-              backgroundColor={colors.backgroundSecondary}
+              backgroundColor={'transparent'}
               pressStyle={{ backgroundColor: colors.backgroundTertiary }}
               alignItems="center"
               justifyContent="center"
@@ -389,12 +320,12 @@ const CardDetailsScreen = () => {
           )}
 
           {/* Location Map (only for location cards) */}
-          {card.cardType === 'LOCATION' && card.longitude && card.latitude && (
+          {card.cardType === 'LOCATION_LOCKED' && card.longitude && card.latitude && (
             <LocationMap
               latitude={card.latitude}
               longitude={card.longitude}
               radius={card.radius}
-              color={Colors.cards[card.cardColor]}
+              color={Colors.cards[card.cardColor] || card.cardColor}
               onEdit={handleEditLocation}
             />
           )}
@@ -458,8 +389,8 @@ const CardDetailsScreen = () => {
                 )}
 
                 <XStack jc="space-between">
-                  <Text color={colors.textSecondary}>Shared</Text>
-                  <Text color={colors.text}>{card.shared ? 'Yes' : 'No'}</Text>
+                  <Text color={colors.textSecondary}>Status</Text>
+                  <Text color={colors.text}>{card.closed ? 'Closed' : card.paused ? 'Paused' : 'Active'}</Text>
                 </XStack>
               </YStack>
             </YStack>

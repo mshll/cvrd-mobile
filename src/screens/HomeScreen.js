@@ -37,17 +37,17 @@ import BottomSheet from '@/components/BottomSheet';
 const SECTION_CONFIG = {
   MERCHANT: {
     id: 'MERCHANT',
-    title: 'Merchant Locked Cards',
+    title: 'Merchant-Locked Cards',
     icon: BuildingStorefrontIcon,
   },
   CATEGORY: {
     id: 'CATEGORY',
-    title: 'Category Locked Cards',
+    title: 'Category-Locked Cards',
     icon: TagIcon,
   },
   LOCATION: {
     id: 'LOCATION',
-    title: 'Location Locked Cards',
+    title: 'Location-Locked Cards',
     icon: MapPinIcon,
   },
   BURNER: {
