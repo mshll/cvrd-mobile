@@ -2,6 +2,7 @@ import { Colors, useColors } from '@/config/colors';
 import { View, Text, ScrollView, YStack, XStack } from 'tamagui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SubscriptionCard from '@/components/SubscriptionCard';
+import MerchantList from '@/components/MerchantList';
 import { BellIcon } from 'react-native-heroicons/solid';
 import { StyleSheet } from 'react-native';
 
@@ -39,27 +40,26 @@ const SubscriptionsScreen = () => {
 
   return (
     <View f={1} bg={colors.background} pt={insets.top - 20} pb={insets.bottom}>
-      <ScrollView
-        contentContainerStyle={[
-          styles.container
-        ]}
-      >
+      <ScrollView contentContainerStyle={styles.container}>
         {/* Subscriptions Section */}
-        <YStack px="$4" gap="$4" mb="$6">
-          <XStack ai="center" gap="$2">
+        <YStack gap="$4" mb="$6">
+          <XStack ai="center" gap="$2" px="$4">
             <BellIcon size={20} color={colors.text} />
             <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
               Subscriptions
             </Text>
           </XStack>
+
+          {/* Subscription Cards */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardsContainer}>
+            {DUMMY_SUBSCRIPTIONS.map((subscription) => (
+              <SubscriptionCard key={subscription.id} subscription={subscription} />
+            ))}
+          </ScrollView>
         </YStack>
 
-        {/* Subscription Cards */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardsContainer}>
-          {DUMMY_SUBSCRIPTIONS.map((subscription) => (
-            <SubscriptionCard key={subscription.id} subscription={subscription} />
-          ))}
-        </ScrollView>
+        {/* Merchant List */}
+        <MerchantList />
       </ScrollView>
     </View>
   );
