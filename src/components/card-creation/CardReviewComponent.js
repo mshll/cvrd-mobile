@@ -87,16 +87,16 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
             try {
               // Call the appropriate mutation based on card type
               switch (cardType) {
-                case 'Burner':
+                case 'BURNER':
                   await createBurnerCardMutation.mutateAsync(cardData);
                   break;
-                case 'Category':
+                case 'CATEGORY_LOCKED':
                   await createCategoryCardMutation.mutateAsync(cardData);
                   break;
-                case 'Merchant':
+                case 'MERCHANT_LOCKED':
                   await createMerchantCardMutation.mutateAsync(cardData);
                   break;
-                case 'Location':
+                case 'LOCATION_LOCKED':
                   await createLocationCardMutation.mutateAsync(cardData);
                   break;
               }
@@ -123,7 +123,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
                 displayData={{
                   type: cardType,
                   label: cardData.name,
-                  emoji: DEFAULT_CARD_CONFIGS[cardType].emoji,
+                  emoji: DEFAULT_CARD_CONFIGS[cardType].icon,
                   lastFourDigits: '••••',
                   backgroundColor: DEFAULT_CARD_CONFIGS[cardType].color,
                   isPaused: false,

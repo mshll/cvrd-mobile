@@ -3,6 +3,7 @@ import { BlurView } from 'expo-blur';
 import { StyleSheet } from 'react-native';
 import { Colors } from '@/config/colors';
 import { useCards } from '@/hooks/useCards';
+import { useCardMutations } from '@/hooks/useCardMutations';
 import {
   BuildingStorefrontIcon,
   FireIcon,
@@ -10,7 +11,9 @@ import {
   TagIcon,
   PauseCircleIcon,
   XCircleIcon,
+  StarIcon,
 } from 'react-native-heroicons/solid';
+import { StarIcon as StarIconOutline } from 'react-native-heroicons/outline';
 import { CARD_WIDTH, CARD_HEIGHT, getCardTheme, getCardAssets } from '@/utils/cardUtils';
 
 const getCardIcon = (type, color, scale) => {
@@ -23,6 +26,7 @@ const getCardIcon = (type, color, scale) => {
 
 const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) => {
   const { getCardById } = useCards();
+  const { togglePinMutation } = useCardMutations();
   const card = cardId ? getCardById(cardId) : null;
 
   // If no displayData and no card, show loading state
@@ -50,6 +54,7 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
     backgroundColor: card.cardColor,
     isPaused: card.paused,
     isClosed: card.closed,
+    isPinned: card.pinned,
   };
 
   const {
@@ -60,10 +65,11 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
     backgroundColor = 'red',
     isPaused = false,
     isClosed = false,
+    isPinned = false,
   } = data;
 
   // Log the processed card data for debugging
-  console.log('🎴 Rendering card:', { type, label, emoji, lastFourDigits, backgroundColor, isPaused, isClosed });
+  //console.log('🎴 Rendering card:', { type, label, emoji, lastFourDigits, backgroundColor, isPaused, isClosed });
 
   let cardColor = backgroundColor;
   const cardTheme = getCardTheme(cardColor);
@@ -75,13 +81,19 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
   const { cardImg, logoImg, visaImg } = getCardAssets(normalizedType, cardTheme);
 
   // Debug log for assets
-  console.log('🎨 Card assets:', {
-    normalizedType,
-    cardTheme,
-    hasCardImg: !!cardImg,
-    hasLogoImg: !!logoImg,
-    hasVisaImg: !!visaImg,
-  });
+  // console.log('🎨 Card assets:', {
+  //   normalizedType,
+  //   cardTheme,
+  //   hasCardImg: !!cardImg,
+  //   hasLogoImg: !!logoImg,
+  //   hasVisaImg: !!visaImg,
+  // });
+
+  const handleTogglePin = () => {
+    if (cardId && !isClosed) {
+      togglePinMutation.mutate(cardId);
+    }
+  };
 
   return (
     <View width={CARD_WIDTH * scale} height={CARD_HEIGHT * scale} borderRadius={15} overflow="hidden" bg={cardColor}>
@@ -110,15 +122,7 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
               </Text>
             </BlurView>
 
-            <View
-              style={[
-                {
-                  paddingRight: 6,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                },
-              ]}
-            >
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
               {getCardIcon(type, textColor, scale)}
             </View>
           </XStack>
@@ -162,16 +166,19 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
 
         {/* Bottom Row */}
         {!isPreview && (
-          <View style={styles.bottomRow}>
-            <Text fontSize={16} color={textColor} fontWeight="600" pb="$1" pl="$1">
-              •••• &nbsp;{lastFourDigits}
-            </Text>
-            {visaImg && (
-              <View style={styles.visaContainer}>
-                <Image source={visaImg} style={styles.visaLogo} resizeMode="contain" />
-              </View>
-            )}
-          </View>
+          <YStack gap="$2" pb="$1" pl="$1">
+            {isPinned && <StarIcon size={16} color={textColor} />}
+            <View style={styles.bottomRow}>
+              <Text fontSize={16} color={textColor} fontWeight="600">
+                •••• &nbsp;{lastFourDigits}
+              </Text>
+              {visaImg && (
+                <View style={styles.visaContainer}>
+                  <Image source={visaImg} style={styles.visaLogo} resizeMode="contain" />
+                </View>
+              )}
+            </View>
+          </YStack>
         )}
       </YStack>
     </View>

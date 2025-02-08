@@ -38,7 +38,7 @@ const CARD_SPACING = 20;
 const SAMPLE_CARDS = [
   {
     id: '1',
-    type: 'Merchant',
+    type: 'MERCHANT_LOCKED',
     label: 'Amazon',
     emoji: '📦',
     backgroundColor: Colors.cards.green,
@@ -49,7 +49,7 @@ const SAMPLE_CARDS = [
   },
   {
     id: '4',
-    type: 'Burner',
+    type: 'BURNER',
     label: 'Notion Free Trial',
     emoji: '🔥',
     backgroundColor: Colors.cards.red,
@@ -60,7 +60,7 @@ const SAMPLE_CARDS = [
   },
   {
     id: '2',
-    type: 'Category',
+    type: 'CATEGORY_LOCKED',
     label: 'Groceries',
     emoji: '🫐',
     backgroundColor: Colors.cards.pink,
@@ -71,7 +71,7 @@ const SAMPLE_CARDS = [
   },
   {
     id: '3',
-    type: 'Location',
+    type: 'LOCATION_LOCKED',
     label: 'London',
     emoji: '🇬🇧',
     backgroundColor: Colors.cards.navy,

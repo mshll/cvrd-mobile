@@ -5,6 +5,7 @@ import { Search, ArrowDown, ArrowUp, History } from '@tamagui/lucide-icons';
 import { StyleSheet, SectionList, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TransactionCard, { LoadingSkeleton } from '../components/TransactionCard';
+import { DUMMY_TRANSACTIONS } from '../data/transactions';
 
 // This would typically come from an API client file
 const API = {
@@ -35,94 +36,6 @@ const FILTER_STATES = {
   SETTLED: 'Settled',
   DECLINED: 'Declined',
 };
-
-// Update the dummy data to include different months
-const DUMMY_TRANSACTIONS = [
-  // March Transactions
-  {
-    id: '1',
-    name: 'Entertainment',
-    cardType: 'Category',
-    amount: 20,
-    date: '2024-03-10T14:35:00',
-    displayDate: 'Mar 10, 02:35 PM',
-    status: 'Settled',
-    emoji: '🎬',
-    color: 'pink',
-  },
-  {
-    id: '2',
-    name: 'Streaming',
-    cardType: 'Merchant',
-    amount: 15,
-    date: '2024-03-08T14:34:00',
-    displayDate: 'Mar 08, 02:34 PM',
-    status: 'Declined',
-    emoji: '📺',
-    color: 'blue',
-  },
-  // February Transactions
-  {
-    id: '3',
-    name: 'Shopping',
-    cardType: 'Category',
-    amount: 150,
-    date: '2024-02-28T11:20:00',
-    displayDate: 'Feb 28, 11:20 AM',
-    status: 'Settled',
-    emoji: '🛍️',
-    color: 'green',
-  },
-  {
-    id: '4',
-    name: 'Coffee Shop',
-    cardType: 'Location',
-    amount: 8,
-    date: '2024-02-15T09:45:00',
-    displayDate: 'Feb 15, 09:45 AM',
-    status: 'Settled',
-    emoji: '☕',
-    color: 'yellow',
-  },
-  // January Transactions
-  {
-    id: '5',
-    name: 'Travel Card',
-    cardType: 'Burner',
-    amount: 500,
-    date: '2024-01-20T16:30:00',
-    displayDate: 'Jan 20, 04:30 PM',
-    status: 'Settled',
-    emoji: '✈️',
-    color: 'pink',
-  },
-  {
-    id: '6',
-    name: 'Restaurant',
-    cardType: 'Location',
-    amount: 45,
-    date: '2024-01-15T20:15:00',
-    displayDate: 'Jan 15, 08:15 PM',
-    status: 'Declined',
-    emoji: '🍽️',
-    color: 'blue',
-  },
-].concat(
-  // Additional random transactions for March
-  Array(4)
-    .fill(null)
-    .map((_, index) => ({
-      id: String(index + 7),
-      name: `Card ${index + 1}`,
-      cardType: ['Category', 'Merchant', 'Burner', 'Location'][index % 4],
-      amount: 12 + index,
-      date: `2024-03-${5 - index}T${14 - index}:35:00`,
-      displayDate: `Mar ${5 - index}, ${14 - index}:35 PM`,
-      status: index % 3 === 0 ? 'Declined' : 'Settled',
-      emoji: ['🎬', '🛍️', '🔥', '📍'][index % 4],
-      color: ['pink', 'green', 'blue', 'yellow'][index % 4],
-    }))
-);
 
 // Update the grouping function to return data in SectionList format
 const groupTransactionsByMonth = (transactions) => {

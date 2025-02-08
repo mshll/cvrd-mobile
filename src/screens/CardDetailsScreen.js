@@ -187,7 +187,6 @@ const CardDetailsScreen = () => {
   // Get card data
   const card = useMemo(() => {
     const foundCard = cardId ? getCardById(cardId) : null;
-    console.log('📇 Card details:', { cardId, found: !!foundCard, card: foundCard });
     return foundCard;
   }, [cardId, getCardById]);
 

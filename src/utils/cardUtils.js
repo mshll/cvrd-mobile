@@ -58,14 +58,6 @@ export function getCardAssets(cardType = 'BURNER', theme = 'light') {
     dark: require('../../assets/visa-black.png'),
   };
 
-  // Debug log for asset lookup
-  console.log('🔍 Asset lookup:', {
-    requestedType: normalizedType,
-    requestedTheme: safeTheme,
-    availableTypes: Object.keys(cardImages),
-    foundCardImage: !!cardImages[normalizedType]?.[safeTheme],
-  });
-
   // Default assets
   const defaultAssets = {
     cardImg: cardImages.BURNER[safeTheme],
@@ -79,15 +71,6 @@ export function getCardAssets(cardType = 'BURNER', theme = 'light') {
       logoImg: logoImages[safeTheme] || defaultAssets.logoImg,
       visaImg: visaImages[safeTheme] || defaultAssets.visaImg,
     };
-
-    // Debug log for returned assets
-    console.log('📦 Returning assets:', {
-      type: normalizedType,
-      theme: safeTheme,
-      hasCardImg: !!assets.cardImg,
-      hasLogoImg: !!assets.logoImg,
-      hasVisaImg: !!assets.visaImg,
-    });
 
     return assets;
   } catch (error) {
