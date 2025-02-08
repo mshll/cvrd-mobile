@@ -4,6 +4,8 @@ import ProfileScreen from '@/screens/ProfileScreen';
 import ActivityScreen from '@/screens/ActivityScreen';
 import { Paths } from './paths';
 import SubscriptionsScreen from '@/screens/SubscriptionsScreen';
+import AllMerchantsScreen from '@/screens/AllMerchantsScreen';
+import AllStoresScreen from '@/screens/AllStoresScreen';
 import { Colors, useColors } from '@/config/colors';
 import { Image, TouchableOpacity } from 'react-native';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
@@ -135,6 +137,22 @@ export const SubscriptionsStack = () => {
           headerTitle: () => (
             <Image source={require('@/../assets/logo-primary.png')} style={{ height: 24, resizeMode: 'contain' }} />
           ),
+        }}
+      />
+      <Stack.Screen
+        name={Paths.ALL_MERCHANTS}
+        component={AllMerchantsScreen}
+        options={{
+          headerTitle: 'All Merchants',
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen
+        name={Paths.ALL_STORES}
+        component={AllStoresScreen}
+        options={{
+          headerTitle: 'All Stores',
+          animation: 'slide_from_right',
         }}
       />
     </Stack.Navigator>

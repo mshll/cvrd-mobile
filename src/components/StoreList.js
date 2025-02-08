@@ -1,20 +1,20 @@
 import { View, Text, YStack, XStack, Button } from 'tamagui';
 import { Colors, useColors } from '@/config/colors';
 import { StyleSheet } from 'react-native';
-import { BuildingStorefrontIcon } from 'react-native-heroicons/solid';
+import { TagIcon } from 'react-native-heroicons/solid';
 import { ChevronRightIcon } from 'react-native-heroicons/outline';
-import MerchantCard from './MerchantCard';
-import { MERCHANTS } from '@/data/merchants';
+import StoreCard from './StoreCard';
+import { STORES } from '@/data/stores';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '@/navigation/paths';
 
-const MerchantList = () => {
+const StoreList = () => {
   const colors = useColors();
   const navigation = useNavigation();
-  const displayedMerchants = MERCHANTS.slice(0, 3);
+  const displayedStores = STORES.slice(0, 3);
 
   const handleViewMore = () => {
-    navigation.navigate(Paths.ALL_MERCHANTS);
+    navigation.navigate(Paths.ALL_STORES);
   };
 
   return (
@@ -22,20 +22,20 @@ const MerchantList = () => {
       {/* Section Header */}
       <XStack ai="center" jc="space-between" px="$4">
         <XStack ai="center" gap="$2">
-          <BuildingStorefrontIcon size={20} color={colors.text} />
+          <TagIcon size={20} color={colors.text} />
           <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
-            Available Merchants
+            Discount Codes
           </Text>
         </XStack>
         <Text color={colors.textSecondary} fontSize={14}>
-          {MERCHANTS.length} merchants
+          {STORES.length} stores
         </Text>
       </XStack>
 
-      {/* Merchant Cards */}
+      {/* Store Cards */}
       <YStack px="$4">
-        {displayedMerchants.map((merchant) => (
-          <MerchantCard key={merchant.id} merchant={merchant} />
+        {displayedStores.map((store) => (
+          <StoreCard key={store.id} store={store} />
         ))}
 
         {/* View More Button */}
@@ -51,7 +51,7 @@ const MerchantList = () => {
           mt="$2"
         >
           <Text color={colors.text} fontWeight="700">
-            View All Merchants
+            View All Stores
           </Text>
           <ChevronRightIcon size={20} color={colors.text} />
         </Button>
@@ -60,4 +60,4 @@ const MerchantList = () => {
   );
 };
 
-export default MerchantList;
+export default StoreList;

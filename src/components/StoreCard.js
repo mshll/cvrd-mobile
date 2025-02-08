@@ -1,13 +1,14 @@
 import { View, Text, Button, XStack, YStack } from 'tamagui';
 import { Colors, useColors } from '@/config/colors';
 import { StyleSheet, TouchableOpacity, Linking, Image } from 'react-native';
-import { ArrowUpRightIcon, CheckIcon } from 'react-native-heroicons/outline';
-import { BlurView } from 'expo-blur';
+import { ArrowUpRightIcon, ClipboardIcon } from 'react-native-heroicons/outline';
 import { getCardTheme } from '@/utils/cardUtils';
+import * as Clipboard from 'expo-clipboard';
 import { useState, useEffect } from 'react';
+import Toast from 'react-native-toast-message';
 
-const TARGET_HEIGHT = 32; // Fixed height for all logos
-const MAX_WIDTH = 120; // Maximum width allowed
+const TARGET_HEIGHT = 32;
+const MAX_WIDTH = 120;
 
 const styles = StyleSheet.create({
   logoContainer: {
@@ -16,11 +17,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
   },
+  logo: {
+    height: TARGET_HEIGHT,
+    resizeMode: 'contain',
+  },
 });
 
-const MerchantCard = ({ merchant }) => {
+const StoreCard = ({ store }) => {
   const colors = useColors();
-  const { name, logo, url, description, isSubscribed, minAmount } = merchant;
+  const { name, logo, url, description, discountCode, discountAmount, validUntil } = store;
   const [logoWidth, setLogoWidth] = useState(MAX_WIDTH);
 
   // Get theme for the card background
@@ -42,6 +47,15 @@ const MerchantCard = ({ merchant }) => {
     }
   };
 
+  const handleCopyCode = async () => {
+    await Clipboard.setStringAsync(discountCode);
+    Toast.show({
+      type: 'success',
+      text1: 'Code Copied',
+      text2: `${discountCode} has been copied to clipboard`,
+    });
+  };
+
   return (
     <View
       backgroundColor={colors.backgroundSecondary}
@@ -52,39 +66,48 @@ const MerchantCard = ({ merchant }) => {
       marginBottom={12}
     >
       <View padding={16} gap={12}>
-        {/* Logo and Link Button */}
+        {/* Logo and Buttons */}
         <XStack justifyContent="space-between" alignItems="center">
           <View style={[styles.logoContainer, { width: logoWidth }]}>
             <Image
               source={logo}
-              style={{
-                width: logoWidth,
-                height: TARGET_HEIGHT,
-                resizeMode: 'contain',
-                tintColor: logoColor,
-              }}
+              style={[
+                styles.logo,
+                {
+                  width: logoWidth,
+                  tintColor: logoColor,
+                },
+              ]}
             />
           </View>
-          <Button
-            backgroundColor={isSubscribed ? colors.success + '20' : colors.backgroundTertiary}
-            borderRadius={8}
-            size="$3"
-            icon={
-              isSubscribed ? (
-                <CheckIcon size={16} color={colors.success} />
-              ) : (
-                <ArrowUpRightIcon size={16} color={colors.text} />
-              )
-            }
-            onPress={handlePress}
-            pressStyle={{ backgroundColor: isSubscribed ? colors.success + '30' : colors.backgroundTertiary }}
-            borderWidth={1}
-            borderColor={isSubscribed ? colors.success : colors.border}
-          >
-            <Text color={isSubscribed ? colors.success : colors.text} fontSize={14} fontWeight="600">
-              {isSubscribed ? 'Subscribed' : 'Subscribe'}
-            </Text>
-          </Button>
+          <XStack gap={8} ai="center">
+            <Button
+              size="$3"
+              bg={colors.card}
+              pressStyle={{ bg: colors.backgroundTertiary }}
+              onPress={handleCopyCode}
+              br={8}
+              borderWidth={1}
+              borderColor={colors.border}
+            >
+              <XStack gap={8} ai="center">
+                <ClipboardIcon size={16} color={colors.text} />
+                <Text color={colors.text} fontWeight="600">
+                  {discountCode}
+                </Text>
+              </XStack>
+            </Button>
+            <Button
+              size="$3"
+              bg={colors.card}
+              pressStyle={{ bg: colors.backgroundTertiary }}
+              onPress={handlePress}
+              br={8}
+              borderWidth={1}
+              borderColor={colors.border}
+              icon={<ArrowUpRightIcon size={16} color={colors.text} />}
+            />
+          </XStack>
         </XStack>
 
         {/* Description */}
@@ -93,11 +116,11 @@ const MerchantCard = ({ merchant }) => {
         </Text>
 
         <Text color={colors.primary} fontSize={14} fontWeight="700">
-          Starting from {minAmount}
+          {discountAmount}
         </Text>
       </View>
     </View>
   );
 };
 
-export default MerchantCard;
+export default StoreCard;
