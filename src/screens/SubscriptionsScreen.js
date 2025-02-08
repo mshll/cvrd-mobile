@@ -290,18 +290,18 @@ const DUMMY_SUBSCRIPTIONS = [
   },
   {
     id: '2',
-    merchantName: 'Netflix',
+    merchantName: 'Hbo',
     amount: 'KD 14.99',
     nextBillingDate: '15/6/2025',
-    logo: require('@/../assets/merchant-logos/Netflix.png'),
+    logo: require('@/../assets/merchant-logos/Hbo.png'),
     backgroundColor: Colors.cards.blue,
   },
   {
     id: '3',
-    merchantName: 'Netflix',
+    merchantName: 'Hulu',
     amount: 'KD 9.99',
     nextBillingDate: '22/6/2025',
-    logo: require('@/../assets/merchant-logos/Netflix.png'),
+    logo: require('@/../assets/merchant-logos/Hulu.png'),
     backgroundColor: Colors.cards.green,
   },
 ];
