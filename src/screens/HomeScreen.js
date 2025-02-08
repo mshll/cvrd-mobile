@@ -30,6 +30,8 @@ import { Platform, StyleSheet } from 'react-native';
 import { FullWindowOverlay } from 'react-native-screens';
 import BottomSheet from '@/components/BottomSheet';
 import { useUser } from '@/hooks/useUser';
+import { SpendingRecapButton } from '@/components/SpendingRecapButton';
+import { SpendingRecapStory } from '@/components/SpendingRecapStory';
 
 // ============================================================================
 // Constants & Config
@@ -259,6 +261,22 @@ function HomeScreen() {
   const { cardsByType, getCardDisplayData, isLoading: isCardsLoading } = useCards();
   const { order, isLoading: isSectionOrderLoading, saveOrder, resetOrder } = useSectionOrder();
   const [isReorganizing, setIsReorganizing] = useState(false);
+  const [showRecap, setShowRecap] = useState(false);
+
+  // Mock spending data - replace with real data from your API
+  const spendingData = {
+    totalSpent: 25000,
+    biggestMonth: 'December',
+    biggestMonthAmount: 4500,
+    highestPurchase: 1200,
+    highestPurchaseMerchant: 'Apple Store',
+    topMerchant: 'Starbucks',
+    topMerchantVisits: 45,
+    topLocation: 'Dubai Mall',
+    topLocationAmount: 8500,
+    topCategory: 'Shopping',
+    topCategoryAmount: 12000,
+  };
 
   const sections = useMemo(() => {
     return order.map((sectionId) => {
@@ -310,6 +328,7 @@ function HomeScreen() {
         }}
         showsVerticalScrollIndicator={false}
       >
+        <SpendingRecapButton onPress={() => setShowRecap(true)} />
         <SpendingSummary />
         {sections.map((section) => (
           <CardCarousel key={section.id} title={section.title} data={section.data} icon={section.icon} />
@@ -324,6 +343,8 @@ function HomeScreen() {
         onReorder={handleReorder}
         onReset={resetOrder}
       />
+
+      <SpendingRecapStory isVisible={showRecap} onClose={() => setShowRecap(false)} spendingData={spendingData} />
     </View>
   );
 }
