@@ -17,4 +17,15 @@ instance.interceptors.request.use(async (config) => {
   return config;
 });
 
+// log response
+instance.interceptors.response.use(
+  (response) => {
+    console.log('🔄 Response:', response.data);
+    return response;
+  },
+  (error) => {
+    console.log('🔄 Error:', error.response.data);
+    return Promise.reject(error);
+  }
+);
 export default instance;

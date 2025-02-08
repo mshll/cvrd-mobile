@@ -29,6 +29,7 @@ import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/
 import { Platform, StyleSheet } from 'react-native';
 import { FullWindowOverlay } from 'react-native-screens';
 import BottomSheet from '@/components/BottomSheet';
+import { useUser } from '@/hooks/useUser';
 
 // ============================================================================
 // Constants & Config
@@ -109,6 +110,7 @@ function UserGreeting() {
 
 function SpendingStats() {
   const colors = useColors();
+  const { user } = useUser();
   return (
     <YStack gap="$3" mb="$2" px={16}>
       <XStack ai="center" mb="$2" gap="$2">
@@ -123,7 +125,7 @@ function SpendingStats() {
             Today
           </Text>
           <Text color={colors.text} fontSize="$5" fontWeight="700">
-            {formatCurrency(user.spend_today)}
+            {formatCurrency(user?.currentDailySpend || 0)}
           </Text>
         </Card>
         <Card f={1} bg={colors.card} p="$4" br={12} borderWidth={1} borderColor={colors.border}>
@@ -131,7 +133,7 @@ function SpendingStats() {
             This Month
           </Text>
           <Text color={colors.text} fontSize="$5" fontWeight="700">
-            {formatCurrency(user.spend_month)}
+            {formatCurrency(user?.currentMonthlySpend || 0)}
           </Text>
         </Card>
       </XStack>
@@ -259,22 +261,18 @@ function HomeScreen() {
   const [isReorganizing, setIsReorganizing] = useState(false);
 
   const sections = useMemo(() => {
-    // Debug logging for cardsByType
-    console.log('🗂️ cardsByType:', cardsByType);
-
     return order.map((sectionId) => {
       const sectionCards = cardsByType[sectionId] || [];
-
-      // Debug logging for each section
-      console.log(`📊 Section ${sectionId}:`, {
-        cardCount: sectionCards.length,
-        config: SECTION_CONFIG[sectionId],
-      });
 
       return {
         ...SECTION_CONFIG[sectionId],
         data: sectionCards
           .sort((a, b) => {
+            // First sort by pin status
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+
+            // Then sort by card status
             const getPriority = (card) => {
               if (card.closed) return 2;
               if (card.paused) return 1;

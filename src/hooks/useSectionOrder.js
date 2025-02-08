@@ -18,7 +18,6 @@ export function useSectionOrder() {
       if (savedOrder) {
         setOrder(JSON.parse(savedOrder));
       }
-      console.log('📱 Loaded section order:', savedOrder ? JSON.parse(savedOrder) : DEFAULT_ORDER);
     } catch (error) {
       console.error('❌ Error loading section order:', error);
     } finally {
@@ -30,7 +29,6 @@ export function useSectionOrder() {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newOrder));
       setOrder(newOrder);
-      console.log('💾 Saved new section order:', newOrder);
     } catch (error) {
       console.error('❌ Error saving section order:', error);
     }
@@ -40,7 +38,6 @@ export function useSectionOrder() {
     try {
       await AsyncStorage.removeItem(STORAGE_KEY);
       setOrder(DEFAULT_ORDER);
-      console.log('🔄 Reset section order to default:', DEFAULT_ORDER);
     } catch (error) {
       console.error('❌ Error resetting section order:', error);
     }

@@ -46,10 +46,6 @@ const LoginScreen = () => {
         console.log('✅ Form validation passed, attempting login');
         await loginMutation.mutateAsync({ email, password });
         console.log('🎉 Login successful, navigating to main app');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Main' }],
-        });
       } catch (error) {
         console.log('❌ Login failed');
         // Error handling is done in the mutation

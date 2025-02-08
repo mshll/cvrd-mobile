@@ -18,6 +18,7 @@ import { Paths } from '@/navigation/paths';
 import { useAuthContext } from '@/context/AuthContext';
 import { useSignup } from '@/hooks/useAuth';
 import Toast from 'react-native-toast-message';
+import BottomSheet from '@/components/BottomSheet';
 
 const GENDER_OPTIONS = [
   { label: 'Male', value: 'male' },
@@ -36,11 +37,11 @@ const SignupDetailsScreen = () => {
   const signupMutation = useSignup();
 
   const validateForm = () => {
-    console.log('🔍 Validating details form with data:', {
-      civilId: signupData.civilId,
-      dateOfBirth: signupData.dateOfBirth,
-      gender: signupData.gender,
-    });
+    // console.log('🔍 Validating details form with data:', {
+    //   civilId: signupData.civilId,
+    //   dateOfBirth: signupData.dateOfBirth,
+    //   gender: signupData.gender,
+    // });
     const newErrors = {};
 
     // Validate Civil ID (12 digits)
@@ -69,13 +70,13 @@ const SignupDetailsScreen = () => {
       newErrors.gender = 'Gender is required';
     }
 
-    console.log('📋 Validation errors:', Object.keys(newErrors).length ? newErrors : 'No errors');
+    //console.log('📋 Validation errors:', Object.keys(newErrors).length ? newErrors : 'No errors');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = async () => {
-    console.log('👉 Starting account creation process...');
+    //console.log('👉 Starting account creation process...');
     if (validateForm()) {
       try {
         // Format date to ISO string for API
@@ -84,20 +85,16 @@ const SignupDetailsScreen = () => {
           dateOfBirth: signupData.dateOfBirth.toISOString().split('T')[0],
         };
 
-        console.log('📤 Submitting signup data to API:', formattedData);
+        //console.log('📤 Submitting signup data to API:', formattedData);
         await signupMutation.mutateAsync(formattedData);
-        console.log('✅ Account created successfully, navigating to main app');
+        //console.log('✅ Account created successfully, navigating to main app');
         resetSignupData(); // Reset signup data after successful registration
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Main' }],
-        });
       } catch (error) {
         console.error('❌ Account creation failed:', error);
         // Error handling is done in the mutation
       }
     } else {
-      console.log('❌ Details form validation failed');
+      //console.log('❌ Details form validation failed');
       Toast.show({
         type: 'error',
         text1: 'Validation Error',
@@ -112,14 +109,12 @@ const SignupDetailsScreen = () => {
 
   const handleDateChange = (event, selectedDate) => {
     if (selectedDate) {
-      console.log('📅 Date selected:', selectedDate);
       updateSignupData({ dateOfBirth: selectedDate });
-      setShowDatePicker(false);
     }
   };
 
   const handleSelectGender = (selectedGender) => {
-    console.log('👤 Gender selected:', selectedGender);
+    //console.log('👤 Gender selected:', selectedGender);
     updateSignupData({ gender: selectedGender });
     setShowGenderSheet(false);
   };
@@ -277,93 +272,83 @@ const SignupDetailsScreen = () => {
         </YStack>
       </KeyboardAvoidingView>
 
-      {/* Date Picker Modal */}
-      <Modal visible={showDatePicker} transparent animationType="fade">
-        <Pressable style={styles.modalOverlay} onPress={() => setShowDatePicker(false)}>
-          <Pressable style={styles.datePickerContainer}>
-            <YStack
-              backgroundColor={colors.backgroundSecondary}
-              br={16}
-              borderWidth={1}
-              borderColor={colors.border}
-              overflow="hidden"
+      {/* Date Picker Sheet */}
+      <BottomSheet isOpen={showDatePicker} onClose={() => setShowDatePicker(false)} enableContentPanningGesture={false}>
+        <YStack gap="$4" px="$4" pt="$2" pb="$6">
+          <XStack jc="space-between" ai="center">
+            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+              Date of Birth
+            </Text>
+            <Button
+              size="$3"
+              backgroundColor={colors.primary}
+              pressStyle={{ backgroundColor: colors.primaryDark }}
+              onPress={() => setShowDatePicker(false)}
+              borderRadius={8}
             >
-              <XStack
-                backgroundColor={colors.backgroundTertiary}
-                py="$3"
-                px="$4"
-                jc="space-between"
-                ai="center"
-                borderBottomWidth={1}
-                borderBottomColor={colors.border}
-              >
-                <Text color={colors.text} fontSize="$4" fontWeight="600">
-                  Select Date
-                </Text>
-                <Button
-                  size="$3"
-                  backgroundColor={colors.primary}
-                  pressStyle={{ backgroundColor: colors.primaryDark }}
-                  onPress={() => setShowDatePicker(false)}
-                  br={8}
-                >
-                  <Text color="white" fontSize="$3" fontWeight="600">
-                    Done
-                  </Text>
-                </Button>
-              </XStack>
-
+              <Text color="white" fontSize="$3" fontWeight="600">
+                Done
+              </Text>
+            </Button>
+          </XStack>
+          <View
+            backgroundColor={colors.backgroundSecondary}
+            br={12}
+            p="$4"
+            borderWidth={1}
+            borderColor={colors.border}
+            height={250}
+          >
+            {Platform.OS === 'ios' ? (
               <DateTimePicker
                 value={signupData.dateOfBirth || new Date()}
-                justifyContent="center"
-                ai="center"
                 mode="date"
                 display="spinner"
                 onChange={handleDateChange}
                 maximumDate={new Date()}
+                minimumDate={new Date(1900, 0, 1)}
                 textColor={colors.text}
-                style={styles.datePicker}
+                themeVariant={colors.colorScheme === 'dark' ? 'dark' : 'light'}
+                style={{ height: 200 }}
               />
-            </YStack>
-          </Pressable>
-        </Pressable>
-      </Modal>
+            ) : (
+              <DateTimePicker
+                value={signupData.dateOfBirth || new Date()}
+                mode="date"
+                display="default"
+                onChange={handleDateChange}
+                maximumDate={new Date()}
+                minimumDate={new Date(1900, 0, 1)}
+              />
+            )}
+          </View>
+        </YStack>
+      </BottomSheet>
 
-      {/* Gender Selection Modal */}
-      <Modal visible={showGenderSheet} transparent animationType="fade">
-        <Pressable style={styles.modalOverlay} onPress={() => setShowGenderSheet(false)}>
-          <Pressable style={styles.datePickerContainer}>
-            <YStack
-              backgroundColor={colors.backgroundSecondary}
-              br={16}
-              borderWidth={1}
-              borderColor={colors.border}
-              overflow="hidden"
-              p="$4"
-              gap="$3"
-            >
-              {GENDER_OPTIONS.map((option) => (
-                <Button
-                  key={option.value}
-                  backgroundColor={signupData.gender === option.value ? colors.primary : colors.backgroundTertiary}
-                  pressStyle={{ backgroundColor: colors.backgroundTertiary }}
-                  onPress={() => handleSelectGender(option.value)}
-                  size="$5"
-                  borderRadius={12}
-                >
-                  <Text
-                    color={signupData.gender === option.value ? 'white' : colors.text}
-                    fontSize="$4"
-                    fontWeight="600"
-                  >
-                    {option.label}
-                  </Text>
-                </Button>
-              ))}
-            </YStack>
-          </Pressable>
-        </Pressable>
-      </Modal>
+      {/* Gender Selection Sheet */}
+      <BottomSheet isOpen={showGenderSheet} onClose={() => setShowGenderSheet(false)}>
+        <YStack gap="$4" px="$4" pt="$2" pb="$6">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            Select Gender
+          </Text>
+          <YStack gap="$3">
+            {GENDER_OPTIONS.map((option) => (
+              <Button
+                key={option.value}
+                backgroundColor={signupData.gender === option.value ? colors.primary : colors.backgroundTertiary}
+                pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+                onPress={() => handleSelectGender(option.value)}
+                size="$5"
+                borderRadius={12}
+              >
+                <Text color={signupData.gender === option.value ? 'white' : colors.text} fontSize="$4" fontWeight="600">
+                  {option.label}
+                </Text>
+              </Button>
+            ))}
+          </YStack>
+        </YStack>
+      </BottomSheet>
     </View>
   );
 };

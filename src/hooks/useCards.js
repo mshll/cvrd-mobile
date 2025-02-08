@@ -5,11 +5,11 @@ export function useCards() {
   const { data: cards = [], isLoading, error, refetch } = useCardsQuery();
 
   // Log the current state
-  console.log('🎴 useCards state:', {
-    cardsCount: cards?.length || 0,
-    isLoading,
-    hasError: !!error,
-  });
+  // console.log('🎴 useCards state:', {
+  //   cardsCount: cards?.length || 0,
+  //   isLoading,
+  //   hasError: !!error,
+  // });
 
   const cardsByType = useMemo(() => {
     const groupedCards = cards.reduce((acc, card) => {
@@ -23,13 +23,13 @@ export function useCards() {
     }, {});
 
     // Log the grouped cards
-    console.log(
-      '📊 Cards by type:',
-      Object.keys(groupedCards).reduce((acc, type) => {
-        acc[type] = groupedCards[type].length;
-        return acc;
-      }, {})
-    );
+    // console.log(
+    //   '📊 Cards by type:',
+    //   Object.keys(groupedCards).reduce((acc, type) => {
+    //     acc[type] = groupedCards[type].length;
+    //     return acc;
+    //   }, {})
+    // );
 
     return groupedCards;
   }, [cards]);
@@ -39,7 +39,7 @@ export function useCards() {
     const card = cards.find((card) => card.id === id);
 
     // Log card lookup result
-    console.log('🔍 Looking up card:', { id, found: !!card });
+    //console.log('🔍 Looking up card:', { id, found: !!card });
 
     return card || null;
   };
@@ -48,7 +48,7 @@ export function useCards() {
     if (!card) return null;
 
     // Log the card data for debugging
-    console.log('🃏 Processing card:', card);
+    //console.log('🃏 Processing card:', card);
 
     return {
       id: card.id,
@@ -59,6 +59,7 @@ export function useCards() {
       emoji: card.cardIcon || '💳',
       isPaused: card.paused || false,
       isClosed: card.closed || false,
+      isPinned: card.pinned || false,
     };
   };
 
