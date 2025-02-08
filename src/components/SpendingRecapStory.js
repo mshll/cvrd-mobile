@@ -1,22 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Pressable, Dimensions, StyleSheet } from 'react-native';
 import { useColors } from '@/config/colors';
-import { formatCurrency } from '@/utils/utils';
-import { XStack, YStack } from 'tamagui';
+import { XStack } from 'tamagui';
 import { Portal } from '@gorhom/portal';
-import {
-  BanknotesIcon,
-  ChartBarIcon,
-  FireIcon,
-  BuildingStorefrontIcon,
-  MapPinIcon,
-  TagIcon,
-  ArrowTrendingUpIcon,
-  SparklesIcon,
-} from 'react-native-heroicons/solid';
 import Animated, {
-  FadeIn,
-  FadeOut,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -27,6 +14,16 @@ import Animated, {
 } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  IntroStory,
+  TotalSpentStory,
+  BiggestMonthStory,
+  HighestPurchaseStory,
+  TopMerchantStory,
+  TopLocationStory,
+  TopCategoryStory,
+  OutroStory,
+} from './playback';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const STORY_DURATION = 5000; // 5 seconds per story
@@ -165,91 +162,46 @@ export function SpendingRecapStory({ isVisible, onClose, spendingData }) {
   const renderStoryContent = () => {
     switch (currentStory) {
       case 0:
-        return (
-          <YStack f={1} ai="center" jc="center" gap="$4">
-            <SparklesIcon size={64} color={colors.primary} />
-            <Text style={[styles.title, { color: colors.text }]}>Your 2024 in Cards</Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              Let's look back at your spending journey
-            </Text>
-          </YStack>
-        );
+        return <IntroStory />;
       case 1:
-        return (
-          <YStack f={1} ai="center" jc="center" gap="$4">
-            <BanknotesIcon size={64} color={colors.primary} />
-            <Text style={[styles.title, { color: colors.text }]}>Total Spent</Text>
-            <Text style={[styles.amount, { color: colors.text }]}>{formatCurrency(spendingData?.totalSpent || 0)}</Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>across all your cards</Text>
-          </YStack>
-        );
+        return <TotalSpentStory totalSpent={spendingData?.totalSpent} />;
       case 2:
         return (
-          <YStack f={1} ai="center" jc="center" gap="$4">
-            <ChartBarIcon size={64} color={colors.primary} />
-            <Text style={[styles.title, { color: colors.text }]}>Biggest Month</Text>
-            <Text style={[styles.month, { color: colors.text }]}>{spendingData?.biggestMonth || 'December'}</Text>
-            <Text style={[styles.amount, { color: colors.text }]}>
-              {formatCurrency(spendingData?.biggestMonthAmount || 0)}
-            </Text>
-          </YStack>
+          <BiggestMonthStory
+            biggestMonth={spendingData?.biggestMonth}
+            biggestMonthAmount={spendingData?.biggestMonthAmount}
+          />
         );
       case 3:
         return (
-          <YStack f={1} ai="center" jc="center" gap="$4">
-            <FireIcon size={64} color={colors.primary} />
-            <Text style={[styles.title, { color: colors.text }]}>Highest Single Purchase</Text>
-            <Text style={[styles.amount, { color: colors.text }]}>
-              {formatCurrency(spendingData?.highestPurchase || 0)}
-            </Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              {spendingData?.highestPurchaseMerchant || 'Unknown Merchant'}
-            </Text>
-          </YStack>
+          <HighestPurchaseStory
+            highestPurchase={spendingData?.highestPurchase}
+            highestPurchaseMerchant={spendingData?.highestPurchaseMerchant}
+          />
         );
       case 4:
         return (
-          <YStack f={1} ai="center" jc="center" gap="$4">
-            <BuildingStorefrontIcon size={64} color={colors.primary} />
-            <Text style={[styles.title, { color: colors.text }]}>Most Visited Merchant</Text>
-            <Text style={[styles.merchant, { color: colors.text }]}>{spendingData?.topMerchant || 'Unknown'}</Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              {spendingData?.topMerchantVisits || 0} visits
-            </Text>
-          </YStack>
+          <TopMerchantStory
+            topMerchant={spendingData?.topMerchant}
+            topMerchantVisits={spendingData?.topMerchantVisits}
+          />
         );
       case 5:
         return (
-          <YStack f={1} ai="center" jc="center" gap="$4">
-            <MapPinIcon size={64} color={colors.primary} />
-            <Text style={[styles.title, { color: colors.text }]}>Top Location</Text>
-            <Text style={[styles.location, { color: colors.text }]}>{spendingData?.topLocation || 'Unknown'}</Text>
-            <Text style={[styles.amount, { color: colors.text }]}>
-              {formatCurrency(spendingData?.topLocationAmount || 0)}
-            </Text>
-          </YStack>
+          <TopLocationStory
+            topLocation={spendingData?.topLocation}
+            topLocationAmount={spendingData?.topLocationAmount}
+          />
         );
       case 6:
         return (
-          <YStack f={1} ai="center" jc="center" gap="$4">
-            <TagIcon size={64} color={colors.primary} />
-            <Text style={[styles.title, { color: colors.text }]}>Top Category</Text>
-            <Text style={[styles.category, { color: colors.text }]}>{spendingData?.topCategory || 'Unknown'}</Text>
-            <Text style={[styles.amount, { color: colors.text }]}>
-              {formatCurrency(spendingData?.topCategoryAmount || 0)}
-            </Text>
-          </YStack>
+          <TopCategoryStory
+            topCategory={spendingData?.topCategory}
+            topCategoryAmount={spendingData?.topCategoryAmount}
+          />
         );
       case 7:
-        return (
-          <YStack f={1} ai="center" jc="center" gap="$4">
-            <ArrowTrendingUpIcon size={64} color={colors.primary} />
-            <Text style={[styles.title, { color: colors.text }]}>You're Trending Up!</Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              Here's to another year of smart spending
-            </Text>
-          </YStack>
-        );
+        return <OutroStory />;
     }
   };
 
@@ -265,25 +217,27 @@ export function SpendingRecapStory({ isVisible, onClose, spendingData }) {
           <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
             <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.background }]}>
               <Pressable style={styles.touchArea} onPress={handlePress}>
-                {/* Progress Indicators */}
-                <XStack gap={4} p={16}>
-                  {progressValues.map((progress, index) => (
-                    <View key={index} style={styles.progressContainer}>
-                      <View
-                        style={[
-                          styles.progressBar,
-                          {
-                            width: `${progress}%`,
-                            backgroundColor: colors.primary,
-                          },
-                        ]}
-                      />
-                    </View>
-                  ))}
-                </XStack>
-
                 {/* Story Content */}
                 <View style={styles.content}>{renderStoryContent()}</View>
+
+                {/* Progress Indicators - Moved after content */}
+                <View style={styles.progressContainer}>
+                  <XStack gap={4} p={16}>
+                    {progressValues.map((progress, index) => (
+                      <View key={index} style={styles.progressBarWrapper}>
+                        <View
+                          style={[
+                            styles.progressBar,
+                            {
+                              width: `${progress}%`,
+                              backgroundColor: colors.primary,
+                            },
+                          ]}
+                        />
+                      </View>
+                    ))}
+                  </XStack>
+                </View>
               </Pressable>
             </View>
           </Animated.View>
@@ -305,9 +259,21 @@ const styles = StyleSheet.create({
   },
   touchArea: {
     flex: 1,
-    paddingTop: 0, // Remove any default padding
+  },
+  content: {
+    flex: 1,
+    position: 'relative',
+    zIndex: 1,
   },
   progressContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 2,
+    backgroundColor: 'transparent',
+  },
+  progressBarWrapper: {
     flex: 1,
     height: 2,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -317,47 +283,5 @@ const styles = StyleSheet.create({
   progressBar: {
     height: '100%',
     borderRadius: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '800',
-    textAlign: 'center',
-    fontFamily: '$archivoBlack',
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    opacity: 0.8,
-    fontFamily: '$body',
-  },
-  amount: {
-    fontSize: 42,
-    fontWeight: '800',
-    fontFamily: '$archivoBlack',
-  },
-  month: {
-    fontSize: 32,
-    fontWeight: '800',
-    fontFamily: '$archivoBlack',
-  },
-  merchant: {
-    fontSize: 32,
-    fontWeight: '800',
-    fontFamily: '$archivoBlack',
-  },
-  location: {
-    fontSize: 32,
-    fontWeight: '800',
-    fontFamily: '$archivoBlack',
-  },
-  category: {
-    fontSize: 32,
-    fontWeight: '800',
-    fontFamily: '$archivoBlack',
   },
 });
