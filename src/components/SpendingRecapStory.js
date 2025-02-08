@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Pressable, Dimensions, StyleSheet } from 'react-native';
-import { BlurView } from 'expo-blur';
 import { useColors } from '@/config/colors';
 import { formatCurrency } from '@/utils/utils';
 import { XStack, YStack } from 'tamagui';
+import { Portal } from '@gorhom/portal';
 import {
   BanknotesIcon,
   ChartBarIcon,
@@ -23,8 +23,10 @@ import Animated, {
   runOnJS,
   interpolate,
   Extrapolate,
+  withTiming,
 } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const STORY_DURATION = 5000; // 5 seconds per story
@@ -32,6 +34,7 @@ const NUM_STORIES = 8;
 const DISMISS_THRESHOLD = 150; // pixels to slide down before dismissing
 
 export function SpendingRecapStory({ isVisible, onClose, spendingData }) {
+  const insets = useSafeAreaInsets();
   const colors = useColors();
   const [currentStory, setCurrentStory] = useState(0);
   const [progressValues, setProgressValues] = useState(Array(NUM_STORIES).fill(0));
@@ -40,13 +43,12 @@ export function SpendingRecapStory({ isVisible, onClose, spendingData }) {
   const translateY = useSharedValue(0);
   const context = useSharedValue({ y: 0 });
 
-  // Reset progress when story becomes visible
+  // Reset when opening
   useEffect(() => {
-    if (!isVisible) {
+    if (isVisible) {
       setCurrentStory(0);
       setProgressValues(Array(NUM_STORIES).fill(0));
       translateY.value = 0;
-      return;
     }
   }, [isVisible]);
 
@@ -77,6 +79,8 @@ export function SpendingRecapStory({ isVisible, onClose, spendingData }) {
       if (currentStory < NUM_STORIES - 1) {
         setCurrentStory((prev) => prev + 1);
       } else {
+        setCurrentStory(0);
+        setProgressValues(Array(NUM_STORIES).fill(0));
         onClose();
       }
     }, STORY_DURATION);
@@ -86,6 +90,12 @@ export function SpendingRecapStory({ isVisible, onClose, spendingData }) {
       clearTimeout(timeout);
     };
   }, [currentStory, isVisible]);
+
+  const handleDismiss = useCallback(() => {
+    setCurrentStory(0);
+    setProgressValues(Array(NUM_STORIES).fill(0));
+    onClose();
+  }, [onClose]);
 
   const gesture = Gesture.Pan()
     .onStart(() => {
@@ -99,9 +109,9 @@ export function SpendingRecapStory({ isVisible, onClose, spendingData }) {
     })
     .onEnd((event) => {
       if (translateY.value > DISMISS_THRESHOLD) {
-        // Dismiss the story if pulled down far enough
-        translateY.value = withSpring(SCREEN_HEIGHT, {}, () => {
-          runOnJS(onClose)();
+        // Quickly animate the story off-screen
+        translateY.value = withTiming(SCREEN_HEIGHT, { duration: 150 }, () => {
+          runOnJS(handleDismiss)();
         });
       } else {
         // Spring back to original position
@@ -137,20 +147,18 @@ export function SpendingRecapStory({ isVisible, onClose, spendingData }) {
             });
             setCurrentStory((prev) => prev + 1);
           } else {
-            onClose();
+            handleDismiss();
           }
         }
       }
     },
-    [currentStory]
+    [currentStory, handleDismiss]
   );
 
   const animatedStyle = useAnimatedStyle(() => {
     const scale = interpolate(translateY.value, [0, SCREEN_HEIGHT], [1, 0.9], Extrapolate.CLAMP);
-    const opacity = interpolate(translateY.value, [0, SCREEN_HEIGHT], [1, 0], Extrapolate.CLAMP);
     return {
       transform: [{ translateY: translateY.value }, { scale }],
-      opacity,
     };
   });
 
@@ -245,42 +253,43 @@ export function SpendingRecapStory({ isVisible, onClose, spendingData }) {
     }
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) {
+    translateY.value = 0;
+    return null;
+  }
 
   return (
-    <View style={styles.container}>
-      <GestureDetector gesture={gesture}>
-        <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
-          <BlurView intensity={100} tint="dark" style={StyleSheet.absoluteFill}>
-            <Pressable style={styles.touchArea} onPress={handlePress}>
-              {/* Progress Indicators */}
-              <XStack gap={4} p={16}>
-                {progressValues.map((progress, index) => (
-                  <View key={index} style={styles.progressContainer}>
-                    <View
-                      style={[
-                        styles.progressBar,
-                        {
-                          width: `${progress}%`,
-                          backgroundColor: colors.primary,
-                        },
-                      ]}
-                    />
-                  </View>
-                ))}
-              </XStack>
+    <Portal>
+      <View style={[styles.container, { backgroundColor: colors.background, marginTop: insets.top }]}>
+        <GestureDetector gesture={gesture}>
+          <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.background }]}>
+              <Pressable style={styles.touchArea} onPress={handlePress}>
+                {/* Progress Indicators */}
+                <XStack gap={4} p={16}>
+                  {progressValues.map((progress, index) => (
+                    <View key={index} style={styles.progressContainer}>
+                      <View
+                        style={[
+                          styles.progressBar,
+                          {
+                            width: `${progress}%`,
+                            backgroundColor: colors.primary,
+                          },
+                        ]}
+                      />
+                    </View>
+                  ))}
+                </XStack>
 
-              {/* Story Content */}
-              <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.content}>
-                {renderStoryContent()}
-              </Animated.View>
-
-              
-            </Pressable>
-          </BlurView>
-        </Animated.View>
-      </GestureDetector>
-    </View>
+                {/* Story Content */}
+                <View style={styles.content}>{renderStoryContent()}</View>
+              </Pressable>
+            </View>
+          </Animated.View>
+        </GestureDetector>
+      </View>
+    </Portal>
   );
 }
 
@@ -291,10 +300,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1000,
+    zIndex: 9999,
+    elevation: 9999, // for Android
   },
   touchArea: {
     flex: 1,
+    paddingTop: 0, // Remove any default padding
   },
   progressContainer: {
     flex: 1,
@@ -348,19 +359,5 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '800',
     fontFamily: '$archivoBlack',
-  },
-  pullIndicator: {
-    position: 'absolute',
-    top: 8,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  pullBar: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    opacity: 0.5,
   },
 });
