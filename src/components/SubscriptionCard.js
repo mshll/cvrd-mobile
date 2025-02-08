@@ -36,15 +36,16 @@ const SubscriptionCard = ({ subscription }) => {
     >
       {/* Dimming Overlay */}
       {isPaused && (
-        <View
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          backgroundColor="black"
-          opacity={0.6}
-          zIndex={1}
+        <BlurView
+          intensity={15}
+          tint={theme === 'dark' ? 'light' : 'dark'}
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)',
+              zIndex: 1,
+            },
+          ]}
         />
       )}
 

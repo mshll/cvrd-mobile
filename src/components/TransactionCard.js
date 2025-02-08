@@ -60,7 +60,7 @@ const TransactionCard = ({ transaction }) => {
               </Text>
             </View>
           </XStack>
-          <Text color={colors.textSecondary} fontSize={12} mt={4}>
+          <Text color={colors.textSecondary} fontSize={14} mt={4}>
             {displayDate}
           </Text>
         </YStack>

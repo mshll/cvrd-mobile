@@ -20,6 +20,7 @@ import {
   BanknotesIcon,
   ClockIcon,
 } from 'react-native-heroicons/outline';
+import { UserIcon as UserIconFilled } from 'react-native-heroicons/solid';
 import { useState } from 'react';
 import BottomSheet from '@/components/BottomSheet';
 import { Paths } from '@/navigation/paths';
@@ -141,9 +142,25 @@ const ProfileScreen = () => {
 
   return (
     <View f={1} bg={colors.background}>
-      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: insets.top - 20,
+          paddingBottom: insets.bottom + 40,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Title Section */}
+        <YStack gap="$3" mb="$2" px={16}>
+          <XStack ai="center" mb="$2" gap="$2">
+            <UserIconFilled size={20} color={colors.text} />
+            <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+              Profile
+            </Text>
+          </XStack>
+        </YStack>
+
         {/* Profile Header */}
-        <YStack ai="center" pt={'$5'} pb="$6" px="$4" gap="$4">
+        <YStack ai="center" pb="$6" px="$4" gap="$4">
           <Circle backgroundColor={colors.border} borderWidth={'$2'} borderColor={colors.border}>
             <Avatar circular size="$12">
               <Avatar.Image
