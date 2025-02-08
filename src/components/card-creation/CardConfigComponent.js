@@ -357,7 +357,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
     // Add type-specific data
     if (cardType === 'Merchant') {
       cardData.merchant = selectedMerchant;
-    } else if (cardType === 'Location') {
+    } else if (cardType === 'LOCATION_LOCKED') {
       cardData.location = {
         latitude: location.latitude,
         longitude: location.longitude,
@@ -365,7 +365,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
         country: location.country,
       };
       cardData.radius = radius;
-    } else if (cardType === 'Category') {
+    } else if (cardType === 'CATEGORY_LOCKED') {
       cardData.category = selectedCategory;
     }
 
@@ -379,9 +379,9 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   // Render type-specific settings based on card type
   const renderTypeSpecificSettings = () => {
     switch (cardType) {
-      case 'Location':
+      case 'LOCATION_LOCKED':
         return <LocationSettings location={location} setLocation={setLocation} radius={radius} setRadius={setRadius} />;
-      case 'Category':
+      case 'CATEGORY_LOCKED':
         return <CategorySettings selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />;
       default:
         return null;

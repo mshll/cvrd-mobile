@@ -37,6 +37,7 @@ export function useCardMutations() {
       });
     },
     onError: (error) => {
+      console.log(error);
       Toast.show({
         type: 'error',
         text1: 'Error',
