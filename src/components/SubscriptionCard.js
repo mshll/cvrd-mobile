@@ -8,13 +8,13 @@ import { useState } from 'react';
 import { BlurView } from 'expo-blur';
 
 const SubscriptionCard = ({ subscription }) => {
-  const colors = useColors();
+  const { theme: appTheme } = useColors();
   const { merchantName, amount, nextBillingDate, logo, backgroundColor } = subscription;
   const [isPaused, setIsPaused] = useState(false);
 
   // Get the appropriate theme based on background color
-  const theme = getCardTheme(backgroundColor);
-  const textColor = theme === 'dark' ? '#000000' : '#FFFFFF';
+  const cardTheme = getCardTheme(backgroundColor);
+  const textColor = cardTheme === 'dark' ? '#000000' : '#FFFFFF';
 
   // Calculate the scale needed to fill the width while maintaining aspect ratio
   const cardWidth = 300;
@@ -38,11 +38,11 @@ const SubscriptionCard = ({ subscription }) => {
       {isPaused && (
         <BlurView
           intensity={15}
-          tint={theme === 'dark' ? 'light' : 'dark'}
+          tint="dark"
           style={[
             StyleSheet.absoluteFill,
             {
-              backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)',
+              backgroundColor: 'dark',
               zIndex: 1,
             },
           ]}
@@ -89,7 +89,7 @@ const SubscriptionCard = ({ subscription }) => {
               zIndex: 2,
             }}
           >
-            <BlurView intensity={10} tint={theme === 'dark' ? 'dark' : 'light'}>
+            <BlurView intensity={10} tint={cardTheme === 'dark' ? 'dark' : 'light'}>
               <TouchableOpacity
                 onPress={handleTogglePause}
                 style={{

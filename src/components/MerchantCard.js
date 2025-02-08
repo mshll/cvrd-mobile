@@ -66,22 +66,21 @@ const MerchantCard = ({ merchant }) => {
             />
           </View>
           <Button
-            backgroundColor={isSubscribed ? colors.success + '20' : colors.backgroundTertiary}
+            backgroundColor={isSubscribed ? Colors.cards.blue + '20' : colors.backgroundTertiary}
             borderRadius={8}
             size="$3"
             icon={
               isSubscribed ? (
-                <CheckIcon size={16} color={colors.success} />
+                <CheckIcon size={16} color={Colors.cards.blue} />
               ) : (
                 <ArrowUpRightIcon size={16} color={colors.text} />
               )
+
             }
             onPress={handlePress}
-            pressStyle={{ backgroundColor: isSubscribed ? colors.success + '30' : colors.backgroundTertiary }}
-            borderWidth={1}
-            borderColor={isSubscribed ? colors.success : colors.border}
+            pressStyle={{ backgroundColor: isSubscribed ? Colors.cards.blue + '30' : colors.backgroundTertiary }}
           >
-            <Text color={isSubscribed ? colors.success : colors.text} fontSize={14} fontWeight="600">
+            <Text color={isSubscribed ? Colors.cards.blue : colors.text} fontSize={14} fontWeight="600">
               {isSubscribed ? 'Subscribed' : 'Subscribe'}
             </Text>
           </Button>
