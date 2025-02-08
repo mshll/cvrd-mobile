@@ -38,6 +38,7 @@ const TransactionCard = ({ transaction }) => {
   };
 
   return (
+
     <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
       <XStack
         backgroundColor={colors.card}

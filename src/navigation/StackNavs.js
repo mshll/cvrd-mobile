@@ -7,16 +7,17 @@ import SubscriptionsScreen from '@/screens/SubscriptionsScreen';
 import AllMerchantsScreen from '@/screens/AllMerchantsScreen';
 import AllStoresScreen from '@/screens/AllStoresScreen';
 import { Colors, useColors } from '@/config/colors';
-import { Image, TouchableOpacity } from 'react-native';
+import { Image, TouchableOpacity, Animated, View, Easing, useColorScheme } from 'react-native';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { TransitionPresets } from '@react-navigation/stack';
 import AddCardScreen from '@/screens/AddCardScreen';
 import EditCardScreen from '@/screens/EditCardScreen';
 import EditLocationScreen from '@/screens/EditLocationScreen';
 import { PowerIcon } from 'react-native-heroicons/outline';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useNavigationState } from '@react-navigation/native';
 import PersonalInfoScreen from '@/screens/PersonalInfoScreen';
 import SecurityScreen from '@/screens/SecurityScreen';
+import { useEffect, useRef } from 'react';
 
 const Stack = createNativeStackNavigator();
 
@@ -48,6 +49,66 @@ const modalScreenOptions = {
   animationEnabled: true,
 };
 
+// Animated Logo Component
+const AnimatedLogo = ({ routeName }) => {
+  const logoColorAnim = useRef(new Animated.Value(0)).current;
+  const colors = useColors();
+  const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    // Define color values based on route
+    const targetValue =
+      routeName === Paths.HOME_SCREEN
+        ? 0
+        : routeName === Paths.ACTIVITY_SCREEN
+        ? 1
+        : routeName === Paths.SUBSCRIPTIONS_SCREEN
+        ? 2
+        : routeName === Paths.PROFILE
+        ? 3
+        : 0;
+
+    Animated.timing(logoColorAnim, {
+      toValue: targetValue,
+      duration: 800,
+      easing: Easing.inOut(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [routeName]);
+
+  return (
+    <View style={{ width: 100, height: 24, position: 'relative' }}>
+      {/* Base logo part 1 (static black/white based on theme) */}
+      <Image
+        source={colorScheme === 'dark' ? require('@/../assets/logo-p1.png') : require('@/../assets/logo-p1-dark.png')}
+        style={{ width: '100%', height: '100%', resizeMode: 'contain' }}
+      />
+      {/* Logo part 2 (animated color) */}
+      <Animated.Image
+        source={require('@/../assets/logo-p2.png')}
+        style={[
+          {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            resizeMode: 'contain',
+            opacity: logoColorAnim.interpolate({
+              inputRange: [0, 0.5, 1, 1.5, 2, 2.5, 3],
+              outputRange: [1, 0.6, 1, 0.6, 1, 0.6, 1],
+            }),
+            tintColor: logoColorAnim.interpolate({
+              inputRange: [0, 1, 2, 3],
+              outputRange: [Colors.cards.green, Colors.cards.blue, Colors.cards.yellow, Colors.cards.pink],
+            }),
+          },
+        ]}
+      />
+    </View>
+  );
+};
+
 export const HomeStack = () => {
   const colors = useColors();
   return (
@@ -64,9 +125,7 @@ export const HomeStack = () => {
         name={Paths.HOME_SCREEN}
         component={HomeScreen}
         options={{
-          headerTitle: () => (
-            <Image source={require('@/../assets/logo-primary.png')} style={{ height: 24, resizeMode: 'contain' }} />
-          ),
+          headerTitle: () => <AnimatedLogo routeName={Paths.HOME_SCREEN} />,
         }}
       />
     </Stack.Navigator>
@@ -79,9 +138,7 @@ export const ActivityStack = () => {
     <Stack.Navigator screenOptions={defaultScreenOptions(colors)}>
       <Stack.Screen
         options={{
-          headerTitle: () => (
-            <Image source={require('@/../assets/logo-primary.png')} style={{ height: 24, resizeMode: 'contain' }} />
-          ),
+          headerTitle: () => <AnimatedLogo routeName={Paths.ACTIVITY_SCREEN} />,
         }}
         name={Paths.ACTIVITY_SCREEN}
         component={ActivityScreen}
@@ -103,7 +160,13 @@ export const ProfileStack = () => {
 
   return (
     <Stack.Navigator screenOptions={defaultScreenOptions(colors)}>
-      <Stack.Screen name={Paths.PROFILE} component={ProfileScreen} />
+      <Stack.Screen
+        name={Paths.PROFILE}
+        component={ProfileScreen}
+        options={{
+          headerTitle: () => <AnimatedLogo routeName={Paths.PROFILE} />,
+        }}
+      />
       <Stack.Screen
         name={Paths.PERSONAL_INFO}
         component={PersonalInfoScreen}
@@ -134,9 +197,7 @@ export const SubscriptionsStack = () => {
         name={Paths.SUBSCRIPTIONS_SCREEN}
         component={SubscriptionsScreen}
         options={{
-          headerTitle: () => (
-            <Image source={require('@/../assets/logo-primary.png')} style={{ height: 24, resizeMode: 'contain' }} />
-          ),
+          headerTitle: () => <AnimatedLogo routeName={Paths.SUBSCRIPTIONS_SCREEN} />,
         }}
       />
       <Stack.Screen
