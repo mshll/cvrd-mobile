@@ -112,17 +112,17 @@ export default function App() {
               <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
                 <ColorSchemeProvider>
                   <AuthProvider>
-                    <BreadcrumbProvider>
-                      <PortalProvider>
-                        <BottomSheetModalProvider>
-                          <StatusBar animated={true} barStyle="default" />
-                          <NavigationContainer>
+                    <NavigationContainer>
+                      <BreadcrumbProvider>
+                        <PortalProvider>
+                          <BottomSheetModalProvider>
+                            <StatusBar animated={true} barStyle="default" />
                             <Navigation />
-                          </NavigationContainer>
-                          <Toast config={toastConfig} />
-                        </BottomSheetModalProvider>
-                      </PortalProvider>
-                    </BreadcrumbProvider>
+                            <Toast config={toastConfig} />
+                          </BottomSheetModalProvider>
+                        </PortalProvider>
+                      </BreadcrumbProvider>
+                    </NavigationContainer>
                   </AuthProvider>
                 </ColorSchemeProvider>
               </Theme>

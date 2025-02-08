@@ -6,6 +6,7 @@ import { StyleSheet, SectionList, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TransactionCard, { LoadingSkeleton } from '../components/TransactionCard';
 import { DUMMY_TRANSACTIONS } from '../data/transactions';
+import TransactionFilters from '@/components/TransactionFilters';
 
 // This would typically come from an API client file
 const API = {
@@ -159,104 +160,16 @@ const ActivityScreen = () => {
           </Text>
         </XStack>
 
-        <XStack space={8}>
-          <XStack
-            f={1}
-            br={8}
-            backgroundColor={colors.card}
-            ai="center"
-            px={12}
-            borderWidth={1}
-            borderColor={colors.border}
-          >
-            <Search size={20} color={colors.textSecondary} />
-            <Input
-              f={1}
-              placeholder="Search"
-              placeholderTextColor={colors.textSecondary}
-              color={colors.text}
-              borderWidth={0}
-              backgroundColor="transparent"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              fontFamily="$body"
-            />
-          </XStack>
-
-          <Button
-            backgroundColor={colors.card}
-            br={8}
-            p={12}
-            onPress={toggleDateSort}
-            borderWidth={1}
-            borderColor={colors.border}
-          >
-            {dateSort === 'desc' ? (
-              <ArrowDown size={20} color={colors.text} />
-            ) : (
-              <ArrowUp size={20} color={colors.text} />
-            )}
-          </Button>
-        </XStack>
-
-        <XStack gap={8}>
-          <Button
-            f={1}
-            backgroundColor={statusFilter === FILTER_STATES.ALL && !amountSort ? colors.primary : colors.card}
-            br={10}
-            px={12}
-            py={6}
-            borderWidth={1}
-            borderColor={colors.border}
-            onPress={() => {
-              setStatusFilter(FILTER_STATES.ALL);
-              setAmountSort(null);
-            }}
-          >
-            <Text
-              color={statusFilter === FILTER_STATES.ALL && !amountSort ? colors.text : colors.textSecondary}
-              fontSize={14}
-              fontFamily="$body"
-              fontWeight="600"
-            >
-              All
-            </Text>
-          </Button>
-
-          <Button
-            f={1}
-            backgroundColor={amountSort ? colors.primary : colors.card}
-            br={10}
-            px={12}
-            py={6}
-            borderWidth={1}
-            borderColor={colors.border}
-            onPress={toggleAmountSort}
-          >
-            <Text color={amountSort ? colors.text : colors.textSecondary} fontSize={14}>
-              {!amountSort ? 'Amount' : amountSort === 'desc' ? 'Lowest' : 'Highest'}
-            </Text>
-          </Button>
-
-          <Button
-            f={1}
-            backgroundColor={statusFilter !== FILTER_STATES.ALL ? colors.primary : colors.card}
-            br={10}
-            px={12}
-            py={6}
-            borderWidth={1}
-            borderColor={colors.border}
-            onPress={toggleStatusFilter}
-          >
-            <Text color={statusFilter !== FILTER_STATES.ALL ? colors.text : colors.textSecondary} fontSize={14}>
-              {statusFilter === FILTER_STATES.ALL
-                ? 'Status'
-                : statusFilter === FILTER_STATES.SETTLED
-                ? 'Declined'
-                : 'Settled'}
-            </Text>
-          </Button>
-        </XStack>
+        <TransactionFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          dateSort={dateSort}
+          setDateSort={setDateSort}
+          amountSort={amountSort}
+          setAmountSort={setAmountSort}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+        />
       </YStack>
 
       {/* Transactions List */}

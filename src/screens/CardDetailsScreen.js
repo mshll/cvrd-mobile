@@ -5,8 +5,20 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import CardComponent from '@/components/CardComponent';
 import { useCards } from '@/hooks/useCards';
 import { useCardMutations } from '@/hooks/useCardMutations';
-import { useMemo, useState, useCallback, useEffect } from 'react';
-import { Edit3, Pause, PauseCircle, Play, Share2, Trash2, BanknotesIcon } from '@tamagui/lucide-icons';
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import {
+  Edit3,
+  Pause,
+  PauseCircle,
+  Play,
+  Share2,
+  Trash2,
+  BanknotesIcon,
+  Search,
+  ArrowDown,
+  ArrowUp,
+  History,
+} from '@tamagui/lucide-icons';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
 import CardFlipComponent from '@/components/CardFlipComponent';
 import {
@@ -22,10 +34,15 @@ import { CARD_WIDTH_LARGE, CARD_HEIGHT_LARGE } from '@/utils/cardUtils';
 import { formatCurrency } from '@/utils/utils';
 import { Paths } from '@/navigation/paths';
 import { ArrowUpOnSquareIcon } from 'react-native-heroicons/outline';
-import BottomSheet from '@/components/BottomSheet';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import SpendLimitMenu from '@/components/SpendLimitMenu';
 import Toast from 'react-native-toast-message';
+import { DUMMY_TRANSACTIONS } from '@/data/transactions';
+import TransactionCard from '@/components/TransactionCard';
+import GBottomSheet, { BottomSheetSectionList } from '@gorhom/bottom-sheet';
+import TransactionFilters from '@/components/TransactionFilters';
+import Accordion from '@/components/Accordion';
+import BottomSheet from '@/components/BottomSheet';
 
 const MAP_HEIGHT = 200;
 
@@ -174,6 +191,31 @@ const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
   );
 };
 
+const groupTransactionsByMonth = (transactions) => {
+  const groups = transactions.reduce((acc, transaction) => {
+    const date = new Date(transaction.date);
+    const monthYear = date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+    if (!acc[monthYear]) {
+      acc[monthYear] = [];
+    }
+    acc[monthYear].push(transaction);
+    return acc;
+  }, {});
+
+  // Convert to SectionList format and sort
+  return Object.entries(groups)
+    .sort(([monthA], [monthB]) => {
+      const dateA = new Date(monthA);
+      const dateB = new Date(monthB);
+      return dateB - dateA;
+    })
+    .map(([month, data]) => ({
+      title: month,
+      data,
+    }));
+};
+
 const CardDetailsScreen = () => {
   const colors = useColors();
   const route = useRoute();
@@ -183,6 +225,12 @@ const CardDetailsScreen = () => {
   const { updateCardLimitMutation, togglePauseMutation, closeCardMutation } = useCardMutations();
   const [showSpendLimitSheet, setShowSpendLimitSheet] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
+  const bottomSheetRef = useRef(null);
+  const snapPoints = useMemo(() => ['10%', '50%', '90%'], []);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateSort, setDateSort] = useState('desc');
+  const [amountSort, setAmountSort] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Get card data
   const card = useMemo(() => {
@@ -192,6 +240,83 @@ const CardDetailsScreen = () => {
 
   // Get active spending limit
   const activeSpendingLimit = useMemo(() => getActiveSpendingLimit(card), [card]);
+
+  // Get transactions for this card
+  const cardTransactions = useMemo(() => {
+    return DUMMY_TRANSACTIONS.filter((t) => t.cardId === cardId);
+  }, [cardId]);
+
+  // Add this function to apply filters
+  const filteredTransactions = useMemo(() => {
+    let filtered = [...cardTransactions];
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter((transaction) => transaction.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((transaction) => transaction.status === statusFilter);
+    }
+
+    // Apply sorting
+    if (amountSort) {
+      filtered.sort((a, b) => {
+        const comparison = a.amount - b.amount;
+        return amountSort === 'desc' ? -comparison : comparison;
+      });
+    } else {
+      // Default to date sorting if amount sort is not active
+      filtered.sort((a, b) => {
+        const comparison = new Date(a.date) - new Date(b.date);
+        return dateSort === 'desc' ? -comparison : comparison;
+      });
+    }
+
+    return filtered;
+  }, [cardTransactions, searchQuery, dateSort, amountSort, statusFilter]);
+
+  // Update sections with filtered transactions
+  const sections = useMemo(() => {
+    return groupTransactionsByMonth(filteredTransactions);
+  }, [filteredTransactions]);
+
+  const renderSectionHeader = useCallback(
+    ({ section: { title } }) => {
+      return (
+        <View style={styles.sectionHeader} backgroundColor={colors.backgroundSecondary}>
+          <Text color={colors.textSecondary} fontSize={16} fontFamily="$archivoBlack">
+            {title}
+          </Text>
+        </View>
+      );
+    },
+    [colors]
+  );
+
+  const renderItem = useCallback(({ item }) => {
+    return <TransactionCard transaction={item} />;
+  }, []);
+
+  const toggleDateSort = useCallback(() => {
+    setDateSort((prev) => (prev === 'desc' ? 'asc' : 'desc'));
+    setAmountSort(null);
+  }, []);
+
+  const toggleAmountSort = useCallback(() => {
+    setAmountSort((prev) => {
+      if (!prev || prev === 'asc') return 'desc';
+      return 'asc';
+    });
+  }, []);
+
+  const toggleStatusFilter = useCallback(() => {
+    setStatusFilter((prev) => {
+      if (prev === 'all' || prev === 'Declined') return 'Settled';
+      return 'Declined';
+    });
+  }, []);
 
   // Show loading state while fetching card data
   if (isCardsLoading) {
@@ -279,113 +404,116 @@ const CardDetailsScreen = () => {
   }, [navigation, cardId]);
 
   return (
-    <ScrollView f={1} bg={colors.background}>
-      <YStack f={1} ai="center" pt="$5" pb={150}>
-        <CardFlipComponent cardId={cardId} />
+    <View f={1} bg={colors.background}>
+      <ScrollView f={1} bg={colors.background}>
+        <YStack f={1} ai="center" pt="$5" pb={150}>
+          <CardFlipComponent cardId={cardId} />
 
-        {/* Action Buttons */}
-        <XStack gap="$5" mt="$5" mb="$5">
-          <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleTogglePause} disabled={card.closed}>
-              {card.paused ? <PlayIcon size={25} color={colors.text} /> : <PauseIcon size={25} color={colors.text} />}
-            </ActionButton>
-          </YStack>
-          <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleEdit} disabled={card.closed}>
-              <PaintBrushIcon size={25} color={colors.text} />
-            </ActionButton>
-          </YStack>
-          <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleShare} disabled={card.closed}>
-              <ArrowUpOnSquareIcon size={25} color={colors.text} />
-            </ActionButton>
-          </YStack>
-          <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleDelete} disabled={card.closed}>
-              <TrashIcon size={25} color={colors.danger} />
-            </ActionButton>
-          </YStack>
-        </XStack>
+          {/* Action Buttons */}
+          <XStack gap="$5" mt="$5" mb="$5">
+            <YStack gap="$2" ai="center" jc="center">
+              <ActionButton onPress={handleTogglePause} disabled={card.closed}>
+                {card.paused ? <PlayIcon size={25} color={colors.text} /> : <PauseIcon size={25} color={colors.text} />}
+              </ActionButton>
+            </YStack>
+            <YStack gap="$2" ai="center" jc="center">
+              <ActionButton onPress={handleEdit} disabled={card.closed}>
+                <PaintBrushIcon size={25} color={colors.text} />
+              </ActionButton>
+            </YStack>
+            <YStack gap="$2" ai="center" jc="center">
+              <ActionButton onPress={handleShare} disabled={card.closed}>
+                <ArrowUpOnSquareIcon size={25} color={colors.text} />
+              </ActionButton>
+            </YStack>
+            <YStack gap="$2" ai="center" jc="center">
+              <ActionButton onPress={handleDelete} disabled={card.closed}>
+                <TrashIcon size={25} color={colors.danger} />
+              </ActionButton>
+            </YStack>
+          </XStack>
 
-        {/* Card Details */}
-        <YStack width="100%" px="$4" gap="$4">
-          {/* Spending Limit Section */}
-          {activeSpendingLimit ? (
-            <View
-              style={{
-                borderRadius: 12,
-                overflow: 'hidden',
-                backgroundColor: colors.backgroundSecondary,
-                borderWidth: 1,
-                borderColor: colors.border,
-              }}
-            >
-              <YStack p="$4" gap="$3">
-                <XStack jc="space-between" ai="center">
-                  <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                    Spend Limit
-                  </Text>
-                  <EditButton onPress={() => setShowSpendLimitSheet(true)} disabled={card.closed} />
-                </XStack>
-                <YStack gap="$2">
-                  <Text color={colors.text} fontSize="$6" fontWeight="700">
-                    {formatCurrency(activeSpendingLimit.value)}
-                  </Text>
-                  <Text color={colors.textSecondary} fontSize="$3">
-                    {activeSpendingLimit.label}
-                  </Text>
-                </YStack>
-              </YStack>
-            </View>
-          ) : (
-            !card.closed && (
-              <Button
-                onPress={() => setShowSpendLimitSheet(true)}
-                height={120}
-                borderRadius={12}
-                borderWidth={1}
-                borderStyle="dashed"
-                borderColor={colors.border}
-                backgroundColor={'transparent'}
-                pressStyle={{ backgroundColor: colors.backgroundTertiary }}
-                alignItems="center"
-                justifyContent="center"
+          {/* Card Details */}
+          <YStack width="100%" px="$4" gap="$4">
+            {/* Spending Limit Section */}
+            {activeSpendingLimit ? (
+              <View
+                style={{
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  backgroundColor: colors.backgroundSecondary,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
               >
-                <YStack alignItems="center" gap="$2">
-                  <Text color={colors.textTertiary} fontSize="$3" fontWeight="600">
-                    Set a spend limit
-                  </Text>
+                <YStack p="$4" gap="$3">
+                  <XStack jc="space-between" ai="center">
+                    <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
+                      Spend Limit
+                    </Text>
+                    <EditButton onPress={() => setShowSpendLimitSheet(true)} disabled={card.closed} />
+                  </XStack>
+                  <YStack gap="$2">
+                    <Text color={colors.text} fontSize="$6" fontWeight="700">
+                      {formatCurrency(activeSpendingLimit.value)}
+                    </Text>
+                    <Text color={colors.textSecondary} fontSize="$3">
+                      {activeSpendingLimit.label}
+                    </Text>
+                  </YStack>
                 </YStack>
-              </Button>
-            )
-          )}
+              </View>
+            ) : (
+              !card.closed && (
+                <Button
+                  onPress={() => setShowSpendLimitSheet(true)}
+                  height={120}
+                  borderRadius={12}
+                  borderWidth={1}
+                  borderStyle="dashed"
+                  borderColor={colors.border}
+                  backgroundColor={'transparent'}
+                  pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <YStack alignItems="center" gap="$2">
+                    <Text color={colors.textTertiary} fontSize="$3" fontWeight="600">
+                      Set a spend limit
+                    </Text>
+                  </YStack>
+                </Button>
+              )
+            )}
 
-          {/* Location Map (only for location cards) */}
-          {card.cardType === 'LOCATION_LOCKED' && card.longitude && card.latitude && (
-            <LocationMap
-              latitude={card.latitude}
-              longitude={card.longitude}
-              radius={card.radius}
-              color={Colors.cards[card.cardColor] || card.cardColor}
-              onEdit={handleEditLocation}
-            />
-          )}
+            {/* Location Map (only for location cards) */}
+            {card.cardType === 'LOCATION_LOCKED' && card.longitude && card.latitude && (
+              <View
+                style={{
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  backgroundColor: colors.backgroundSecondary,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+              >
+                <YStack p="$4" gap="$3">
+                  <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
+                    Location
+                  </Text>
+                  <LocationMap
+                    latitude={card.latitude}
+                    longitude={card.longitude}
+                    radius={card.radius}
+                    color={Colors.cards[card.cardColor] || card.cardColor}
+                    onEdit={handleEditLocation}
+                  />
+                </YStack>
+              </View>
+            )}
 
-          {/* Additional Details */}
-          <View
-            style={{
-              borderRadius: 12,
-              overflow: 'hidden',
-              backgroundColor: colors.backgroundSecondary,
-              borderWidth: 1,
-              borderColor: colors.border,
-            }}
-          >
-            <YStack p="$4" gap="$4">
-              <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                Card Details
-              </Text>
-
+            {/* Card Details Accordion */}
+            <Accordion title="Card Details" defaultOpen={false}>
               <YStack gap="$3">
                 <XStack jc="space-between">
                   <Text color={colors.textSecondary}>Card Number</Text>
@@ -434,10 +562,58 @@ const CardDetailsScreen = () => {
                   <Text color={colors.text}>{card.closed ? 'Closed' : card.paused ? 'Paused' : 'Active'}</Text>
                 </XStack>
               </YStack>
-            </YStack>
-          </View>
+            </Accordion>
+          </YStack>
         </YStack>
-      </YStack>
+      </ScrollView>
+
+      {/* Transaction Bottom Sheet */}
+      <GBottomSheet
+        ref={bottomSheetRef}
+        index={0}
+        snapPoints={snapPoints}
+        handleIndicatorStyle={{ backgroundColor: colors.textSecondary }}
+        handleStyle={{
+          backgroundColor: colors.backgroundSecondary,
+          borderTopLeftRadius: 15,
+          borderTopRightRadius: 15,
+        }}
+        backgroundStyle={{
+          backgroundColor: colors.backgroundSecondary,
+          borderTopLeftRadius: 15,
+          borderTopRightRadius: 15,
+        }}
+        style={{ minHeight: 500 }}
+      >
+        <YStack px="$4" gap="$2" f={1}>
+          <XStack ai="center" gap="$2" mb="$2">
+            <History size={20} color={colors.text} />
+            <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+              Card Activity
+            </Text>
+          </XStack>
+
+          <TransactionFilters
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            dateSort={dateSort}
+            setDateSort={setDateSort}
+            amountSort={amountSort}
+            setAmountSort={setAmountSort}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+          />
+
+          <BottomSheetSectionList
+            sections={sections}
+            keyExtractor={(item) => item.id}
+            renderSectionHeader={renderSectionHeader}
+            renderItem={renderItem}
+            contentContainerStyle={styles.contentContainer}
+            style={{ backgroundColor: 'transparent' }}
+          />
+        </YStack>
+      </GBottomSheet>
 
       <SpendLimitSheet
         isOpen={showSpendLimitSheet}
@@ -483,8 +659,18 @@ const CardDetailsScreen = () => {
           </YStack>
         </YStack>
       </BottomSheet>
-    </ScrollView>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  contentContainer: {
+    paddingHorizontal: 0,
+  },
+  sectionHeader: {
+    paddingVertical: 12,
+    marginBottom: 8,
+  },
+});
 
 export default CardDetailsScreen;

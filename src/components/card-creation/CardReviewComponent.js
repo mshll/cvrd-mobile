@@ -187,7 +187,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
                   </Text>
                 </XStack>
 
-                {cardType === 'Location' && (
+                {cardType === 'LOCATION_LOCKED' && (
                   <>
                     <XStack jc="space-between">
                       <Text color={colors.textSecondary} fontSize="$3">
@@ -224,7 +224,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
                   </>
                 )}
 
-                {cardType === 'Category' && cardData.category && (
+                {cardType === 'CATEGORY_LOCKED' && cardData.category && (
                   <XStack jc="space-between">
                     <Text color={colors.textSecondary} fontSize="$3">
                       Category
