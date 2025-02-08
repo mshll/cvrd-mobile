@@ -1,53 +1,78 @@
-import { useMemo, useState } from 'react';
-import { cards as initialCards } from '@/data/cards';
+import { useMemo } from 'react';
+import { useCardsQuery } from './useCardsQuery';
 
 export function useCards() {
-  const [cards, setCards] = useState(initialCards);
+  const { data: cards = [], isLoading, error, refetch } = useCardsQuery();
+
+  // Log the current state
+  // console.log('🎴 useCards state:', {
+  //   cardsCount: cards?.length || 0,
+  //   isLoading,
+  //   hasError: !!error,
+  // });
 
   const cardsByType = useMemo(() => {
-    return cards.reduce((acc, card) => {
-      if (!acc[card.card_type]) {
-        acc[card.card_type] = [];
+    const groupedCards = cards.reduce((acc, card) => {
+      // Extract the type without _LOCKED suffix
+      const type = card.cardType.replace('_LOCKED', '');
+      if (!acc[type]) {
+        acc[type] = [];
       }
-      acc[card.card_type].push(card);
+      acc[type].push(card);
       return acc;
     }, {});
+
+    // Log the grouped cards
+    // console.log(
+    //   '📊 Cards by type:',
+    //   Object.keys(groupedCards).reduce((acc, type) => {
+    //     acc[type] = groupedCards[type].length;
+    //     return acc;
+    //   }, {})
+    // );
+
+    return groupedCards;
   }, [cards]);
 
-  const getCardById = (id) => cards.find((card) => card.id === id);
+  const getCardById = (id) => {
+    if (!id || !cards) return null;
+    const card = cards.find((card) => card.id === id);
 
-  const getCardDisplayData = (card) => ({
-    id: card.id,
-    type: card.card_type,
-    backgroundColor: card.card_color,
-    lastFourDigits: card.card_number.slice(-4),
-    label: card.card_name,
-    emoji: card.card_icon,
-    isPaused: card.is_paused,
-    isClosed: card.is_closed,
-  });
+    // Log card lookup result
+    //console.log('🔍 Looking up card:', { id, found: !!card });
 
-  const getAllCardsDisplay = () => cards.map(getCardDisplayData);
-
-  const updateCard = (cardId, updatedData) => {
-    setCards((prevCards) =>
-      prevCards.map((card) =>
-        card.id === cardId
-          ? {
-              ...card,
-              ...updatedData,
-            }
-          : card
-      )
-    );
+    return card || null;
   };
+
+  const getCardDisplayData = (card) => {
+    if (!card) return null;
+
+    // Log the card data for debugging
+    //console.log('🃏 Processing card:', card);
+
+    return {
+      id: card.id,
+      type: card.cardType.replace('_LOCKED', ''),
+      backgroundColor: card.cardColor,
+      lastFourDigits: card.cardNumber?.slice(-4) || '••••',
+      label: card.cardName || 'Unnamed Card',
+      emoji: card.cardIcon || '💳',
+      isPaused: card.paused || false,
+      isClosed: card.closed || false,
+      isPinned: card.pinned || false,
+    };
+  };
+
+  const getAllCardsDisplay = () => cards.map(getCardDisplayData).filter(Boolean);
 
   return {
     cards,
+    isLoading,
+    error,
+    refetch,
     cardsByType,
     getCardById,
     getCardDisplayData,
     getAllCardsDisplay,
-    updateCard,
   };
 }

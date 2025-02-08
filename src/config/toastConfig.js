@@ -7,34 +7,35 @@ import { XMarkIcon, CheckCircleIcon, ExclamationTriangleIcon } from 'react-nativ
 
 const ToastComponent = ({ text1, text2, type }) => {
   const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme || 'dark'];
+  const colorSchemeInverse = colorScheme === 'dark' ? 'light' : 'dark';
+  const colors = Colors[colorScheme];
   const theme = useTheme();
 
   const getToastStyles = () => {
     switch (type) {
       case 'error':
         return {
-          icon: <XMarkIcon size={20} color={theme.red10.val} />,
+          icon: <XMarkIcon size={20} color={colors.danger} />,
           borderColor: `${colors.backgroundSecondary}99`,
-          backgroundColor: `${colors.background}C8`,
+          backgroundColor: `${colors.backgroundSecondary}C8`,
         };
       case 'success':
         return {
-          icon: <CheckCircleIcon size={20} color={theme.green10.val} />,
+          icon: <CheckCircleIcon size={20} color={colors.success} />,
           borderColor: `${colors.backgroundSecondary}99`,
-          backgroundColor: `${colors.background}C8`,
+          backgroundColor: `${colors.backgroundSecondary}C8`,
         };
       case 'delete':
         return {
-          icon: <ExclamationTriangleIcon size={20} color={theme.red10.val} />,
+          icon: <ExclamationTriangleIcon size={20} color={colors.danger} />,
           borderColor: `${colors.backgroundSecondary}99`,
-          backgroundColor: `${colors.background}C8`,
+          backgroundColor: `${colors.backgroundSecondary}C8`,
         };
       default:
         return {
           icon: null,
           borderColor: `${colors.backgroundSecondary}99`,
-          backgroundColor: `${colors.background}C8`,
+          backgroundColor: `${colors.backgroundSecondary}C8`,
         };
     }
   };
@@ -43,13 +44,14 @@ const ToastComponent = ({ text1, text2, type }) => {
 
   return (
     <View
-      width="90%"
+      width="95%"
       height={50}
-      borderRadius="$6"
+      borderRadius="$4"
       overflow="hidden"
       borderWidth={1}
       borderColor={toastStyles.borderColor}
       opacity={0.98}
+      mt={'$2.5'}
     >
       <BlurView
         intensity={colorScheme === 'dark' ? 40 : 60}

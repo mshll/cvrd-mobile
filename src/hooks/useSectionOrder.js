@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState, useEffect } from 'react';
 
-const SECTION_ORDER_KEY = '@cvrd/section_order';
-
-const DEFAULT_ORDER = ['merchant', 'category', 'location', 'burner'];
+const STORAGE_KEY = '@section_order';
+const DEFAULT_ORDER = ['BURNER', 'MERCHANT', 'CATEGORY', 'LOCATION'];
 
 export function useSectionOrder() {
   const [order, setOrder] = useState(DEFAULT_ORDER);
@@ -15,12 +14,12 @@ export function useSectionOrder() {
 
   const loadOrder = async () => {
     try {
-      const savedOrder = await AsyncStorage.getItem(SECTION_ORDER_KEY);
+      const savedOrder = await AsyncStorage.getItem(STORAGE_KEY);
       if (savedOrder) {
         setOrder(JSON.parse(savedOrder));
       }
     } catch (error) {
-      console.error('Error loading section order:', error);
+      console.error('❌ Error loading section order:', error);
     } finally {
       setIsLoading(false);
     }
@@ -28,19 +27,19 @@ export function useSectionOrder() {
 
   const saveOrder = async (newOrder) => {
     try {
-      await AsyncStorage.setItem(SECTION_ORDER_KEY, JSON.stringify(newOrder));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newOrder));
       setOrder(newOrder);
     } catch (error) {
-      console.error('Error saving section order:', error);
+      console.error('❌ Error saving section order:', error);
     }
   };
 
   const resetOrder = async () => {
     try {
-      await AsyncStorage.removeItem(SECTION_ORDER_KEY);
+      await AsyncStorage.removeItem(STORAGE_KEY);
       setOrder(DEFAULT_ORDER);
     } catch (error) {
-      console.error('Error resetting section order:', error);
+      console.error('❌ Error resetting section order:', error);
     }
   };
 

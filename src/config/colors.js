@@ -14,6 +14,10 @@ export const Colors = {
     textTertiary: '#666666',
     border: '#262d3d',
     borderSecondary: '#333d51',
+    danger: '#F4405E',
+    success: '#00c851',
+    warning: '#ffbb33',
+    info: '#33b5e5',
   },
   light: {
     primary: '#d6515b', // Keep brand color consistent
@@ -27,21 +31,26 @@ export const Colors = {
     textTertiary: '#868e96', // Light gray for disabled/tertiary
     border: '#dee2e6', // Soft borders for light mode
     borderSecondary: '#ced4da', // Slightly darker borders when needed
+    danger: '#F4405E',
+    success: '#7bd497',
+    warning: '#EBE14B',
+    info: '#47D5FF',
   },
   cards: {
     red: '#d6515b',
-    green: '#77f5bc',
+    green: '#7bd497',
     blue: '#3981A6',
     yellow: '#EBE14B',
     purple: '#9747FF',
     orange: '#FF7847',
-    pink: '#E14C81',
+    pink: '#d986c2',
     teal: '#47D5FF',
     indigo: '#4762FF',
     lime: '#B1FF47',
     cyan: '#47FFF4',
     brown: '#A65C39',
     gray: '#808080',
+    navy: '#232F3E',
   },
 };
 

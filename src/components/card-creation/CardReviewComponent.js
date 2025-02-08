@@ -5,26 +5,11 @@ import CardComponent from '@/components/CardComponent';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useCardMutations } from '@/hooks/useCardMutations';
+import { CARD_DEFAULTS } from '@/api/cards';
 
 // Default card configurations for each type
-const DEFAULT_CARD_CONFIGS = {
-  Merchant: {
-    emoji: '🛍️',
-    color: Colors.cards.green,
-  },
-  Category: {
-    emoji: '📅',
-    color: Colors.cards.pink,
-  },
-  Location: {
-    emoji: '📍',
-    color: Colors.cards.blue,
-  },
-  Burner: {
-    emoji: '🔥',
-    color: Colors.cards.yellow,
-  },
-};
+const DEFAULT_CARD_CONFIGS = CARD_DEFAULTS;
 
 // Mock remaining generations (replace with actual data from your backend)
 const INITIAL_GENERATIONS = 3;
@@ -43,6 +28,12 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
   const colors = useColors();
   const [remainingGenerations, setRemainingGenerations] = useState(INITIAL_GENERATIONS);
   const insets = useSafeAreaInsets();
+  const {
+    createBurnerCardMutation,
+    createCategoryCardMutation,
+    createMerchantCardMutation,
+    createLocationCardMutation,
+  } = useCardMutations();
 
   // Function to format limit value
   const formatLimit = (value) => {
@@ -90,9 +81,31 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
         },
         {
           text: 'Create',
-          onPress: () => {
+          onPress: async () => {
             setRemainingGenerations((prev) => prev - 1);
-            onCreateCard(cardData);
+
+            try {
+              // Call the appropriate mutation based on card type
+              switch (cardType) {
+                case 'BURNER':
+                  await createBurnerCardMutation.mutateAsync(cardData);
+                  break;
+                case 'CATEGORY_LOCKED':
+                  await createCategoryCardMutation.mutateAsync(cardData);
+                  break;
+                case 'MERCHANT_LOCKED':
+                  await createMerchantCardMutation.mutateAsync(cardData);
+                  break;
+                case 'LOCATION_LOCKED':
+                  await createLocationCardMutation.mutateAsync(cardData);
+                  break;
+              }
+
+              onCreateCard(cardData);
+            } catch (error) {
+              // Error is already handled by the mutation
+              setRemainingGenerations((prev) => prev + 1); // Restore the generation count on error
+            }
           },
         },
       ]
@@ -110,7 +123,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
                 displayData={{
                   type: cardType,
                   label: cardData.name,
-                  emoji: DEFAULT_CARD_CONFIGS[cardType].emoji,
+                  emoji: DEFAULT_CARD_CONFIGS[cardType].icon,
                   lastFourDigits: '••••',
                   backgroundColor: DEFAULT_CARD_CONFIGS[cardType].color,
                   isPaused: false,

@@ -60,13 +60,9 @@ const LIMIT_OPTIONS = [
   { id: 'no_limit', label: 'No Limit', defaultValue: null, max: null },
 ];
 
-const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimits, setSelectedLimits }) => {
+const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
   const insets = useSafeAreaInsets();
-  const [spendingLimit, setSpendingLimit] = useState('');
-  const [durationLimit, setDurationLimit] = useState('per_transaction');
-
   const colors = useColors();
-
 
   const handleSaveLimits = (updates) => {
     setLimits(updates);
@@ -106,16 +102,8 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, selectedLimi
           borderColor: Colors.dark.border,
         }}
       >
-        <SpendLimitMenu
-          spendingLimit={spendingLimit}
-          setSpendingLimit={setSpendingLimit}
-          durationLimit={durationLimit}
-          setDurationLimit={setDurationLimit}
-          onSave={handleSaveLimits}
-          darkButtons={true}
-        />
+        <SpendLimitMenu onSave={handleSaveLimits} darkButtons={true} />
       </View>
-
     </YStack>
   );
 };
@@ -343,16 +331,13 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   // Common state
   const [cardName, setCardName] = useState(initialData?.label || '');
   const [limits, setLimits] = useState({
-    per_transaction: '0',
-    per_day: '0',
-    per_week: '0',
-    per_month: '0',
-    per_year: '0',
-    total: '0',
+    per_transaction: 0,
+    per_day: 0,
+    per_week: 0,
+    per_month: 0,
+    per_year: 0,
+    total: 0,
   });
-
-  // Keep track of which limits have been selected/modified
-  const [selectedLimits, setSelectedLimits] = useState(new Set());
 
   // Type-specific state
   const [selectedMerchant, setSelectedMerchant] = useState(null);
@@ -364,26 +349,9 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const handleNext = () => {
-    // Convert limits to numbers and filter out unselected ones
-    const selectedLimitsData = {};
-
-    // Process each limit
-    Object.entries(limits).forEach(([key, value]) => {
-      if (selectedLimits.has(key)) {
-        if (key === 'no_limit') {
-          selectedLimitsData[key] = null;
-        } else {
-          const numValue = parseInt(value);
-          if (numValue > 0) {
-            selectedLimitsData[key] = numValue;
-          }
-        }
-      }
-    });
-
     const cardData = {
       name: cardName,
-      limits: selectedLimitsData,
+      limits,
     };
 
     // Add type-specific data
@@ -400,6 +368,9 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
     } else if (cardType === 'Category') {
       cardData.category = selectedCategory;
     }
+
+    // Log the card data being passed
+    console.log('📤 Card data being passed:', cardData);
 
     // Pass the data to parent through onNext
     onNext(cardData);
@@ -421,14 +392,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
     <View f={1} backgroundColor={colors.background}>
       <ScrollView contentContainerStyle={styles.container}>
         {/* Common Settings */}
-        <CommonSettings
-          cardName={cardName}
-          setCardName={setCardName}
-          limits={limits}
-          setLimits={setLimits}
-          selectedLimits={selectedLimits}
-          setSelectedLimits={setSelectedLimits}
-        />
+        <CommonSettings cardName={cardName} setCardName={setCardName} limits={limits} setLimits={setLimits} />
 
         {/* Type-specific Settings */}
         {renderTypeSpecificSettings()}

@@ -10,6 +10,7 @@ import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import EditLocationScreen from '@/screens/EditLocationScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCards } from '@/hooks/useCards';
+import { useCardMutations } from '@/hooks/useCardMutations';
 import { WalletIcon, QueueListIcon, BellIcon, UserCircleIcon, PlusIcon } from 'react-native-heroicons/solid';
 import {
   WalletIcon as WalletIconOutline,
@@ -20,6 +21,9 @@ import {
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { CustomTabBar } from '@/components/CustomTabBar';
 import AuthNav from './AuthNav';
+import { TouchableOpacity } from 'react-native';
+import { StarIcon } from 'react-native-heroicons/solid';
+import { StarIcon as StarIconOutline } from 'react-native-heroicons/outline';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -91,6 +95,7 @@ const TabNavigator = () => {
 const MainNav = () => {
   const colors = useColors();
   const { getCardById } = useCards();
+  const { togglePinMutation } = useCardMutations();
 
   return (
     <Stack.Navigator
@@ -116,10 +121,25 @@ const MainNav = () => {
           const card = getCardById(route.params.cardId);
           return {
             headerShown: true,
-            headerTitle: card?.card_name || 'Card Details',
+            headerTitle: card?.cardIcon + ' ' + card?.cardName || 'Card Details',
             animation: 'slide_from_right',
             gestureEnabled: true,
             gestureDirection: 'horizontal',
+            headerRight: () => {
+              if (!card || card.is_closed) return null;
+              return (
+                <TouchableOpacity
+                  onPress={() => togglePinMutation.mutate(card.id)}
+                  style={{ padding: 8, marginRight: -8 }}
+                >
+                  {card.pinned ? (
+                    <StarIcon size={24} color={colors.text} />
+                  ) : (
+                    <StarIconOutline size={24} color={colors.text} />
+                  )}
+                </TouchableOpacity>
+              );
+            },
           };
         }}
       />

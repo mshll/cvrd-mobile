@@ -29,29 +29,30 @@ import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/
 import { Platform, StyleSheet } from 'react-native';
 import { FullWindowOverlay } from 'react-native-screens';
 import BottomSheet from '@/components/BottomSheet';
+import { useUser } from '@/hooks/useUser';
 
 // ============================================================================
 // Constants & Config
 // ============================================================================
 
 const SECTION_CONFIG = {
-  merchant: {
-    id: 'merchant',
-    title: 'Merchant Locked Cards',
+  MERCHANT: {
+    id: 'MERCHANT',
+    title: 'Merchant-Locked Cards',
     icon: BuildingStorefrontIcon,
   },
-  category: {
-    id: 'category',
-    title: 'Category Locked Cards',
+  CATEGORY: {
+    id: 'CATEGORY',
+    title: 'Category-Locked Cards',
     icon: TagIcon,
   },
-  location: {
-    id: 'location',
-    title: 'Location Locked Cards',
+  LOCATION: {
+    id: 'LOCATION',
+    title: 'Location-Locked Cards',
     icon: MapPinIcon,
   },
-  burner: {
-    id: 'burner',
+  BURNER: {
+    id: 'BURNER',
     title: 'Burner Cards',
     icon: FireIcon,
   },
@@ -109,6 +110,7 @@ function UserGreeting() {
 
 function SpendingStats() {
   const colors = useColors();
+  const { user } = useUser();
   return (
     <YStack gap="$3" mb="$2" px={16}>
       <XStack ai="center" mb="$2" gap="$2">
@@ -123,7 +125,7 @@ function SpendingStats() {
             Today
           </Text>
           <Text color={colors.text} fontSize="$5" fontWeight="700">
-            {formatCurrency(user.spend_today)}
+            {formatCurrency(user?.currentDailySpend || 0)}
           </Text>
         </Card>
         <Card f={1} bg={colors.card} p="$4" br={12} borderWidth={1} borderColor={colors.border}>
@@ -131,7 +133,7 @@ function SpendingStats() {
             This Month
           </Text>
           <Text color={colors.text} fontSize="$5" fontWeight="700">
-            {formatCurrency(user.spend_month)}
+            {formatCurrency(user?.currentMonthlySpend || 0)}
           </Text>
         </Card>
       </XStack>
@@ -254,30 +256,41 @@ const styles = StyleSheet.create({
 function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { cardsByType, getCardDisplayData } = useCards();
-  const { order, isLoading, saveOrder, resetOrder } = useSectionOrder();
+  const { cardsByType, getCardDisplayData, isLoading: isCardsLoading } = useCards();
+  const { order, isLoading: isSectionOrderLoading, saveOrder, resetOrder } = useSectionOrder();
   const [isReorganizing, setIsReorganizing] = useState(false);
 
   const sections = useMemo(() => {
-    return order.map((sectionId) => ({
-      ...SECTION_CONFIG[sectionId],
-      data: (cardsByType[SECTION_CONFIG[sectionId].title.split(' ')[0]] || [])
-        .sort((a, b) => {
-          const getPriority = (card) => {
-            if (card.is_closed) return 2;
-            if (card.is_paused) return 1;
-            return 0;
-          };
-          return getPriority(a) - getPriority(b);
-        })
-        .map(getCardDisplayData),
-    }));
-  }, [order, cardsByType]);
+    return order.map((sectionId) => {
+      const sectionCards = cardsByType[sectionId] || [];
+
+      return {
+        ...SECTION_CONFIG[sectionId],
+        data: sectionCards
+          .sort((a, b) => {
+            // First sort by pin status
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+
+            // Then sort by card status
+            const getPriority = (card) => {
+              if (card.closed) return 2;
+              if (card.paused) return 1;
+              return 0;
+            };
+            return getPriority(a) - getPriority(b);
+          })
+          .map(getCardDisplayData),
+      };
+    });
+  }, [order, cardsByType, getCardDisplayData]);
 
   const handleReorder = async (reorderedSections) => {
     const newOrder = reorderedSections.map((section) => section.id);
     await saveOrder(newOrder);
   };
+
+  const isLoading = isCardsLoading || isSectionOrderLoading;
 
   if (isLoading) {
     return (

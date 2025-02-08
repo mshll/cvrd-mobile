@@ -90,6 +90,38 @@ const StatCard = ({ icon: Icon, label, value, color }) => {
   );
 };
 
+// Progress Bar Component
+const ProgressBar = ({ label, value, max, color, icon: Icon, isCurrency = true }) => {
+  const colors = useColors();
+  const percentage = Math.min((value / max) * 100, 100);
+
+  const formatValue = (val) => {
+    if (isCurrency) {
+      return formatCurrency(val);
+    }
+    return val.toString();
+  };
+
+  return (
+    <YStack gap="$2" w="100%">
+      <XStack ai="center" gap="$2">
+        {Icon && <Icon size={16} color={colors.textSecondary} />}
+        <Text color={colors.textSecondary} fontSize="$3">
+          {label}
+        </Text>
+      </XStack>
+      <YStack gap="$2">
+        <Text color={colors.text} fontSize="$4" fontWeight="700">
+          {formatValue(value)} <Text color={colors.textSecondary}>/ {formatValue(max)}</Text>
+        </Text>
+        <View h={8} br={4} bg={colors.backgroundTertiary} overflow="hidden" borderWidth={1} borderColor={colors.border}>
+          <View h="100%" w={`${percentage}%`} bg={color} br={4} opacity={0.9} animation="quick" />
+        </View>
+      </YStack>
+    </YStack>
+  );
+};
+
 const ProfileScreen = () => {
   const { setUser } = useAuthContext();
   const colors = useColors();
@@ -98,6 +130,21 @@ const ProfileScreen = () => {
   const { cards } = useCards();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const { user, isLoading, error } = useUser();
+
+  const limits = {
+    monthlyNewCards: {
+      current: user?.currentMonthCardIssuance || 0,
+      max: user?.monthlyCardIssuanceLimit || 10,
+    },
+    dailySpend: {
+      current: user?.currentDailySpend || 0,
+      max: user?.dailySpendLimit || 500,
+    },
+    monthlySpend: {
+      current: user?.currentMonthlySpend || 0,
+      max: user?.monthlySpendLimit || 5000,
+    },
+  };
 
   // Calculate card stats
   const cardStats = cards.reduce(
@@ -178,25 +225,77 @@ const ProfileScreen = () => {
             <Text color={colors.textSecondary} fontSize="$3">
               {user?.email}
             </Text>
+            <XStack ai="center" gap="$2" mt="$2">
+              <Text color={colors.textSecondary} fontSize="$3">
+                {user?.subscription} Plan
+              </Text>
+              <Text color={colors.textSecondary} fontSize="$3">
+                •
+              </Text>
+              <Text color={colors.textSecondary} fontSize="$3">
+                {user?.phoneNumber}
+              </Text>
+            </XStack>
           </YStack>
         </YStack>
 
-        {/* Stats Grid */}
-        <YStack px="$4" gap="$4" mb="$6">
+        {/* Account Stats */}
+        <YStack px="$4" pb="$6" gap="$4">
           <XStack gap="$3">
-            <StatCard icon={BanknotesIcon} label="Monthly Spend" value={formatCurrency(0)} color={Colors.cards.green} />
-            <StatCard icon={CreditCardIcon} label="Active Cards" value={cardStats.active} color={Colors.cards.blue} />
-          </XStack>
-          <XStack gap="$3">
-            <StatCard icon={ShareIcon} label="Shared Cards" value={cardStats.shared} color={Colors.cards.yellow} />
-            <StatCard
-              icon={ClockIcon}
-              label="Member Since"
-              value={user ? new Date(user.dateOfBirth).toLocaleDateString() : '-'}
-              color={Colors.cards.pink}
-            />
+            <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
+              <Text color={colors.textSecondary} fontSize="$3" mb="$2">
+                Active Cards
+              </Text>
+              <Text color={colors.text} fontSize="$5" fontWeight="700">
+                {user?.activeCardsCount || 0}
+              </Text>
+            </View>
+            <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
+              <Text color={colors.textSecondary} fontSize="$3" mb="$2">
+                Member Since
+              </Text>
+              <Text color={colors.text} fontSize="$3" fontWeight="600">
+                {new Date(user?.createdAt || new Date()).toLocaleDateString()}
+              </Text>
+            </View>
           </XStack>
         </YStack>
+
+        {/* Progress Bars Section */}
+        <View
+          mx="$4"
+          mb="$6"
+          p="$4"
+          backgroundColor={colors.backgroundSecondary}
+          br={12}
+          borderWidth={1}
+          borderColor={colors.border}
+        >
+          <YStack gap="$6">
+            <ProgressBar
+              label="Monthly New Cards"
+              value={limits.monthlyNewCards.current}
+              max={limits.monthlyNewCards.max}
+              color={Colors.cards.blue}
+              icon={CreditCardIcon}
+              isCurrency={false}
+            />
+            <ProgressBar
+              label="Daily Spend Limit"
+              value={limits.dailySpend.current}
+              max={limits.dailySpend.max}
+              color={Colors.cards.green}
+              icon={BanknotesIcon}
+            />
+            <ProgressBar
+              label="Monthly Spend Limit"
+              value={limits.monthlySpend.current}
+              max={limits.monthlySpend.max}
+              color={Colors.cards.pink}
+              icon={ClockIcon}
+            />
+          </YStack>
+        </View>
 
         {/* Menu Items */}
         <YStack gap="$6">
@@ -237,8 +336,8 @@ const ProfileScreen = () => {
           animation="quick"
         >
           <XStack ai="center" gap="$2">
-            <PowerIcon size={20} color={Colors.cards.pink} />
-            <Text color={Colors.cards.pink} fontSize="$4" fontWeight="600">
+            <PowerIcon size={20} color={colors.danger} />
+            <Text color={colors.danger} fontSize="$4" fontWeight="600">
               Log Out
             </Text>
           </XStack>
@@ -256,8 +355,8 @@ const ProfileScreen = () => {
           </Text>
           <YStack gap="$3">
             <Button
-              backgroundColor={Colors.cards.pink}
-              pressStyle={{ backgroundColor: Colors.cards.pink }}
+              backgroundColor={colors.danger}
+              pressStyle={{ backgroundColor: colors.danger }}
               onPress={handleLogout}
               size="$5"
               borderRadius={12}
