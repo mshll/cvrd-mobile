@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { StyleSheet, Pressable, Animated } from 'react-native';
-import { View, XStack } from 'tamagui';
+import { View, XStack, YStack, Text, Button } from 'tamagui';
 import { Colors } from '../config/colors';
 import { useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '../navigation/paths';
-import { Text } from 'tamagui';
 import CardComponent from './CardComponent';
 import { WINDOW_WIDTH, CARD_WIDTH as CARD_WIDTH_DEFAULT, CARD_HEIGHT as CARD_HEIGHT_DEFAULT } from '@/utils/cardUtils';
+import { PlusIcon } from 'react-native-heroicons/solid';
 
 const CARD_SCALE = 0.9;
 const CARD_HEIGHT = CARD_HEIGHT_DEFAULT * CARD_SCALE;
@@ -18,12 +18,19 @@ const SIDE_SPACING = (WINDOW_WIDTH - CARD_WIDTH) / 2;
 
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
-function CardCarousel({ title, data, icon: Icon }) {
+function CardCarousel({ title, data = [], icon: Icon }) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme || 'light'];
   const navigation = useNavigation();
   const scrollX = React.useRef(new Animated.Value(0)).current;
   const flatListRef = React.useRef(null);
+
+  // Debug logging
+  console.log('🎠 CardCarousel:', {
+    title,
+    dataLength: data?.length || 0,
+    data: data,
+  });
 
   const handleCardPress = React.useCallback(
     (item, index) => {
@@ -90,6 +97,10 @@ function CardCarousel({ title, data, icon: Icon }) {
     }
   }, [data]);
 
+  const handleAddCard = () => {
+    navigation.navigate(Paths.ADD_CARD_SCREEN);
+  };
+
   return (
     <View w="100%" mb="$7" gap="$4">
       <XStack ai="center" mb="$2" gap="$2" px="$4">
@@ -99,28 +110,48 @@ function CardCarousel({ title, data, icon: Icon }) {
         </Text>
       </XStack>
       <View w="100%" h={CARD_HEIGHT} ai="center">
-        <AnimatedFlatList
-          ref={flatListRef}
-          data={data}
-          renderItem={renderItem}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={ITEM_WIDTH}
-          decelerationRate={0.8}
-          bounces={false}
-          snapToAlignment="start"
-          onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
-            useNativeDriver: true,
-          })}
-          onMomentumScrollEnd={onScrollEnd}
-          contentContainerStyle={styles.contentContainer}
-          getItemLayout={(data, index) => ({
-            length: ITEM_WIDTH,
-            offset: ITEM_WIDTH * index,
-            index,
-          })}
-          initialScrollIndex={0}
-        />
+        {data.length === 0 ? (
+          <Button
+            width={CARD_WIDTH}
+            height={CARD_HEIGHT}
+            borderRadius={15}
+            borderWidth={1}
+            borderStyle="dashed"
+            borderColor={colors.border}
+            backgroundColor={'transparent'}
+            pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+            onPress={handleAddCard}
+            alignItems="center"
+            justifyContent="center"
+            mx={SPACING}
+          >
+            <PlusIcon size={24} color={colors.textTertiary} />
+          </Button>
+        ) : (
+          <AnimatedFlatList
+            ref={flatListRef}
+            data={data}
+            renderItem={renderItem}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={ITEM_WIDTH}
+            decelerationRate={0.8}
+            bounces={false}
+            snapToAlignment="start"
+            onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
+              useNativeDriver: true,
+            })}
+            onMomentumScrollEnd={onScrollEnd}
+            contentContainerStyle={styles.contentContainer}
+            getItemLayout={(data, index) => ({
+              length: ITEM_WIDTH,
+              offset: ITEM_WIDTH * index,
+              index,
+            })}
+            initialScrollIndex={0}
+            keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
+          />
+        )}
       </View>
     </View>
   );

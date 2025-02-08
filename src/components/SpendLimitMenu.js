@@ -1,50 +1,72 @@
 import { YStack, XStack, Button, Input, Text } from 'tamagui';
 import { TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Colors } from '@/config/colors';
-import { useState } from 'react';
+import { Colors, useColors } from '@/config/colors';
+import { useState, useEffect, useCallback } from 'react';
 
 const DURATION_OPTIONS = [
   { name: 'No Limit', value: 'no_limit' },
   { name: 'Per Transaction', value: 'per_transaction' },
-  { name: 'Per Day', value: 'daily' },
-  { name: 'Per Week', value: 'weekly' },
-  { name: 'Per Month', value: 'monthly' },
-  { name: 'Per Year', value: 'yearly' },
+  { name: 'Per Day', value: 'per_day' },
+  { name: 'Per Week', value: 'per_week' },
+  { name: 'Per Month', value: 'per_month' },
+  { name: 'Per Year', value: 'per_year' },
   { name: 'Total', value: 'total' },
 ];
 
-const SpendLimitMenu = ({ spendingLimit, setSpendingLimit, durationLimit, setDurationLimit, onSave, darkButtons }) => {
-  // Set no_limit as default
-  useState(() => {
-    if (!durationLimit) {
-      setDurationLimit('no_limit');
-    }
-  }, []);
+const SpendLimitMenu = ({ card, onSave, darkButtons = false, showSaveButton = false }) => {
+  const colors = useColors();
+  const [spendingLimit, setSpendingLimit] = useState('');
+  const [durationLimit, setDurationLimit] = useState('no_limit');
 
-  const handleSave = () => {
-    if (durationLimit === 'no_limit') {
-      onSave({
-        spending_limit: null,
-        duration_limit: null,
-        remaining_limit: null,
-      });
-    } else {
-      onSave({
-        spending_limit: parseFloat(spendingLimit),
-        duration_limit: durationLimit,
-        remaining_limit: parseFloat(spendingLimit),
-      });
+  // Initialize with existing limit if any
+  useEffect(() => {
+    if (card) {
+      const limits = {
+        per_transaction: card.per_transaction,
+        per_day: card.per_day,
+        per_week: card.per_week,
+        per_month: card.per_month,
+        per_year: card.per_year,
+        total: card.total,
+      };
+
+      // Find the first non-zero limit
+      const activeLimit = Object.entries(limits).find(([_, value]) => value > 0);
+      if (activeLimit) {
+        setDurationLimit(activeLimit[0]);
+        setSpendingLimit(activeLimit[1].toString());
+      } else {
+        setDurationLimit('no_limit');
+        setSpendingLimit('');
+      }
     }
-  };
+  }, [card]);
+
+  const handleSave = useCallback(() => {
+    const updates = {};
+
+    if (durationLimit === 'no_limit') {
+      // If "No Limit" is selected, we want to remove all limits
+      updates[DURATION_OPTIONS[1].value] = null; // Use per_transaction as the type to remove limits
+    } else if (spendingLimit) {
+      // If a limit is set, use that specific limit type
+      updates[durationLimit] = spendingLimit === '0' ? null : parseFloat(spendingLimit);
+    }
+
+    // Call onSave with the updates
+    if (onSave) {
+      onSave(updates);
+    }
+  }, [durationLimit, spendingLimit, onSave]);
 
   const getButtonBackgroundColor = (isSelected) => {
-    if (isSelected) return Colors.dark.primary;
-    return darkButtons ? Colors.dark.backgroundTertiary : Colors.dark.backgroundSecondary;
+    if (isSelected) return colors.primary;
+    return darkButtons ? colors.backgroundTertiary : colors.backgroundSecondary;
   };
 
   const getButtonPressedColor = (isSelected) => {
-    if (isSelected) return Colors.dark.primaryDark;
-    return darkButtons ? Colors.dark.background : Colors.dark.backgroundTertiary;
+    if (isSelected) return colors.primaryDark;
+    return darkButtons ? colors.background : colors.backgroundTertiary;
   };
 
   return (
@@ -53,25 +75,27 @@ const SpendLimitMenu = ({ spendingLimit, setSpendingLimit, durationLimit, setDur
         <YStack gap="$5">
           {/* Amount Input */}
           <XStack
-            backgroundColor={darkButtons ? Colors.dark.backgroundTertiary : Colors.dark.backgroundSecondary}
+            backgroundColor={darkButtons ? colors.backgroundTertiary : colors.backgroundSecondary}
             borderRadius={16}
             height={70}
             alignItems="center"
             paddingHorizontal="$4"
             opacity={durationLimit === 'no_limit' ? 0.5 : 1}
           >
-            <Text color={Colors.dark.text} fontSize="$8" fontWeight="700" fontFamily={'$archivoBlack'} mr="$2">
+            <Text color={colors.text} fontSize="$8" fontWeight="700" fontFamily={'$archivoBlack'} mr="$2">
               KD
             </Text>
             <Input
               value={durationLimit === 'no_limit' ? '' : spendingLimit}
-              onChangeText={setSpendingLimit}
+              onChangeText={(text) => {
+                setSpendingLimit(text);
+              }}
               placeholder="0.00"
               keyboardType="decimal-pad"
               backgroundColor="transparent"
               borderWidth={0}
-              color={Colors.dark.text}
-              placeholderTextColor={Colors.dark.textTertiary}
+              color={colors.text}
+              placeholderTextColor={colors.textTertiary}
               fontSize="$8"
               fontFamily={'$archivoBlack'}
               p={0}
@@ -111,34 +135,41 @@ const SpendLimitMenu = ({ spendingLimit, setSpendingLimit, durationLimit, setDur
                   pressStyle={{
                     backgroundColor: getButtonPressedColor(isSelected),
                   }}
-                  onPress={() => setDurationLimit(option.value)}
+                  onPress={() => {
+                    setDurationLimit(option.value);
+                    if (isNoLimit) {
+                      setSpendingLimit('');
+                    }
+                  }}
                   flex={isNoLimit ? 2 : 1}
                   height={50}
                   minWidth={isNoLimit ? '100%' : '48%'}
                   {...borderRadius}
                 >
-                  <Text color={isSelected ? 'white' : Colors.dark.text} fontSize="$3" fontWeight="600">
+                  <Text color={isSelected ? 'white' : colors.text} fontSize="$3" fontWeight="600">
                     {option.name}
                   </Text>
                 </Button>
               );
             })}
           </XStack>
-        </YStack>
 
-        {/* Save Button */}
-        <Button
-          backgroundColor={Colors.dark.primary}
-          pressStyle={{ backgroundColor: Colors.dark.primaryDark }}
-          onPress={handleSave}
-          size="$5"
-          borderRadius={12}
-          mt="$2"
-        >
-          <Text color="white" fontSize="$4" fontWeight="600">
-            Save
-          </Text>
-        </Button>
+          {/* Save Button */}
+          {showSaveButton && (
+            <Button
+              backgroundColor={colors.primary}
+              pressStyle={{ backgroundColor: colors.primaryDark }}
+              onPress={handleSave}
+              height={50}
+              borderRadius={12}
+              marginTop="$4"
+            >
+              <Text color="white" fontSize="$4" fontWeight="600">
+                Save Changes
+              </Text>
+            </Button>
+          )}
+        </YStack>
       </YStack>
     </TouchableWithoutFeedback>
   );

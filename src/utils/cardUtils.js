@@ -24,21 +24,25 @@ export const getCardTheme = (cardColor) => {
 };
 
 // Card assets
-export const getCardAssets = (cardType, theme) => {
+export function getCardAssets(cardType = 'BURNER', theme = 'light') {
+  // Normalize card type to uppercase and ensure it exists
+  const normalizedType = (cardType || 'BURNER').toUpperCase();
+  const safeTheme = theme || 'light';
+
   const cardImages = {
-    Location: {
+    LOCATION: {
       light: require('../../assets/cards/location-front-light.png'),
       dark: require('../../assets/cards/location-front-dark.png'),
     },
-    Burner: {
+    BURNER: {
       light: require('../../assets/cards/burner-front-light.png'),
       dark: require('../../assets/cards/burner-front-dark.png'),
     },
-    Merchant: {
+    MERCHANT: {
       light: require('../../assets/cards/merchant-front-light.png'),
       dark: require('../../assets/cards/merchant-front-dark.png'),
     },
-    Category: {
+    CATEGORY: {
       light: require('../../assets/cards/category-front-light.png'),
       dark: require('../../assets/cards/category-front-dark.png'),
     },
@@ -54,12 +58,43 @@ export const getCardAssets = (cardType, theme) => {
     dark: require('../../assets/visa-black.png'),
   };
 
-  return {
-    cardImg: cardImages[cardType][theme],
-    logoImg: logoImages[theme],
-    visaImg: visaImages[theme],
+  // Debug log for asset lookup
+  console.log('🔍 Asset lookup:', {
+    requestedType: normalizedType,
+    requestedTheme: safeTheme,
+    availableTypes: Object.keys(cardImages),
+    foundCardImage: !!cardImages[normalizedType]?.[safeTheme],
+  });
+
+  // Default assets
+  const defaultAssets = {
+    cardImg: cardImages.BURNER[safeTheme],
+    logoImg: logoImages[safeTheme],
+    visaImg: visaImages[safeTheme],
   };
-};
+
+  try {
+    const assets = {
+      cardImg: cardImages[normalizedType]?.[safeTheme] || defaultAssets.cardImg,
+      logoImg: logoImages[safeTheme] || defaultAssets.logoImg,
+      visaImg: visaImages[safeTheme] || defaultAssets.visaImg,
+    };
+
+    // Debug log for returned assets
+    console.log('📦 Returning assets:', {
+      type: normalizedType,
+      theme: safeTheme,
+      hasCardImg: !!assets.cardImg,
+      hasLogoImg: !!assets.logoImg,
+      hasVisaImg: !!assets.visaImg,
+    });
+
+    return assets;
+  } catch (error) {
+    console.warn('❌ Error getting card assets:', error);
+    return defaultAssets;
+  }
+}
 
 // Card formatting utilities
 export const formatCardNumber = (number) => {

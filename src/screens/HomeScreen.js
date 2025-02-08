@@ -35,23 +35,23 @@ import BottomSheet from '@/components/BottomSheet';
 // ============================================================================
 
 const SECTION_CONFIG = {
-  merchant: {
-    id: 'merchant',
-    title: 'Merchant Locked Cards',
+  MERCHANT: {
+    id: 'MERCHANT',
+    title: 'Merchant-Locked Cards',
     icon: BuildingStorefrontIcon,
   },
-  category: {
-    id: 'category',
-    title: 'Category Locked Cards',
+  CATEGORY: {
+    id: 'CATEGORY',
+    title: 'Category-Locked Cards',
     icon: TagIcon,
   },
-  location: {
-    id: 'location',
-    title: 'Location Locked Cards',
+  LOCATION: {
+    id: 'LOCATION',
+    title: 'Location-Locked Cards',
     icon: MapPinIcon,
   },
-  burner: {
-    id: 'burner',
+  BURNER: {
+    id: 'BURNER',
     title: 'Burner Cards',
     icon: FireIcon,
   },
@@ -254,30 +254,45 @@ const styles = StyleSheet.create({
 function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { cardsByType, getCardDisplayData } = useCards();
-  const { order, isLoading, saveOrder, resetOrder } = useSectionOrder();
+  const { cardsByType, getCardDisplayData, isLoading: isCardsLoading } = useCards();
+  const { order, isLoading: isSectionOrderLoading, saveOrder, resetOrder } = useSectionOrder();
   const [isReorganizing, setIsReorganizing] = useState(false);
 
   const sections = useMemo(() => {
-    return order.map((sectionId) => ({
-      ...SECTION_CONFIG[sectionId],
-      data: (cardsByType[SECTION_CONFIG[sectionId].title.split(' ')[0]] || [])
-        .sort((a, b) => {
-          const getPriority = (card) => {
-            if (card.is_closed) return 2;
-            if (card.is_paused) return 1;
-            return 0;
-          };
-          return getPriority(a) - getPriority(b);
-        })
-        .map(getCardDisplayData),
-    }));
-  }, [order, cardsByType]);
+    // Debug logging for cardsByType
+    console.log('🗂️ cardsByType:', cardsByType);
+
+    return order.map((sectionId) => {
+      const sectionCards = cardsByType[sectionId] || [];
+
+      // Debug logging for each section
+      console.log(`📊 Section ${sectionId}:`, {
+        cardCount: sectionCards.length,
+        config: SECTION_CONFIG[sectionId],
+      });
+
+      return {
+        ...SECTION_CONFIG[sectionId],
+        data: sectionCards
+          .sort((a, b) => {
+            const getPriority = (card) => {
+              if (card.closed) return 2;
+              if (card.paused) return 1;
+              return 0;
+            };
+            return getPriority(a) - getPriority(b);
+          })
+          .map(getCardDisplayData),
+      };
+    });
+  }, [order, cardsByType, getCardDisplayData]);
 
   const handleReorder = async (reorderedSections) => {
     const newOrder = reorderedSections.map((section) => section.id);
     await saveOrder(newOrder);
   };
+
+  const isLoading = isCardsLoading || isSectionOrderLoading;
 
   if (isLoading) {
     return (

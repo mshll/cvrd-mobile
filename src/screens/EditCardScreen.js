@@ -2,8 +2,9 @@ import { View, Text, YStack, XStack, Button, Input, Circle, Slider } from 'tamag
 import { Colors, useColors } from '@/config/colors';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { PlusIcon, ArrowPathIcon, MapPinIcon } from 'react-native-heroicons/solid';
+import { PlusIcon, ArrowPathIcon } from 'react-native-heroicons/solid';
 import { useCards } from '@/hooks/useCards';
+import { useCardMutations } from '@/hooks/useCardMutations';
 import { Platform, StatusBar, StyleSheet } from 'react-native';
 import EmojiPicker from 'rn-emoji-keyboard';
 import CardComponent from '@/components/CardComponent';
@@ -13,19 +14,21 @@ import { ScrollView } from 'react-native-gesture-handler';
 import ColorPicker, { Panel1, Preview, HueSlider } from 'reanimated-color-picker';
 import BottomSheet from '@/components/BottomSheet';
 import { getCardCustomization, saveCardCustomization, resetCardCustomization, Defaults } from '@/utils/storage';
+import Toast from 'react-native-toast-message';
 
 const EditCardScreen = () => {
   const colors = useColors();
   const navigation = useNavigation();
   const route = useRoute();
   const { cardId } = route.params;
-  const { getCardById, updateCard } = useCards();
+  const { getCardById } = useCards();
+  const { updateCardMutation } = useCardMutations();
   const card = getCardById(cardId);
 
   // State management
-  const [cardName, setCardName] = useState(card?.card_name || '');
-  const [emoji, setEmoji] = useState(card?.card_icon || Defaults.EMOJI);
-  const [cardColor, setCardColor] = useState(card?.card_color || Defaults.COLOR);
+  const [cardName, setCardName] = useState('');
+  const [emoji, setEmoji] = useState('');
+  const [cardColor, setCardColor] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showColorWheel, setShowColorWheel] = useState(false);
   const [customColor, setCustomColor] = useState('#000000');
@@ -34,8 +37,19 @@ const EditCardScreen = () => {
   const [emojiGrid, setEmojiGrid] = useState(Defaults.emojis);
   const [colorGrid, setColorGrid] = useState(Defaults.colors);
 
+  // Initialize state with card data
+  useEffect(() => {
+    if (card) {
+      setCardName(card.cardName || '');
+      setEmoji(card.cardIcon || Defaults.EMOJI);
+      setCardColor(card.cardColor || Defaults.COLOR);
+    }
+  }, [card]);
+
   // Load saved customizations
   useEffect(() => {
+    if (!card) return;
+
     getCardCustomization(cardId).then(({ emojis, colors }) => {
       setEmojiGrid(emojis);
       setColorGrid(colors);
@@ -78,6 +92,8 @@ const EditCardScreen = () => {
 
   const resetToDefaults = useCallback(async () => {
     try {
+      if (!card) return;
+
       // First reset the customization in storage
       const defaultCustomization = await resetCardCustomization(cardId);
 
@@ -90,8 +106,9 @@ const EditCardScreen = () => {
       setColorGrid(defaultCustomization.colors);
 
       // Then update the selected values
-      setEmoji(Defaults.EMOJI);
-      setCardColor(Defaults.COLOR);
+      setEmoji(card.cardIcon || Defaults.EMOJI);
+      setCardColor(card.cardColor || Defaults.COLOR);
+      setCardName(card.cardName || '');
 
       // Reset color picker
       setCustomColor('#000000');
@@ -100,18 +117,56 @@ const EditCardScreen = () => {
     } catch (error) {
       console.error('Failed to reset customizations:', error);
     }
-  }, [cardId]);
+  }, [cardId, card]);
 
   const handleSave = useCallback(() => {
-    const updates = {
-      card_name: cardName,
-      card_icon: emoji,
-      card_color: cardColor,
-    };
+    if (!card) return;
+    if (card.closed) {
+      Toast.show({
+        type: 'error',
+        text1: 'Cannot Update Card',
+        text2: 'This card is closed and cannot be modified',
+      });
+      return;
+    }
 
-    updateCard(cardId, updates);
-    navigation.goBack();
-  }, [cardId, cardName, emoji, cardColor, updateCard, navigation]);
+    const updates = {};
+    if (cardName !== card.cardName) updates.cardName = cardName;
+    if (emoji !== card.cardIcon) updates.cardIcon = emoji;
+    if (cardColor !== card.cardColor) updates.cardColor = cardColor;
+
+    // Only update if there are changes
+    if (Object.keys(updates).length > 0) {
+      updateCardMutation.mutate(
+        { cardId, updates },
+        {
+          onSuccess: () => {
+            navigation.goBack();
+          },
+        }
+      );
+    } else {
+      navigation.goBack();
+    }
+  }, [cardId, card, cardName, emoji, cardColor, updateCardMutation, navigation]);
+
+  // Show loading state if card not found
+  if (!card) {
+    return (
+      <View f={1} ai="center" jc="center" bg={colors.background}>
+        <Text color={colors.text} fontSize="$5" textAlign="center" mb="$4">
+          Card not found
+        </Text>
+        <Button
+          onPress={() => navigation.goBack()}
+          backgroundColor={colors.primary}
+          pressStyle={{ backgroundColor: colors.primaryDark }}
+        >
+          <Text color="white">Go Back</Text>
+        </Button>
+      </View>
+    );
+  }
 
   return (
     <View f={1} backgroundColor={colors.background}>
@@ -135,13 +190,13 @@ const EditCardScreen = () => {
                   <CardComponent
                     scale={1.2}
                     displayData={{
-                      type: card?.card_type || 'Burner',
+                      type: card?.cardType || 'Burner',
                       label: cardName,
                       emoji: emoji,
-                      lastFourDigits: card?.card_number?.slice(-4) || '1234',
+                      lastFourDigits: card?.cardNumber?.slice(-4) || '1234',
                       backgroundColor: cardColor,
-                      isPaused: card?.is_paused || false,
-                      isClosed: card?.is_closed || false,
+                      isPaused: card?.paused || false,
+                      isClosed: card?.closed || false,
                     }}
                   />
                 </View>
@@ -167,6 +222,7 @@ const EditCardScreen = () => {
                 px="$4"
                 fontWeight="700"
                 borderRadius={12}
+                disabled={card.closed}
               />
             </YStack>
 
@@ -186,8 +242,10 @@ const EditCardScreen = () => {
                     borderWidth={1}
                     borderColor={emoji === emojiItem ? colors.primary : colors.border}
                     pressStyle={{ backgroundColor: colors.backgroundTertiary }}
-                    onPress={() => setEmoji(emojiItem)}
+                    onPress={() => !card.closed && setEmoji(emojiItem)}
                     p={0}
+                    disabled={card.closed}
+                    opacity={card.closed ? 0.5 : 1}
                   >
                     <Text fontSize={24}>{emojiItem}</Text>
                   </Button>
@@ -201,6 +259,7 @@ const EditCardScreen = () => {
                   borderColor={colors.border}
                   pressStyle={{ backgroundColor: colors.backgroundTertiary }}
                   onPress={() => {
+                    if (card.closed) return;
                     const lastSelectedIndex = emojiGrid.indexOf(emoji);
                     setCustomEmojiIndex(lastSelectedIndex >= 0 ? lastSelectedIndex : 0);
                     setShowEmojiPicker(true);
@@ -208,6 +267,8 @@ const EditCardScreen = () => {
                   p={0}
                   ai="center"
                   jc="center"
+                  disabled={card.closed}
+                  opacity={card.closed ? 0.5 : 1}
                 >
                   <PlusIcon size={20} color={colors.text} />
                 </Button>
@@ -233,6 +294,7 @@ const EditCardScreen = () => {
                     ai="center"
                     jc="center"
                     onPress={() => {
+                      if (card.closed) return;
                       if (color.name === 'custom') {
                         const lastSelectedIndex = colorGrid.findIndex((c) => c.value === cardColor);
                         setCustomColorIndex(lastSelectedIndex >= 0 ? lastSelectedIndex : 0);
@@ -243,6 +305,8 @@ const EditCardScreen = () => {
                     }}
                     borderWidth={cardColor === color.value ? 2 : 0}
                     borderColor={colors.primary}
+                    disabled={card.closed}
+                    opacity={card.closed ? 0.5 : 1}
                   >
                     {color.name === 'custom' ? (
                       <PlusIcon size={20} color={colors.text} />
@@ -264,22 +328,24 @@ const EditCardScreen = () => {
           </YStack>
 
           {/* Reset Button */}
-          <Button
-            backgroundColor={'transparent'}
-            pressStyle={{ opacity: 0.7 }}
-            onPress={resetToDefaults}
-            size="$3"
-            borderRadius={8}
-            flexDirection="row"
-            gap="$1"
-            mb="-$2"
-            borderWidth={0}
-          >
-            <ArrowPathIcon size={16} color={colors.primary} />
-            <Text color={colors.primary} fontSize="$3" fontWeight="600">
-              Reset to Default
-            </Text>
-          </Button>
+          {!card.closed && (
+            <Button
+              backgroundColor={'transparent'}
+              pressStyle={{ opacity: 0.7 }}
+              onPress={resetToDefaults}
+              size="$3"
+              borderRadius={8}
+              flexDirection="row"
+              gap="$1"
+              mb="-$2"
+              borderWidth={0}
+            >
+              <ArrowPathIcon size={16} color={colors.primary} />
+              <Text color={colors.primary} fontSize="$3" fontWeight="600">
+                Reset to Default
+              </Text>
+            </Button>
+          )}
 
           {/* Bottom Buttons */}
           <YStack width="100%" gap="$2.5" borderTopWidth={1} borderTopColor={colors.border} pt="$4" mt="$4">
@@ -289,6 +355,8 @@ const EditCardScreen = () => {
               onPress={handleSave}
               size="$5"
               borderRadius={12}
+              disabled={card.closed}
+              opacity={card.closed ? 0.5 : 1}
             >
               <Text color="white" fontSize="$4" fontWeight="600">
                 Save

@@ -22,7 +22,7 @@ const AUTO_FLIP_DELAY = 5000;
 const CardFlipComponent = ({ cardId }) => {
   const { getCardById } = useCards();
   const card = getCardById(cardId);
-  const cardColor = Colors.cards[card.card_color] || card.card_color;
+  const cardColor = card.cardColor;
   const [isFlipped, setIsFlipped] = useState(false);
   const flipAnim = useRef(new Animated.Value(0)).current;
   const logoMoveAnim = useRef(new Animated.Value(0)).current;
@@ -31,7 +31,7 @@ const CardFlipComponent = ({ cardId }) => {
 
   const cardTheme = getCardTheme(cardColor);
   const textColor = cardTheme === 'light' ? 'white' : 'black';
-  const { cardImg, logoImg } = getCardAssets(card.card_type, cardTheme);
+  const { cardImg, logoImg } = getCardAssets(card.cardType.split('_')[0], cardTheme);
 
   // Clear timeout on unmount
   useEffect(() => {
@@ -57,7 +57,9 @@ const CardFlipComponent = ({ cardId }) => {
   }, [isFlipped]);
 
   const handleCopyCardNumber = async () => {
-    await Clipboard.setStringAsync(card.card_number);
+    if (card.closed) return;
+
+    await Clipboard.setStringAsync(card.cardNumber);
     Toast.show({
       type: 'success',
       text1: 'Card number copied to clipboard',
@@ -66,6 +68,9 @@ const CardFlipComponent = ({ cardId }) => {
   };
 
   const flipCard = () => {
+    // Don't allow flipping if card is closed
+    if (card.closed) return;
+
     // Clear any existing timeout when manually flipping
     if (autoFlipTimeout.current) {
       clearTimeout(autoFlipTimeout.current);
@@ -75,24 +80,12 @@ const CardFlipComponent = ({ cardId }) => {
     const preFlipValue = isFlipped ? 225 : -45;
 
     Animated.sequence([
-      // Pre-flip in opposite direction
-      // Animated.spring(flipAnim, {
-      //   toValue: preFlipValue,
-      //   useNativeDriver: true,
-      //   tension: 20,
-      //   friction: 10,
-      //   velocity: isFlipped ? -10 : 10,
-      //   restSpeedThreshold: 100,
-      //   restDisplacementThreshold: 40,
-      //   overshootClamping: true,
-      // }),
-      // Main flip
       Animated.spring(flipAnim, {
         toValue,
         useNativeDriver: true,
-        tension: 10, // Less tension for smoother movement
-        friction: 10, // Less friction for more natural bounce
-        velocity: isFlipped ? -10 : 10, // Reversed velocity for natural continuation
+        tension: 10,
+        friction: 10,
+        velocity: isFlipped ? -10 : 10,
         restSpeedThreshold: 100,
         restDisplacementThreshold: 40,
         overshootClamping: true,
@@ -152,7 +145,7 @@ const CardFlipComponent = ({ cardId }) => {
   };
 
   const renderBack = () => {
-    const cardNumberSegments = formatCardNumber(card.card_number);
+    const cardNumberSegments = formatCardNumber(card.cardNumber);
 
     return (
       <View w={CARD_WIDTH} h={CARD_HEIGHT} borderRadius={15} bg={cardColor} overflow="hidden">
@@ -193,7 +186,7 @@ const CardFlipComponent = ({ cardId }) => {
                     Expiry Date
                   </Text>
                   <Text color={textColor} fos={16} fontWeight="800">
-                    {formatExpiryDate(card.expiry_date)}
+                    {formatExpiryDate(card.expiryDate)}
                   </Text>
                 </YStack>
                 <YStack ai="flex-end">
@@ -227,7 +220,7 @@ const CardFlipComponent = ({ cardId }) => {
   return (
     <View w={CARD_WIDTH} h={CARD_HEIGHT} zi={1}>
       <TouchableWithoutFeedback onPress={flipCard}>
-        <View w={CARD_WIDTH} h={CARD_HEIGHT} pos="relative" jc="center" ai="center">
+        <View w={CARD_WIDTH} h={CARD_HEIGHT} pos="relative" jc="center" ai="center" opacity={card.closed ? 0.7 : 1}>
           <Animated.View style={[styles.cardContainer, frontAnimatedStyle]}>{renderFront()}</Animated.View>
           <Animated.View style={[styles.cardContainer, styles.cardBack, backAnimatedStyle]}>
             {renderBack()}

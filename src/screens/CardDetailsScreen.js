@@ -1,10 +1,11 @@
-import { View, ScrollView, YStack, Text, Separator, XStack, Button, Input } from 'tamagui';
+import { View, ScrollView, YStack, Text, Separator, XStack, Button, Input, Spinner } from 'tamagui';
 import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Colors, useColors } from '@/config/colors';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import CardComponent from '@/components/CardComponent';
 import { useCards } from '@/hooks/useCards';
-import { useMemo, useState, useCallback } from 'react';
+import { useCardMutations } from '@/hooks/useCardMutations';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { Edit3, Pause, PauseCircle, Play, Share2, Trash2, BanknotesIcon } from '@tamagui/lucide-icons';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
 import CardFlipComponent from '@/components/CardFlipComponent';
@@ -24,8 +25,27 @@ import { ArrowUpOnSquareIcon } from 'react-native-heroicons/outline';
 import BottomSheet from '@/components/BottomSheet';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import SpendLimitMenu from '@/components/SpendLimitMenu';
+import Toast from 'react-native-toast-message';
 
 const MAP_HEIGHT = 200;
+
+// Helper function to get active spending limit
+function getActiveSpendingLimit(card) {
+  if (!card) return null;
+
+  const limits = [
+    { type: 'per_transaction', value: card.per_transaction, label: 'Per Transaction' },
+    { type: 'per_day', value: card.per_day, label: 'Per Day' },
+    { type: 'per_week', value: card.per_week, label: 'Per Week' },
+    { type: 'per_month', value: card.per_month, label: 'Per Month' },
+    { type: 'per_year', value: card.per_year, label: 'Per Year' },
+    { type: 'total', value: card.total, label: 'Total' },
+  ];
+
+  // Find the first non-zero limit
+  const activeLimit = limits.find((limit) => limit.value > 0);
+  return activeLimit || null;
+}
 
 const DURATION_OPTIONS = [
   { name: 'Per Transaction', value: 'per_transaction' },
@@ -36,7 +56,7 @@ const DURATION_OPTIONS = [
   { name: 'Total', value: 'total' },
 ];
 
-const ActionButton = ({ onPress, children }) => {
+const ActionButton = ({ onPress, children, disabled }) => {
   const colors = useColors();
   return (
     <Button
@@ -50,13 +70,15 @@ const ActionButton = ({ onPress, children }) => {
       justifyContent="center"
       borderWidth={1}
       borderColor={colors.border}
+      opacity={disabled ? 0.5 : 1}
+      disabled={disabled}
     >
       {children}
     </Button>
   );
 };
 
-const EditButton = ({ onPress }) => {
+const EditButton = ({ onPress, disabled }) => {
   const colors = useColors();
   return (
     <Button
@@ -68,6 +90,8 @@ const EditButton = ({ onPress }) => {
       borderWidth={1}
       borderColor={colors.border}
       borderRadius={8}
+      opacity={disabled ? 0.5 : 1}
+      disabled={disabled}
     >
       <Text color={colors.text} fontSize="$2" fontWeight="600">
         Edit
@@ -133,27 +157,19 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
 };
 
 const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
-
-  const colors = useColors();
-  const { showActionSheetWithOptions } = useActionSheet();
-
-  const [spendingLimit, setSpendingLimit] = useState(card.spending_limit?.toString() || '');
-  const [durationLimit, setDurationLimit] = useState(card.duration_limit || 'per_transaction');
+  if (!card) return null;
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} aboveAll={false}>
-
       <SpendLimitMenu
-        spendingLimit={spendingLimit}
-        setSpendingLimit={setSpendingLimit}
-        durationLimit={durationLimit}
-        setDurationLimit={setDurationLimit}
+        card={card}
         onSave={(updates) => {
           onSave(updates);
           onClose();
         }}
+        darkButtons
+        showSaveButton
       />
-
     </BottomSheet>
   );
 };
@@ -162,15 +178,48 @@ const CardDetailsScreen = () => {
   const colors = useColors();
   const route = useRoute();
   const navigation = useNavigation();
-  const { cardId } = route.params;
-  const { getCardById, updateCard } = useCards();
-  const card = getCardById(cardId);
+  const { cardId } = route.params || {};
+  const { getCardById, isLoading: isCardsLoading } = useCards();
+  const { updateCardLimitMutation, togglePauseMutation, closeCardMutation } = useCardMutations();
   const [showSpendLimitSheet, setShowSpendLimitSheet] = useState(false);
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
 
-  const remainingPercentage = useMemo(() => {
-    if (!card.spending_limit || card.duration_limit === 'per_transaction') return null;
-    return ((card.remaining_limit / card.spending_limit) * 100).toFixed(0);
-  }, [card.remaining_limit, card.spending_limit, card.duration_limit]);
+  // Get card data
+  const card = useMemo(() => {
+    const foundCard = cardId ? getCardById(cardId) : null;
+    console.log('📇 Card details:', { cardId, found: !!foundCard, card: foundCard });
+    return foundCard;
+  }, [cardId, getCardById]);
+
+  // Get active spending limit
+  const activeSpendingLimit = useMemo(() => getActiveSpendingLimit(card), [card]);
+
+  // Show loading state while fetching card data
+  if (isCardsLoading) {
+    return (
+      <View f={1} ai="center" jc="center" bg={colors.background}>
+        <Spinner size="large" color={colors.text} />
+      </View>
+    );
+  }
+
+  // Show error state if card not found
+  if (!card) {
+    return (
+      <View f={1} ai="center" jc="center" bg={colors.background} p="$4">
+        <Text color={colors.text} fontSize="$5" textAlign="center" mb="$4">
+          Card not found
+        </Text>
+        <Button
+          onPress={() => navigation.goBack()}
+          backgroundColor={colors.primary}
+          pressStyle={{ backgroundColor: colors.primaryDark }}
+        >
+          <Text color="white">Go Back</Text>
+        </Button>
+      </View>
+    );
+  }
 
   const handleEdit = () => {
     navigation.navigate(Paths.EDIT_CARD, { cardId });
@@ -181,20 +230,49 @@ const CardDetailsScreen = () => {
   };
 
   const handleTogglePause = () => {
-    // TODO: Implement pause/unpause functionality
+    if (card && !card.closed) {
+      togglePauseMutation.mutate(cardId);
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Cannot Toggle Pause',
+        text2: 'This card is closed and cannot be modified',
+      });
+    }
   };
 
   const handleDelete = () => {
-    // TODO: Implement delete functionality with confirmation
+    if (card && !card.closed) {
+      setShowConfirmClose(true);
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Cannot Close Card',
+        text2: 'This card is already closed',
+      });
+    }
+  };
+
+  const handleConfirmClose = () => {
+    closeCardMutation.mutate(cardId, {
+      onSuccess: () => {
+        setShowConfirmClose(false);
+        navigation.goBack();
+      },
+    });
   };
 
   const handleSpendLimitSave = (updates) => {
-    updateCard(cardId, updates);
-  };
+    if (!cardId) return;
 
-  const formatDurationLimit = (duration) => {
-    if (!duration) return '';
-    return DURATION_OPTIONS.find((opt) => opt.value === duration)?.name || duration;
+    // Get the first limit update (we only allow one limit at a time)
+    const [limitType, amount] = Object.entries(updates)[0];
+
+    updateCardLimitMutation.mutate({
+      cardId,
+      limitType,
+      amount,
+    });
   };
 
   const handleEditLocation = useCallback(() => {
@@ -209,27 +287,23 @@ const CardDetailsScreen = () => {
         {/* Action Buttons */}
         <XStack gap="$5" mt="$5" mb="$5">
           <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleTogglePause}>
-              {card.is_paused ? (
-                <PlayIcon size={25} color={colors.text} />
-              ) : (
-                <PauseIcon size={25} color={colors.text} />
-              )}
+            <ActionButton onPress={handleTogglePause} disabled={card.closed}>
+              {card.paused ? <PlayIcon size={25} color={colors.text} /> : <PauseIcon size={25} color={colors.text} />}
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleEdit}>
+            <ActionButton onPress={handleEdit} disabled={card.closed}>
               <PaintBrushIcon size={25} color={colors.text} />
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleShare}>
+            <ActionButton onPress={handleShare} disabled={card.closed}>
               <ArrowUpOnSquareIcon size={25} color={colors.text} />
             </ActionButton>
           </YStack>
           <YStack gap="$2" ai="center" jc="center">
-            <ActionButton onPress={handleDelete}>
-              <TrashIcon size={25} color={Colors.cards.pink} />
+            <ActionButton onPress={handleDelete} disabled={card.closed}>
+              <TrashIcon size={25} color={colors.danger} />
             </ActionButton>
           </YStack>
         </XStack>
@@ -237,7 +311,7 @@ const CardDetailsScreen = () => {
         {/* Card Details */}
         <YStack width="100%" px="$4" gap="$4">
           {/* Spending Limit Section */}
-          {card.spending_limit ? (
+          {activeSpendingLimit ? (
             <View
               style={{
                 borderRadius: 12,
@@ -252,80 +326,48 @@ const CardDetailsScreen = () => {
                   <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
                     Spend Limit
                   </Text>
-                  <EditButton onPress={() => setShowSpendLimitSheet(true)} />
+                  <EditButton onPress={() => setShowSpendLimitSheet(true)} disabled={card.closed} />
                 </XStack>
                 <YStack gap="$2">
-                  {card.duration_limit === 'per_transaction' ? (
-                    <>
-                      <Text color={colors.text} fontSize="$6" fontWeight="700">
-                        {formatCurrency(card.spending_limit)}
-                      </Text>
-                      <Text color={colors.textSecondary} fontSize="$3">
-                        per transaction
-                      </Text>
-                    </>
-                  ) : (
-                    <>
-                      <XStack jc="space-between">
-                        <Text color={colors.text} fontSize="$6" fontWeight="700">
-                          {formatCurrency(card.remaining_limit)}
-                        </Text>
-                        <Text color={colors.textSecondary} fontSize="$4">
-                          {remainingPercentage}%
-                        </Text>
-                      </XStack>
-                      <Text color={colors.textSecondary} fontSize="$3">
-                        of {formatCurrency(card.spending_limit)} {formatDurationLimit(card.duration_limit)}
-                      </Text>
-                      {/* Progress Bar */}
-                      <XStack
-                        height={4}
-                        backgroundColor={colors.backgroundTertiary}
-                        borderRadius="$4"
-                        mt="$2"
-                        overflow="hidden"
-                      >
-                        <View
-                          style={{
-                            width: `${remainingPercentage}%`,
-                            height: '100%',
-                            backgroundColor: Colors.cards[card.card_color] || card.card_color,
-                          }}
-                        />
-                      </XStack>
-                    </>
-                  )}
+                  <Text color={colors.text} fontSize="$6" fontWeight="700">
+                    {formatCurrency(activeSpendingLimit.value)}
+                  </Text>
+                  <Text color={colors.textSecondary} fontSize="$3">
+                    {activeSpendingLimit.label}
+                  </Text>
                 </YStack>
               </YStack>
             </View>
           ) : (
-            <Button
-              onPress={() => setShowSpendLimitSheet(true)}
-              height={120}
-              borderRadius={12}
-              borderWidth={1}
-              borderStyle="dashed"
-              borderColor={colors.border}
-              backgroundColor={colors.backgroundSecondary}
-              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
-              alignItems="center"
-              justifyContent="center"
-            >
-              <YStack alignItems="center" gap="$2">
-                <Text color={colors.textTertiary} fontSize="$3" fontWeight="600">
-                  Set a spend limit
-                </Text>
-              </YStack>
-            </Button>
+            !card.closed && (
+              <Button
+                onPress={() => setShowSpendLimitSheet(true)}
+                height={120}
+                borderRadius={12}
+                borderWidth={1}
+                borderStyle="dashed"
+                borderColor={colors.border}
+                backgroundColor={'transparent'}
+                pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+                alignItems="center"
+                justifyContent="center"
+              >
+                <YStack alignItems="center" gap="$2">
+                  <Text color={colors.textTertiary} fontSize="$3" fontWeight="600">
+                    Set a spend limit
+                  </Text>
+                </YStack>
+              </Button>
+            )
           )}
 
           {/* Location Map (only for location cards) */}
-          {card.card_type === 'Location' && card.longitude && card.latitude && (
+          {card.cardType === 'LOCATION_LOCKED' && card.longitude && card.latitude && (
             <LocationMap
               latitude={card.latitude}
               longitude={card.longitude}
               radius={card.radius}
-              color={Colors.cards[card.card_color]}
+              color={Colors.cards[card.cardColor] || card.cardColor}
               onEdit={handleEditLocation}
             />
           )}
@@ -348,45 +390,49 @@ const CardDetailsScreen = () => {
               <YStack gap="$3">
                 <XStack jc="space-between">
                   <Text color={colors.textSecondary}>Card Number</Text>
-                  <Text color={colors.text}>•••• {card.card_number.slice(-4)}</Text>
+                  <Text color={colors.text}>•••• {card.cardNumber?.slice(-4) || '••••'}</Text>
                 </XStack>
                 <Separator backgroundColor={colors.border} />
 
                 <XStack jc="space-between">
                   <Text color={colors.textSecondary}>Expiry Date</Text>
-                  <Text color={colors.text}>{new Date(card.expiry_date).toLocaleDateString()}</Text>
+                  <Text color={colors.text}>
+                    {card.expiryDate ? new Date(card.expiryDate).toLocaleDateString() : '-'}
+                  </Text>
                 </XStack>
                 <Separator backgroundColor={colors.border} />
 
                 <XStack jc="space-between">
                   <Text color={colors.textSecondary}>Created</Text>
-                  <Text color={colors.text}>{new Date(card.created_at).toLocaleDateString()}</Text>
+                  <Text color={colors.text}>
+                    {card.createdAt ? new Date(card.createdAt).toLocaleDateString() : '-'}
+                  </Text>
                 </XStack>
                 <Separator backgroundColor={colors.border} />
 
-                {card.merchant_name && (
+                {card.merchantName && (
                   <>
                     <XStack jc="space-between">
                       <Text color={colors.textSecondary}>Merchant</Text>
-                      <Text color={colors.text}>{card.merchant_name}</Text>
+                      <Text color={colors.text}>{card.merchantName}</Text>
                     </XStack>
                     <Separator backgroundColor={colors.border} />
                   </>
                 )}
 
-                {card.category_name && (
+                {card.categoryName && (
                   <>
                     <XStack jc="space-between">
                       <Text color={colors.textSecondary}>Category</Text>
-                      <Text color={colors.text}>{card.category_name}</Text>
+                      <Text color={colors.text}>{card.categoryName}</Text>
                     </XStack>
                     <Separator backgroundColor={colors.border} />
                   </>
                 )}
 
                 <XStack jc="space-between">
-                  <Text color={colors.textSecondary}>Shared</Text>
-                  <Text color={colors.text}>{card.is_shared ? 'Yes' : 'No'}</Text>
+                  <Text color={colors.textSecondary}>Status</Text>
+                  <Text color={colors.text}>{card.closed ? 'Closed' : card.paused ? 'Paused' : 'Active'}</Text>
                 </XStack>
               </YStack>
             </YStack>
@@ -400,6 +446,44 @@ const CardDetailsScreen = () => {
         card={card}
         onSave={handleSpendLimitSave}
       />
+
+      {/* Confirmation Sheet for Card Closure */}
+      <BottomSheet isOpen={showConfirmClose} onClose={() => setShowConfirmClose(false)}>
+        <YStack gap="$4" px="$4" pt="$2" pb="$6">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            Close Card
+          </Text>
+          <Text color={colors.textSecondary} fontSize="$4">
+            Are you sure you want to close this card? This action cannot be undone.
+          </Text>
+          <YStack gap="$3">
+            <Button
+              backgroundColor={colors.danger}
+              pressStyle={{ opacity: 0.8 }}
+              onPress={handleConfirmClose}
+              size="$5"
+              borderRadius={12}
+            >
+              <Text color="white" fontSize="$4" fontWeight="600">
+                Yes, Close Card
+              </Text>
+            </Button>
+            <Button
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={() => setShowConfirmClose(false)}
+              size="$5"
+              borderRadius={12}
+              borderWidth={1}
+              borderColor={colors.border}
+            >
+              <Text color={colors.text} fontSize="$4" fontWeight="600">
+                Cancel
+              </Text>
+            </Button>
+          </YStack>
+        </YStack>
+      </BottomSheet>
     </ScrollView>
   );
 };
