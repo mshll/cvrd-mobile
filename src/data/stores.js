@@ -1,62 +1,80 @@
+const baseUrl = 'http://localhost:3000/stores';
+
 export const STORES = [
   {
-    id: '1',
-    name: 'Nike',
-    logo: require('@/../assets/store-logos/nike.png'),
-    url: 'https://nike.com',
-    description: 'Athletic footwear, apparel, and accessories.',
-    discountCode: 'NIKE20',
+    id: 'h-and-m',
+    name: 'H&M',
+    logo: require('@/../assets/store-logos/h-and-m.png'),
+    url: `${baseUrl}/hm`,
+    description: 'Fashion and quality clothing at the best price',
+    discountCode: 'HM2024',
     discountAmount: '20% OFF',
     validUntil: '2024-03-31',
+
   },
   {
-    id: '2',
-    name: 'Adidas',
-    logo: require('@/../assets/store-logos/nike.png'), // Using Nike logo as placeholder
-    url: 'https://adidas.com',
-    description: 'Sports clothing, shoes, and accessories.',
-    discountCode: 'ADIDAS15',
+    id: 'xcite',
+    name: 'X-cite by Alghanim Electronics',
+    logo: require('@/../assets/store-logos/xcite.png'),
+    url: `${baseUrl}/xcite`,
+    description: "Kuwait's largest electronics retailer",
+    discountCode: 'XCITE15',
     discountAmount: '15% OFF',
-    validUntil: '2024-03-15',
+    validUntil: '2024-03-31',
+
   },
   {
-    id: '3',
-    name: 'Puma',
-    logo: require('@/../assets/store-logos/nike.png'), // Using Nike logo as placeholder
-    url: 'https://puma.com',
-    description: 'Sportswear and equipment for all activities.',
-    discountCode: 'PUMA25',
+    id: 'home-centre',
+    name: 'Home Centre',
+    logo: require('@/../assets/store-logos/home-center.png'),
+    url: `${baseUrl}/home-centre`,
+    description: 'Complete home furnishing solutions',
+    discountCode: 'HOME25',
     discountAmount: '25% OFF',
     validUntil: '2024-04-01',
+
   },
   {
-    id: '4',
-    name: 'Under Armour',
-    logo: require('@/../assets/store-logos/nike.png'), // Using Nike logo as placeholder
-    url: 'https://underarmour.com',
-    description: 'Performance apparel, footwear, and accessories.',
-    discountCode: 'UA30OFF',
+    id: 'decathlon',
+    name: 'Decathlon',
+    logo: require('@/../assets/store-logos/decathlon.png'),
+    url: `${baseUrl}/decathlon`,
+    description: 'Sports equipment and athletic wear for all',
+    discountCode: 'DEC30',
     discountAmount: '30% OFF',
     validUntil: '2024-03-20',
+
   },
   {
-    id: '5',
-    name: 'Reebok',
-    logo: require('@/../assets/store-logos/nike.png'), // Using Nike logo as placeholder
-    url: 'https://reebok.com',
-    description: 'Athletic and lifestyle shoes and clothing.',
-    discountCode: 'RBK10',
+    id: 'boots',
+    name: 'Boots',
+    logo: require('@/../assets/store-logos/boots.png'),
+    url: `${baseUrl}/boots`,
+    description: 'Your trusted beauty and wellness destination',
+    discountCode: 'BOOTS10',
     discountAmount: '10% OFF',
     validUntil: '2024-04-15',
+
   },
   {
-    id: '6',
-    name: 'New Balance',
-    logo: require('@/../assets/store-logos/nike.png'), // Using Nike logo as placeholder
-    url: 'https://newbalance.com',
-    description: 'Premium athletic footwear and apparel.',
-    discountCode: 'NB2024',
+    id: 'sultan-center',
+    name: 'Sultan Center',
+    logo: require('@/../assets/store-logos/sultan.png'),
+    url: `${baseUrl}/sultan-center`,
+    description: 'Premium supermarket with quality products',
+    discountCode: 'SULTAN20',
     discountAmount: '20% OFF',
     validUntil: '2024-03-25',
+
+  },
+  {
+    id: 'human-pancreas',
+    name: 'Human Pancreas',
+    logo: require('@/../assets/store-logos/human-pancreas.png'),
+    url: `${baseUrl}/human-pancreas`,
+    description: 'Best cookies and baked goods in the world',
+    discountCode: 'PANCREAS25',
+    discountAmount: '25% OFF',
+    validUntil: '2024-04-30',
   },
 ];
