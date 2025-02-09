@@ -1,4 +1,4 @@
-import { StyleSheet, Alert } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { View, Text, XStack, Button, YStack, Separator } from 'tamagui';
 import { Colors, useColors } from '@/config/colors';
 import CardComponent from '@/components/CardComponent';
@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useCardMutations } from '@/hooks/useCardMutations';
 import { CARD_DEFAULTS } from '@/api/cards';
+import BottomSheet from '@/components/BottomSheet';
 
 // Default card configurations for each type
 const DEFAULT_CARD_CONFIGS = CARD_DEFAULTS;
@@ -27,6 +28,7 @@ const LIMIT_LABELS = {
 const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
   const colors = useColors();
   const [remainingGenerations, setRemainingGenerations] = useState(INITIAL_GENERATIONS);
+  const [showCreateConfirm, setShowCreateConfirm] = useState(false);
   const insets = useSafeAreaInsets();
   const {
     createBurnerCardMutation,
@@ -71,45 +73,35 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
   const activeLimits = getActiveLimits();
 
   const handleCreateCard = () => {
-    Alert.alert(
-      'Create Card',
-      `Are you sure you want to create this ${cardType} card? You have ${remainingGenerations} generations remaining.`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Create',
-          onPress: async () => {
-            setRemainingGenerations((prev) => prev - 1);
+    setShowCreateConfirm(true);
+  };
 
-            try {
-              // Call the appropriate mutation based on card type
-              switch (cardType) {
-                case 'BURNER':
-                  await createBurnerCardMutation.mutateAsync(cardData);
-                  break;
-                case 'CATEGORY_LOCKED':
-                  await createCategoryCardMutation.mutateAsync(cardData);
-                  break;
-                case 'MERCHANT_LOCKED':
-                  await createMerchantCardMutation.mutateAsync(cardData);
-                  break;
-                case 'LOCATION_LOCKED':
-                  await createLocationCardMutation.mutateAsync(cardData);
-                  break;
-              }
+  const handleConfirmCreate = async () => {
+    setShowCreateConfirm(false);
+    setRemainingGenerations((prev) => prev - 1);
 
-              onCreateCard(cardData);
-            } catch (error) {
-              // Error is already handled by the mutation
-              setRemainingGenerations((prev) => prev + 1); // Restore the generation count on error
-            }
-          },
-        },
-      ]
-    );
+    try {
+      // Call the appropriate mutation based on card type
+      switch (cardType) {
+        case 'BURNER':
+          await createBurnerCardMutation.mutateAsync(cardData);
+          break;
+        case 'CATEGORY_LOCKED':
+          await createCategoryCardMutation.mutateAsync(cardData);
+          break;
+        case 'MERCHANT_LOCKED':
+          await createMerchantCardMutation.mutateAsync(cardData);
+          break;
+        case 'LOCATION_LOCKED':
+          await createLocationCardMutation.mutateAsync(cardData);
+          break;
+      }
+
+      onCreateCard(cardData);
+    } catch (error) {
+      // Error is already handled by the mutation
+      setRemainingGenerations((prev) => prev + 1); // Restore the generation count on error
+    }
   };
 
   return (
@@ -319,6 +311,45 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
           </XStack>
         </YStack>
       </ScrollView>
+
+      {/* Create Card Confirmation Sheet */}
+      <BottomSheet isOpen={showCreateConfirm} onClose={() => setShowCreateConfirm(false)}>
+        <YStack gap="$4" px="$4" pt="$2" pb="$6">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            Create Card
+          </Text>
+          <Text color={colors.textSecondary} fontSize="$4">
+            Are you sure you want to create this {cardType.toLowerCase().replace('_', ' ')} card? You have{' '}
+            {remainingGenerations} generations remaining.
+          </Text>
+          <YStack gap="$3">
+            <Button
+              backgroundColor={colors.primary}
+              pressStyle={{ backgroundColor: colors.primaryDark }}
+              onPress={handleConfirmCreate}
+              size="$5"
+              borderRadius={12}
+            >
+              <Text color="white" fontSize="$4" fontWeight="600">
+                Create Card
+              </Text>
+            </Button>
+            <Button
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={() => setShowCreateConfirm(false)}
+              size="$5"
+              borderRadius={12}
+              borderWidth={1}
+              borderColor={colors.border}
+            >
+              <Text color={colors.text} fontSize="$4" fontWeight="600">
+                Cancel
+              </Text>
+            </Button>
+          </YStack>
+        </YStack>
+      </BottomSheet>
     </View>
   );
 };
