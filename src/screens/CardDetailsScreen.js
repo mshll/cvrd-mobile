@@ -39,7 +39,7 @@ import SpendLimitMenu from '@/components/SpendLimitMenu';
 import Toast from 'react-native-toast-message';
 import { useTransactions } from '@/hooks/useTransactions';
 import TransactionCard from '@/components/TransactionCard';
-import GBottomSheet, { BottomSheetSectionList } from '@gorhom/bottom-sheet';
+import GBottomSheet, { BottomSheetSectionList, BottomSheetView } from '@gorhom/bottom-sheet';
 import TransactionFilters from '@/components/TransactionFilters';
 import Accordion from '@/components/Accordion';
 import BottomSheet from '@/components/BottomSheet';
@@ -625,34 +625,52 @@ const CardDetailsScreen = () => {
         }}
         style={{ minHeight: 500 }}
       >
-        <YStack px="$4" gap="$2" f={1}>
-          <XStack ai="center" gap="$2" mb="$2">
-            <History size={20} color={colors.text} />
-            <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
-              Card Activity
-            </Text>
-          </XStack>
+        <BottomSheetView style={{ flex: 1 }}>
+          <YStack px="$4" gap="$2" f={1}>
+            <XStack ai="center" gap="$2" my="$2">
+              <History size={20} color={colors.text} />
+              <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+                Card Activity
+              </Text>
+            </XStack>
 
-          <TransactionFilters
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            dateSort={dateSort}
-            setDateSort={setDateSort}
-            amountSort={amountSort}
-            setAmountSort={setAmountSort}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-          />
+            <TransactionFilters
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              dateSort={dateSort}
+              setDateSort={setDateSort}
+              amountSort={amountSort}
+              setAmountSort={setAmountSort}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+            />
 
-          <BottomSheetSectionList
-            sections={sections}
-            keyExtractor={(item) => item.id}
-            renderSectionHeader={renderSectionHeader}
-            renderItem={renderItem}
-            contentContainerStyle={styles.contentContainer}
-            style={{ backgroundColor: 'transparent' }}
-          />
-        </YStack>
+            {filteredTransactions.length === 0 ? (
+              <YStack f={1} ai="center" jc="flex-start" gap="$4" px="$4" pt="$6">
+                <History size={40} color={colors.primary} />
+                <YStack ai="center" gap="$2">
+                  <Text color={colors.text} fontSize="$5" fontWeight="600" textAlign="center">
+                    No Transactions Found
+                  </Text>
+                  <Text color={colors.textSecondary} fontSize="$3" textAlign="center">
+                    {searchQuery || statusFilter !== 'all'
+                      ? 'Try adjusting your filters'
+                      : 'Transactions for this card will appear here'}
+                  </Text>
+                </YStack>
+              </YStack>
+            ) : (
+              <BottomSheetSectionList
+                sections={sections}
+                keyExtractor={(item) => item.id}
+                renderSectionHeader={renderSectionHeader}
+                renderItem={renderItem}
+                contentContainerStyle={styles.contentContainer}
+                style={{ backgroundColor: 'transparent' }}
+              />
+            )}
+          </YStack>
+        </BottomSheetView>
       </GBottomSheet>
 
       <SpendLimitSheet

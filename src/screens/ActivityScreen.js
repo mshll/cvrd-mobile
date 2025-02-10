@@ -108,7 +108,7 @@ const ActivityScreen = () => {
   return (
     <View f={1} bg={colors.background}>
       {/* Header Section */}
-      <YStack pt={insets.top - 20} px={16} space={16} backgroundColor={colors.background}>
+      <YStack pt={insets.top - 20} px={16} gap={16} backgroundColor={colors.background}>
         <XStack ai="center" gap="$2">
           <History size={20} color={colors.text} />
           <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
@@ -137,9 +137,19 @@ const ActivityScreen = () => {
             {error.message || 'Failed to load transactions'}
           </Text>
         ) : filteredTransactions.length === 0 ? (
-          <Text color={colors.textSecondary} ta="center" mt={20} fontFamily="$body">
-            No transactions found
-          </Text>
+          <YStack f={1} ai="center" jc="center" gap="$4" px="$4">
+            <History size={40} color={`${colors.primary}`} />
+            <YStack ai="center" gap="$2">
+              <Text color={colors.text} fontSize="$5" fontWeight="600" textAlign="center">
+                No Transactions Found
+              </Text>
+              <Text color={colors.textSecondary} fontSize="$3" textAlign="center">
+                {searchQuery || statusFilter !== 'all'
+                  ? 'Try adjusting your filters'
+                  : 'Your transaction history will appear here'}
+              </Text>
+            </YStack>
+          </YStack>
         ) : (
           <SectionList
             sections={groupTransactionsByMonth(filteredTransactions)}

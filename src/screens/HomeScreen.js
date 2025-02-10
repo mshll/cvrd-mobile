@@ -16,6 +16,7 @@ import {
   PauseIcon,
   XCircleIcon,
   ShareIcon,
+  StarIcon,
 } from 'react-native-heroicons/solid';
 import { useCards } from '@/hooks/useCards';
 import { useSectionOrder } from '@/hooks/useSectionOrder';
@@ -38,6 +39,11 @@ import { SpendingRecapStory } from '@/components/SpendingRecapStory';
 // ============================================================================
 
 const SECTION_CONFIG = {
+  PINNED: {
+    id: 'PINNED',
+    title: 'Favorite Cards',
+    icon: StarIcon,
+  },
   BURNER: {
     id: 'BURNER',
     title: 'Burner Cards',
@@ -278,6 +284,19 @@ function HomeScreen() {
     topCategoryAmount: 12000,
   };
 
+  // Get all pinned cards across all types
+  const pinnedCards = useMemo(() => {
+    const allPinnedCards = [];
+    Object.values(cardsByType).forEach((cards) => {
+      cards.forEach((card) => {
+        if (card.pinned) {
+          allPinnedCards.push(card);
+        }
+      });
+    });
+    return allPinnedCards.map(getCardDisplayData);
+  }, [cardsByType, getCardDisplayData]);
+
   const sections = useMemo(() => {
     return order.map((sectionId) => {
       const sectionCards = cardsByType[sectionId] || [];
@@ -287,8 +306,8 @@ function HomeScreen() {
         data: sectionCards
           .sort((a, b) => {
             // First sort by pin status
-            if (a.isPinned && !b.isPinned) return -1;
-            if (!a.isPinned && b.isPinned) return 1;
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
 
             // Then sort by card status
             const getPriority = (card) => {
@@ -330,9 +349,22 @@ function HomeScreen() {
       >
         <SpendingRecapButton onPress={() => setShowRecap(true)} />
         <SpendingSummary />
+
+        {/* Pinned Cards Section */}
+        {pinnedCards.length > 0 && (
+          <CardCarousel
+            key="pinned"
+            title={SECTION_CONFIG.PINNED.title}
+            data={pinnedCards}
+            icon={SECTION_CONFIG.PINNED.icon}
+          />
+        )}
+
+        {/* Regular Sections */}
         {sections.map((section) => (
           <CardCarousel key={section.id} title={section.title} data={section.data} icon={section.icon} />
         ))}
+
         <CustomizeButton onPress={() => setIsReorganizing(true)} />
       </ScrollView>
 
