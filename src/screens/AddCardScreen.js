@@ -13,12 +13,12 @@ import Animated, {
   useAnimatedScrollHandler,
   useAnimatedRef,
 } from 'react-native-reanimated';
-import { useEffect, useState, useCallback, memo } from 'react';
+import { useEffect, useState, useCallback, memo, useMemo } from 'react';
 import { Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import { useNavigation, CommonActions, useRoute } from '@react-navigation/native';
 import CardConfigComponent from '@/components/card-creation/CardConfigComponent';
 import CardReviewComponent from '@/components/card-creation/CardReviewComponent';
 import { Paths } from '@/navigation/paths';
@@ -137,7 +137,70 @@ const CarouselCard = memo(({ item, index, scrollX, showCarousel }) => {
   );
 });
 
-const AnimatedTitle = memo(({ scrollX, showCarousel, colors }) => {
+const Carousel = ({
+  scrollX,
+  showCarousel,
+  selectedCard,
+  setSelectedCard,
+  onSelect,
+  initialIndex,
+  colors,
+  orderedCards,
+}) => {
+  const flatListRef = useAnimatedRef();
+
+  const renderCard = useCallback(
+    ({ item, index }) => <CarouselCard item={item} index={index} scrollX={scrollX} showCarousel={showCarousel} />,
+    [showCarousel]
+  );
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+      // Update selected card based on scroll position
+      const selectedIndex = Math.round(event.contentOffset.x / (CARD_WIDTH + CARD_SPACING));
+      runOnJS(setSelectedCard)(orderedCards[selectedIndex]);
+    },
+  });
+
+  // Set initial scroll value directly
+  useEffect(() => {
+    if (initialIndex !== undefined) {
+      scrollX.value = initialIndex * (CARD_WIDTH + CARD_SPACING);
+    }
+  }, [initialIndex]);
+
+  return (
+    <View>
+      <AnimatedTitle scrollX={scrollX} showCarousel={showCarousel} colors={colors} cards={orderedCards} />
+      <Animated.FlatList
+        ref={flatListRef}
+        data={orderedCards}
+        renderItem={renderCard}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={CARD_WIDTH + CARD_SPACING}
+        decelerationRate="fast"
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        contentContainerStyle={{
+          paddingHorizontal: (WINDOW_WIDTH - CARD_WIDTH) / 2,
+        }}
+        getItemLayout={(data, index) => ({
+          length: CARD_WIDTH + CARD_SPACING,
+          offset: (CARD_WIDTH + CARD_SPACING) * index,
+          index,
+        })}
+        initialScrollIndex={initialIndex}
+        initialNumToRender={orderedCards.length}
+      />
+      <AnimatedDescription scrollX={scrollX} showCarousel={showCarousel} colors={colors} cards={orderedCards} />
+    </View>
+  );
+};
+
+const AnimatedTitle = memo(({ scrollX, showCarousel, colors, cards }) => {
   const titleContainerStyle = useAnimatedStyle(() => {
     return {
       opacity: showCarousel ? withDelay(200, withSpring(1, { damping: 12, stiffness: 35 })) : 0,
@@ -158,7 +221,7 @@ const AnimatedTitle = memo(({ scrollX, showCarousel, colors }) => {
         titleContainerStyle,
       ]}
     >
-      {SAMPLE_CARDS.map((card, index) => {
+      {cards.map((card, index) => {
         const containerStyle = useAnimatedStyle(() => {
           const x = interpolate(
             scrollX.value,
@@ -234,7 +297,7 @@ const AnimatedTitle = memo(({ scrollX, showCarousel, colors }) => {
   );
 });
 
-const AnimatedDescription = memo(({ scrollX, showCarousel, colors }) => {
+const AnimatedDescription = memo(({ scrollX, showCarousel, colors, cards }) => {
   const descriptionContainerStyle = useAnimatedStyle(() => {
     return {
       opacity: showCarousel ? withDelay(200, withSpring(1, { damping: 12, stiffness: 35 })) : 0,
@@ -255,7 +318,7 @@ const AnimatedDescription = memo(({ scrollX, showCarousel, colors }) => {
         descriptionContainerStyle,
       ]}
     >
-      {SAMPLE_CARDS.map((card, index) => {
+      {cards.map((card, index) => {
         const containerStyle = useAnimatedStyle(() => {
           const x = interpolate(
             scrollX.value,
@@ -357,69 +420,48 @@ const SelectButton = memo(({ showCarousel, selectedCard, onSelect, colors }) => 
   );
 });
 
-const Carousel = ({ scrollX, showCarousel, selectedCard, setSelectedCard, onSelect, initialIndex, colors }) => {
-  const flatListRef = useAnimatedRef();
-
-  const renderCard = useCallback(
-    ({ item, index }) => <CarouselCard item={item} index={index} scrollX={scrollX} showCarousel={showCarousel} />,
-    [showCarousel]
-  );
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollX.value = event.contentOffset.x;
-      // Update selected card based on scroll position
-      const selectedIndex = Math.round(event.contentOffset.x / (CARD_WIDTH + CARD_SPACING));
-      runOnJS(setSelectedCard)(SAMPLE_CARDS[selectedIndex]);
-    },
-  });
-
-  // Set initial scroll value directly
-  useEffect(() => {
-    if (initialIndex !== undefined) {
-      scrollX.value = initialIndex * (CARD_WIDTH + CARD_SPACING);
-    }
-  }, [initialIndex]);
-
-  return (
-    <View>
-      <AnimatedTitle scrollX={scrollX} showCarousel={showCarousel} colors={colors} />
-      <Animated.FlatList
-        ref={flatListRef}
-        data={SAMPLE_CARDS}
-        renderItem={renderCard}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH + CARD_SPACING}
-        decelerationRate="fast"
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        contentContainerStyle={{
-          paddingHorizontal: (WINDOW_WIDTH - CARD_WIDTH) / 2,
-        }}
-        getItemLayout={(data, index) => ({
-          length: CARD_WIDTH + CARD_SPACING,
-          offset: (CARD_WIDTH + CARD_SPACING) * index,
-          index,
-        })}
-        initialScrollIndex={initialIndex}
-        initialNumToRender={SAMPLE_CARDS.length}
-      />
-      <AnimatedDescription scrollX={scrollX} showCarousel={showCarousel} colors={colors} />
-    </View>
-  );
-};
-
 const AddCardScreen = () => {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const route = useRoute();
+  const initialCardType = route.params?.initialCardType;
+
+  // Reorder sample cards to put the selected type in the center
+  const orderedCards = useMemo(() => {
+    if (!initialCardType) return SAMPLE_CARDS;
+
+    const cards = [...SAMPLE_CARDS];
+    const targetIndex = cards.findIndex((card) => card.type === initialCardType);
+
+    if (targetIndex === -1) return cards;
+
+    // Remove the target card
+    const [targetCard] = cards.splice(targetIndex, 1);
+
+    // If we have enough cards, ensure we maintain a card before the target
+    if (cards.length > 0) {
+      // Insert the target card at index 1
+      cards.splice(1, 0, targetCard);
+    } else {
+      // If we don't have enough cards, just add it back
+      cards.push(targetCard);
+    }
+
+    return cards;
+  }, [initialCardType]);
+
+  // Get the initial card's color
+  const initialCardColor = useMemo(() => {
+    const centerCard = orderedCards[1]; // Always use center card
+    return centerCard?.backgroundColor || Colors.dark.primary;
+  }, [orderedCards]);
+
   const [showCard, setShowCard] = useState(false);
   const [showCarousel, setShowCarousel] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(SAMPLE_CARDS[1]); // Default to center card
-  const [selectedIndex, setSelectedIndex] = useState(1); // Track selected index
-  const [step, setStep] = useState('select'); // 'select', 'config', 'review'
+  const [selectedCard, setSelectedCard] = useState(orderedCards[1]); // Always use center card
+  const [selectedIndex, setSelectedIndex] = useState(1); // Always start at center
+  const [step, setStep] = useState('select');
   const [cardData, setCardData] = useState(null);
   const [isInitialMount, setIsInitialMount] = useState(true);
 
@@ -548,8 +590,8 @@ const AddCardScreen = () => {
         { scaleX: squish.value },
         { scaleY: 2 - squish.value },
       ],
-      backgroundColor: Colors.dark.primary,
-      opacity: showCard ? withTiming(0, { duration: 100 }) : 1, // Faster fade out (reduced from 200ms to 100ms)
+      backgroundColor: initialCardColor,
+      opacity: showCard ? withTiming(0, { duration: 100 }) : 1,
     };
   });
 
@@ -613,7 +655,7 @@ const AddCardScreen = () => {
     );
   };
 
-  const renderStep = () => {
+  const renderStep = (cards) => {
     switch (step) {
       case 'select':
         return (
@@ -637,6 +679,7 @@ const AddCardScreen = () => {
                 onSelect={handleSelectCard}
                 initialIndex={selectedIndex}
                 colors={colors}
+                orderedCards={cards}
               />
             </View>
           </>
@@ -680,7 +723,7 @@ const AddCardScreen = () => {
               paddingBottom: step === 'select' ? 0 : insets.bottom,
             }}
           >
-            {renderStep()}
+            {renderStep(orderedCards)}
           </View>
 
           {/* Button Section */}

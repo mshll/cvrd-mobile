@@ -139,7 +139,9 @@ function CardCarousel({ title, data = [], icon: Icon }) {
   }, [data]);
 
   const handleAddCard = () => {
-    navigation.navigate(Paths.ADD_CARD_SCREEN);
+    navigation.navigate(Paths.ADD_CARD_SCREEN, {
+      initialCardType: title.replace(' Cards', '').replace('-Locked', '_LOCKED').toUpperCase(),
+    });
   };
 
   return (
