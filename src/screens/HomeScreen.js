@@ -38,6 +38,11 @@ import { SpendingRecapStory } from '@/components/SpendingRecapStory';
 // ============================================================================
 
 const SECTION_CONFIG = {
+  BURNER: {
+    id: 'BURNER',
+    title: 'Burner Cards',
+    icon: FireIcon,
+  },
   MERCHANT: {
     id: 'MERCHANT',
     title: 'Merchant-Locked Cards',
@@ -52,11 +57,6 @@ const SECTION_CONFIG = {
     id: 'LOCATION',
     title: 'Location-Locked Cards',
     icon: MapPinIcon,
-  },
-  BURNER: {
-    id: 'BURNER',
-    title: 'Burner Cards',
-    icon: FireIcon,
   },
 };
 

@@ -406,8 +406,9 @@ const SelectButton = memo(({ showCarousel, selectedCard, onSelect, colors }) => 
   });
 
   return (
-    <Animated.View style={[{ width: CARD_WIDTH }, buttonStyle]}>
+    <Animated.View style={[buttonStyle, { width: '100%', paddingHorizontal: 28 }]}>
       <Button
+        f={1}
         backgroundColor={colors.backgroundSecondary}
         color={colors.text}
         size="$5"

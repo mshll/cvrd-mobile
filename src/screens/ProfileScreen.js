@@ -129,7 +129,7 @@ const ProfileScreen = () => {
   const navigation = useNavigation();
   const { cards } = useCards();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const { user, isLoading, error } = useUser();
+  const { user, isLoading, error, logout } = useUser();
 
   const limits = {
     monthlyNewCards: {
@@ -160,7 +160,7 @@ const ProfileScreen = () => {
 
   const handleLogout = async () => {
     await deleteToken();
-    setUser(null);
+    logout();
   };
 
   const handlePersonalInfo = () => {
