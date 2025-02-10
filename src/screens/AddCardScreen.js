@@ -1,5 +1,5 @@
 import { Colors, useColors } from '@/config/colors';
-import { View, Button, Text } from 'tamagui';
+import { View, Button, Text, Spinner, YStack } from 'tamagui';
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -23,6 +23,8 @@ import CardConfigComponent from '@/components/card-creation/CardConfigComponent'
 import CardReviewComponent from '@/components/card-creation/CardReviewComponent';
 import { Paths } from '@/navigation/paths';
 import CardComponent from '@/components/CardComponent';
+import { useUser } from '@/hooks/useUser';
+import { BanknotesIcon } from 'react-native-heroicons/outline';
 
 const window = Dimensions.get('window');
 const WINDOW_WIDTH = window.width;
@@ -426,6 +428,10 @@ const AddCardScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const initialCardType = route.params?.initialCardType;
+  const { issuanceLimit } = useUser();
+
+  // Check if user has reached their limit
+  const hasReachedLimit = issuanceLimit && issuanceLimit.currentMonthUsage >= issuanceLimit.monthlyLimit;
 
   // Reorder sample cards to put the selected type in the center
   const orderedCards = useMemo(() => {
@@ -708,6 +714,42 @@ const AddCardScreen = () => {
         );
     }
   };
+
+  // If user has reached their limit, show the limit reached message
+  if (hasReachedLimit) {
+    return (
+      <View f={1} bg={colors.background}>
+        <View width={WINDOW_WIDTH} height={WINDOW_HEIGHT} ai="center" jc="center" px="$4">
+          <YStack ai="center" gap="$4">
+            <View width={80} height={80} br={40} bg={`${colors.primary}20`} ai="center" jc="center" mb="$2">
+              <BanknotesIcon size={40} color={colors.primary} />
+            </View>
+            <Text color={colors.text} fontSize="$7" fontFamily="$archivoBlack" textAlign="center">
+              Monthly Limit Reached
+            </Text>
+            <Text color={colors.textSecondary} fontSize="$4" textAlign="center" mb="$4">
+              You've created {issuanceLimit.currentMonthUsage} out of {issuanceLimit.monthlyLimit} cards this month.
+              Please try again next month or upgrade your plan for a higher limit.
+            </Text>
+            <Button
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={() => navigation.goBack()}
+              width={CARD_WIDTH}
+              size="$5"
+              borderRadius={12}
+              borderWidth={1}
+              borderColor={colors.border}
+            >
+              <Text color={colors.text} fontSize="$4" fontWeight="600">
+                Go Back
+              </Text>
+            </Button>
+          </YStack>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
