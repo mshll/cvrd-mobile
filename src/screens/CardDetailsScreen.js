@@ -37,7 +37,7 @@ import { ArrowUpOnSquareIcon } from 'react-native-heroicons/outline';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import SpendLimitMenu from '@/components/SpendLimitMenu';
 import Toast from 'react-native-toast-message';
-import { DUMMY_TRANSACTIONS } from '@/data/transactions';
+import { useTransactions } from '@/hooks/useTransactions';
 import TransactionCard from '@/components/TransactionCard';
 import GBottomSheet, { BottomSheetSectionList } from '@gorhom/bottom-sheet';
 import TransactionFilters from '@/components/TransactionFilters';
@@ -51,12 +51,12 @@ function getActiveSpendingLimit(card) {
   if (!card) return null;
 
   const limits = [
-    { type: 'per_transaction', value: card.per_transaction, label: 'Per Transaction' },
-    { type: 'per_day', value: card.per_day, label: 'Per Day' },
-    { type: 'per_week', value: card.per_week, label: 'Per Week' },
-    { type: 'per_month', value: card.per_month, label: 'Per Month' },
-    { type: 'per_year', value: card.per_year, label: 'Per Year' },
-    { type: 'total', value: card.total, label: 'Total' },
+    { type: 'per_transaction', value: card.per_transaction, label: 'Per Transaction', spent: 0 },
+    { type: 'per_day', value: card.per_day, label: 'Per Day', spent: card.dailySpent },
+    { type: 'per_week', value: card.per_week, label: 'Per Week', spent: card.weeklySpent },
+    { type: 'per_month', value: card.per_month, label: 'Per Month', spent: card.monthlySpent },
+    { type: 'per_year', value: card.per_year, label: 'Per Year', spent: card.yearlySpent },
+    { type: 'total', value: card.total, label: 'Total', spent: card.totalSpent },
   ];
 
   // Find the first non-zero limit
@@ -242,11 +242,9 @@ const CardDetailsScreen = () => {
   const activeSpendingLimit = useMemo(() => getActiveSpendingLimit(card), [card]);
 
   // Get transactions for this card
-  const cardTransactions = useMemo(() => {
-    return DUMMY_TRANSACTIONS.filter((t) => t.cardId === cardId);
-  }, [cardId]);
+  const { data: cardTransactions = [], isLoading: isTransactionsLoading } = useTransactions(cardId);
 
-  // Add this function to apply filters
+  // Get filtered transactions
   const filteredTransactions = useMemo(() => {
     let filtered = [...cardTransactions];
 
@@ -454,12 +452,48 @@ const CardDetailsScreen = () => {
                     <EditButton onPress={() => setShowSpendLimitSheet(true)} disabled={card.closed} />
                   </XStack>
                   <YStack gap="$2">
-                    <Text color={colors.text} fontSize="$6" fontWeight="700">
-                      {formatCurrency(activeSpendingLimit.value)}
-                    </Text>
-                    <Text color={colors.textSecondary} fontSize="$3">
-                      {activeSpendingLimit.label}
-                    </Text>
+                    {activeSpendingLimit.type === 'per_transaction' ? (
+                      <Text color={colors.text} fontSize="$6" fontWeight="700">
+                        {formatCurrency(activeSpendingLimit.value)}
+                      </Text>
+                    ) : (
+                      <>
+                        <XStack jc="space-between" ai="flex-end">
+                          <Text color={colors.text} fontSize="$6" fontWeight="700">
+                            {formatCurrency(activeSpendingLimit.spent)}
+                          </Text>
+                          <Text color={colors.textSecondary} fontSize="$4" fontWeight="600">
+                            {formatCurrency(activeSpendingLimit.value)}
+                          </Text>
+                        </XStack>
+                        <View
+                          height={4}
+                          width="100%"
+                          backgroundColor={`${colors.primary}20`}
+                          borderRadius={2}
+                          overflow="hidden"
+                        >
+                          <View
+                            height="100%"
+                            width={`${Math.min((activeSpendingLimit.spent / activeSpendingLimit.value) * 100, 100)}%`}
+                            backgroundColor={colors.primary}
+                          />
+                        </View>
+                        <XStack jc="space-between" ai="center">
+                          <Text color={colors.textSecondary} fontSize="$3">
+                            {activeSpendingLimit.label}
+                          </Text>
+                          <Text color={colors.textSecondary} fontSize="$3">
+                            {Math.round((activeSpendingLimit.spent / activeSpendingLimit.value) * 100)}%
+                          </Text>
+                        </XStack>
+                      </>
+                    )}
+                    {activeSpendingLimit.type === 'per_transaction' && (
+                      <Text color={colors.textSecondary} fontSize="$3">
+                        {activeSpendingLimit.label}
+                      </Text>
+                    )}
                   </YStack>
                 </YStack>
               </View>
@@ -515,6 +549,12 @@ const CardDetailsScreen = () => {
             {/* Card Details Accordion */}
             <Accordion title="Card Details" defaultOpen={false}>
               <YStack gap="$3">
+                <XStack jc="space-between">
+                  <Text color={colors.textSecondary}>Total Spent</Text>
+                  <Text color={colors.text}>{formatCurrency(card.totalSpent || 0)}</Text>
+                </XStack>
+                <Separator backgroundColor={colors.border} />
+
                 <XStack jc="space-between">
                   <Text color={colors.textSecondary}>Card Number</Text>
                   <Text color={colors.text}>•••• {card.cardNumber?.slice(-4) || '••••'}</Text>

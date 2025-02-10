@@ -240,6 +240,7 @@ const ProfileScreen = () => {
         </YStack>
 
         {/* Account Stats */}
+
         <YStack px="$4" pb="$6" gap="$4">
           <XStack gap="$3">
             <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
@@ -262,40 +263,63 @@ const ProfileScreen = () => {
         </YStack>
 
         {/* Progress Bars Section */}
-        <View
-          mx="$4"
-          mb="$6"
-          p="$4"
-          backgroundColor={colors.backgroundSecondary}
-          br={12}
-          borderWidth={1}
-          borderColor={colors.border}
-        >
-          <YStack gap="$6">
-            <ProgressBar
-              label="Monthly New Cards"
-              value={limits.monthlyNewCards.current}
-              max={limits.monthlyNewCards.max}
-              color={Colors.cards.blue}
-              icon={CreditCardIcon}
-              isCurrency={false}
-            />
-            <ProgressBar
-              label="Daily Spend Limit"
-              value={limits.dailySpend.current}
-              max={limits.dailySpend.max}
-              color={Colors.cards.green}
-              icon={BanknotesIcon}
-            />
-            <ProgressBar
-              label="Monthly Spend Limit"
-              value={limits.monthlySpend.current}
-              max={limits.monthlySpend.max}
-              color={Colors.cards.pink}
-              icon={ClockIcon}
-            />
-          </YStack>
-        </View>
+        <YStack gap="$3">
+          <XStack gap="$3" jc="space-between" ai="flex-end">
+            <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
+              Account Limits
+            </Text>
+
+            <Button
+              bg="transparent"
+              h={'auto'}
+              borderWidth={0}
+              mx="$1"
+              py="0"
+              my="0"
+              hitSlop={40}
+              pressStyle={{ backgroundColor: 'transparent', opacity: 0.5 }}
+            >
+              <Text color={colors.primary} fontSize="$2" fontWeight="600">
+                Upgrade Plan
+              </Text>
+            </Button>
+          </XStack>
+
+          <View
+            mx="$4"
+            mb="$6"
+            p="$4"
+            backgroundColor={colors.backgroundSecondary}
+            br={12}
+            borderWidth={1}
+            borderColor={colors.border}
+          >
+            <YStack gap="$6">
+              <ProgressBar
+                label="Monthly New Cards"
+                value={limits.monthlyNewCards.current}
+                max={limits.monthlyNewCards.max}
+                color={Colors.cards.blue}
+                icon={CreditCardIcon}
+                isCurrency={false}
+              />
+              <ProgressBar
+                label="Daily Limit"
+                value={limits.dailySpend.current}
+                max={limits.dailySpend.max}
+                color={Colors.cards.green}
+                icon={BanknotesIcon}
+              />
+              <ProgressBar
+                label="Monthly Limit"
+                value={limits.monthlySpend.current}
+                max={limits.monthlySpend.max}
+                color={Colors.cards.pink}
+                icon={ClockIcon}
+              />
+            </YStack>
+          </View>
+        </YStack>
 
         {/* Menu Items */}
         <YStack gap="$6">

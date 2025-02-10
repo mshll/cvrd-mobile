@@ -50,16 +50,6 @@ const RADIUS_OPTIONS = [
   { label: 'Country', value: null, description: 'Entire country' },
 ];
 
-const LIMIT_OPTIONS = [
-  { id: 'per_transaction', label: 'Per Transaction', defaultValue: 1000, max: 200 },
-  { id: 'per_day', label: 'Per Day', defaultValue: 5000, max: 500 },
-  { id: 'per_week', label: 'Per Week', defaultValue: 10000, max: 2000 },
-  { id: 'per_month', label: 'Per Month', defaultValue: 25000, max: 8000 },
-  { id: 'per_year', label: 'Per Year', defaultValue: 50000, max: 100000 },
-  { id: 'total', label: 'Total', defaultValue: 100000, max: 200000 },
-  { id: 'no_limit', label: 'No Limit', defaultValue: null, max: null },
-];
-
 const CommonSettings = ({ cardName, setCardName, limits, setLimits }) => {
   const insets = useSafeAreaInsets();
   const colors = useColors();
@@ -331,12 +321,12 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   // Common state
   const [cardName, setCardName] = useState(initialData?.label || '');
   const [limits, setLimits] = useState({
-    per_transaction: 0,
-    per_day: 0,
-    per_week: 0,
-    per_month: 0,
-    per_year: 0,
-    total: 0,
+    per_transaction: null,
+    per_day: null,
+    per_week: null,
+    per_month: null,
+    per_year: null,
+    total: null,
   });
 
   // Type-specific state

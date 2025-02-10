@@ -27,7 +27,7 @@ const TransactionCard = ({ transaction }) => {
 
   // If card is not found, use a default color
   const cardColor = card?.cardColor || Colors.cards.blue;
-  const bgColor = `${cardColor}26`; // 15% opacity
+  const bgColor = `${cardColor}80`; // 15% opacity
 
   const handlePress = () => {
     if (card) {
@@ -38,7 +38,6 @@ const TransactionCard = ({ transaction }) => {
   };
 
   return (
-
     <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
       <XStack
         backgroundColor={colors.card}
@@ -51,13 +50,13 @@ const TransactionCard = ({ transaction }) => {
         borderColor={colors.border}
       >
         <XStack ai="center" gap={12} f={1}>
-          <View width={50} height={50} br={8} backgroundColor={colors.backgroundTertiary} ai="center" jc="center">
+          <View width={50} height={50} br={8} backgroundColor={`${cardColor}40`} ai="center" jc="center">
             <Text fontSize={20}>{card?.cardIcon || '💳'}</Text>
           </View>
           <YStack f={1}>
             <XStack>
-              <View backgroundColor={bgColor} br={6} px={'$2'} py={'$1.5'} fd="row" ai="center" gap={4} maxWidth="80%">
-                <Text color={cardColor} fontSize={14} fontWeight="500" numberOfLines={1} ellipsizeMode="tail">
+              <View fd="row" gap={4} maxWidth="80%">
+                <Text color={colors.text} fontSize={16} fontWeight="500" numberOfLines={1} ellipsizeMode="tail">
                   {name}
                 </Text>
               </View>

@@ -325,8 +325,8 @@ const SubscriptionsScreen = () => {
   }
 
   return (
-    <View f={1} bg={colors.background} pt={insets.top - 20}>
-      <ScrollView contentContainerStyle={styles.container}>
+    <View f={1} bg={colors.background}>
+      <ScrollView contentContainerStyle={styles.container} pt={insets.top - 20}>
         {/* Subscriptions Section */}
         <YStack gap="$4" mb="$6">
           <XStack ai="center" gap="$2" px="$4">
