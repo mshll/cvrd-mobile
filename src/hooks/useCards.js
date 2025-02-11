@@ -65,6 +65,18 @@ export function useCards() {
 
   const getAllCardsDisplay = () => cards.map(getCardDisplayData).filter(Boolean);
 
+    // New search function
+    const searchCards = (query) => {
+      const lowerCaseQuery = query.toLowerCase();
+      return getAllCardsDisplay().filter((card) => {
+        return (
+          card.label.toLowerCase().includes(lowerCaseQuery) ||
+          card.type.toLowerCase().includes(lowerCaseQuery) ||
+          card.lastFourDigits.includes(lowerCaseQuery)
+        );
+      });
+    };
+
   return {
     cards,
     isLoading,
@@ -74,5 +86,6 @@ export function useCards() {
     getCardById,
     getCardDisplayData,
     getAllCardsDisplay,
+    searchCards, // Add the search function to the returned object
   };
 }

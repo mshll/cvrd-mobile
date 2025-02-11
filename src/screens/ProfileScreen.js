@@ -129,7 +129,7 @@ const ProfileScreen = () => {
   const navigation = useNavigation();
   const { cards } = useCards();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const { user, isLoading, error } = useUser();
+  const { user, isLoading, error, logout } = useUser();
 
   const limits = {
     monthlyNewCards: {
@@ -160,7 +160,7 @@ const ProfileScreen = () => {
 
   const handleLogout = async () => {
     await deleteToken();
-    setUser(null);
+    logout();
   };
 
   const handlePersonalInfo = () => {
@@ -188,80 +188,102 @@ const ProfileScreen = () => {
   }
 
   return (
-    <View f={1} bg={colors.background}>
-      <ScrollView
-        contentContainerStyle={{
-          paddingTop: insets.top - 20,
-          paddingBottom: insets.bottom + 40,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Title Section */}
-        <YStack gap="$3" mb="$2" px={16}>
-          <XStack ai="center" mb="$2" gap="$2">
-            <UserIconFilled size={20} color={colors.text} />
-            <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
-              Profile
-            </Text>
-          </XStack>
-        </YStack>
+    <ScrollView
+      f={1}
+      contentContainerStyle={{
+        paddingTop: 20,
+        paddingBottom: insets.bottom,
+      }}
+      showsVerticalScrollIndicator={false}
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      {/* Title Section */}
+      <YStack gap="$3" mb="$2" px={16}>
+        <XStack ai="center" mb="$2" gap="$2">
+          <UserIconFilled size={20} color={colors.text} />
+          <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+            Profile
+          </Text>
+        </XStack>
+      </YStack>
 
-        {/* Profile Header */}
-        <YStack ai="center" pb="$6" px="$4" gap="$4">
-          <Circle backgroundColor={colors.border} borderWidth={'$2'} borderColor={colors.border}>
-            <Avatar circular size="$12">
-              <Avatar.Image
-                source={user?.profilePic ? { uri: user?.profilePic } : require('@/../assets/default.png')}
-              />
-              <Avatar.Fallback backgroundColor={colors.backgroundSecondary}>
-                <UserIcon size={32} color={colors.textSecondary} />
-              </Avatar.Fallback>
-            </Avatar>
-          </Circle>
-          <YStack ai="center" gap="$1">
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
-              {user ? `${user.firstName} ${user.lastName}` : 'User'}
+      {/* Profile Header */}
+      <YStack ai="center" pb="$6" px="$4" gap="$4">
+        <Circle backgroundColor={colors.border} borderWidth={'$2'} borderColor={colors.border}>
+          <Avatar circular size="$12">
+            <Avatar.Image source={user?.profilePic ? { uri: user?.profilePic } : require('@/../assets/default.png')} />
+            <Avatar.Fallback backgroundColor={colors.backgroundSecondary}>
+              <UserIcon size={32} color={colors.textSecondary} />
+            </Avatar.Fallback>
+          </Avatar>
+        </Circle>
+        <YStack ai="center" gap="$1">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            {user ? `${user.firstName} ${user.lastName}` : 'User'}
+          </Text>
+          <Text color={colors.textSecondary} fontSize="$3">
+            {user?.email}
+          </Text>
+          <XStack ai="center" gap="$2" mt="$2">
+            <Text color={colors.textSecondary} fontSize="$3">
+              {user?.subscription} Plan
             </Text>
             <Text color={colors.textSecondary} fontSize="$3">
-              {user?.email}
+              •
             </Text>
-            <XStack ai="center" gap="$2" mt="$2">
-              <Text color={colors.textSecondary} fontSize="$3">
-                {user?.subscription} Plan
-              </Text>
-              <Text color={colors.textSecondary} fontSize="$3">
-                •
-              </Text>
-              <Text color={colors.textSecondary} fontSize="$3">
-                {user?.phoneNumber}
-              </Text>
-            </XStack>
-          </YStack>
-        </YStack>
-
-        {/* Account Stats */}
-        <YStack px="$4" pb="$6" gap="$4">
-          <XStack gap="$3">
-            <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
-              <Text color={colors.textSecondary} fontSize="$3" mb="$2">
-                Active Cards
-              </Text>
-              <Text color={colors.text} fontSize="$5" fontWeight="700">
-                {user?.activeCardsCount || 0}
-              </Text>
-            </View>
-            <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
-              <Text color={colors.textSecondary} fontSize="$3" mb="$2">
-                Member Since
-              </Text>
-              <Text color={colors.text} fontSize="$3" fontWeight="600">
-                {new Date(user?.createdAt || new Date()).toLocaleDateString()}
-              </Text>
-            </View>
+            <Text color={colors.textSecondary} fontSize="$3">
+              {user?.phoneNumber}
+            </Text>
           </XStack>
         </YStack>
+      </YStack>
 
-        {/* Progress Bars Section */}
+      {/* Account Stats */}
+
+      <YStack px="$4" pb="$6" gap="$4">
+        <XStack gap="$3">
+          <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
+            <Text color={colors.textSecondary} fontSize="$3" mb="$2">
+              Active Cards
+            </Text>
+            <Text color={colors.text} fontSize="$5" fontWeight="700">
+              {user?.activeCardsCount || 0}
+            </Text>
+          </View>
+          <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
+            <Text color={colors.textSecondary} fontSize="$3" mb="$2">
+              Member Since
+            </Text>
+            <Text color={colors.text} fontSize="$3" fontWeight="600">
+              {new Date(user?.createdAt || new Date()).toLocaleDateString()}
+            </Text>
+          </View>
+        </XStack>
+      </YStack>
+
+      {/* Progress Bars Section */}
+      <YStack gap="$3">
+        <XStack gap="$3" jc="space-between" ai="flex-end">
+          <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
+            Account Limits
+          </Text>
+
+          <Button
+            bg="transparent"
+            h={'auto'}
+            borderWidth={0}
+            mx="$1"
+            py="0"
+            my="0"
+            hitSlop={40}
+            pressStyle={{ backgroundColor: 'transparent', opacity: 0.5 }}
+          >
+            <Text color={colors.text} fontSize="$2" fontWeight="500" textDecorationLine="underline">
+              Upgrade Plan
+            </Text>
+          </Button>
+        </XStack>
+
         <View
           mx="$4"
           mb="$6"
@@ -281,14 +303,14 @@ const ProfileScreen = () => {
               isCurrency={false}
             />
             <ProgressBar
-              label="Daily Spend Limit"
+              label="Daily Limit"
               value={limits.dailySpend.current}
               max={limits.dailySpend.max}
               color={Colors.cards.green}
               icon={BanknotesIcon}
             />
             <ProgressBar
-              label="Monthly Spend Limit"
+              label="Monthly Limit"
               value={limits.monthlySpend.current}
               max={limits.monthlySpend.max}
               color={Colors.cards.pink}
@@ -296,53 +318,53 @@ const ProfileScreen = () => {
             />
           </YStack>
         </View>
+      </YStack>
 
-        {/* Menu Items */}
-        <YStack gap="$6">
-          <YStack gap="$3">
-            <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
-              Account
-            </Text>
-            <YStack gap="$2">
-              <MenuItem icon={UserIcon} label="Personal Information" onPress={handlePersonalInfo} />
-              <MenuItem icon={ShieldCheckIcon} label="Security" onPress={handleSecurity} />
-              <MenuItem icon={BellIcon} label="Notifications" onPress={() => {}} />
-              <MenuItem icon={Cog6ToothIcon} label="Preferences" onPress={() => {}} />
-            </YStack>
-          </YStack>
-
-          <YStack gap="$3">
-            <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
-              Support
-            </Text>
-            <YStack gap="$2">
-              <MenuItem icon={QuestionMarkCircleIcon} label="Help Center" onPress={() => {}} />
-              <MenuItem icon={DocumentTextIcon} label="Terms & Privacy" onPress={() => {}} />
-            </YStack>
+      {/* Menu Items */}
+      <YStack gap="$6">
+        <YStack gap="$3">
+          <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
+            Account
+          </Text>
+          <YStack gap="$2">
+            <MenuItem icon={UserIcon} label="Personal Information" onPress={handlePersonalInfo} />
+            <MenuItem icon={ShieldCheckIcon} label="Security" onPress={handleSecurity} />
+            <MenuItem icon={BellIcon} label="Notifications" onPress={() => {}} />
+            <MenuItem icon={Cog6ToothIcon} label="Preferences" onPress={() => {}} />
           </YStack>
         </YStack>
 
-        {/* Logout Button */}
-        <Button
-          mx="$4"
-          mt="$6"
-          size="$5"
-          backgroundColor={colors.backgroundSecondary}
-          pressStyle={{ backgroundColor: colors.backgroundTertiary, scale: 0.98 }}
-          onPress={() => setShowLogoutConfirm(true)}
-          borderWidth={1}
-          borderColor={colors.border}
-          br={12}
-          animation="quick"
-        >
-          <XStack ai="center" gap="$2">
-            <PowerIcon size={20} color={colors.danger} />
-            <Text color={colors.danger} fontSize="$4" fontWeight="600">
-              Log Out
-            </Text>
-          </XStack>
-        </Button>
-      </ScrollView>
+        <YStack gap="$3">
+          <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
+            Support
+          </Text>
+          <YStack gap="$2">
+            <MenuItem icon={QuestionMarkCircleIcon} label="Help Center" onPress={() => {}} />
+            <MenuItem icon={DocumentTextIcon} label="Terms & Privacy" onPress={() => {}} />
+          </YStack>
+        </YStack>
+      </YStack>
+
+      {/* Logout Button */}
+      <Button
+        mx="$4"
+        mt="$6"
+        size="$5"
+        backgroundColor={colors.backgroundSecondary}
+        pressStyle={{ backgroundColor: colors.backgroundTertiary, scale: 0.98 }}
+        onPress={() => setShowLogoutConfirm(true)}
+        borderWidth={1}
+        borderColor={colors.border}
+        br={12}
+        animation="quick"
+      >
+        <XStack ai="center" gap="$2">
+          <PowerIcon size={20} color={colors.danger} />
+          <Text color={colors.danger} fontSize="$4" fontWeight="600">
+            Log Out
+          </Text>
+        </XStack>
+      </Button>
 
       {/* Logout Confirmation Sheet */}
       <BottomSheet isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)}>
@@ -381,7 +403,7 @@ const ProfileScreen = () => {
           </YStack>
         </YStack>
       </BottomSheet>
-    </View>
+    </ScrollView>
   );
 };
 

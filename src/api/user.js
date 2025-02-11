@@ -19,3 +19,8 @@ export const updateUser = async (userData) => {
   const response = await instance.put('/user/me', userData);
   return response.data;
 };
+
+export async function getCardIssuanceLimit() {
+  const response = await instance.get('/user/me/card-issuance-limit');
+  return response.data;
+}

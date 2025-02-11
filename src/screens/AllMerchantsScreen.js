@@ -11,7 +11,7 @@ const AllMerchantsScreen = () => {
   const insets = useSafeAreaInsets();
 
   return (
-    <View f={1} bg={colors.background} pt={insets.top - 20}>
+    <View f={1} bg={colors.background} pt={20}>
       <ScrollView contentContainerStyle={styles.container}>
         <YStack gap="$4">
           {/* Header */}

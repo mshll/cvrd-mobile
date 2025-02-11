@@ -1,42 +1,12 @@
 import { Colors, useColors } from '@/config/colors';
-import { View, Text, Input, XStack, YStack, Button } from 'tamagui';
-import { useState, useCallback, useEffect } from 'react';
+import { View, Text, Input, XStack, YStack, Button, Spinner } from 'tamagui';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Search, ArrowDown, ArrowUp, History } from '@tamagui/lucide-icons';
-import { StyleSheet, SectionList, Dimensions } from 'react-native';
+import { StyleSheet, SectionList, Dimensions, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TransactionCard, { LoadingSkeleton } from '../components/TransactionCard';
-import { DUMMY_TRANSACTIONS } from '../data/transactions';
 import TransactionFilters from '@/components/TransactionFilters';
-
-// This would typically come from an API client file
-const API = {
-  fetchTransactions: async ({ page = 1, filters = {} } = {}) => {
-    // Simulate API call with dummy data
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          data: DUMMY_TRANSACTIONS,
-          meta: {
-            total: DUMMY_TRANSACTIONS.length,
-            page: 1,
-            hasMore: false,
-          },
-        });
-      }, 1000);
-    });
-  },
-};
-
-const SORT_STATES = {
-  DATE: 'date',
-  AMOUNT: 'amount',
-};
-
-const FILTER_STATES = {
-  ALL: 'all',
-  SETTLED: 'Settled',
-  DECLINED: 'Declined',
-};
+import { useTransactions } from '@/hooks/useTransactions';
 
 // Update the grouping function to return data in SectionList format
 const groupTransactionsByMonth = (transactions) => {
@@ -70,65 +40,42 @@ const ActivityScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [dateSort, setDateSort] = useState('desc');
   const [amountSort, setAmountSort] = useState(null);
-  const [statusFilter, setStatusFilter] = useState(FILTER_STATES.ALL);
-  const [transactions, setTransactions] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [refreshing, setRefreshing] = useState(false);
 
-  const applyFilters = useCallback(
-    (data) => {
-      let filteredData = [...data];
+  // Fetch transactions using the hook
+  const { data: transactions = [], isLoading, error, refetch } = useTransactions();
 
-      // Apply search filter
-      if (searchQuery) {
-        filteredData = filteredData.filter((transaction) =>
-          transaction.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
+  // Apply filters and sorting
+  const filteredTransactions = useMemo(() => {
+    let filtered = [...(transactions || [])];
 
-      // Apply status filter
-      if (statusFilter !== FILTER_STATES.ALL) {
-        filteredData = filteredData.filter((transaction) => transaction.status === statusFilter);
-      }
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter((transaction) => transaction.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
 
-      // Apply sorting
-      if (amountSort) {
-        filteredData.sort((a, b) => {
-          const comparison = a.amount - b.amount;
-          return amountSort === 'desc' ? -comparison : comparison;
-        });
-      } else {
-        // Default to date sorting if amount sort is not active
-        filteredData.sort((a, b) => {
-          const comparison = new Date(a.date) - new Date(b.date);
-          return dateSort === 'desc' ? -comparison : comparison;
-        });
-      }
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((transaction) => transaction.status === statusFilter);
+    }
 
-      return filteredData;
-    },
-    [searchQuery, dateSort, amountSort, statusFilter]
-  );
+    // Apply sorting
+    if (amountSort) {
+      filtered.sort((a, b) => {
+        const comparison = a.amount - b.amount;
+        return amountSort === 'desc' ? -comparison : comparison;
+      });
+    } else {
+      // Default to date sorting if amount sort is not active
+      filtered.sort((a, b) => {
+        const comparison = new Date(a.date) - new Date(b.date);
+        return dateSort === 'desc' ? -comparison : comparison;
+      });
+    }
 
-  // Fetch transactions whenever filters change
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await API.fetchTransactions();
-        const filteredData = applyFilters(response.data);
-        setTransactions(filteredData);
-      } catch (err) {
-        setError('Failed to load transactions');
-        console.error('Error fetching transactions:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [applyFilters]);
+    return filtered;
+  }, [transactions, searchQuery, dateSort, amountSort, statusFilter]);
 
   const toggleDateSort = useCallback(() => {
     setDateSort((prev) => (prev === 'desc' ? 'asc' : 'desc'));
@@ -144,15 +91,24 @@ const ActivityScreen = () => {
 
   const toggleStatusFilter = useCallback(() => {
     setStatusFilter((prev) => {
-      if (prev === FILTER_STATES.ALL || prev === FILTER_STATES.DECLINED) return FILTER_STATES.SETTLED;
-      return FILTER_STATES.DECLINED;
+      if (prev === 'all' || prev === 'Declined') return 'Settled';
+      return 'Declined';
     });
   }, []);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    if (refetch) {
+      refetch().finally(() => setRefreshing(false));
+    } else {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   return (
     <View f={1} bg={colors.background}>
       {/* Header Section */}
-      <YStack pt={insets.top - 20} px={16} space={16} backgroundColor={colors.background}>
+      <YStack pt={20} px={16} gap={16} backgroundColor={colors.background}>
         <XStack ai="center" gap="$2">
           <History size={20} color={colors.text} />
           <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
@@ -178,15 +134,25 @@ const ActivityScreen = () => {
           <LoadingSkeleton />
         ) : error ? (
           <Text color={colors.primary} ta="center" mt={20} fontFamily="$body">
-            {error}
+            {error.message || 'Failed to load transactions'}
           </Text>
-        ) : transactions.length === 0 ? (
-          <Text color={colors.textSecondary} ta="center" mt={20} fontFamily="$body">
-            No transactions found
-          </Text>
+        ) : filteredTransactions.length === 0 ? (
+          <YStack f={1} ai="center" jc="center" gap="$4" px="$4">
+            <History size={40} color={`${colors.primary}`} />
+            <YStack ai="center" gap="$2">
+              <Text color={colors.text} fontSize="$5" fontWeight="600" textAlign="center">
+                No Transactions Found
+              </Text>
+              <Text color={colors.textSecondary} fontSize="$3" textAlign="center">
+                {searchQuery || statusFilter !== 'all'
+                  ? 'Try adjusting your filters'
+                  : 'Your transaction history will appear here'}
+              </Text>
+            </YStack>
+          </YStack>
         ) : (
           <SectionList
-            sections={groupTransactionsByMonth(transactions)}
+            sections={groupTransactionsByMonth(filteredTransactions)}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <TransactionCard transaction={item} />}
             renderSectionHeader={({ section: { title } }) => (
@@ -199,6 +165,7 @@ const ActivityScreen = () => {
             stickySectionHeadersEnabled={true}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.content}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
           />
         )}
       </View>

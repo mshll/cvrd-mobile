@@ -36,12 +36,12 @@ const SubscriptionCard = ({ subscription }) => {
     >
       {/* Dimming Overlay */}
       {isPaused && (
-        <BlurView
-          intensity={15}
-          tint="dark"
-          style={[
-            StyleSheet.absoluteFill,
-            {
+          <BlurView
+            intensity={10}
+            tint="dark"
+            style={[
+              StyleSheet.absoluteFill,
+              {
               backgroundColor: 'dark',
               zIndex: 1,
             },
@@ -77,7 +77,7 @@ const SubscriptionCard = ({ subscription }) => {
               height: 50,
               resizeMode: 'contain',
               tintColor: textColor,
-              opacity: isPaused ? 0.4 : 1,
+              opacity: isPaused ? 0.7 : 1,
             }}
           />
           <View
@@ -113,13 +113,13 @@ const SubscriptionCard = ({ subscription }) => {
             fontSize={24}
             fontWeight="700"
             fontFamily={'$archivoBlack'}
-            opacity={isPaused ? 0.4 : 1}
+            opacity={isPaused ? 0.7 : 1}
           >
             {amount}
           </Text>
           <View flexDirection="row" alignItems="center" gap={4}>
-            <CalendarIcon size={16} color={`${textColor}CC`} opacity={isPaused ? 0.4 : 1} />
-            <Text color={`${textColor}CC`} fontSize={14} fontWeight={'500'} opacity={isPaused ? 0.4 : 1}>
+            <CalendarIcon size={16} color={`${textColor}CC`} opacity={isPaused ? 0.7 : 1} />
+            <Text color={`${textColor}CC`} fontSize={14} fontWeight={'500'} opacity={isPaused ? 0.7 : 1}>
               Next billing date: {nextBillingDate}
             </Text>
           </View>

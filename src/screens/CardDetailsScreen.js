@@ -2,44 +2,22 @@ import { View, ScrollView, YStack, Text, Separator, XStack, Button, Input, Spinn
 import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Colors, useColors } from '@/config/colors';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import CardComponent from '@/components/CardComponent';
 import { useCards } from '@/hooks/useCards';
 import { useCardMutations } from '@/hooks/useCardMutations';
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
-import {
-  Edit3,
-  Pause,
-  PauseCircle,
-  Play,
-  Share2,
-  Trash2,
-  BanknotesIcon,
-  Search,
-  ArrowDown,
-  ArrowUp,
-  History,
-} from '@tamagui/lucide-icons';
+import * as Location from 'expo-location';
+import { History } from '@tamagui/lucide-icons';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
 import CardFlipComponent from '@/components/CardFlipComponent';
-import {
-  PaintBrushIcon,
-  PauseIcon,
-  PencilIcon,
-  PlayIcon,
-  ShareIcon,
-  TrashIcon,
-  ChevronDownIcon,
-} from 'react-native-heroicons/solid';
-import { CARD_WIDTH_LARGE, CARD_HEIGHT_LARGE } from '@/utils/cardUtils';
+import { PaintBrushIcon, PauseIcon, PlayIcon, TrashIcon, MapPinIcon } from 'react-native-heroicons/solid';
 import { formatCurrency } from '@/utils/utils';
 import { Paths } from '@/navigation/paths';
 import { ArrowUpOnSquareIcon } from 'react-native-heroicons/outline';
-import { useActionSheet } from '@expo/react-native-action-sheet';
 import SpendLimitMenu from '@/components/SpendLimitMenu';
 import Toast from 'react-native-toast-message';
-import { DUMMY_TRANSACTIONS } from '@/data/transactions';
+import { useTransactions } from '@/hooks/useTransactions';
 import TransactionCard from '@/components/TransactionCard';
-import GBottomSheet, { BottomSheetSectionList } from '@gorhom/bottom-sheet';
+import GBottomSheet, { BottomSheetSectionList, BottomSheetView } from '@gorhom/bottom-sheet';
 import TransactionFilters from '@/components/TransactionFilters';
 import Accordion from '@/components/Accordion';
 import BottomSheet from '@/components/BottomSheet';
@@ -51,12 +29,12 @@ function getActiveSpendingLimit(card) {
   if (!card) return null;
 
   const limits = [
-    { type: 'per_transaction', value: card.per_transaction, label: 'Per Transaction' },
-    { type: 'per_day', value: card.per_day, label: 'Per Day' },
-    { type: 'per_week', value: card.per_week, label: 'Per Week' },
-    { type: 'per_month', value: card.per_month, label: 'Per Month' },
-    { type: 'per_year', value: card.per_year, label: 'Per Year' },
-    { type: 'total', value: card.total, label: 'Total' },
+    { type: 'per_transaction', value: card.per_transaction, label: 'Per Transaction', spent: 0 },
+    { type: 'per_day', value: card.per_day, label: 'Per Day', spent: card.dailySpent },
+    { type: 'per_week', value: card.per_week, label: 'Per Week', spent: card.weeklySpent },
+    { type: 'per_month', value: card.per_month, label: 'Per Month', spent: card.monthlySpent },
+    { type: 'per_year', value: card.per_year, label: 'Per Year', spent: card.yearlySpent },
+    { type: 'total', value: card.total, label: 'Total', spent: card.totalSpent },
   ];
 
   // Find the first non-zero limit
@@ -122,9 +100,42 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
   const region = {
     latitude,
     longitude,
-    latitudeDelta: (radius * 2) / 69,
-    longitudeDelta: (radius * 2) / 69,
+    latitudeDelta: (radius * 2) / 50,
+    longitudeDelta: (radius * 2) / 50,
   };
+
+  const [location, setLocation] = useState({});
+
+  const getLocationInfo = async (latitude, longitude) => {
+    try {
+      const response = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
+
+      if (response && response[0]) {
+        const locationInfo = response[0];
+
+        // Create formatted address with just street and country
+        const formattedAddress = [locationInfo.street, locationInfo.country].filter(Boolean).join(', ');
+
+        // Update the location object with the address
+        setLocation((prev) => ({
+          ...prev,
+          latitude,
+          longitude,
+          address: formattedAddress,
+          country: locationInfo.country,
+        }));
+      }
+    } catch (error) {
+      console.error('Error getting location info:', error);
+    }
+  };
+
+  useEffect(() => {
+    getLocationInfo(latitude, longitude);
+  }, [latitude, longitude]);
 
   return (
     <View
@@ -136,39 +147,60 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
         borderColor: colors.border,
       }}
     >
-      <View style={{ height: MAP_HEIGHT, borderRadius: 12, overflow: 'hidden' }}>
+      <View style={{ height: MAP_HEIGHT, overflow: 'hidden' }}>
         <MapView
           style={StyleSheet.absoluteFill}
           initialRegion={region}
           scrollEnabled={false}
+          zoomEnabled={false}
           rotateEnabled={false}
-          userLocationAnnotationTitle=""
-          mapType="mutedStandard"
         >
-          <Marker
-            coordinate={{
-              latitude,
-              longitude,
-            }}
-            pinColor={color}
-          />
+          <Marker coordinate={{ latitude, longitude }} pinColor={color} />
           <MapCircle
-            center={{
-              latitude,
-              longitude,
-            }}
+            center={{ latitude, longitude }}
             radius={radius * 1609.34}
-            strokeWidth={1}
+            fillColor={`${color}20`}
             strokeColor={color}
-            fillColor={`${color}40`}
+            strokeWidth={2}
           />
         </MapView>
+
+        {onEdit && (
+          <XStack position="absolute" top={12} right={12} gap="$2">
+            <Button
+              size="$2"
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={onEdit}
+              borderWidth={1}
+              borderColor={colors.border}
+              br={8}
+              px="$3"
+            >
+              <Text color={colors.text} fontSize="$2" fontWeight="600">
+                Edit
+              </Text>
+            </Button>
+          </XStack>
+        )}
       </View>
-      {onEdit && (
-        <View position="absolute" top={12} right={12}>
-          <EditButton onPress={onEdit} />
-        </View>
-      )}
+
+      <YStack px={12} py={12} gap={8} borderTopWidth={1} borderTopColor={colors.border}>
+        <XStack jc="space-between" ai="center">
+          <XStack ai="center" gap="$2">
+            {/* <View backgroundColor={`${color}15`} p="$2" br={8}>
+              <MapPinIcon size={16} color={color} />
+            </View> */}
+            <Text color={colors.text} fontSize="$4" fontWeight="600">
+              {location.address}
+            </Text>
+          </XStack>
+        </XStack>
+
+        <Text color={colors.textSecondary} fontSize="$3" fontFamily="$mono">
+          {radius.toFixed(1)} km radius
+        </Text>
+      </YStack>
     </View>
   );
 };
@@ -242,11 +274,9 @@ const CardDetailsScreen = () => {
   const activeSpendingLimit = useMemo(() => getActiveSpendingLimit(card), [card]);
 
   // Get transactions for this card
-  const cardTransactions = useMemo(() => {
-    return DUMMY_TRANSACTIONS.filter((t) => t.cardId === cardId);
-  }, [cardId]);
+  const { data: cardTransactions = [], isLoading: isTransactionsLoading } = useTransactions(cardId);
 
-  // Add this function to apply filters
+  // Get filtered transactions
   const filteredTransactions = useMemo(() => {
     let filtered = [...cardTransactions];
 
@@ -454,12 +484,48 @@ const CardDetailsScreen = () => {
                     <EditButton onPress={() => setShowSpendLimitSheet(true)} disabled={card.closed} />
                   </XStack>
                   <YStack gap="$2">
-                    <Text color={colors.text} fontSize="$6" fontWeight="700">
-                      {formatCurrency(activeSpendingLimit.value)}
-                    </Text>
-                    <Text color={colors.textSecondary} fontSize="$3">
-                      {activeSpendingLimit.label}
-                    </Text>
+                    {activeSpendingLimit.type === 'per_transaction' ? (
+                      <Text color={colors.text} fontSize="$6" fontWeight="700">
+                        {formatCurrency(activeSpendingLimit.value)}
+                      </Text>
+                    ) : (
+                      <>
+                        <XStack jc="space-between" ai="flex-end">
+                          <Text color={colors.text} fontSize="$6" fontWeight="700">
+                            {formatCurrency(activeSpendingLimit.spent)}
+                          </Text>
+                          <Text color={colors.textSecondary} fontSize="$4" fontWeight="600">
+                            {formatCurrency(activeSpendingLimit.value)}
+                          </Text>
+                        </XStack>
+                        <View
+                          height={4}
+                          width="100%"
+                          backgroundColor={`${colors.primary}20`}
+                          borderRadius={2}
+                          overflow="hidden"
+                        >
+                          <View
+                            height="100%"
+                            width={`${Math.min((activeSpendingLimit.spent / activeSpendingLimit.value) * 100, 100)}%`}
+                            backgroundColor={colors.primary}
+                          />
+                        </View>
+                        <XStack jc="space-between" ai="center">
+                          <Text color={colors.textSecondary} fontSize="$3">
+                            {activeSpendingLimit.label}
+                          </Text>
+                          <Text color={colors.textSecondary} fontSize="$3">
+                            {Math.round((activeSpendingLimit.spent / activeSpendingLimit.value) * 100)}%
+                          </Text>
+                        </XStack>
+                      </>
+                    )}
+                    {activeSpendingLimit.type === 'per_transaction' && (
+                      <Text color={colors.textSecondary} fontSize="$3">
+                        {activeSpendingLimit.label}
+                      </Text>
+                    )}
                   </YStack>
                 </YStack>
               </View>
@@ -488,33 +554,24 @@ const CardDetailsScreen = () => {
 
             {/* Location Map (only for location cards) */}
             {card.cardType === 'LOCATION_LOCKED' && card.longitude && card.latitude && (
-              <View
-                style={{
-                  borderRadius: 12,
-                  overflow: 'hidden',
-                  backgroundColor: colors.backgroundSecondary,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                }}
-              >
-                <YStack p="$4" gap="$3">
-                  <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                    Location
-                  </Text>
-                  <LocationMap
-                    latitude={card.latitude}
-                    longitude={card.longitude}
-                    radius={card.radius}
-                    color={Colors.cards[card.cardColor] || card.cardColor}
-                    onEdit={handleEditLocation}
-                  />
-                </YStack>
-              </View>
+              <LocationMap
+                latitude={card.latitude}
+                longitude={card.longitude}
+                radius={card.radius}
+                color={Colors.cards[card.cardColor] || card.cardColor}
+                onEdit={handleEditLocation}
+              />
             )}
 
             {/* Card Details Accordion */}
             <Accordion title="Card Details" defaultOpen={false}>
               <YStack gap="$3">
+                <XStack jc="space-between">
+                  <Text color={colors.textSecondary}>Total Spent</Text>
+                  <Text color={colors.text}>{formatCurrency(card.totalSpent || 0)}</Text>
+                </XStack>
+                <Separator backgroundColor={colors.border} />
+
                 <XStack jc="space-between">
                   <Text color={colors.textSecondary}>Card Number</Text>
                   <Text color={colors.text}>•••• {card.cardNumber?.slice(-4) || '••••'}</Text>
@@ -585,34 +642,52 @@ const CardDetailsScreen = () => {
         }}
         style={{ minHeight: 500 }}
       >
-        <YStack px="$4" gap="$2" f={1}>
-          <XStack ai="center" gap="$2" mb="$2">
-            <History size={20} color={colors.text} />
-            <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
-              Card Activity
-            </Text>
-          </XStack>
+        <BottomSheetView style={{ flex: 1 }}>
+          <YStack px="$4" gap="$2" f={1}>
+            <XStack ai="center" gap="$2" my="$2">
+              <History size={20} color={colors.text} />
+              <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+                Card Activity
+              </Text>
+            </XStack>
 
-          <TransactionFilters
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            dateSort={dateSort}
-            setDateSort={setDateSort}
-            amountSort={amountSort}
-            setAmountSort={setAmountSort}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-          />
+            <TransactionFilters
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              dateSort={dateSort}
+              setDateSort={setDateSort}
+              amountSort={amountSort}
+              setAmountSort={setAmountSort}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+            />
 
-          <BottomSheetSectionList
-            sections={sections}
-            keyExtractor={(item) => item.id}
-            renderSectionHeader={renderSectionHeader}
-            renderItem={renderItem}
-            contentContainerStyle={styles.contentContainer}
-            style={{ backgroundColor: 'transparent' }}
-          />
-        </YStack>
+            {filteredTransactions.length === 0 ? (
+              <YStack f={1} ai="center" jc="flex-start" gap="$4" px="$4" pt="$6">
+                <History size={40} color={colors.primary} />
+                <YStack ai="center" gap="$2">
+                  <Text color={colors.text} fontSize="$5" fontWeight="600" textAlign="center">
+                    No Transactions Found
+                  </Text>
+                  <Text color={colors.textSecondary} fontSize="$3" textAlign="center">
+                    {searchQuery || statusFilter !== 'all'
+                      ? 'Try adjusting your filters'
+                      : 'Transactions for this card will appear here'}
+                  </Text>
+                </YStack>
+              </YStack>
+            ) : (
+              <BottomSheetSectionList
+                sections={sections}
+                keyExtractor={(item) => item.id}
+                renderSectionHeader={renderSectionHeader}
+                renderItem={renderItem}
+                contentContainerStyle={styles.contentContainer}
+                style={{ backgroundColor: 'transparent' }}
+              />
+            )}
+          </YStack>
+        </BottomSheetView>
       </GBottomSheet>
 
       <SpendLimitSheet

@@ -63,7 +63,6 @@ const CardFlipComponent = ({ cardId }) => {
     Toast.show({
       type: 'success',
       text1: 'Card number copied to clipboard',
-      position: 'bottom',
     });
   };
 

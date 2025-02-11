@@ -217,64 +217,70 @@ const LoadingSkeleton = () => {
   const insets = useSafeAreaInsets();
 
   return (
-    <View f={1} bg={colors.background} pt={insets.top - 20}>
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Subscriptions Section Skeleton */}
-        <YStack gap="$4" mb="$6">
-          <XStack ai="center" gap="$2" px="$4">
-            <BellIcon size={20} color={colors.text} />
-            <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
-              Subscriptions
-            </Text>
-          </XStack>
+    <ScrollView
+      f={1}
+      contentContainerStyle={{
+        paddingTop: 20,
+        paddingBottom: insets.bottom,
+      }}
+      showsVerticalScrollIndicator={false}
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      {/* Subscriptions Section Skeleton */}
+      <YStack gap="$4" mb="$6">
+        <XStack ai="center" gap="$2" px="$4">
+          <BellIcon size={20} color={colors.text} />
+          <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+            Subscriptions
+          </Text>
+        </XStack>
 
-          {/* Single Subscription Card Skeleton */}
-          <View px="$4">
-            <SubscriptionCardSkeleton />
-          </View>
-        </YStack>
+        {/* Single Subscription Card Skeleton */}
+        <View px="$4">
+          <SubscriptionCardSkeleton />
+        </View>
+      </YStack>
 
-        {/* Merchant List Skeleton */}
-        <YStack mb="$6" px="$4">
-          <XStack ai="center" jc="space-between" mb="$4">
-            <XStack ai="center" gap="$2">
-              <SkeletonLoader style={{ width: 20, height: 20, borderRadius: 10 }}>
-                <View f={1} />
-              </SkeletonLoader>
-              <SkeletonLoader style={{ width: 150, height: 20 }}>
-                <View f={1} />
-              </SkeletonLoader>
-            </XStack>
-            <SkeletonLoader style={{ width: 80, height: 16 }}>
+      {/* Merchant List Skeleton */}
+      <YStack mb="$6" px="$4">
+        <XStack ai="center" jc="space-between" mb="$4">
+          <XStack ai="center" gap="$2">
+            <SkeletonLoader style={{ width: 20, height: 20, borderRadius: 10 }}>
+              <View f={1} />
+            </SkeletonLoader>
+            <SkeletonLoader style={{ width: 150, height: 20 }}>
               <View f={1} />
             </SkeletonLoader>
           </XStack>
-          {[1, 2, 3].map((key) => (
-            <MerchantCardSkeleton key={key} />
-          ))}
-        </YStack>
+          <SkeletonLoader style={{ width: 80, height: 16 }}>
+            <View f={1} />
+          </SkeletonLoader>
+        </XStack>
+        {[1, 2, 3].map((key) => (
+          <MerchantCardSkeleton key={key} />
+        ))}
+      </YStack>
 
-        {/* Store List Skeleton */}
-        <YStack mb="$6" px="$4">
-          <XStack ai="center" jc="space-between" mb="$4">
-            <XStack ai="center" gap="$2">
-              <SkeletonLoader style={{ width: 20, height: 20, borderRadius: 10 }}>
-                <View f={1} />
-              </SkeletonLoader>
-              <SkeletonLoader style={{ width: 150, height: 20 }}>
-                <View f={1} />
-              </SkeletonLoader>
-            </XStack>
-            <SkeletonLoader style={{ width: 80, height: 16 }}>
+      {/* Store List Skeleton */}
+      <YStack mb="$6" px="$4">
+        <XStack ai="center" jc="space-between" mb="$4">
+          <XStack ai="center" gap="$2">
+            <SkeletonLoader style={{ width: 20, height: 20, borderRadius: 10 }}>
+              <View f={1} />
+            </SkeletonLoader>
+            <SkeletonLoader style={{ width: 150, height: 20 }}>
               <View f={1} />
             </SkeletonLoader>
           </XStack>
-          {[1, 2, 3].map((key) => (
-            <StoreCardSkeleton key={key} />
-          ))}
-        </YStack>
-      </ScrollView>
-    </View>
+          <SkeletonLoader style={{ width: 80, height: 16 }}>
+            <View f={1} />
+          </SkeletonLoader>
+        </XStack>
+        {[1, 2, 3].map((key) => (
+          <StoreCardSkeleton key={key} />
+        ))}
+      </YStack>
+    </ScrollView>
   );
 };
 
@@ -325,8 +331,8 @@ const SubscriptionsScreen = () => {
   }
 
   return (
-    <View f={1} bg={colors.background} pt={insets.top - 20}>
-      <ScrollView contentContainerStyle={styles.container}>
+    <View f={1} bg={colors.background}>
+      <ScrollView contentContainerStyle={styles.container} pt={insets.top - 20}>
         {/* Subscriptions Section */}
         <YStack gap="$4" mb="$6">
           <XStack ai="center" gap="$2" px="$4">
