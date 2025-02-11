@@ -2,7 +2,7 @@ import * as React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Colors, useColors } from '@/config/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FlatList, useColorScheme } from 'react-native';
+import { FlatList, useColorScheme, RefreshControl } from 'react-native';
 import CardCarousel from '../components/CardCarousel';
 import {
   BuildingStorefrontIcon,
@@ -298,12 +298,13 @@ function SearchView({ searchResults, searchText, searchListRef }) {
 function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { cardsByType, getCardDisplayData, isLoading: isCardsLoading, searchCards } = useCards();
+  const { cardsByType, getCardDisplayData, isLoading: isCardsLoading, refetch: refetchCards, searchCards } = useCards();
   const { order, isLoading: isSectionOrderLoading, saveOrder, resetOrder } = useSectionOrder();
   const [isReorganizing, setIsReorganizing] = useState(false);
   const [showRecap, setShowRecap] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const navigation = useNavigation();
   const searchListRef = useRef(null);
 
@@ -374,6 +375,21 @@ function HomeScreen() {
     [searchCards]
   );
 
+  // Add refresh handler
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        refetchCards(),
+        // Add any other data refetch calls here
+      ]);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refetchCards]);
+
   // Set headerSearchBarOptions using useLayoutEffect
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -416,6 +432,16 @@ function HomeScreen() {
       }}
       showsVerticalScrollIndicator={false}
       contentInsetAdjustmentBehavior="automatic"
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={handleRefresh}
+          tintColor={colors.text}
+          colors={[colors.primary]} // Android
+          progressBackgroundColor={colors.backgroundSecondary} // Android
+          progressViewOffset={10}
+        />
+      }
     >
       <SpendingRecapButton onPress={() => setShowRecap(true)} />
       <SpendingSummary />

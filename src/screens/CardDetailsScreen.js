@@ -1,5 +1,5 @@
 import { View, ScrollView, YStack, Text, Separator, XStack, Button, Input, Spinner } from 'tamagui';
-import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, Keyboard, RefreshControl } from 'react-native';
 import { Colors, useColors } from '@/config/colors';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useCards } from '@/hooks/useCards';
@@ -21,6 +21,7 @@ import GBottomSheet, { BottomSheetSectionList, BottomSheetView } from '@gorhom/b
 import TransactionFilters from '@/components/TransactionFilters';
 import Accordion from '@/components/Accordion';
 import BottomSheet from '@/components/BottomSheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const MAP_HEIGHT = 200;
 
@@ -250,10 +251,11 @@ const groupTransactionsByMonth = (transactions) => {
 
 const CardDetailsScreen = () => {
   const colors = useColors();
+  const insets = useSafeAreaInsets();
   const route = useRoute();
   const navigation = useNavigation();
   const { cardId } = route.params || {};
-  const { getCardById, isLoading: isCardsLoading } = useCards();
+  const { getCardById, isLoading: isCardsLoading, refetch: refetchCards } = useCards();
   const { updateCardLimitMutation, togglePauseMutation, closeCardMutation } = useCardMutations();
   const [showSpendLimitSheet, setShowSpendLimitSheet] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
@@ -263,6 +265,7 @@ const CardDetailsScreen = () => {
   const [dateSort, setDateSort] = useState('desc');
   const [amountSort, setAmountSort] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Get card data
   const card = useMemo(() => {
@@ -274,7 +277,11 @@ const CardDetailsScreen = () => {
   const activeSpendingLimit = useMemo(() => getActiveSpendingLimit(card), [card]);
 
   // Get transactions for this card
-  const { data: cardTransactions = [], isLoading: isTransactionsLoading } = useTransactions(cardId);
+  const {
+    data: cardTransactions = [],
+    isLoading: isTransactionsLoading,
+    refetch: refetchTransactions,
+  } = useTransactions(cardId);
 
   // Get filtered transactions
   const filteredTransactions = useMemo(() => {
@@ -347,6 +354,18 @@ const CardDetailsScreen = () => {
       return 'Declined';
     });
   }, []);
+
+  // Add refresh handler
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([refetchCards(), refetchTransactions()]);
+    } catch (error) {
+      console.error('Error refreshing card details:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refetchCards, refetchTransactions]);
 
   // Show loading state while fetching card data
   if (isCardsLoading) {
@@ -435,7 +454,23 @@ const CardDetailsScreen = () => {
 
   return (
     <View f={1} bg={colors.background}>
-      <ScrollView f={1} bg={colors.background}>
+      <ScrollView
+        f={1}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 100,
+        }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.text}
+            colors={[colors.primary]} // Android
+            progressBackgroundColor={colors.backgroundSecondary} // Android
+            progressViewOffset={10}
+          />
+        }
+      >
         <YStack f={1} ai="center" pt="$5" pb={150}>
           <CardFlipComponent cardId={cardId} />
 
