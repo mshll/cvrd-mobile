@@ -44,7 +44,7 @@ function Badge({ icon: Icon, text, color, backgroundColor }) {
   );
 }
 
-function SearchResultItem({ item }) {
+function CompactCardComponent({ item }) {
   const colors = useColors();
   const navigation = useNavigation();
   const { Icon: TypeIcon, color: typeColor } = getCardTypeInfo(item.type);
@@ -124,4 +124,4 @@ function SearchResultItem({ item }) {
   );
 }
 
-export default SearchResultItem;
+export default CompactCardComponent;

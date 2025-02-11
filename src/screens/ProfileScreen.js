@@ -278,7 +278,7 @@ const ProfileScreen = () => {
             hitSlop={40}
             pressStyle={{ backgroundColor: 'transparent', opacity: 0.5 }}
           >
-            <Text color={colors.primary} fontSize="$2" fontWeight="600">
+            <Text color={colors.text} fontSize="$2" fontWeight="500" textDecorationLine="underline">
               Upgrade Plan
             </Text>
           </Button>

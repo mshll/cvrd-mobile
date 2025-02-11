@@ -1,9 +1,9 @@
-import { TamaguiProvider, Theme, YStack, Spinner } from 'tamagui';
+import { TamaguiProvider, Theme, YStack, Spinner, Image } from 'tamagui';
 import tamaguiConfig from './tamagui.config';
 import { NavigationContainer } from '@react-navigation/native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { StatusBar, useColorScheme } from 'react-native';
+import { StatusBar, useColorScheme, AppState, Animated } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -40,8 +40,72 @@ import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ColorSchemeProvider } from '@/context/ColorSchemeContext';
 import { getToken } from '@/api/storage';
+import { Colors } from '@/config/colors';
 
 const queryClient = new QueryClient();
+
+// Security Overlay Component
+const SecurityOverlay = ({ visible }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [isRendered, setIsRendered] = useState(visible);
+
+  useEffect(() => {
+    if (visible) {
+      setIsRendered(true);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }).start(() => {
+        setIsRendered(false);
+      });
+    }
+  }, [visible]);
+
+  if (!isRendered) return null;
+
+  return (
+    <Animated.View
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: Colors.dark.background,
+        justifyContent: 'center',
+        alignItems: 'center',
+        opacity: fadeAnim,
+        zIndex: 9999,
+      }}
+    >
+      <Animated.View
+        style={{
+          opacity: fadeAnim,
+          transform: [
+            {
+              scale: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.9, 1],
+              }),
+            },
+          ],
+        }}
+      >
+        <Image
+          source={require('./assets/logo-primary.png')}
+          style={{ width: 200, height: 80, resizeMode: 'contain' }}
+        />
+      </Animated.View>
+    </Animated.View>
+  );
+};
 
 const LoadingScreen = () => (
   <YStack f={1} ai="center" jc="center" backgroundColor="$background">
@@ -100,17 +164,29 @@ export default function App() {
     Archivo_900Black_Italic,
   });
   const colorScheme = useColorScheme();
+  const [showSecurityOverlay, setShowSecurityOverlay] = useState(false);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      console.log('AppState', nextAppState);
+      setShowSecurityOverlay(nextAppState !== 'active');
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   if (!fontsLoaded) return null;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ActionSheetProvider>
-        <SafeAreaProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <TamaguiProvider config={tamaguiConfig}>
-              <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
-                <ColorSchemeProvider>
+    <TamaguiProvider config={tamaguiConfig}>
+      <ColorSchemeProvider>
+        <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
+          <QueryClientProvider client={queryClient}>
+            <ActionSheetProvider>
+              <SafeAreaProvider>
+                <GestureHandlerRootView style={{ flex: 1 }}>
                   <AuthProvider>
                     <NavigationContainer>
                       <BreadcrumbProvider>
@@ -119,17 +195,18 @@ export default function App() {
                             <StatusBar animated={true} barStyle="default" />
                             <Navigation />
                             <Toast config={toastConfig} />
+                            <SecurityOverlay visible={showSecurityOverlay} />
                           </BottomSheetModalProvider>
                         </PortalProvider>
                       </BreadcrumbProvider>
                     </NavigationContainer>
                   </AuthProvider>
-                </ColorSchemeProvider>
-              </Theme>
-            </TamaguiProvider>
-          </GestureHandlerRootView>
-        </SafeAreaProvider>
-      </ActionSheetProvider>
-    </QueryClientProvider>
+                </GestureHandlerRootView>
+              </SafeAreaProvider>
+            </ActionSheetProvider>
+          </QueryClientProvider>
+        </Theme>
+      </ColorSchemeProvider>
+    </TamaguiProvider>
   );
 }

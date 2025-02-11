@@ -36,7 +36,7 @@ import { SpendingRecapButton } from '@/components/SpendingRecapButton';
 import { SpendingRecapStory } from '@/components/SpendingRecapStory';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '@/navigation/paths';
-import SearchResultItem from '@/components/SearchResultItem';
+import CompactCardComponent from '@/components/CompactCardComponent';
 
 // ============================================================================
 // Constants & Config
@@ -262,7 +262,7 @@ function SearchView({ searchResults, searchText, searchListRef }) {
     <FlatList
       ref={searchListRef}
       data={searchResults}
-      renderItem={({ item }) => <SearchResultItem item={item} />}
+      renderItem={({ item }) => <CompactCardComponent item={item} />}
       keyExtractor={(item) => item.id.toString()}
       ListEmptyComponent={
         <YStack f={1} ai="center" jc="center" gap="$4" px="$4" pt="$10">

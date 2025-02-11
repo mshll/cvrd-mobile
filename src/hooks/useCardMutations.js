@@ -115,11 +115,11 @@ export function useCardMutations() {
       });
     },
     onSuccess: (data, cardId) => {
-      Toast.show({
-        type: 'success',
-        text1: 'Success',
-        text2: `Card ${data.pinned ? 'pinned' : 'unpinned'} successfully`,
-      });
+      // Toast.show({
+      //   type: 'success',
+      //   text1: 'Success',
+      //   text2: `Card ${data.pinned ? 'pinned' : 'unpinned'} successfully`,
+      // });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: CARDS_QUERY_KEY });
