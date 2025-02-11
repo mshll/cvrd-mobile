@@ -8,14 +8,15 @@ import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
 import { QuestionMarkCircleIcon, PencilIcon, ChevronLeftIcon } from 'react-native-heroicons/solid';
 import BottomSheet from '@/components/BottomSheet';
 import Slider from '@react-native-community/slider';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // Convert miles to km
 const DEFAULT_RADIUS = 0.5; // in km
-const MAX_RADIUS = 100; // in km
-const MIN_RADIUS = 0.2; // in km
+const MAX_RADIUS = 10; // in km for slider
+const MIN_RADIUS = 0.1; // in km
 
 const EditLocationScreen = () => {
   const colors = useColors();
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
   const { cardId, initialLocation, initialRadius, onSave } = route.params;
@@ -23,8 +24,10 @@ const EditLocationScreen = () => {
   const card = cardId ? getCardById(cardId) : null;
   const mapRef = useRef(null);
 
+  console.log('card', card);
+
   // Get the appropriate color - either from existing card or use primary color
-  const markerColor = card ? Colors.cards[card.card_color] : colors.primary;
+  const markerColor = card ? card.cardColor : colors.primary;
 
   // State
   const [location, setLocation] = useState(
@@ -64,7 +67,8 @@ const EditLocationScreen = () => {
     setTempRadius(text);
     const value = parseFloat(text);
     if (!isNaN(value)) {
-      const clampedValue = Math.min(Math.max(value, MIN_RADIUS), MAX_RADIUS);
+      // Only clamp the minimum value, allow any maximum
+      const clampedValue = Math.max(value, MIN_RADIUS);
       setRadius(clampedValue);
     }
   };
@@ -170,7 +174,7 @@ const EditLocationScreen = () => {
       {/* Bottom Controls */}
       <YStack
         position="absolute"
-        bottom={40}
+        bottom={insets.bottom + 75}
         left="$4"
         right="$4"
         gap="$4"

@@ -257,23 +257,26 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
         </View>
 
         {/* Location Info */}
-        <YStack px={12} py={12} gap={2}>
-          {location.address ? (
-            <Text color={colors.text} fontSize="$3" numberOfLines={2}>
-              {location.address}
-            </Text>
-          ) : (
-            <Text color={colors.textSecondary} fontSize="$3">
-              Loading address...
-            </Text>
-          )}
-
-          {/* Radius Display */}
-          <XStack py="$2" br={8} gap="$2" ai="center">
-            <Text color={colors.text} fontSize="$5" fontFamily="$archivoBlack">
-              {radius.toFixed(1)} km
-            </Text>
+        <YStack px={12} py={12} gap={8} borderTopWidth={1} borderTopColor={colors.border}>
+          <XStack jc="space-between" ai="center">
+            <XStack ai="center" gap="$2">
+              <Text color={colors.text} fontSize="$4" fontWeight="600">
+                {location.address ? (
+                  <Text color={colors.text} fontSize="$3" numberOfLines={2}>
+                    {location.address}
+                  </Text>
+                ) : (
+                  <Text color={colors.textSecondary} fontSize="$3">
+                    Loading address...
+                  </Text>
+                )}
+              </Text>
+            </XStack>
           </XStack>
+
+          <Text color={colors.textSecondary} fontSize="$3" fontFamily="$mono">
+            {radius.toFixed(1)} km radius
+          </Text>
         </YStack>
       </View>
 
@@ -607,11 +610,11 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   };
 
   return (
-    <View f={1} backgroundColor={colors.background}>
+    <View f={1} backgroundColor={colors.background} pt={insets.top - 20}>
       <ScrollView contentContainerStyle={styles.container}>
         {/* Header Section */}
         <Animated.View style={[{ flex: 1 }, contentStyle]}>
-          <YStack gap="$2" pt={insets.top} pb="$6">
+          <YStack gap="$2" pb="$6">
             <XStack ai="flex-start" gap="$3">
               <View backgroundColor={`${colors.primary}15`} p="$3" br={12}>
                 <Icon size={24} color={colors.primary} />

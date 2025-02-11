@@ -108,7 +108,7 @@ const ActivityScreen = () => {
   return (
     <View f={1} bg={colors.background}>
       {/* Header Section */}
-      <YStack pt={insets.top - 20} px={16} gap={16} backgroundColor={colors.background}>
+      <YStack pt={20} px={16} gap={16} backgroundColor={colors.background}>
         <XStack ai="center" gap="$2">
           <History size={20} color={colors.text} />
           <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">

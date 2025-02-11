@@ -24,8 +24,12 @@ const Stack = createNativeStackNavigator();
 const defaultScreenOptions = (colors) => ({
   headerShown: true,
   headerBackButtonDisplayMode: 'minimal',
+  headerShadowVisible: false,
   headerStyle: {
     backgroundColor: colors.background,
+    elevation: 0,
+    shadowOpacity: 0,
+    borderBottomWidth: 0,
   },
   headerTintColor: colors.text,
   contentStyle: {
@@ -111,6 +115,8 @@ const AnimatedLogo = ({ routeName }) => {
 
 export const HomeStack = () => {
   const colors = useColors();
+  const navigation = useNavigation();
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -135,7 +141,7 @@ export const HomeStack = () => {
 export const ActivityStack = () => {
   const colors = useColors();
   return (
-    <Stack.Navigator screenOptions={defaultScreenOptions(colors)}>
+    <Stack.Navigator screenOptions={{ ...defaultScreenOptions(colors) }}>
       <Stack.Screen
         options={{
           headerTitle: () => <AnimatedLogo routeName={Paths.ACTIVITY_SCREEN} />,

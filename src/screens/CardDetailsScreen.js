@@ -2,39 +2,17 @@ import { View, ScrollView, YStack, Text, Separator, XStack, Button, Input, Spinn
 import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Colors, useColors } from '@/config/colors';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import CardComponent from '@/components/CardComponent';
 import { useCards } from '@/hooks/useCards';
 import { useCardMutations } from '@/hooks/useCardMutations';
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
-import {
-  Edit3,
-  Pause,
-  PauseCircle,
-  Play,
-  Share2,
-  Trash2,
-  BanknotesIcon,
-  Search,
-  ArrowDown,
-  ArrowUp,
-  History,
-} from '@tamagui/lucide-icons';
+import * as Location from 'expo-location';
+import { History } from '@tamagui/lucide-icons';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
 import CardFlipComponent from '@/components/CardFlipComponent';
-import {
-  PaintBrushIcon,
-  PauseIcon,
-  PencilIcon,
-  PlayIcon,
-  ShareIcon,
-  TrashIcon,
-  ChevronDownIcon,
-} from 'react-native-heroicons/solid';
-import { CARD_WIDTH_LARGE, CARD_HEIGHT_LARGE } from '@/utils/cardUtils';
+import { PaintBrushIcon, PauseIcon, PlayIcon, TrashIcon, MapPinIcon } from 'react-native-heroicons/solid';
 import { formatCurrency } from '@/utils/utils';
 import { Paths } from '@/navigation/paths';
 import { ArrowUpOnSquareIcon } from 'react-native-heroicons/outline';
-import { useActionSheet } from '@expo/react-native-action-sheet';
 import SpendLimitMenu from '@/components/SpendLimitMenu';
 import Toast from 'react-native-toast-message';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -122,9 +100,42 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
   const region = {
     latitude,
     longitude,
-    latitudeDelta: (radius * 2) / 69,
-    longitudeDelta: (radius * 2) / 69,
+    latitudeDelta: (radius * 2) / 50,
+    longitudeDelta: (radius * 2) / 50,
   };
+
+  const [location, setLocation] = useState({});
+
+  const getLocationInfo = async (latitude, longitude) => {
+    try {
+      const response = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
+
+      if (response && response[0]) {
+        const locationInfo = response[0];
+
+        // Create formatted address with just street and country
+        const formattedAddress = [locationInfo.street, locationInfo.country].filter(Boolean).join(', ');
+
+        // Update the location object with the address
+        setLocation((prev) => ({
+          ...prev,
+          latitude,
+          longitude,
+          address: formattedAddress,
+          country: locationInfo.country,
+        }));
+      }
+    } catch (error) {
+      console.error('Error getting location info:', error);
+    }
+  };
+
+  useEffect(() => {
+    getLocationInfo(latitude, longitude);
+  }, [latitude, longitude]);
 
   return (
     <View
@@ -136,39 +147,60 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
         borderColor: colors.border,
       }}
     >
-      <View style={{ height: MAP_HEIGHT, borderRadius: 12, overflow: 'hidden' }}>
+      <View style={{ height: MAP_HEIGHT, overflow: 'hidden' }}>
         <MapView
           style={StyleSheet.absoluteFill}
           initialRegion={region}
           scrollEnabled={false}
+          zoomEnabled={false}
           rotateEnabled={false}
-          userLocationAnnotationTitle=""
-          mapType="mutedStandard"
         >
-          <Marker
-            coordinate={{
-              latitude,
-              longitude,
-            }}
-            pinColor={color}
-          />
+          <Marker coordinate={{ latitude, longitude }} pinColor={color} />
           <MapCircle
-            center={{
-              latitude,
-              longitude,
-            }}
+            center={{ latitude, longitude }}
             radius={radius * 1609.34}
-            strokeWidth={1}
+            fillColor={`${color}20`}
             strokeColor={color}
-            fillColor={`${color}40`}
+            strokeWidth={2}
           />
         </MapView>
+
+        {onEdit && (
+          <XStack position="absolute" top={12} right={12} gap="$2">
+            <Button
+              size="$2"
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={onEdit}
+              borderWidth={1}
+              borderColor={colors.border}
+              br={8}
+              px="$3"
+            >
+              <Text color={colors.text} fontSize="$2" fontWeight="600">
+                Edit
+              </Text>
+            </Button>
+          </XStack>
+        )}
       </View>
-      {onEdit && (
-        <View position="absolute" top={12} right={12}>
-          <EditButton onPress={onEdit} />
-        </View>
-      )}
+
+      <YStack px={12} py={12} gap={8} borderTopWidth={1} borderTopColor={colors.border}>
+        <XStack jc="space-between" ai="center">
+          <XStack ai="center" gap="$2">
+            {/* <View backgroundColor={`${color}15`} p="$2" br={8}>
+              <MapPinIcon size={16} color={color} />
+            </View> */}
+            <Text color={colors.text} fontSize="$4" fontWeight="600">
+              {location.address}
+            </Text>
+          </XStack>
+        </XStack>
+
+        <Text color={colors.textSecondary} fontSize="$3" fontFamily="$mono">
+          {radius.toFixed(1)} km radius
+        </Text>
+      </YStack>
     </View>
   );
 };
@@ -522,28 +554,13 @@ const CardDetailsScreen = () => {
 
             {/* Location Map (only for location cards) */}
             {card.cardType === 'LOCATION_LOCKED' && card.longitude && card.latitude && (
-              <View
-                style={{
-                  borderRadius: 12,
-                  overflow: 'hidden',
-                  backgroundColor: colors.backgroundSecondary,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                }}
-              >
-                <YStack p="$4" gap="$3">
-                  <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                    Location
-                  </Text>
-                  <LocationMap
-                    latitude={card.latitude}
-                    longitude={card.longitude}
-                    radius={card.radius}
-                    color={Colors.cards[card.cardColor] || card.cardColor}
-                    onEdit={handleEditLocation}
-                  />
-                </YStack>
-              </View>
+              <LocationMap
+                latitude={card.latitude}
+                longitude={card.longitude}
+                radius={card.radius}
+                color={Colors.cards[card.cardColor] || card.cardColor}
+                onEdit={handleEditLocation}
+              />
             )}
 
             {/* Card Details Accordion */}
