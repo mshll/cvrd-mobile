@@ -39,7 +39,7 @@ import toastConfig from '@/config/toastConfig';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ColorSchemeProvider } from '@/context/ColorSchemeContext';
-import { getToken } from '@/api/storage';
+import { deleteToken, getToken } from '@/api/storage';
 import { Colors } from '@/config/colors';
 
 const queryClient = new QueryClient();

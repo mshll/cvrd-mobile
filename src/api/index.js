@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { getToken } from './storage';
 
-let IP = '';
+// let IP = '';
 // input ip address here (comment out to use localhost)
-IP = '192.168.2.37';
+export const IP = '192.168.8.227';
 
 const instance = axios.create({
   baseURL: `http://${IP || 'localhost'}:8080`,
@@ -25,7 +25,7 @@ instance.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.log('🔄 Error:', error.response.data);
+    console.log('🚩 Error:', error.response.data);
     return Promise.reject(error);
   }
 );

@@ -70,10 +70,14 @@ function CardCarousel({ title, data = [], icon: Icon }) {
     const index = Math.round(position / ITEM_WIDTH);
 
     if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({
-        offset: index * ITEM_WIDTH,
-        animated: true,
-      });
+      try {
+        flatListRef.current.scrollToOffset({
+          offset: index * ITEM_WIDTH,
+          animated: true,
+        });
+      } catch (error) {
+        console.log('❌ Error scrolling to offset:', error);
+      }
     }
   }, []);
 
@@ -130,10 +134,14 @@ function CardCarousel({ title, data = [], icon: Icon }) {
     // Center the first card after mounting
     if (flatListRef.current && data.length > 0) {
       setTimeout(() => {
-        flatListRef.current.scrollToOffset({
-          offset: 0,
-          animated: false,
-        });
+        try {
+          flatListRef.current.scrollToOffset({
+            offset: 0,
+            animated: false,
+          });
+        } catch (error) {
+          console.log('❌ Error scrolling to offset:', error);
+        }
       }, 100);
     }
   }, [data]);

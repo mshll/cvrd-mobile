@@ -212,6 +212,8 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
         color: cardColor,
       };
 
+      console.log('finalCardData', finalCardData);
+
       // Call the appropriate mutation based on card type
       switch (cardType) {
         case 'BURNER':
