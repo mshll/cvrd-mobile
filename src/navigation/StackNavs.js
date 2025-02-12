@@ -6,7 +6,7 @@ import { Paths } from './paths';
 import SubscriptionsScreen from '@/screens/SubscriptionsScreen';
 import AllMerchantsScreen from '@/screens/AllMerchantsScreen';
 import AllStoresScreen from '@/screens/AllStoresScreen';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { Image, TouchableOpacity, Animated, View, Easing, useColorScheme } from 'react-native';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { TransitionPresets } from '@react-navigation/stack';

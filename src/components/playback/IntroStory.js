@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Dimensions } from 'react-native';
 import { YStack } from 'tamagui';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,

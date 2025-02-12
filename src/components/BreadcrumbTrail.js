@@ -3,7 +3,7 @@ import { View } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { useAnimatedStyle, withDelay, withSpring } from 'react-native-reanimated';
 import { useBreadcrumb } from '@/context/BreadcrumbContext';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { Dimensions } from 'react-native';
 
 const window = Dimensions.get('window');

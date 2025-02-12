@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Button, Text, XStack } from 'tamagui';
 import { SparklesIcon } from 'react-native-heroicons/solid';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 
 export function SpendingRecapButton({ onPress }) {
   const colors = useColors();

@@ -1,5 +1,5 @@
 import { View, Text, YStack, XStack, Button, Input } from 'tamagui';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { Search, ArrowDown, ArrowUp } from '@tamagui/lucide-icons';
 
 const TransactionFilters = ({

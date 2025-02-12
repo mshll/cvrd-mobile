@@ -1,6 +1,6 @@
 import { View, ScrollView, YStack, Text, Separator, XStack, Button, Input, Spinner } from 'tamagui';
-import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Colors, useColors } from '@/config/colors';
+import { StyleSheet, TouchableWithoutFeedback, Keyboard, RefreshControl } from 'react-native';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useCards } from '@/hooks/useCards';
 import { useCardMutations } from '@/hooks/useCardMutations';
@@ -9,18 +9,20 @@ import * as Location from 'expo-location';
 import { History } from '@tamagui/lucide-icons';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
 import CardFlipComponent from '@/components/CardFlipComponent';
-import { PaintBrushIcon, PauseIcon, PlayIcon, TrashIcon, MapPinIcon } from 'react-native-heroicons/solid';
+import { PaintBrushIcon, PauseIcon, PlayIcon, TrashIcon, MapPinIcon, StarIcon } from 'react-native-heroicons/solid';
+import { StarIcon as StarIconOutline } from 'react-native-heroicons/outline';
 import { formatCurrency } from '@/utils/utils';
 import { Paths } from '@/navigation/paths';
 import { ArrowUpOnSquareIcon } from 'react-native-heroicons/outline';
 import SpendLimitMenu from '@/components/SpendLimitMenu';
 import Toast from 'react-native-toast-message';
 import { useTransactions } from '@/hooks/useTransactions';
-import TransactionCard from '@/components/TransactionCard';
-import GBottomSheet, { BottomSheetSectionList, BottomSheetView } from '@gorhom/bottom-sheet';
-import TransactionFilters from '@/components/TransactionFilters';
+import GBottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import Accordion from '@/components/Accordion';
 import BottomSheet from '@/components/BottomSheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import TransactionList from '@/components/TransactionList';
+import TransactionListHeader from '@/components/TransactionListHeader';
 
 const MAP_HEIGHT = 200;
 
@@ -97,14 +99,47 @@ const EditButton = ({ onPress, disabled }) => {
 
 const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
   const colors = useColors();
-  const region = {
-    latitude,
-    longitude,
-    latitudeDelta: (radius * 2) / 50,
-    longitudeDelta: (radius * 2) / 50,
-  };
-
+  const mapRef = useRef(null);
   const [location, setLocation] = useState({});
+  const [userLocation, setUserLocation] = useState(null);
+
+  const region = useMemo(
+    () => ({
+      latitude,
+      longitude,
+      latitudeDelta: (radius * 2) / 50,
+      longitudeDelta: (radius * 2) / 50,
+    }),
+    [latitude, longitude, radius]
+  );
+
+  // Get user's current location
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.log('Permission to access location was denied');
+          return;
+        }
+
+        const location = await Location.getCurrentPositionAsync({});
+        setUserLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+      } catch (error) {
+        console.error('Error getting current location:', error);
+      }
+    })();
+  }, []);
+
+  // Update map region when coordinates change
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(region, 500);
+    }
+  }, [region]);
 
   const getLocationInfo = async (latitude, longitude) => {
     try {
@@ -149,20 +184,32 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
     >
       <View style={{ height: MAP_HEIGHT, overflow: 'hidden' }}>
         <MapView
+          ref={mapRef}
           style={StyleSheet.absoluteFill}
           initialRegion={region}
           scrollEnabled={false}
           zoomEnabled={false}
           rotateEnabled={false}
+          showsUserLocation={true}
+          showsMyLocationButton={false}
         >
           <Marker coordinate={{ latitude, longitude }} pinColor={color} />
           <MapCircle
             center={{ latitude, longitude }}
-            radius={radius * 1609.34}
+            radius={radius * 1000} // Convert km to meters
             fillColor={`${color}20`}
             strokeColor={color}
             strokeWidth={2}
           />
+          {userLocation && (
+            <MapCircle
+              center={userLocation}
+              radius={10}
+              fillColor={colors.primary}
+              strokeColor={colors.primaryDark}
+              strokeWidth={2}
+            />
+          )}
         </MapView>
 
         {onEdit && (
@@ -223,38 +270,30 @@ const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
   );
 };
 
-const groupTransactionsByMonth = (transactions) => {
-  const groups = transactions.reduce((acc, transaction) => {
-    const date = new Date(transaction.date);
-    const monthYear = date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+const ActivitySection = ({ transactions = [], isLoading = false }) => {
+  const colors = useColors();
 
-    if (!acc[monthYear]) {
-      acc[monthYear] = [];
-    }
-    acc[monthYear].push(transaction);
-    return acc;
-  }, {});
-
-  // Convert to SectionList format and sort
-  return Object.entries(groups)
-    .sort(([monthA], [monthB]) => {
-      const dateA = new Date(monthA);
-      const dateB = new Date(monthB);
-      return dateB - dateA;
-    })
-    .map(([month, data]) => ({
-      title: month,
-      data,
-    }));
+  return (
+    <YStack f={1} gap="$4">
+      <TransactionList
+        transactions={transactions}
+        showHeader={false}
+        containerStyle={{ paddingTop: 8 }}
+        sectionBackground={colors.backgroundSecondary}
+        cardBackgroundColor={colors.backgroundTertiary}
+      />
+    </YStack>
+  );
 };
 
 const CardDetailsScreen = () => {
   const colors = useColors();
+  const insets = useSafeAreaInsets();
   const route = useRoute();
   const navigation = useNavigation();
   const { cardId } = route.params || {};
-  const { getCardById, isLoading: isCardsLoading } = useCards();
-  const { updateCardLimitMutation, togglePauseMutation, closeCardMutation } = useCardMutations();
+  const { getCardById, isLoading: isCardsLoading, refetch: refetchCards } = useCards();
+  const { updateCardLimitMutation, togglePauseMutation, togglePinMutation, closeCardMutation } = useCardMutations();
   const [showSpendLimitSheet, setShowSpendLimitSheet] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
   const bottomSheetRef = useRef(null);
@@ -263,6 +302,18 @@ const CardDetailsScreen = () => {
   const [dateSort, setDateSort] = useState('desc');
   const [amountSort, setAmountSort] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortOption, setSortOption] = useState('date');
+
+  // Add focus effect to refetch card data
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      refetchCards();
+    });
+
+    return unsubscribe;
+  }, [navigation, refetchCards]);
 
   // Get card data
   const card = useMemo(() => {
@@ -274,7 +325,11 @@ const CardDetailsScreen = () => {
   const activeSpendingLimit = useMemo(() => getActiveSpendingLimit(card), [card]);
 
   // Get transactions for this card
-  const { data: cardTransactions = [], isLoading: isTransactionsLoading } = useTransactions(cardId);
+  const {
+    data: cardTransactions = [],
+    isLoading: isTransactionsLoading,
+    refetch: refetchTransactions,
+  } = useTransactions(cardId);
 
   // Get filtered transactions
   const filteredTransactions = useMemo(() => {
@@ -307,46 +362,17 @@ const CardDetailsScreen = () => {
     return filtered;
   }, [cardTransactions, searchQuery, dateSort, amountSort, statusFilter]);
 
-  // Update sections with filtered transactions
-  const sections = useMemo(() => {
-    return groupTransactionsByMonth(filteredTransactions);
-  }, [filteredTransactions]);
-
-  const renderSectionHeader = useCallback(
-    ({ section: { title } }) => {
-      return (
-        <View style={styles.sectionHeader} backgroundColor={colors.backgroundSecondary}>
-          <Text color={colors.textSecondary} fontSize={16} fontFamily="$archivoBlack">
-            {title}
-          </Text>
-        </View>
-      );
-    },
-    [colors]
-  );
-
-  const renderItem = useCallback(({ item }) => {
-    return <TransactionCard transaction={item} />;
-  }, []);
-
-  const toggleDateSort = useCallback(() => {
-    setDateSort((prev) => (prev === 'desc' ? 'asc' : 'desc'));
-    setAmountSort(null);
-  }, []);
-
-  const toggleAmountSort = useCallback(() => {
-    setAmountSort((prev) => {
-      if (!prev || prev === 'asc') return 'desc';
-      return 'asc';
-    });
-  }, []);
-
-  const toggleStatusFilter = useCallback(() => {
-    setStatusFilter((prev) => {
-      if (prev === 'all' || prev === 'Declined') return 'Settled';
-      return 'Declined';
-    });
-  }, []);
+  // Add refresh handler
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([refetchCards(), refetchTransactions()]);
+    } catch (error) {
+      console.error('Error refreshing card details:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refetchCards, refetchTransactions]);
 
   // Show loading state while fetching card data
   if (isCardsLoading) {
@@ -379,8 +405,16 @@ const CardDetailsScreen = () => {
     navigation.navigate(Paths.EDIT_CARD, { cardId });
   };
 
-  const handleShare = () => {
-    // TODO: Implement share functionality
+  const handleTogglePin = () => {
+    if (card && !card.closed) {
+      togglePinMutation.mutate(cardId);
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Cannot Pin Card',
+        text2: 'This card is closed and cannot be modified',
+      });
+    }
   };
 
   const handleTogglePause = () => {
@@ -435,7 +469,23 @@ const CardDetailsScreen = () => {
 
   return (
     <View f={1} bg={colors.background}>
-      <ScrollView f={1} bg={colors.background}>
+      <ScrollView
+        f={1}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 100,
+        }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.text}
+            colors={[colors.primary]} // Android
+            progressBackgroundColor={colors.backgroundSecondary} // Android
+            progressViewOffset={10}
+          />
+        }
+      >
         <YStack f={1} ai="center" pt="$5" pb={150}>
           <CardFlipComponent cardId={cardId} />
 
@@ -452,8 +502,12 @@ const CardDetailsScreen = () => {
               </ActionButton>
             </YStack>
             <YStack gap="$2" ai="center" jc="center">
-              <ActionButton onPress={handleShare} disabled={card.closed}>
-                <ArrowUpOnSquareIcon size={25} color={colors.text} />
+              <ActionButton onPress={handleTogglePin} disabled={card.closed}>
+                {card.pinned ? (
+                  <StarIcon size={25} color={colors.text} />
+                ) : (
+                  <StarIconOutline size={25} color={colors.text} />
+                )}
               </ActionButton>
             </YStack>
             <YStack gap="$2" ai="center" jc="center">
@@ -643,23 +697,24 @@ const CardDetailsScreen = () => {
         style={{ minHeight: 500 }}
       >
         <BottomSheetView style={{ flex: 1 }}>
-          <YStack px="$4" gap="$2" f={1}>
-            <XStack ai="center" gap="$2" my="$2">
+          <YStack gap="$2" f={1}>
+            <XStack ai="center" gap="$2" my="$2" px="$4">
               <History size={20} color={colors.text} />
               <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
                 Card Activity
               </Text>
             </XStack>
 
-            <TransactionFilters
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              dateSort={dateSort}
-              setDateSort={setDateSort}
-              amountSort={amountSort}
-              setAmountSort={setAmountSort}
+            <TransactionListHeader
+              searchText={searchQuery}
+              onSearch={setSearchQuery}
+              showFilters={showFilters}
+              setShowFilters={setShowFilters}
+              sortOption={sortOption}
+              setSortOption={setSortOption}
               statusFilter={statusFilter}
               setStatusFilter={setStatusFilter}
+              backgroundColor={colors.backgroundTertiary}
             />
 
             {filteredTransactions.length === 0 ? (
@@ -677,14 +732,7 @@ const CardDetailsScreen = () => {
                 </YStack>
               </YStack>
             ) : (
-              <BottomSheetSectionList
-                sections={sections}
-                keyExtractor={(item) => item.id}
-                renderSectionHeader={renderSectionHeader}
-                renderItem={renderItem}
-                contentContainerStyle={styles.contentContainer}
-                style={{ backgroundColor: 'transparent' }}
-              />
+              <ActivitySection transactions={filteredTransactions} />
             )}
           </YStack>
         </BottomSheetView>

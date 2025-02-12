@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Pressable, Dimensions, StyleSheet } from 'react-native';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { XStack } from 'tamagui';
 import { Portal } from '@gorhom/portal';
 import Animated, {

@@ -1,6 +1,6 @@
 import { YStack, XStack, Button, Input, Text } from 'tamagui';
 import { TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useState, useEffect, useCallback } from 'react';
 
 const DURATION_OPTIONS = [

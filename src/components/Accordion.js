@@ -1,5 +1,5 @@
 import { View, Text, YStack, Button, XStack } from 'tamagui';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { useState, useRef, useEffect } from 'react';
 import { ChevronDownIcon, ChevronUpIcon } from 'react-native-heroicons/outline';
 import { Animated, LayoutAnimation } from 'react-native';

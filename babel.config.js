@@ -1,3 +1,4 @@
+// api.cache(false);
 module.exports = {
   plugins: [
     [
@@ -12,6 +13,7 @@ module.exports = {
     ],
     'inline-dotenv',
     'react-native-reanimated/plugin', // needs to be last
+    'module:react-native-dotenv',
   ],
   presets: ['module:@react-native/babel-preset'],
 };

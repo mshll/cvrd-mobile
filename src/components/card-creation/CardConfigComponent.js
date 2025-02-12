@@ -1,5 +1,5 @@
 import { View, Text, YStack, XStack, Button, Input, Circle, Switch, Slider } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useState, useEffect, useCallback } from 'react';
 import {
   PlusIcon,

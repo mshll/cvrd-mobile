@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import { YStack } from 'tamagui';
 import { ArrowTrendingUpIcon } from 'react-native-heroicons/solid';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { styles } from './styles';
 
 export function OutroStory() {

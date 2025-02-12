@@ -1,5 +1,5 @@
 import { View, Text, Button, XStack, YStack } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { StyleSheet, TouchableOpacity, Linking, Image } from 'react-native';
 import { ArrowUpRightIcon, CheckIcon } from 'react-native-heroicons/outline';
 import { BlurView } from 'expo-blur';
@@ -75,7 +75,6 @@ const MerchantCard = ({ merchant }) => {
               ) : (
                 <ArrowUpRightIcon size={16} color={colors.text} />
               )
-
             }
             onPress={handlePress}
             pressStyle={{ backgroundColor: isSubscribed ? Colors.cards.blue + '30' : colors.backgroundTertiary }}

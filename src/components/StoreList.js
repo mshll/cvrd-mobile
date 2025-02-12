@@ -1,5 +1,5 @@
 import { View, Text, YStack, XStack, Button } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { StyleSheet } from 'react-native';
 import { TagIcon } from 'react-native-heroicons/solid';
 import { ChevronRightIcon } from 'react-native-heroicons/outline';

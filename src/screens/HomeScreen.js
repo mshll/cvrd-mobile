@@ -1,42 +1,33 @@
 import * as React from 'react';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Colors, useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FlatList, useColorScheme } from 'react-native';
+import { RefreshControl } from 'react-native';
 import CardCarousel from '../components/CardCarousel';
-import {
-  BuildingStorefrontIcon,
-  FireIcon,
-  MapPinIcon,
-  TagIcon,
-  ArrowsUpDownIcon,
-  AdjustmentsHorizontalIcon,
-  BanknotesIcon,
-  CreditCardIcon,
-  PauseIcon,
-  MagnifyingGlassIcon,
-  XCircleIcon,
-  ShareIcon,
-  StarIcon,
-} from 'react-native-heroicons/solid';
 import { useCards } from '@/hooks/useCards';
 import { useSectionOrder } from '@/hooks/useSectionOrder';
 import { ScrollView, View, Button, XStack, Text, YStack, Spinner, Card, Avatar } from 'tamagui';
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import DraggableList from '@/components/DraggableList';
-import { BlurView } from 'expo-blur';
-import { user } from '@/data/user';
 import { formatCurrency } from '@/utils/utils';
-import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
-import { Platform, StyleSheet } from 'react-native';
-import { FullWindowOverlay } from 'react-native-screens';
 import BottomSheet from '@/components/BottomSheet';
 import { useUser } from '@/hooks/useUser';
 import { SpendingRecapButton } from '@/components/SpendingRecapButton';
 import { SpendingRecapStory } from '@/components/SpendingRecapStory';
 import { useNavigation } from '@react-navigation/native';
-import { Paths } from '@/navigation/paths';
 import CompactCardComponent from '@/components/CompactCardComponent';
+import { TouchableOpacity } from 'react-native';
+import SearchBar from '@/components/SearchBar';
+import SearchView from '@/components/SearchView';
+import {
+  BuildingStorefrontIcon,
+  FireIcon,
+  MapPinIcon,
+  TagIcon,
+  AdjustmentsHorizontalIcon,
+  BanknotesIcon,
+  MagnifyingGlassIcon,
+  StarIcon,
+} from 'react-native-heroicons/solid';
 
 // ============================================================================
 // Constants & Config
@@ -255,42 +246,6 @@ function ReorganizeSheet({ isOpen, onOpenChange, sections, onReorder, onReset })
   );
 }
 
-function SearchView({ searchResults, searchText, searchListRef }) {
-  const colors = useColors();
-  const insets = useSafeAreaInsets();
-  return (
-    <FlatList
-      ref={searchListRef}
-      data={searchResults}
-      renderItem={({ item }) => <CompactCardComponent item={item} />}
-      keyExtractor={(item) => item.id.toString()}
-      ListEmptyComponent={
-        <YStack f={1} ai="center" jc="center" gap="$4" px="$4" pt="$10">
-          <MagnifyingGlassIcon size={40} color={`${colors.primary}`} />
-
-          <YStack ai="center" gap="$2">
-            <Text color={colors.text} fontSize="$6" fontWeight="600" textAlign="center">
-              No Results for "{searchText}"
-            </Text>
-            <Text color={colors.textSecondary} fontSize="$2" textAlign="center">
-              Try searching for a different card or merchant.
-            </Text>
-          </YStack>
-        </YStack>
-      }
-      contentContainerStyle={{
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        paddingTop: 20,
-        paddingBottom: insets.bottom,
-      }}
-      ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-      style={{ flex: 1 }}
-      contentInsetAdjustmentBehavior="automatic"
-    />
-  );
-}
-
 // ============================================================================
 // Main Screen Component
 // ============================================================================
@@ -298,12 +253,14 @@ function SearchView({ searchResults, searchText, searchListRef }) {
 function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { cardsByType, getCardDisplayData, isLoading: isCardsLoading, searchCards } = useCards();
+  const { cardsByType, getCardDisplayData, isLoading: isCardsLoading, refetch: refetchCards, searchCards } = useCards();
   const { order, isLoading: isSectionOrderLoading, saveOrder, resetOrder } = useSectionOrder();
   const [isReorganizing, setIsReorganizing] = useState(false);
   const [showRecap, setShowRecap] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const navigation = useNavigation();
   const searchListRef = useRef(null);
 
@@ -365,36 +322,54 @@ function HomeScreen() {
     await saveOrder(newOrder);
   };
 
-  // Search logic
+  // Handle search
   const handleSearch = useCallback(
     (query) => {
-      setSearchResults(searchCards(query));
       setSearchText(query);
+      if (!query.trim()) {
+        setSearchResults([]);
+        return;
+      }
+      setSearchResults(searchCards(query));
     },
     [searchCards]
   );
 
-  // Set headerSearchBarOptions using useLayoutEffect
+  // Add refresh handler
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        refetchCards(),
+        // Add any other data refetch calls here
+      ]);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refetchCards]);
+
+  // Set up navigation options with search button
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerSearchBarOptions: {
-        hideWhenScrolling: true,
-        placeholder: 'Search cards',
-        headerIconColor: colors.text,
-        textColor: colors.text,
-        hintTextColor: colors.textSecondary,
-        barTintColor: colors.background,
-        obscureBackground: false,
-        onChangeText: (event) => {
-          handleSearch(event.nativeEvent.text);
-        },
-        onClear: () => handleSearch(''),
-      },
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => setShowSearch(!showSearch)}
+          style={{
+            marginRight: 8,
+            backgroundColor: showSearch ? colors.backgroundSecondary : 'transparent',
+            padding: 8,
+            borderRadius: 8,
+          }}
+        >
+          <MagnifyingGlassIcon size={24} color={colors.text} />
+        </TouchableOpacity>
+      ),
     });
-  }, [navigation, handleSearch, searchText]);
+  }, [navigation, colors.text, showSearch]);
 
   const isLoading = isCardsLoading || isSectionOrderLoading;
-
   if (isLoading) {
     return (
       <View f={1} ai="center" jc="center" bg={colors.background}>
@@ -403,50 +378,73 @@ function HomeScreen() {
     );
   }
 
-  if (searchText !== '') {
-    return <SearchView searchResults={searchResults} searchText={searchText} searchListRef={searchListRef} />;
-  }
-
   return (
-    <ScrollView
-      f={1}
-      contentContainerStyle={{
-        paddingTop: 10,
-        paddingBottom: insets.bottom,
-      }}
-      showsVerticalScrollIndicator={false}
-      contentInsetAdjustmentBehavior="automatic"
-    >
-      <SpendingRecapButton onPress={() => setShowRecap(true)} />
-      <SpendingSummary />
-
-      {/* Pinned Cards Section */}
-      {pinnedCards.length > 0 && (
-        <CardCarousel
-          key="pinned"
-          title={SECTION_CONFIG.PINNED.title}
-          data={pinnedCards}
-          icon={SECTION_CONFIG.PINNED.icon}
+    <>
+      {showSearch && <SearchBar onSearch={handleSearch} searchText={searchText} placeholder="Search cards" />}
+      {showSearch ? (
+        <SearchView
+          searchResults={searchResults}
+          searchText={searchText}
+          listRef={searchListRef}
+          renderItem={({ item }) => <CompactCardComponent item={item} />}
+          emptyMessage="Try searching for a different card or merchant."
+          searchTerm="card"
         />
+      ) : (
+        <ScrollView
+          f={1}
+          contentContainerStyle={{
+            paddingTop: 24,
+            paddingBottom: insets.bottom,
+          }}
+          showsVerticalScrollIndicator={false}
+          contentInsetAdjustmentBehavior="automatic"
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={colors.text}
+              colors={[colors.primary]}
+              progressBackgroundColor={colors.backgroundSecondary}
+              progressViewOffset={10}
+            />
+          }
+        >
+          <SpendingRecapButton onPress={() => setShowRecap(true)} />
+
+          <SpendingSummary />
+
+          {/* Pinned Cards Section */}
+          {pinnedCards.length > 0 && (
+            <CardCarousel
+              key="pinned"
+              title={SECTION_CONFIG.PINNED.title}
+              data={pinnedCards}
+              icon={SECTION_CONFIG.PINNED.icon}
+            />
+          )}
+
+          {/* Regular Sections */}
+          {sections.map((section) => (
+            <CardCarousel key={section.id} title={section.title} data={section.data} icon={section.icon} />
+          ))}
+
+          <CustomizeButton onPress={() => setIsReorganizing(true)} />
+
+          {/* Absolute Positioned Components */}
+          <>
+            <ReorganizeSheet
+              isOpen={isReorganizing}
+              onOpenChange={setIsReorganizing}
+              sections={sections}
+              onReorder={handleReorder}
+              onReset={resetOrder}
+            />
+            <SpendingRecapStory isVisible={showRecap} onClose={() => setShowRecap(false)} spendingData={spendingData} />
+          </>
+        </ScrollView>
       )}
-
-      {/* Regular Sections */}
-      {sections.map((section) => (
-        <CardCarousel key={section.id} title={section.title} data={section.data} icon={section.icon} />
-      ))}
-
-      <CustomizeButton onPress={() => setIsReorganizing(true)} />
-      <>
-        <ReorganizeSheet
-          isOpen={isReorganizing}
-          onOpenChange={setIsReorganizing}
-          sections={sections}
-          onReorder={handleReorder}
-          onReset={resetOrder}
-        />
-        <SpendingRecapStory isVisible={showRecap} onClose={() => setShowRecap(false)} spendingData={spendingData} />
-      </>
-    </ScrollView>
+    </>
   );
 }
 

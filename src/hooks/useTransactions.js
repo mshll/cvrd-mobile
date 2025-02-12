@@ -21,21 +21,16 @@ export function useTransactions(cardId = null) {
         id: transaction.id.toString(),
         name: transaction.merchant,
         amount: transaction.amount,
-        status: transaction.status === 'APPROVED' ? 'Settled' : 'Declined',
+        status: transaction.status,
         date: transaction.createdAt,
-        description: transaction.description,
         type: transaction.type,
         category: transaction.category,
-        recurring: transaction.recurring,
-        location:
-          transaction.longitude && transaction.latitude
-            ? {
-                longitude: transaction.longitude,
-                latitude: transaction.latitude,
-              }
-            : null,
+        isRecurring: transaction.isRecurring || false,
+        latitude: transaction.latitude,
+        longitude: transaction.longitude,
         declineReason: transaction.declineReason,
         cardId: transaction.cardId,
+        merchant: transaction.merchant,
       }));
     },
   });

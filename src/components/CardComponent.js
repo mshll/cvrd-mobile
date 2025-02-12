@@ -1,7 +1,7 @@
 import { Text, View, Image, XStack, YStack, Spinner } from 'tamagui';
 import { BlurView } from 'expo-blur';
 import { StyleSheet } from 'react-native';
-import { Colors } from '@/config/colors';
+import { Colors } from '@/context/ColorSchemeContext';
 import { useCards } from '@/hooks/useCards';
 import { useCardMutations } from '@/hooks/useCardMutations';
 import {
