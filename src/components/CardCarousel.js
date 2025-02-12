@@ -160,12 +160,13 @@ function CardCarousel({ title, data = [], icon: Icon }) {
           {title}
         </Text>
       </XStack>
-      <View w="100%" h={CARD_HEIGHT} ai="center">
+      <View w="100%" h={data.length === 0 ? 60 : CARD_HEIGHT} ai="center">
         {data.length === 0 ? (
           <Button
+            height={50}
             width={CARD_WIDTH}
-            height={CARD_HEIGHT}
-            borderRadius={15}
+            px="$4"
+            borderRadius={12}
             borderWidth={1}
             borderStyle="dashed"
             borderColor={colors.border}
@@ -174,9 +175,11 @@ function CardCarousel({ title, data = [], icon: Icon }) {
             onPress={handleAddCard}
             alignItems="center"
             justifyContent="center"
-            mx={SPACING}
           >
-            <PlusIcon size={24} color={colors.textTertiary} />
+            <PlusIcon size={20} color={colors.textTertiary} />
+            <Text color={colors.textTertiary} fontSize="$3" fontWeight="500">
+              Create Card
+            </Text>
           </Button>
         ) : (
           <AnimatedFlatList

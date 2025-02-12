@@ -29,6 +29,14 @@
         "projectId": "961bbe01-c008-4a97-aaaa-e3b006af9865"
       }
     },
-    "owner": "meshall"
+    "owner": "meshall",
+    "plugins": [
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
+        }
+      ]
+    ]
   }
 }

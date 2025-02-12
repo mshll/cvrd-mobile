@@ -98,14 +98,47 @@ const EditButton = ({ onPress, disabled }) => {
 
 const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
   const colors = useColors();
-  const region = {
-    latitude,
-    longitude,
-    latitudeDelta: (radius * 2) / 50,
-    longitudeDelta: (radius * 2) / 50,
-  };
-
+  const mapRef = useRef(null);
   const [location, setLocation] = useState({});
+  const [userLocation, setUserLocation] = useState(null);
+
+  const region = useMemo(
+    () => ({
+      latitude,
+      longitude,
+      latitudeDelta: (radius * 2) / 50,
+      longitudeDelta: (radius * 2) / 50,
+    }),
+    [latitude, longitude, radius]
+  );
+
+  // Get user's current location
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.log('Permission to access location was denied');
+          return;
+        }
+
+        const location = await Location.getCurrentPositionAsync({});
+        setUserLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+      } catch (error) {
+        console.error('Error getting current location:', error);
+      }
+    })();
+  }, []);
+
+  // Update map region when coordinates change
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(region, 500);
+    }
+  }, [region]);
 
   const getLocationInfo = async (latitude, longitude) => {
     try {
@@ -150,20 +183,32 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
     >
       <View style={{ height: MAP_HEIGHT, overflow: 'hidden' }}>
         <MapView
+          ref={mapRef}
           style={StyleSheet.absoluteFill}
           initialRegion={region}
           scrollEnabled={false}
           zoomEnabled={false}
           rotateEnabled={false}
+          showsUserLocation={true}
+          showsMyLocationButton={false}
         >
           <Marker coordinate={{ latitude, longitude }} pinColor={color} />
           <MapCircle
             center={{ latitude, longitude }}
-            radius={radius * 1609.34}
+            radius={radius * 1000} // Convert km to meters
             fillColor={`${color}20`}
             strokeColor={color}
             strokeWidth={2}
           />
+          {userLocation && (
+            <MapCircle
+              center={userLocation}
+              radius={10}
+              fillColor={colors.primary}
+              strokeColor={colors.primaryDark}
+              strokeWidth={2}
+            />
+          )}
         </MapView>
 
         {onEdit && (
@@ -266,6 +311,15 @@ const CardDetailsScreen = () => {
   const [amountSort, setAmountSort] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Add focus effect to refetch card data
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      refetchCards();
+    });
+
+    return unsubscribe;
+  }, [navigation, refetchCards]);
 
   // Get card data
   const card = useMemo(() => {

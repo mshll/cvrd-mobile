@@ -209,3 +209,17 @@ export async function updateCard(cardId, updates) {
   const response = await instance.put(`/card/update/${cardId}`, updates);
   return response.data;
 }
+
+/**
+ * Updates a card's location and radius
+ * @param {string} cardId - The ID of the card to update
+ * @param {Object} locationData - The new location data
+ * @param {number} locationData.latitude - The latitude coordinate
+ * @param {number} locationData.longitude - The longitude coordinate
+ * @param {number} locationData.radius - The radius in kilometers
+ * @returns {Promise<Object>} The updated card data
+ */
+export async function updateCardLocation(cardId, locationData) {
+  const response = await instance.put(`/card/update-location/${cardId}`, locationData);
+  return response.data;
+}

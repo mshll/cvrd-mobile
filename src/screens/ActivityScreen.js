@@ -1,5 +1,5 @@
 import { Colors, useColors } from '@/config/colors';
-import { View, Text, Input, XStack, YStack, Button, Spinner } from 'tamagui';
+import { View, Text, Input, XStack, YStack, Button } from 'tamagui';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Search, ArrowDown, ArrowUp, History } from '@tamagui/lucide-icons';
 import { StyleSheet, SectionList, Dimensions, RefreshControl } from 'react-native';
@@ -32,6 +32,25 @@ const groupTransactionsByMonth = (transactions) => {
       title: month,
       data,
     }));
+};
+
+const EmptyList = ({ searchQuery, statusFilter, isRefreshing }) => {
+  const colors = useColors();
+  return (
+    <YStack f={1} ai="center" jc="center" gap="$4" px="$4" pt="$10">
+      <History size={40} color={colors.primary} />
+      <YStack ai="center" gap="$2">
+        <Text color={colors.text} fontSize="$5" fontWeight="600" textAlign="center">
+          No Transactions Found
+        </Text>
+        <Text color={colors.textSecondary} fontSize="$3" textAlign="center">
+          {searchQuery || statusFilter !== 'all'
+            ? 'Try adjusting your filters'
+            : 'Your transaction history will appear here'}
+        </Text>
+      </YStack>
+    </YStack>
+  );
 };
 
 const ActivityScreen = () => {
@@ -96,14 +115,58 @@ const ActivityScreen = () => {
     });
   }, []);
 
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    if (refetch) {
-      refetch().finally(() => setRefreshing(false));
-    } else {
+    try {
+      await refetch();
+    } finally {
       setRefreshing(false);
     }
   }, [refetch]);
+
+  const renderContent = () => {
+    if (isLoading) {
+      return <LoadingSkeleton />;
+    }
+
+    if (error) {
+      return (
+        <Text color={colors.primary} ta="center" mt={20} fontFamily="$body">
+          {error.message || 'Failed to load transactions'}
+        </Text>
+      );
+    }
+
+    const sections = groupTransactionsByMonth(filteredTransactions);
+
+    return (
+      <SectionList
+        sections={sections}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <TransactionCard transaction={item} />}
+        renderSectionHeader={({ section: { title } }) => (
+          <View style={styles.sectionHeader} backgroundColor={colors.background}>
+            <Text color={colors.textSecondary} fontSize={16} fontFamily="$archivoBlack">
+              {title}
+            </Text>
+          </View>
+        )}
+        stickySectionHeadersEnabled={true}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.content, sections.length === 0 && { flexGrow: 1 }]}
+        ListEmptyComponent={<EmptyList searchQuery={searchQuery} statusFilter={statusFilter} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.text}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.backgroundSecondary}
+          />
+        }
+      />
+    );
+  };
 
   return (
     <View f={1} bg={colors.background}>
@@ -129,46 +192,7 @@ const ActivityScreen = () => {
       </YStack>
 
       {/* Transactions List */}
-      <View style={[styles.listContainer]}>
-        {isLoading ? (
-          <LoadingSkeleton />
-        ) : error ? (
-          <Text color={colors.primary} ta="center" mt={20} fontFamily="$body">
-            {error.message || 'Failed to load transactions'}
-          </Text>
-        ) : filteredTransactions.length === 0 ? (
-          <YStack f={1} ai="center" jc="center" gap="$4" px="$4">
-            <History size={40} color={`${colors.primary}`} />
-            <YStack ai="center" gap="$2">
-              <Text color={colors.text} fontSize="$5" fontWeight="600" textAlign="center">
-                No Transactions Found
-              </Text>
-              <Text color={colors.textSecondary} fontSize="$3" textAlign="center">
-                {searchQuery || statusFilter !== 'all'
-                  ? 'Try adjusting your filters'
-                  : 'Your transaction history will appear here'}
-              </Text>
-            </YStack>
-          </YStack>
-        ) : (
-          <SectionList
-            sections={groupTransactionsByMonth(filteredTransactions)}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <TransactionCard transaction={item} />}
-            renderSectionHeader={({ section: { title } }) => (
-              <View style={styles.sectionHeader} backgroundColor={colors.background}>
-                <Text color={colors.textSecondary} fontSize={16} fontFamily="$archivoBlack">
-                  {title}
-                </Text>
-              </View>
-            )}
-            stickySectionHeadersEnabled={true}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.content}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
-          />
-        )}
-      </View>
+      <View style={[styles.listContainer]}>{renderContent()}</View>
     </View>
   );
 };
@@ -185,6 +209,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
+    minHeight: '100%',
   },
 });
 

@@ -9,6 +9,7 @@ import {
   togglePin,
   closeCard,
   updateCard,
+  updateCardLocation,
 } from '@/api/cards';
 import { CARDS_QUERY_KEY } from './useCardsQuery';
 import Toast from 'react-native-toast-message';
@@ -193,6 +194,25 @@ export function useCardMutations() {
     },
   });
 
+  const updateCardLocationMutation = useMutation({
+    mutationFn: ({ cardId, locationData }) => updateCardLocation(cardId, locationData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
+      Toast.show({
+        type: 'success',
+        text1: 'Location Updated',
+        text2: 'Card location has been updated successfully',
+      });
+    },
+    onError: (error) => {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Failed to update card location',
+      });
+    },
+  });
+
   return {
     createBurnerCardMutation,
     createCategoryCardMutation,
@@ -203,5 +223,6 @@ export function useCardMutations() {
     togglePinMutation,
     closeCardMutation,
     updateCardMutation,
+    updateCardLocationMutation,
   };
 }
