@@ -8,29 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
-import {
-  useFonts,
-  Inter_100Thin,
-  Inter_200ExtraLight,
-  Inter_300Light,
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-  Inter_800ExtraBold,
-  Inter_900Black,
-  // ---
-  Archivo_100Thin,
-  Archivo_200ExtraLight,
-  Archivo_300Light,
-  Archivo_400Regular,
-  Archivo_500Medium,
-  Archivo_600SemiBold,
-  Archivo_700Bold,
-  Archivo_800ExtraBold,
-  Archivo_900Black,
-  Archivo_900Black_Italic,
-} from '@expo-google-fonts/dev';
+
 import MainNav from '@/navigation/MainNav';
 import AuthNav from '@/navigation/AuthNav';
 import { AuthProvider, useAuthContext } from '@/context/AuthContext';
@@ -41,6 +19,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ColorSchemeProvider } from '@/context/ColorSchemeContext';
 import { deleteToken, getToken } from '@/api/storage';
 import { Colors } from '@/config/colors';
+import { useFonts } from 'expo-font';
 
 const queryClient = new QueryClient();
 
@@ -141,27 +120,37 @@ const Navigation = () => {
 };
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
-    Inter_100Thin,
-    Inter_200ExtraLight,
-    Inter_300Light,
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
-    Inter_800ExtraBold,
-    Inter_900Black,
-    // ---
-    Archivo_100Thin,
-    Archivo_200ExtraLight,
-    Archivo_300Light,
-    Archivo_400Regular,
-    Archivo_500Medium,
-    Archivo_600SemiBold,
-    Archivo_700Bold,
-    Archivo_800ExtraBold,
-    Archivo_900Black,
-    Archivo_900Black_Italic,
+  const [fontsLoaded, fontsError] = useFonts({
+    // Archivo Regular Weights
+    Archivo_100Thin: require('./assets/fonts/Archivo/Archivo-Thin.ttf'),
+    Archivo_200ExtraLight: require('./assets/fonts/Archivo/Archivo-ExtraLight.ttf'),
+    Archivo_300Light: require('./assets/fonts/Archivo/Archivo-Light.ttf'),
+    Archivo_400Regular: require('./assets/fonts/Archivo/Archivo-Regular.ttf'),
+    Archivo_500Medium: require('./assets/fonts/Archivo/Archivo-Medium.ttf'),
+    Archivo_600SemiBold: require('./assets/fonts/Archivo/Archivo-SemiBold.ttf'),
+    Archivo_700Bold: require('./assets/fonts/Archivo/Archivo-Bold.ttf'),
+    Archivo_800ExtraBold: require('./assets/fonts/Archivo/Archivo-ExtraBold.ttf'),
+    Archivo_900Black: require('./assets/fonts/Archivo/Archivo-Black.ttf'),
+    // Archivo Italic
+    Archivo_100Thin_Italic: require('./assets/fonts/Archivo/Archivo-ThinItalic.ttf'),
+    Archivo_200ExtraLight_Italic: require('./assets/fonts/Archivo/Archivo-ExtraLightItalic.ttf'),
+    Archivo_300Light_Italic: require('./assets/fonts/Archivo/Archivo-LightItalic.ttf'),
+    Archivo_400Regular_Italic: require('./assets/fonts/Archivo/Archivo-Italic.ttf'),
+    Archivo_500Medium_Italic: require('./assets/fonts/Archivo/Archivo-MediumItalic.ttf'),
+    Archivo_600SemiBold_Italic: require('./assets/fonts/Archivo/Archivo-SemiBoldItalic.ttf'),
+    Archivo_700Bold_Italic: require('./assets/fonts/Archivo/Archivo-BoldItalic.ttf'),
+    Archivo_800ExtraBold_Italic: require('./assets/fonts/Archivo/Archivo-ExtraBoldItalic.ttf'),
+    Archivo_900Black_Italic: require('./assets/fonts/Archivo/Archivo-BlackItalic.ttf'),
+    // Inter Regular Weights
+    Inter_100Thin: require('./assets/fonts/Inter/Inter_24pt-Thin.ttf'),
+    Inter_200ExtraLight: require('./assets/fonts/Inter/Inter_24pt-ExtraLight.ttf'),
+    Inter_300Light: require('./assets/fonts/Inter/Inter_24pt-Light.ttf'),
+    Inter_400Regular: require('./assets/fonts/Inter/Inter_24pt-Regular.ttf'),
+    Inter_500Medium: require('./assets/fonts/Inter/Inter_24pt-Medium.ttf'),
+    Inter_600SemiBold: require('./assets/fonts/Inter/Inter_24pt-SemiBold.ttf'),
+    Inter_700Bold: require('./assets/fonts/Inter/Inter_24pt-Bold.ttf'),
+    Inter_800ExtraBold: require('./assets/fonts/Inter/Inter_24pt-ExtraBold.ttf'),
+    Inter_900Black: require('./assets/fonts/Inter/Inter_24pt-Black.ttf'),
   });
   const colorScheme = useColorScheme();
   const [showSecurityOverlay, setShowSecurityOverlay] = useState(false);
