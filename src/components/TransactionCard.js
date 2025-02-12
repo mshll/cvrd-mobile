@@ -12,12 +12,13 @@ const formatTransactionDate = (dateString) => {
   return format(date, 'MMM d, h:mm a');
 };
 
-const TransactionCard = ({ transaction }) => {
+const TransactionCard = ({ transaction, backgroundColor }) => {
   const colors = useColors();
   const { getCardById } = useCards();
   const [showDetails, setShowDetails] = useState(false);
   const { name, amount, date, status, cardId } = transaction;
   const card = getCardById(cardId);
+  const bg = backgroundColor || colors.backgroundSecondary;
 
   // Get status info
   const getStatusInfo = (status) => {
@@ -51,15 +52,15 @@ const TransactionCard = ({ transaction }) => {
     <>
       <TouchableOpacity onPress={() => setShowDetails(true)} activeOpacity={0.7}>
         <XStack
-          backgroundColor={colors.backgroundSecondary}
+          backgroundColor={bg}
           height={80}
           br={16}
           borderWidth={1}
           borderColor={colors.border}
-          mb={10}
           p={16}
           ai="center"
           jc="space-between"
+          gap={16}
         >
           {/* Left section with icon and details */}
           <XStack ai="center" gap={16} f={1}>

@@ -212,9 +212,7 @@ const ProfileScreen = () => {
         <Circle backgroundColor={colors.border} borderWidth={'$2'} borderColor={colors.border}>
           <Avatar circular size="$12">
             <Avatar.Image source={user?.profilePic ? { uri: user?.profilePic } : require('@/../assets/default.png')} />
-            <Avatar.Fallback backgroundColor={colors.backgroundSecondary}>
-              <UserIcon size={32} color={colors.textSecondary} />
-            </Avatar.Fallback>
+            <Avatar.Fallback backgroundColor={colors.backgroundSecondary} />
           </Avatar>
         </Circle>
         <YStack ai="center" gap="$1">

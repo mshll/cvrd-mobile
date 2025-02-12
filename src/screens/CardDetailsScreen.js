@@ -16,12 +16,12 @@ import { ArrowUpOnSquareIcon } from 'react-native-heroicons/outline';
 import SpendLimitMenu from '@/components/SpendLimitMenu';
 import Toast from 'react-native-toast-message';
 import { useTransactions } from '@/hooks/useTransactions';
-import TransactionCard from '@/components/TransactionCard';
-import GBottomSheet, { BottomSheetSectionList, BottomSheetView } from '@gorhom/bottom-sheet';
-import TransactionFilters from '@/components/TransactionFilters';
+import GBottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import Accordion from '@/components/Accordion';
 import BottomSheet from '@/components/BottomSheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import TransactionList from '@/components/TransactionList';
+import TransactionListHeader from '@/components/TransactionListHeader';
 
 const MAP_HEIGHT = 200;
 
@@ -269,29 +269,20 @@ const SpendLimitSheet = ({ isOpen, onClose, card, onSave }) => {
   );
 };
 
-const groupTransactionsByMonth = (transactions) => {
-  const groups = transactions.reduce((acc, transaction) => {
-    const date = new Date(transaction.date);
-    const monthYear = date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+const ActivitySection = ({ transactions = [], isLoading = false }) => {
+  const colors = useColors();
 
-    if (!acc[monthYear]) {
-      acc[monthYear] = [];
-    }
-    acc[monthYear].push(transaction);
-    return acc;
-  }, {});
-
-  // Convert to SectionList format and sort
-  return Object.entries(groups)
-    .sort(([monthA], [monthB]) => {
-      const dateA = new Date(monthA);
-      const dateB = new Date(monthB);
-      return dateB - dateA;
-    })
-    .map(([month, data]) => ({
-      title: month,
-      data,
-    }));
+  return (
+    <YStack f={1} gap="$4">
+      <TransactionList
+        transactions={transactions}
+        showHeader={false}
+        containerStyle={{ paddingTop: 8 }}
+        sectionBackground={colors.backgroundSecondary}
+        cardBackgroundColor={colors.backgroundTertiary}
+      />
+    </YStack>
+  );
 };
 
 const CardDetailsScreen = () => {
@@ -311,6 +302,8 @@ const CardDetailsScreen = () => {
   const [amountSort, setAmountSort] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortOption, setSortOption] = useState('date');
 
   // Add focus effect to refetch card data
   useEffect(() => {
@@ -367,47 +360,6 @@ const CardDetailsScreen = () => {
 
     return filtered;
   }, [cardTransactions, searchQuery, dateSort, amountSort, statusFilter]);
-
-  // Update sections with filtered transactions
-  const sections = useMemo(() => {
-    return groupTransactionsByMonth(filteredTransactions);
-  }, [filteredTransactions]);
-
-  const renderSectionHeader = useCallback(
-    ({ section: { title } }) => {
-      return (
-        <View style={styles.sectionHeader} backgroundColor={colors.backgroundSecondary}>
-          <Text color={colors.textSecondary} fontSize={16} fontFamily="$archivoBlack">
-            {title}
-          </Text>
-        </View>
-      );
-    },
-    [colors]
-  );
-
-  const renderItem = useCallback(({ item }) => {
-    return <TransactionCard transaction={item} />;
-  }, []);
-
-  const toggleDateSort = useCallback(() => {
-    setDateSort((prev) => (prev === 'desc' ? 'asc' : 'desc'));
-    setAmountSort(null);
-  }, []);
-
-  const toggleAmountSort = useCallback(() => {
-    setAmountSort((prev) => {
-      if (!prev || prev === 'asc') return 'desc';
-      return 'asc';
-    });
-  }, []);
-
-  const toggleStatusFilter = useCallback(() => {
-    setStatusFilter((prev) => {
-      if (prev === 'all' || prev === 'Declined') return 'Settled';
-      return 'Declined';
-    });
-  }, []);
 
   // Add refresh handler
   const handleRefresh = useCallback(async () => {
@@ -732,23 +684,24 @@ const CardDetailsScreen = () => {
         style={{ minHeight: 500 }}
       >
         <BottomSheetView style={{ flex: 1 }}>
-          <YStack px="$4" gap="$2" f={1}>
-            <XStack ai="center" gap="$2" my="$2">
+          <YStack gap="$2" f={1}>
+            <XStack ai="center" gap="$2" my="$2" px="$4">
               <History size={20} color={colors.text} />
               <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
                 Card Activity
               </Text>
             </XStack>
 
-            <TransactionFilters
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              dateSort={dateSort}
-              setDateSort={setDateSort}
-              amountSort={amountSort}
-              setAmountSort={setAmountSort}
+            <TransactionListHeader
+              searchText={searchQuery}
+              onSearch={setSearchQuery}
+              showFilters={showFilters}
+              setShowFilters={setShowFilters}
+              sortOption={sortOption}
+              setSortOption={setSortOption}
               statusFilter={statusFilter}
               setStatusFilter={setStatusFilter}
+              backgroundColor={colors.backgroundTertiary}
             />
 
             {filteredTransactions.length === 0 ? (
@@ -766,14 +719,7 @@ const CardDetailsScreen = () => {
                 </YStack>
               </YStack>
             ) : (
-              <BottomSheetSectionList
-                sections={sections}
-                keyExtractor={(item) => item.id}
-                renderSectionHeader={renderSectionHeader}
-                renderItem={renderItem}
-                contentContainerStyle={styles.contentContainer}
-                style={{ backgroundColor: 'transparent' }}
-              />
+              <ActivitySection transactions={filteredTransactions} />
             )}
           </YStack>
         </BottomSheetView>

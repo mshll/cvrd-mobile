@@ -48,7 +48,6 @@ function SearchView({
         flexGrow: 1,
         paddingHorizontal: 16,
         paddingVertical: 8,
-        paddingTop: 20,
         paddingBottom: insets.bottom,
       }}
       ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
