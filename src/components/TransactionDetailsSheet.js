@@ -1,5 +1,5 @@
 import { View, Text, YStack, XStack } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCards } from '@/hooks/useCards';
 import {

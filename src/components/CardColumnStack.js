@@ -1,4 +1,4 @@
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, YStack } from 'tamagui';
 import Animated, { useAnimatedStyle, interpolate, useSharedValue, withTiming } from 'react-native-reanimated';

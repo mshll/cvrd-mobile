@@ -3,7 +3,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { History, ListFilter } from '@tamagui/lucide-icons';
 import { StyleSheet, SectionList, RefreshControl } from 'react-native';
 import TransactionCard from './TransactionCard';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { MagnifyingGlassIcon, ArrowDownIcon, ArrowUpIcon } from 'react-native-heroicons/solid';
 import SearchBar from './SearchBar';
 

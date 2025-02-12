@@ -1,5 +1,5 @@
 import { View, Text, Image, Button, XStack } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { getCardAssets, getCardTheme, getLuminance, CARD_ASPECT_RATIO } from '@/utils/cardUtils';
 import { CalendarIcon } from 'react-native-heroicons/outline';
@@ -36,12 +36,12 @@ const SubscriptionCard = ({ subscription }) => {
     >
       {/* Dimming Overlay */}
       {isPaused && (
-          <BlurView
-            intensity={10}
-            tint="dark"
-            style={[
-              StyleSheet.absoluteFill,
-              {
+        <BlurView
+          intensity={10}
+          tint="dark"
+          style={[
+            StyleSheet.absoluteFill,
+            {
               backgroundColor: 'dark',
               zIndex: 1,
             },

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Animated, Pressable } from 'react-native';
 import { View, XStack, YStack, Text, Button } from 'tamagui';
-import { Colors } from '../config/colors';
+import { Colors } from '@/context/ColorSchemeContext';
 import { useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '../navigation/paths';

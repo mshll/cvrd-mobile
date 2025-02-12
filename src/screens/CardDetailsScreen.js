@@ -1,6 +1,6 @@
 import { View, ScrollView, YStack, Text, Separator, XStack, Button, Input, Spinner } from 'tamagui';
 import { StyleSheet, TouchableWithoutFeedback, Keyboard, RefreshControl } from 'react-native';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useCards } from '@/hooks/useCards';
 import { useCardMutations } from '@/hooks/useCardMutations';

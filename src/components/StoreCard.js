@@ -1,5 +1,5 @@
 import { View, Text, Button, XStack, YStack } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { StyleSheet, TouchableOpacity, Linking, Image } from 'react-native';
 import { ArrowUpRightIcon, ClipboardIcon } from 'react-native-heroicons/outline';
 import { getCardTheme } from '@/utils/cardUtils';

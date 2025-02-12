@@ -1,4 +1,4 @@
-import { Colors } from '@/config/colors';
+import { Colors } from '@/context/ColorSchemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const StorageKeys = {

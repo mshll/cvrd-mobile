@@ -1,5 +1,5 @@
-import { Colors } from '@/config/colors';
 import instance from './index';
+import { Colors } from '@/context/ColorSchemeContext';
 
 // Default configurations for each card type
 export const CARD_DEFAULTS = {

@@ -1,4 +1,4 @@
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { View, Text, XStack, YStack, Button } from 'tamagui';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { History, ListFilter } from '@tamagui/lucide-icons';

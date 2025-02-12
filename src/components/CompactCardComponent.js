@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { View, Text, XStack, YStack } from 'tamagui';
 import { CheckCircleIcon, PauseCircleIcon, XCircleIcon } from 'react-native-heroicons/solid';
 import { BuildingStorefrontIcon, FireIcon, MapPinIcon, TagIcon } from 'react-native-heroicons/outline';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '@/navigation/paths';
 

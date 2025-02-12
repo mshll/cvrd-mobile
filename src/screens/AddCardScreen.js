@@ -1,4 +1,4 @@
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { View, Button, Text, Spinner, YStack } from 'tamagui';
 import Animated, {
   useAnimatedStyle,

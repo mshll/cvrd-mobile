@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, YStack, XStack } from 'tamagui';
 import { StyleSheet } from 'react-native';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import RecurringCardComponent from './RecurringCardComponent';
 import { formatDate } from '@/utils/utils';
 import { Store, MapPin, Tag, Flame } from '@tamagui/lucide-icons';

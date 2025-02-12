@@ -18,7 +18,7 @@ import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ColorSchemeProvider } from '@/context/ColorSchemeContext';
 import { deleteToken, getToken } from '@/api/storage';
-import { Colors } from '@/config/colors';
+import { Colors } from '@/context/ColorSchemeContext';
 import { useFonts } from 'expo-font';
 
 const queryClient = new QueryClient();

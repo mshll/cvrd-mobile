@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, YStack, XStack } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { StyleSheet } from 'react-native';
 import { TagIcon } from 'react-native-heroicons/solid';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

@@ -1,7 +1,7 @@
 import { FlatList, View } from 'react-native';
 import { YStack, Text } from 'tamagui';
 import { MagnifyingGlassIcon } from 'react-native-heroicons/solid';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function SearchView({

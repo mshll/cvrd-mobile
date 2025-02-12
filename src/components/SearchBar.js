@@ -1,4 +1,4 @@
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { useRef } from 'react';
 import { XStack, Input } from 'tamagui';
 import { MagnifyingGlassIcon } from 'react-native-heroicons/solid';

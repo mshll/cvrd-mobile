@@ -1,4 +1,4 @@
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { View, Text, YStack, XStack, Button, Avatar, ScrollView, Circle, Spinner } from 'tamagui';
 import { useUser } from '@/hooks/useUser';
 import { useCards } from '@/hooks/useCards';

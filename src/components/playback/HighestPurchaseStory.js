@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import { YStack } from 'tamagui';
 import { FireIcon } from 'react-native-heroicons/solid';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { formatCurrency } from '@/utils/utils';
 import { styles } from './styles';
 

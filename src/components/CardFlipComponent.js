@@ -1,7 +1,7 @@
 import { StyleSheet, Animated, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { Text, View, Image, XStack, YStack } from 'tamagui';
 import CardComponent from '@/components/CardComponent';
-import { Colors } from '@/config/colors';
+import { Colors } from '@/context/ColorSchemeContext';
 import { BlurView } from 'expo-blur';
 import * as Clipboard from 'expo-clipboard';
 import { useCards } from '@/hooks/useCards';

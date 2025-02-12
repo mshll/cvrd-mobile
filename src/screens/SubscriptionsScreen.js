@@ -1,4 +1,4 @@
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { View, Text, ScrollView, YStack, XStack } from 'tamagui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SubscriptionCard from '@/components/SubscriptionCard';

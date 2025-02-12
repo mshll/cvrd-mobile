@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { View, Text, XStack, Button, YStack, Separator } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import CardComponent from '@/components/CardComponent';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

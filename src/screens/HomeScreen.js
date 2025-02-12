@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RefreshControl } from 'react-native';
 import CardCarousel from '../components/CardCarousel';

@@ -1,5 +1,5 @@
 import { View, Text, YStack, XStack, Button, Input } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useCards } from '@/hooks/useCards';

@@ -1,5 +1,5 @@
 import { View, Text, XStack, YStack, Button, Input } from 'tamagui';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { useState } from 'react';
 import { SORT_OPTIONS, STATUS_OPTIONS } from './TransactionList';
 import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon } from 'react-native-heroicons/outline';

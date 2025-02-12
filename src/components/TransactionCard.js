@@ -1,5 +1,5 @@
 import { View, Text, XStack, YStack } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { StyleSheet, Animated, TouchableOpacity } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useCards } from '@/hooks/useCards';

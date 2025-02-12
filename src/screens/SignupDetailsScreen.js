@@ -1,5 +1,5 @@
 import { View, Text, YStack, Input, Button, XStack } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useState } from 'react';
 import {
   StyleSheet,

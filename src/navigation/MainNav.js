@@ -2,7 +2,7 @@ import { Paths } from './paths';
 import { ActivityStack, HomeStack, ProfileStack, SubscriptionsStack } from './StackNavs';
 import { Circle } from 'tamagui';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useColorScheme } from 'react-native';
 import AddCardScreen from '@/screens/AddCardScreen';
 import EditCardScreen from '@/screens/EditCardScreen';
