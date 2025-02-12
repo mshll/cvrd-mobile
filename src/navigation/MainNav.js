@@ -125,21 +125,6 @@ const MainNav = () => {
             animation: 'slide_from_right',
             gestureEnabled: true,
             gestureDirection: 'horizontal',
-            headerRight: () => {
-              if (!card || card.is_closed) return null;
-              return (
-                <TouchableOpacity
-                  onPress={() => togglePinMutation.mutate(card.id)}
-                  style={{ padding: 8, marginRight: -8 }}
-                >
-                  {card.pinned ? (
-                    <StarIcon size={24} color={colors.text} />
-                  ) : (
-                    <StarIconOutline size={24} color={colors.text} />
-                  )}
-                </TouchableOpacity>
-              );
-            },
           };
         }}
       />

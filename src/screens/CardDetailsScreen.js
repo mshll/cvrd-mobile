@@ -9,7 +9,8 @@ import * as Location from 'expo-location';
 import { History } from '@tamagui/lucide-icons';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
 import CardFlipComponent from '@/components/CardFlipComponent';
-import { PaintBrushIcon, PauseIcon, PlayIcon, TrashIcon, MapPinIcon } from 'react-native-heroicons/solid';
+import { PaintBrushIcon, PauseIcon, PlayIcon, TrashIcon, MapPinIcon, StarIcon } from 'react-native-heroicons/solid';
+import { StarIcon as StarIconOutline } from 'react-native-heroicons/outline';
 import { formatCurrency } from '@/utils/utils';
 import { Paths } from '@/navigation/paths';
 import { ArrowUpOnSquareIcon } from 'react-native-heroicons/outline';
@@ -292,7 +293,7 @@ const CardDetailsScreen = () => {
   const navigation = useNavigation();
   const { cardId } = route.params || {};
   const { getCardById, isLoading: isCardsLoading, refetch: refetchCards } = useCards();
-  const { updateCardLimitMutation, togglePauseMutation, closeCardMutation } = useCardMutations();
+  const { updateCardLimitMutation, togglePauseMutation, togglePinMutation, closeCardMutation } = useCardMutations();
   const [showSpendLimitSheet, setShowSpendLimitSheet] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
   const bottomSheetRef = useRef(null);
@@ -404,8 +405,16 @@ const CardDetailsScreen = () => {
     navigation.navigate(Paths.EDIT_CARD, { cardId });
   };
 
-  const handleShare = () => {
-    // TODO: Implement share functionality
+  const handleTogglePin = () => {
+    if (card && !card.closed) {
+      togglePinMutation.mutate(cardId);
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Cannot Pin Card',
+        text2: 'This card is closed and cannot be modified',
+      });
+    }
   };
 
   const handleTogglePause = () => {
@@ -493,8 +502,12 @@ const CardDetailsScreen = () => {
               </ActionButton>
             </YStack>
             <YStack gap="$2" ai="center" jc="center">
-              <ActionButton onPress={handleShare} disabled={card.closed}>
-                <ArrowUpOnSquareIcon size={25} color={colors.text} />
+              <ActionButton onPress={handleTogglePin} disabled={card.closed}>
+                {card.pinned ? (
+                  <StarIcon size={25} color={colors.text} />
+                ) : (
+                  <StarIconOutline size={25} color={colors.text} />
+                )}
               </ActionButton>
             </YStack>
             <YStack gap="$2" ai="center" jc="center">
