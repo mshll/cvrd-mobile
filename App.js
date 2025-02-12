@@ -170,8 +170,8 @@ export default function App() {
 
   return (
     <TamaguiProvider config={tamaguiConfig}>
-      <ColorSchemeProvider>
-        <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
+      <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
+        <ColorSchemeProvider>
           <QueryClientProvider client={queryClient}>
             <ActionSheetProvider>
               <SafeAreaProvider>
@@ -194,8 +194,8 @@ export default function App() {
               </SafeAreaProvider>
             </ActionSheetProvider>
           </QueryClientProvider>
-        </Theme>
-      </ColorSchemeProvider>
+        </ColorSchemeProvider>
+      </Theme>
     </TamaguiProvider>
   );
 }
