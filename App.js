@@ -20,6 +20,7 @@ import { ColorSchemeProvider } from '@/context/ColorSchemeContext';
 import { deleteToken, getToken } from '@/api/storage';
 import { Colors } from '@/context/ColorSchemeContext';
 import { useFonts } from 'expo-font';
+import { validateToken } from '@/api/auth';
 
 const queryClient = new QueryClient();
 
@@ -99,13 +100,20 @@ const Navigation = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // await deleteToken();
         const token = await getToken();
         if (token) {
-          setUser(token);
+          const validation = await validateToken(token);
+          if (validation.valid) {
+            setUser({ token, ...validation });
+          } else {
+            await deleteToken();
+            setUser(null);
+          }
         }
       } catch (error) {
         console.error('Auth check failed:', error);
+        await deleteToken();
+        setUser(null);
       } finally {
         setIsLoading(false);
       }

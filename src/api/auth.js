@@ -28,3 +28,17 @@ export const logout = async () => {
   await removeToken();
   console.log('✅ Logout successful');
 };
+
+export const validateToken = async (token) => {
+  console.log('🔍 Validating token');
+  try {
+    const response = await instance.post('/auth/validate-token', null, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log('✅ Token validation response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.log('❌ Token validation failed:', error.response?.data);
+    return { valid: false, error: error.response?.data?.error || 'Token validation failed' };
+  }
+};

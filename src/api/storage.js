@@ -10,7 +10,7 @@ const setToken = async (token) => {
 
 const getToken = async () => {
   const token = await getItemAsync('token');
-  if (await isTokenExpired(token)) return null;
+  // if (await isTokenExpired(token)) return null;
   return token;
 };
 
@@ -40,40 +40,6 @@ const isTokenExpired = async (token) => {
 
 const getRole = async () => {
   return await getItemAsync('role');
-};
-
-// Parent Balance Management
-export const getParentBalance = async (username) => {
-  try {
-    const balanceKey = `parent_balance_${username}`;
-    const balance = await AsyncStorage.getItem(balanceKey);
-    return balance ? parseFloat(balance) : 0;
-  } catch (error) {
-    console.error('Error getting parent balance:', error);
-    return 0;
-  }
-};
-
-export const setParentBalance = async (username, balance) => {
-  try {
-    const balanceKey = `parent_balance_${username}`;
-    await AsyncStorage.setItem(balanceKey, balance.toString());
-  } catch (error) {
-    console.error('Error setting parent balance:', error);
-  }
-};
-
-export const updateParentBalance = async (username, amount) => {
-  try {
-    const currentBalance = await getParentBalance(username);
-    const newBalance = currentBalance + amount;
-    if (newBalance < 0) return false;
-    await setParentBalance(username, newBalance);
-    return true;
-  } catch (error) {
-    console.error('Error updating parent balance:', error);
-    return false;
-  }
 };
 
 export { setToken, getToken, deleteToken, isTokenExpired, getRole };
