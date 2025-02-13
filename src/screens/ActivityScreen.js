@@ -35,7 +35,8 @@ const FilterBadge = ({ label, isActive, onPress, onClear }) => {
       borderRadius={20}
       borderWidth={1}
       borderColor={isActive ? colors.primary : colors.border}
-      px="$3"
+      pl="$3"
+      pr={isActive ? '$1' : '$3'}
       height={32}
     >
       <XStack ai="center" gap="$2">
@@ -99,7 +100,7 @@ const ActivityScreen = () => {
 
   return (
     <View f={1} bg={colors.background}>
-      <YStack gap="$3" pt="$4" pb="$2">
+      <YStack gap="$2" pt="$4" pb="$2">
         {/* Title */}
         <XStack ai="center" gap="$2" px="$4">
           <History size={20} color={colors.text} />

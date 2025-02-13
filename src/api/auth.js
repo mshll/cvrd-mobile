@@ -15,10 +15,6 @@ export const login = async (user) => {
 export const register = async (user) => {
   console.log('📝 Making registration API call with:', user);
   const response = await instance.post('/auth/signup-user', user);
-  if (response.data.token) {
-    console.log('🎟️ Storing auth token');
-    await setToken(response.data.token);
-  }
   console.log('✅ Registration successful');
   return response.data;
 };

@@ -5,7 +5,7 @@ import { useCards } from '@/hooks/useCards';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { formatCurrency } from '@/utils/utils';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Image, RefreshControl } from 'react-native';
 import {
   BellIcon,
   CreditCardIcon,
@@ -19,13 +19,17 @@ import {
   ShareIcon,
   BanknotesIcon,
   ClockIcon,
+  BuildingLibraryIcon,
+  XMarkIcon,
 } from 'react-native-heroicons/outline';
 import { UserIcon as UserIconFilled } from 'react-native-heroicons/solid';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import BottomSheet from '@/components/BottomSheet';
 import { Paths } from '@/navigation/paths';
 import { deleteToken } from '@/api/storage';
 import { useAuthContext } from '@/context/AuthContext';
+import Toast from 'react-native-toast-message';
+import { disconnectBank } from '@/api/user';
 
 const MenuItem = ({ icon: Icon, label, value, onPress, showArrow = true }) => {
   const colors = useColors();
@@ -129,7 +133,10 @@ const ProfileScreen = () => {
   const navigation = useNavigation();
   const { cards } = useCards();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const { user, isLoading, error, logout } = useUser();
+  const { user, isLoading, error, logout, refreshUser } = useUser();
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const limits = {
     monthlyNewCards: {
@@ -158,6 +165,17 @@ const ProfileScreen = () => {
     { active: 0, paused: 0, closed: 0, shared: 0 }
   );
 
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshUser();
+    } catch (error) {
+      console.error('Error refreshing profile:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refreshUser]);
+
   const handleLogout = async () => {
     await deleteToken();
     logout();
@@ -169,6 +187,37 @@ const ProfileScreen = () => {
 
   const handleSecurity = () => {
     navigation.navigate(Paths.SECURITY);
+  };
+
+  const handleConnectBank = () => {
+    navigation.navigate('BoubyanLogin', {
+      onSuccess: () => {
+        refreshUser();
+      },
+    });
+  };
+
+  const handleDisconnectBank = async () => {
+    setIsDisconnecting(true);
+    try {
+      await disconnectBank();
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Bank account disconnected successfully',
+      });
+      refreshUser();
+      setShowDisconnectConfirm(false);
+    } catch (error) {
+      console.log('🔴 Error disconnecting bank account:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Failed to disconnect bank account',
+      });
+    } finally {
+      setIsDisconnecting(false);
+    }
   };
 
   if (isLoading) {
@@ -196,6 +245,16 @@ const ProfileScreen = () => {
       }}
       showsVerticalScrollIndicator={false}
       contentInsetAdjustmentBehavior="automatic"
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={handleRefresh}
+          tintColor={colors.text}
+          colors={[colors.primary]}
+          progressBackgroundColor={colors.backgroundSecondary}
+          progressViewOffset={10}
+        />
+      }
     >
       {/* Title Section */}
       <YStack gap="$3" mb="$2" px={16}>
@@ -222,7 +281,7 @@ const ProfileScreen = () => {
           <Text color={colors.textSecondary} fontSize="$3">
             {user?.email}
           </Text>
-          <XStack ai="center" gap="$2" mt="$2">
+          {/* <XStack ai="center" gap="$2" mt="$2">
             <Text color={colors.textSecondary} fontSize="$3">
               {user?.subscription} Plan
             </Text>
@@ -232,13 +291,92 @@ const ProfileScreen = () => {
             <Text color={colors.textSecondary} fontSize="$3">
               {user?.phoneNumber}
             </Text>
-          </XStack>
+          </XStack> */}
         </YStack>
       </YStack>
 
       {/* Account Stats */}
-
       <YStack px="$4" pb="$6" gap="$4">
+        {/* Bank Account Status */}
+        <View bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
+          <YStack gap="$4">
+            <XStack ai="center" jc="space-between">
+              <XStack ai="center" gap="$3">
+                <Image
+                  source={require('@/../assets/boubyan-logo-min.png')}
+                  style={{ width: 40, height: 40, resizeMode: 'contain' }}
+                />
+                <YStack>
+                  <Text color={colors.text} fontSize="$4" fontWeight="600">
+                    Boubyan Bank
+                  </Text>
+                  <Text color={colors.textSecondary} fontSize="$2">
+                    {user?.bankAccountNumber ? 'Connected' : 'Not Connected'}
+                  </Text>
+                </YStack>
+              </XStack>
+              {user?.bankAccountNumber ? (
+                <Button
+                  size="$3"
+                  backgroundColor={`${colors.danger}10`}
+                  pressStyle={{ backgroundColor: `${colors.danger}20` }}
+                  onPress={() => setShowDisconnectConfirm(true)}
+                  borderRadius={8}
+                  disabled={isDisconnecting}
+                  borderWidth={1}
+                  borderColor={`${colors.danger}30`}
+                >
+                  <XStack ai="center" gap="$2">
+                    <XMarkIcon size={16} color={colors.danger} />
+                    <Text color={colors.danger} fontSize="$3" fontWeight="600">
+                      Disconnect
+                    </Text>
+                  </XStack>
+                </Button>
+              ) : (
+                <Button
+                  size="$3"
+                  backgroundColor={colors.primary}
+                  pressStyle={{ backgroundColor: colors.primaryDark }}
+                  onPress={handleConnectBank}
+                  borderRadius={8}
+                >
+                  <Text color="white" fontSize="$3" fontWeight="600">
+                    Connect
+                  </Text>
+                </Button>
+              )}
+            </XStack>
+            {user?.bankAccountNumber && (
+              <View
+                backgroundColor={`${colors.backgroundTertiary}80`}
+                p="$3"
+                br={8}
+                borderWidth={1}
+                borderColor={colors.border}
+              >
+                <YStack gap="$2">
+                  <XStack ai="center" jc="space-between">
+                    <Text color={colors.textSecondary} fontSize="$3">
+                      Account Number
+                    </Text>
+                    <Text color={colors.text} fontSize="$3" fontWeight="600" fontFamily="$mono">
+                      {user.bankAccountNumber}
+                    </Text>
+                  </XStack>
+                  <XStack ai="center" jc="space-between">
+                    <Text color={colors.textSecondary} fontSize="$3">
+                      Username
+                    </Text>
+                    <Text color={colors.text} fontSize="$3" fontWeight="600" fontFamily="$mono">
+                      {user.bankAccountUsername}
+                    </Text>
+                  </XStack>
+                </YStack>
+              </View>
+            )}
+          </YStack>
+        </View>
         <XStack gap="$3">
           <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
             <Text color={colors.textSecondary} fontSize="$3" mb="$2">
@@ -363,6 +501,45 @@ const ProfileScreen = () => {
           </Text>
         </XStack>
       </Button>
+
+      {/* Bank Disconnect Confirmation Sheet */}
+      <BottomSheet isOpen={showDisconnectConfirm} onClose={() => setShowDisconnectConfirm(false)}>
+        <YStack gap="$4" px="$4" pt="$2" pb="$6">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            Disconnect Bank Account
+          </Text>
+          <Text color={colors.textSecondary} fontSize="$4">
+            Are you sure you want to disconnect your bank account? This will affect your ability to use your cards.
+          </Text>
+          <YStack gap="$3">
+            <Button
+              backgroundColor={colors.danger}
+              pressStyle={{ backgroundColor: colors.danger }}
+              onPress={handleDisconnectBank}
+              size="$5"
+              borderRadius={12}
+              disabled={isDisconnecting}
+            >
+              <Text color="white" fontSize="$4" fontWeight="600">
+                {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
+              </Text>
+            </Button>
+            <Button
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={() => setShowDisconnectConfirm(false)}
+              size="$5"
+              borderRadius={12}
+              borderWidth={1}
+              borderColor={colors.border}
+            >
+              <Text color={colors.text} fontSize="$4" fontWeight="600">
+                Cancel
+              </Text>
+            </Button>
+          </YStack>
+        </YStack>
+      </BottomSheet>
 
       {/* Logout Confirmation Sheet */}
       <BottomSheet isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)}>
