@@ -10,7 +10,7 @@ const setToken = async (token) => {
 
 const getToken = async () => {
   const token = await getItemAsync('token');
-  // if (await isTokenExpired(token)) return null;
+  if (await isTokenExpired(token)) return null;
   return token;
 };
 

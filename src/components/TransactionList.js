@@ -1,44 +1,9 @@
-import { View, Text, XStack, YStack, Button } from 'tamagui';
-import { useState, useCallback, useMemo } from 'react';
-import { History, ListFilter } from '@tamagui/lucide-icons';
+import { View, Text, YStack } from 'tamagui';
+import { useMemo } from 'react';
 import { StyleSheet, SectionList, RefreshControl } from 'react-native';
 import TransactionCard from './TransactionCard';
 import { useColors } from '@/context/ColorSchemeContext';
-import { MagnifyingGlassIcon, ArrowDownIcon, ArrowUpIcon } from 'react-native-heroicons/solid';
-import SearchBar from './SearchBar';
-
-export const SORT_OPTIONS = [
-  { id: 'date_desc', label: 'Latest First', icon: ArrowDownIcon },
-  { id: 'date_asc', label: 'Oldest First', icon: ArrowUpIcon },
-  { id: 'amount_desc', label: 'Highest Amount', icon: ArrowDownIcon },
-  { id: 'amount_asc', label: 'Lowest Amount', icon: ArrowUpIcon },
-];
-
-export const STATUS_OPTIONS = [
-  { id: 'all', label: 'All' },
-  { id: 'APPROVED', label: 'Approved' },
-  { id: 'DECLINED', label: 'Declined' },
-];
-
-const FilterButton = ({ label, isActive, onPress, icon: Icon }) => {
-  const colors = useColors();
-  return (
-    <Button
-      backgroundColor={isActive ? colors.primary : colors.backgroundSecondary}
-      pressStyle={{ backgroundColor: isActive ? colors.primaryDark : colors.backgroundTertiary }}
-      onPress={onPress}
-      size="$3"
-      icon={Icon ? <Icon size={16} color={isActive ? 'white' : colors.text} /> : undefined}
-      borderRadius={8}
-      borderWidth={1}
-      borderColor={isActive ? colors.primary : colors.border}
-    >
-      <Text color={isActive ? 'white' : colors.text} fontSize="$3">
-        {label}
-      </Text>
-    </Button>
-  );
-};
+import { MagnifyingGlassIcon } from 'react-native-heroicons/solid';
 
 // Helper function to group transactions by month
 const groupTransactionsByMonth = (transactions) => {
@@ -67,26 +32,18 @@ const groupTransactionsByMonth = (transactions) => {
 
 const TransactionList = ({
   transactions = [],
-  isLoading = false,
   onRefresh,
   refreshing = false,
-  showHeader = true,
+  searchText = '',
+  sortOption = 'date_desc',
+  statusFilter = 'all',
   containerStyle,
   sectionBackground,
   cardBackgroundColor,
 }) => {
   const colors = useColors();
-  const [showSearch, setShowSearch] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [searchText, setSearchText] = useState('');
-  const [sortOption, setSortOption] = useState('date_desc');
-  const [statusFilter, setStatusFilter] = useState('all');
   const sectionBg = sectionBackground || colors.background;
   const cardBg = cardBackgroundColor || colors.backgroundSecondary;
-
-  const handleSearch = useCallback((query) => {
-    setSearchText(query);
-  }, []);
 
   // Apply filters and sorting
   const filteredTransactions = useMemo(() => {
@@ -133,122 +90,6 @@ const TransactionList = ({
 
   return (
     <YStack f={1} style={containerStyle}>
-      {showHeader && (
-        <YStack px={16} gap={16} backgroundColor={colors.background}>
-          <XStack ai="center" jc="space-between">
-            <XStack ai="center" gap="$2">
-              <History size={20} color={colors.text} />
-              <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
-                Activity
-              </Text>
-            </XStack>
-
-            <XStack gap="$2">
-              <Button
-                size="$4"
-                backgroundColor={showSearch ? colors.primary : colors.backgroundSecondary}
-                pressStyle={{ backgroundColor: colors.backgroundTertiary }}
-                onPress={() => {
-                  if (showSearch) {
-                    handleSearch('');
-                    setSearchText('');
-                  }
-                  setShowSearch(!showSearch);
-                  if (showFilters) {
-                    setShowFilters(false);
-                  }
-                }}
-                borderRadius={8}
-                borderWidth={1}
-                borderColor={showSearch ? colors.primary : colors.border}
-                p="$3"
-              >
-                <MagnifyingGlassIcon size={18} color={showSearch ? 'white' : colors.text} />
-              </Button>
-
-              <Button
-                size="$4"
-                backgroundColor={showFilters ? colors.primary : colors.backgroundSecondary}
-                pressStyle={{ backgroundColor: colors.backgroundTertiary }}
-                onPress={() => {
-                  setShowFilters(!showFilters);
-                  if (showSearch) {
-                    setShowSearch(false);
-                    handleSearch('');
-                    setSearchText('');
-                  }
-                }}
-                borderRadius={8}
-                borderWidth={1}
-                borderColor={showFilters ? colors.primary : colors.border}
-                p="$3"
-              >
-                <ListFilter size={18} color={showFilters ? 'white' : colors.text} />
-              </Button>
-            </XStack>
-          </XStack>
-
-          {/* Filter Section */}
-          {showFilters && (
-            <YStack gap="$4" py="$2">
-              {/* Status Filters */}
-              <YStack gap="$2">
-                <XStack jc="space-between" ai="center">
-                  <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                    Status
-                  </Text>
-                  <Button
-                    size="$2"
-                    bg="transparent"
-                    pressStyle={{ opacity: 0.7 }}
-                    onPress={() => {
-                      setSortOption('date_desc');
-                      setStatusFilter('all');
-                    }}
-                  >
-                    <Text color={colors.primary} fontSize="$2">
-                      Reset
-                    </Text>
-                  </Button>
-                </XStack>
-                <XStack gap="$2" flexWrap="wrap">
-                  {STATUS_OPTIONS.map((option) => (
-                    <FilterButton
-                      key={option.id}
-                      label={option.label}
-                      isActive={statusFilter === option.id}
-                      onPress={() => setStatusFilter(option.id)}
-                    />
-                  ))}
-                </XStack>
-              </YStack>
-
-              {/* Sort Options */}
-              <YStack gap="$2">
-                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                  Sort By
-                </Text>
-                <XStack gap="$2" flexWrap="wrap">
-                  {SORT_OPTIONS.map((option) => (
-                    <FilterButton
-                      key={option.id}
-                      label={option.label}
-                      isActive={sortOption === option.id}
-                      onPress={() => setSortOption(option.id)}
-                      icon={option.icon}
-                    />
-                  ))}
-                </XStack>
-              </YStack>
-            </YStack>
-          )}
-        </YStack>
-      )}
-
-      {/* Search Bar */}
-      {showSearch && <SearchBar onSearch={handleSearch} searchText={searchText} placeholder="Search transactions" />}
-
-      {/* Transactions List */}
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
@@ -269,10 +110,10 @@ const TransactionList = ({
             <MagnifyingGlassIcon size={40} color={colors.primary} />
             <YStack ai="center" gap="$2">
               <Text color={colors.text} fontSize="$5" fontWeight="600" textAlign="center">
-                {showSearch && searchText ? `No Results for "${searchText}"` : 'No Transactions Found'}
+                {searchText ? `No Results for "${searchText}"` : 'No Transactions Found'}
               </Text>
               <Text color={colors.textSecondary} fontSize="$3" textAlign="center">
-                {showSearch && searchText
+                {searchText
                   ? 'Try searching for a different transaction or merchant.'
                   : statusFilter !== 'all'
                   ? 'Try adjusting your filters'
