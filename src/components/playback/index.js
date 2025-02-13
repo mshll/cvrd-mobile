@@ -1,4 +1,5 @@
 export { IntroStory } from './IntroStory';
+export { VideoStory } from './VideoStory';
 export { TotalSpentStory } from './TotalSpentStory';
 export { BiggestMonthStory } from './BiggestMonthStory';
 export { HighestPurchaseStory } from './HighestPurchaseStory';

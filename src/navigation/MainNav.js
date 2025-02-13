@@ -11,13 +11,14 @@ import EditLocationScreen from '@/screens/EditLocationScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCards } from '@/hooks/useCards';
 import { useCardMutations } from '@/hooks/useCardMutations';
-import { WalletIcon, QueueListIcon, BellIcon, UserCircleIcon, PlusIcon } from 'react-native-heroicons/solid';
+import { WalletIcon, QueueListIcon, BuildingStorefrontIcon, UserCircleIcon, PlusIcon } from 'react-native-heroicons/solid';
 import {
   WalletIcon as WalletIconOutline,
   QueueListIcon as QueueListIconOutline,
-  BellIcon as BellIconOutline,
+  BuildingStorefrontIcon as BuildingStorefrontIconOutline,
   UserCircleIcon as UserCircleIconOutline,
 } from 'react-native-heroicons/outline';
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { CustomTabBar } from '@/components/CustomTabBar';
 import AuthNav from './AuthNav';
@@ -74,10 +75,11 @@ const TabNavigator = () => {
         component={SubscriptionsStack}
         options={{
           tabBarIcon: ({ focused, color, size }) =>
-            focused ? <BellIcon color={color} size={size} /> : <BellIconOutline color={color} size={size} />,
+            focused ? <BuildingStorefrontIcon color={color} size={size} /> : <BuildingStorefrontIconOutline color={color} size={size} />,
         }}
       />
       <Tab.Screen
+
         name={Paths.PROFILE}
         component={ProfileStack}
         options={{

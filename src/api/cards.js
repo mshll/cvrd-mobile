@@ -1,5 +1,9 @@
 import instance from './index';
+
+import { api } from './index';
+
 import { Colors } from '@/context/ColorSchemeContext';
+
 
 // Default configurations for each card type
 export const CARD_DEFAULTS = {
@@ -210,6 +214,16 @@ export async function updateCard(cardId, updates) {
   return response.data;
 }
 
+
+export async function getUserCards() {
+  try {
+    const response = await instance.get('/user/me/cards');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user cards:', error);
+    throw error;
+  }
+
 /**
  * Updates a card's location and radius
  * @param {string} cardId - The ID of the card to update
@@ -222,4 +236,5 @@ export async function updateCard(cardId, updates) {
 export async function updateCardLocation(cardId, locationData) {
   const response = await instance.put(`/card/update-location/${cardId}`, locationData);
   return response.data;
+
 }

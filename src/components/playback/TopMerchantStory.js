@@ -1,6 +1,6 @@
 import React from 'react';
-import { Text } from 'react-native';
-import { YStack } from 'tamagui';
+import { View } from 'react-native';
+import { YStack, Text } from 'tamagui';
 import { BuildingStorefrontIcon } from 'react-native-heroicons/solid';
 import { useColors } from '@/context/ColorSchemeContext';
 import { styles } from './styles';
