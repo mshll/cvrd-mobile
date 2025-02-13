@@ -1,7 +1,7 @@
 import { Text, View, Image, XStack, YStack, Spinner } from 'tamagui';
 import { BlurView } from 'expo-blur';
 import { StyleSheet } from 'react-native';
-import { Colors } from '@/config/colors';
+import { Colors } from '@/context/ColorSchemeContext';
 import { useCards } from '@/hooks/useCards';
 import { useCardMutations } from '@/hooks/useCardMutations';
 import {
@@ -13,7 +13,6 @@ import {
   XCircleIcon,
   StarIcon,
 } from 'react-native-heroicons/solid';
-import { StarIcon as StarIconOutline } from 'react-native-heroicons/outline';
 import { CARD_WIDTH, CARD_HEIGHT, getCardTheme, getCardAssets } from '@/utils/cardUtils';
 
 const getCardIcon = (type, color, scale) => {
@@ -72,7 +71,7 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
   //console.log('🎴 Rendering card:', { type, label, emoji, lastFourDigits, backgroundColor, isPaused, isClosed });
 
   let cardColor = backgroundColor;
-  const cardTheme = getCardTheme(cardColor);
+  const cardTheme = getCardTheme(backgroundColor);
   const blurTint = cardTheme === 'light' ? 'regular' : 'regular';
   const textColor = cardTheme === 'light' ? 'white' : 'black';
 
@@ -120,6 +119,11 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
               >
                 {label}
               </Text>
+              {isPinned && (
+                <View ml="$2">
+                  <StarIcon size={12} color={textColor} />
+                </View>
+              )}
             </BlurView>
 
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -167,7 +171,6 @@ const CardComponent = ({ cardId, displayData, scale = 1, isPreview = false }) =>
         {/* Bottom Row */}
         {!isPreview && (
           <YStack gap="$2" pb="$1" pl="$1">
-            {isPinned && <StarIcon size={16} color={textColor} />}
             <View style={styles.bottomRow}>
               <Text fontSize={16} color={textColor} fontWeight="600">
                 •••• &nbsp;{lastFourDigits}

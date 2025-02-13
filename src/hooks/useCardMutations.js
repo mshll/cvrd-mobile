@@ -9,6 +9,7 @@ import {
   togglePin,
   closeCard,
   updateCard,
+  updateCardLocation,
 } from '@/api/cards';
 import { CARDS_QUERY_KEY } from './useCardsQuery';
 import Toast from 'react-native-toast-message';
@@ -75,7 +76,7 @@ export function useCardMutations() {
       const previousCards = queryClient.getQueryData(CARDS_QUERY_KEY);
 
       // Optimistically update
-      optimisticUpdate(cardId, { is_paused: !previousCards?.find((c) => c.id === cardId)?.is_paused });
+      optimisticUpdate(cardId, { paused: !previousCards?.find((c) => c.id === cardId)?.paused });
 
       return { previousCards };
     },
@@ -84,15 +85,13 @@ export function useCardMutations() {
       queryClient.setQueryData(CARDS_QUERY_KEY, context.previousCards);
       Toast.show({
         type: 'error',
-        text1: 'Error',
-        text2: err.response?.data?.message || 'Failed to toggle pause',
+        text1: err.response?.data?.message || 'Failed to toggle pause',
       });
     },
     onSuccess: (data, cardId) => {
       Toast.show({
         type: 'success',
-        text1: 'Success',
-        text2: `Card ${data.is_paused ? 'paused' : 'unpaused'} successfully`,
+        text1: `Card ${data.paused ? 'paused' : 'unpaused'} successfully`,
       });
     },
     onSettled: () => {
@@ -117,11 +116,11 @@ export function useCardMutations() {
       });
     },
     onSuccess: (data, cardId) => {
-      Toast.show({
-        type: 'success',
-        text1: 'Success',
-        text2: `Card ${data.pinned ? 'pinned' : 'unpinned'} successfully`,
-      });
+      // Toast.show({
+      //   type: 'success',
+      //   text1: 'Success',
+      //   text2: `Card ${data.pinned ? 'pinned' : 'unpinned'} successfully`,
+      // });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: CARDS_QUERY_KEY });
@@ -133,7 +132,7 @@ export function useCardMutations() {
     onMutate: async (cardId) => {
       await queryClient.cancelQueries({ queryKey: CARDS_QUERY_KEY });
       const previousCards = queryClient.getQueryData(CARDS_QUERY_KEY);
-      optimisticUpdate(cardId, { is_closed: true });
+      optimisticUpdate(cardId, { closed: true });
       return { previousCards };
     },
     onError: (err, cardId, context) => {
@@ -195,6 +194,25 @@ export function useCardMutations() {
     },
   });
 
+  const updateCardLocationMutation = useMutation({
+    mutationFn: ({ cardId, locationData }) => updateCardLocation(cardId, locationData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cards'] });
+      Toast.show({
+        type: 'success',
+        text1: 'Location Updated',
+        text2: 'Card location has been updated successfully',
+      });
+    },
+    onError: (error) => {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Failed to update card location',
+      });
+    },
+  });
+
   return {
     createBurnerCardMutation,
     createCategoryCardMutation,
@@ -205,5 +223,6 @@ export function useCardMutations() {
     togglePinMutation,
     closeCardMutation,
     updateCardMutation,
+    updateCardLocationMutation,
   };
 }

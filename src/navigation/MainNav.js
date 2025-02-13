@@ -2,7 +2,7 @@ import { Paths } from './paths';
 import { ActivityStack, HomeStack, ProfileStack, SubscriptionsStack } from './StackNavs';
 import { Circle } from 'tamagui';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useColorScheme } from 'react-native';
 import AddCardScreen from '@/screens/AddCardScreen';
 import EditCardScreen from '@/screens/EditCardScreen';
@@ -25,6 +25,7 @@ import AuthNav from './AuthNav';
 import { TouchableOpacity } from 'react-native';
 import { StarIcon } from 'react-native-heroicons/solid';
 import { StarIcon as StarIconOutline } from 'react-native-heroicons/outline';
+import BoubyanLoginScreen from '@/screens/BoubyanLoginScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -127,21 +128,6 @@ const MainNav = () => {
             animation: 'slide_from_right',
             gestureEnabled: true,
             gestureDirection: 'horizontal',
-            headerRight: () => {
-              if (!card || card.is_closed) return null;
-              return (
-                <TouchableOpacity
-                  onPress={() => togglePinMutation.mutate(card.id)}
-                  style={{ padding: 8, marginRight: -8 }}
-                >
-                  {card.pinned ? (
-                    <StarIcon size={24} color={colors.text} />
-                  ) : (
-                    <StarIconOutline size={24} color={colors.text} />
-                  )}
-                </TouchableOpacity>
-              );
-            },
           };
         }}
       />
@@ -151,6 +137,14 @@ const MainNav = () => {
         options={{
           presentation: 'modal',
           headerShown: false,
+          animation: 'slide_from_bottom',
+        }}
+      />
+      <Stack.Screen
+        name="BoubyanLogin"
+        component={BoubyanLoginScreen}
+        options={{
+          presentation: 'modal',
           animation: 'slide_from_bottom',
         }}
       />

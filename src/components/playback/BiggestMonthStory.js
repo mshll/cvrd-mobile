@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { YStack, Text } from 'tamagui';
 import { ChartBarIcon } from 'react-native-heroicons/solid';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { formatCurrency } from '@/utils/utils';
 import { styles } from './styles';
 

@@ -1,54 +1,41 @@
-import { View, Text, YStack, Input, Button, XStack } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { View, Text, YStack, Button, XStack } from 'tamagui';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useState } from 'react';
-import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { StyleSheet, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import { useNavigation, CommonActions, useRoute } from '@react-navigation/native';
 import { Paths } from '@/navigation/paths';
-import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { ChevronLeftIcon, CheckCircleIcon } from 'react-native-heroicons/outline';
+import { setToken } from '@/api/storage';
+import { useAuthContext } from '@/context/AuthContext';
 
 const ConnectBankScreen = () => {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const [bankName, setBankName] = useState('');
-  const [ibanNumber, setIbanNumber] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [billingAddress, setBillingAddress] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const route = useRoute();
+  const { setUser } = useAuthContext();
+  const registrationData = route.params?.registrationData;
+  const [connectedBank, setConnectedBank] = useState(null);
 
-  const handleConnect = () => {
-    // Reset navigation stack and navigate to Main
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [
-          {
-            name: 'Main',
-            params: {
-              screen: Paths.HOME,
-            },
-          },
-        ],
-      })
-    );
+  const finishRegistration = async () => {
+    if (registrationData?.token) {
+      await setToken(registrationData.token);
+      setUser(registrationData);
+    }
   };
 
-  const handleSkip = () => {
-    // Reset navigation stack and navigate to Main
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [
-          {
-            name: 'Main',
-            params: {
-              screen: Paths.HOME,
-            },
-          },
-        ],
-      })
-    );
+  const handleConnectBank = () => {
+    navigation.navigate('BoubyanLogin', {
+      onSuccess: (data) => {
+        setConnectedBank(data);
+      },
+      token: registrationData?.token,
+    });
+  };
+
+  const handleSkip = async () => {
+    await finishRegistration();
   };
 
   const handleBack = () => {
@@ -58,129 +45,78 @@ const ConnectBankScreen = () => {
   return (
     <View f={1} bg={colors.background}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView
-          bounces={false}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingTop: insets.top,
-            paddingHorizontal: 16,
-          }}
-        >
-          <YStack f={1} gap="$6">
-            {/* Header with Back Button */}
-            <XStack ai="center" mt="$4">
-              <Button
-                size="$3"
-                circular
-                backgroundColor={colors.backgroundSecondary}
-                pressStyle={{ backgroundColor: colors.backgroundTertiary }}
-                onPress={handleBack}
-                borderWidth={1}
-                borderColor={colors.border}
-                mr="$4"
-              >
-                <ChevronLeftIcon size={20} color={colors.text} />
-              </Button>
-            </XStack>
+        <YStack f={1} px="$4" gap="$6" pt={insets.top}>
+          {/* Header with Back Button */}
+          <XStack ai="center" mt="$4">
+            <Button
+              size="$3"
+              circular
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={handleBack}
+              borderWidth={1}
+              borderColor={colors.border}
+              mr="$4"
+            >
+              <ChevronLeftIcon size={20} color={colors.text} />
+            </Button>
+          </XStack>
 
-            {/* Title */}
-            <YStack gap="$2">
-              <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="$archivoBlack">
-                CONNECT YOUR{'\n'}BANK ACCOUNT
+          {/* Title */}
+          <YStack gap="$2">
+            <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="$archivoBlack">
+              CONNECT YOUR{'\n'}BANK ACCOUNT
+            </Text>
+            <Text color={colors.textSecondary} fontSize="$3">
+              to be able to spend money from your generated cards
+            </Text>
+          </YStack>
+
+          {/* Bank Connection Status */}
+          {connectedBank ? (
+            <YStack
+              backgroundColor={colors.backgroundSecondary}
+              p="$4"
+              br={16}
+              borderWidth={1}
+              borderColor={colors.border}
+              gap="$2"
+            >
+              <XStack ai="center" gap="$2">
+                <CheckCircleIcon size={20} color={Colors.cards.green} />
+                <Text color={colors.text} fontSize="$4" fontWeight="600">
+                  Bank Account Connected
+                </Text>
+              </XStack>
+              <Text color={colors.textSecondary} fontSize="$3">
+                Account Number: {connectedBank.bankAccountNumber}
               </Text>
               <Text color={colors.textSecondary} fontSize="$3">
-                to be able to spend money from your generated cards
+                Username: {connectedBank.bankAccountUsername}
               </Text>
             </YStack>
-
-            {/* Form */}
-            <YStack gap="$4">
-              <YStack gap="$2">
-                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                  Bank Name
-                </Text>
-                <Input
-                  value={bankName}
-                  onChangeText={setBankName}
-                  placeholder="Boubyan Bank"
-                  backgroundColor={colors.backgroundSecondary}
-                  borderWidth={1}
-                  borderColor={colors.border}
-                  color={colors.text}
-                  placeholderTextColor={colors.textTertiary}
-                  fontSize="$4"
-                  height={45}
-                  px="$4"
-                  br={12}
+          ) : (
+            <Button
+              size="$6"
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={handleConnectBank}
+              borderWidth={1}
+              borderColor={colors.border}
+              br={16}
+            >
+              <XStack ai="center" gap="$3">
+                <Image
+                  source={require('@/../assets/boubyan-logo-min.png')}
+                  style={{ width: 40, height: 40, resizeMode: 'contain' }}
                 />
-              </YStack>
-
-              <YStack gap="$2">
-                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                  IBAN Number
+                <Text color={colors.text} fontSize="$4" fontWeight="600">
+                  Login with Boubyan Bank
                 </Text>
-                <Input
-                  value={ibanNumber}
-                  onChangeText={setIbanNumber}
-                  placeholder="BBYN000000000000123456"
-                  keyboardType="ascii-capable"
-                  autoCapitalize="characters"
-                  backgroundColor={colors.backgroundSecondary}
-                  borderWidth={1}
-                  borderColor={colors.border}
-                  color={colors.text}
-                  placeholderTextColor={colors.textTertiary}
-                  fontSize="$4"
-                  height={45}
-                  px="$4"
-                  br={12}
-                />
-              </YStack>
-
-              <YStack gap="$2">
-                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                  Phone Number
-                </Text>
-                <Input
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  placeholder="+965 12345678"
-                  keyboardType="phone-pad"
-                  backgroundColor={colors.backgroundSecondary}
-                  borderWidth={1}
-                  borderColor={colors.border}
-                  color={colors.text}
-                  placeholderTextColor={colors.textTertiary}
-                  fontSize="$4"
-                  height={45}
-                  px="$4"
-                  br={12}
-                />
-              </YStack>
-
-              <YStack gap="$2">
-                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                  Billing Address
-                </Text>
-                <Input
-                  value={billingAddress}
-                  onChangeText={setBillingAddress}
-                  placeholder="Ghazali Rd, CODED"
-                  backgroundColor={colors.backgroundSecondary}
-                  borderWidth={1}
-                  borderColor={colors.border}
-                  color={colors.text}
-                  placeholderTextColor={colors.textTertiary}
-                  fontSize="$4"
-                  height={45}
-                  px="$4"
-                  br={12}
-                />
-              </YStack>
-            </YStack>
-          </YStack>
-        </ScrollView>
+              </XStack>
+            </Button>
+          )}
+        </YStack>
 
         {/* Actions - Sticky Bottom */}
         <YStack
@@ -192,24 +128,25 @@ const ConnectBankScreen = () => {
           borderTopColor={`${colors.border}40`}
           backgroundColor={colors.background}
         >
-          <Button
-            backgroundColor={colors.primary}
-            pressStyle={{ backgroundColor: colors.primaryDark }}
-            onPress={handleConnect}
-            disabled={isLoading}
-            size="$5"
-            borderRadius={15}
-          >
-            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
-              {isLoading ? 'Connecting...' : 'Connect Account'}
-            </Text>
-          </Button>
-
-          <Button backgroundColor="transparent" onPress={handleSkip} size="$4" borderRadius={15}>
-            <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-              or do this later in settings
-            </Text>
-          </Button>
+          {connectedBank ? (
+            <Button
+              backgroundColor={colors.primary}
+              pressStyle={{ backgroundColor: colors.primaryDark }}
+              onPress={finishRegistration}
+              size="$5"
+              borderRadius={15}
+            >
+              <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+                Continue
+              </Text>
+            </Button>
+          ) : (
+            <Button backgroundColor="transparent" onPress={handleSkip} size="$4" borderRadius={15}>
+              <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
+                Skip for now
+              </Text>
+            </Button>
+          )}
         </YStack>
       </KeyboardAvoidingView>
     </View>

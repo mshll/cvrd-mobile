@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, YStack, XStack } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { StyleSheet } from 'react-native';
 import { TagIcon } from 'react-native-heroicons/solid';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,7 +11,7 @@ const AllStoresScreen = () => {
   const insets = useSafeAreaInsets();
 
   return (
-    <View f={1} bg={colors.background} pt={insets.top - 20}>
+    <View f={1} bg={colors.background} pt={20}>
       <ScrollView contentContainerStyle={styles.container}>
         <YStack gap="$4">
           {/* Header */}

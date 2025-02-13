@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { YStack, Text } from 'tamagui';
 import { SparklesIcon } from 'react-native-heroicons/solid';
 import { useColors } from '@/config/colors';
+
 import { styles } from './styles';
 
 export function OutroStory() {

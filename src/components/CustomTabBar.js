@@ -1,5 +1,5 @@
 import { TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Circle, Square, View } from 'tamagui';
 import { Paths } from '@/navigation/paths';

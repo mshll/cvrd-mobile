@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, useTheme } from 'tamagui';
-import { Colors } from './colors';
+import { Colors } from '@/context/ColorSchemeContext';
 import { useColorScheme } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { XMarkIcon, CheckCircleIcon, ExclamationTriangleIcon } from 'react-native-heroicons/solid';

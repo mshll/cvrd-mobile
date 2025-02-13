@@ -1,6 +1,6 @@
 import { YStack, XStack, Button, Input, Text } from 'tamagui';
 import { TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useState, useEffect, useCallback } from 'react';
 
 const DURATION_OPTIONS = [
@@ -44,20 +44,37 @@ const SpendLimitMenu = ({ card, onSave, darkButtons = false, showSaveButton = fa
 
   const handleSave = useCallback(() => {
     const updates = {};
-
     if (durationLimit === 'no_limit') {
-      // If "No Limit" is selected, we want to remove all limits
-      updates[DURATION_OPTIONS[1].value] = null; // Use per_transaction as the type to remove limits
-    } else if (spendingLimit) {
-      // If a limit is set, use that specific limit type
-      updates[durationLimit] = spendingLimit === '0' ? null : parseFloat(spendingLimit);
+      // If 'No Limit' is selected, set all limit options (except 'no_limit') to null
+      DURATION_OPTIONS.forEach((option) => {
+        if (option.value !== 'no_limit') {
+          updates[option.value] = null;
+        }
+      });
+    } else {
+      // Set the chosen limit value: if spendingLimit is provided and not '0', set its parsed float value, otherwise null
+      updates[durationLimit] = spendingLimit ? (spendingLimit === '0' ? null : parseFloat(spendingLimit)) : null;
+      // Set all other limits (except 'no_limit') to null
+      DURATION_OPTIONS.forEach((option) => {
+        if (option.value !== 'no_limit' && option.value !== durationLimit) {
+          updates[option.value] = null;
+        }
+      });
     }
-
-    // Call onSave with the updates
     if (onSave) {
       onSave(updates);
     }
   }, [durationLimit, spendingLimit, onSave]);
+
+  // Add a new useEffect to save when the keyboard is dismissed
+  useEffect(() => {
+    if (!showSaveButton) {
+      const keyboardHideListener = Keyboard.addListener('keyboardDidHide', () => {
+        handleSave();
+      });
+      return () => keyboardHideListener.remove();
+    }
+  }, [handleSave, showSaveButton]);
 
   const getButtonBackgroundColor = (isSelected) => {
     if (isSelected) return colors.primary;

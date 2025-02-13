@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { YStack, Text } from 'tamagui';
 import { BuildingStorefrontIcon } from 'react-native-heroicons/solid';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { styles } from './styles';
 
 export function TopMerchantStory({ topMerchant, topMerchantVisits }) {

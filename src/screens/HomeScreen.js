@@ -1,43 +1,49 @@
 import * as React from 'react';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Colors, useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useColorScheme } from 'react-native';
+import { RefreshControl } from 'react-native';
 import CardCarousel from '../components/CardCarousel';
-import {
-  BuildingStorefrontIcon,
-  FireIcon,
-  MapPinIcon,
-  TagIcon,
-  ArrowsUpDownIcon,
-  AdjustmentsHorizontalIcon,
-  BanknotesIcon,
-  CreditCardIcon,
-  PauseIcon,
-  XCircleIcon,
-  ShareIcon,
-} from 'react-native-heroicons/solid';
 import { useCards } from '@/hooks/useCards';
 import { useSectionOrder } from '@/hooks/useSectionOrder';
 import { ScrollView, View, Button, XStack, Text, YStack, Spinner, Card, Avatar } from 'tamagui';
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import DraggableList from '@/components/DraggableList';
-import { BlurView } from 'expo-blur';
-import { user } from '@/data/user';
 import { formatCurrency } from '@/utils/utils';
-import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
-import { Platform, StyleSheet } from 'react-native';
-import { FullWindowOverlay } from 'react-native-screens';
 import BottomSheet from '@/components/BottomSheet';
 import { useUser } from '@/hooks/useUser';
 import { SpendingRecapButton } from '@/components/SpendingRecapButton';
 import { SpendingRecapStory } from '@/components/SpendingRecapStory';
+import { useNavigation } from '@react-navigation/native';
+import CompactCardComponent from '@/components/CompactCardComponent';
+import { TouchableOpacity } from 'react-native';
+import SearchBar from '@/components/SearchBar';
+import SearchView from '@/components/SearchView';
+import {
+  BuildingStorefrontIcon,
+  FireIcon,
+  MapPinIcon,
+  TagIcon,
+  AdjustmentsHorizontalIcon,
+  BanknotesIcon,
+  MagnifyingGlassIcon,
+  StarIcon,
+} from 'react-native-heroicons/solid';
 
 // ============================================================================
 // Constants & Config
 // ============================================================================
 
 const SECTION_CONFIG = {
+  PINNED: {
+    id: 'PINNED',
+    title: 'Favorite Cards',
+    icon: StarIcon,
+  },
+  BURNER: {
+    id: 'BURNER',
+    title: 'Burner Cards',
+    icon: FireIcon,
+  },
   MERCHANT: {
     id: 'MERCHANT',
     title: 'Merchant-Locked Cards',
@@ -52,11 +58,6 @@ const SECTION_CONFIG = {
     id: 'LOCATION',
     title: 'Location-Locked Cards',
     icon: MapPinIcon,
-  },
-  BURNER: {
-    id: 'BURNER',
-    title: 'Burner Cards',
-    icon: FireIcon,
   },
 };
 
@@ -118,7 +119,7 @@ function SpendingStats() {
       <XStack ai="center" mb="$2" gap="$2">
         <BanknotesIcon size={20} color={colors.text} />
         <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
-          Spend
+          Total Spending
         </Text>
       </XStack>
       <XStack gap="$3">
@@ -245,12 +246,6 @@ function ReorganizeSheet({ isOpen, onOpenChange, sections, onReorder, onReset })
   );
 }
 
-const styles = StyleSheet.create({
-  contentContainer: {
-    flex: 1,
-  },
-});
-
 // ============================================================================
 // Main Screen Component
 // ============================================================================
@@ -258,10 +253,16 @@ const styles = StyleSheet.create({
 function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { cardsByType, getCardDisplayData, isLoading: isCardsLoading } = useCards();
+  const { cardsByType, getCardDisplayData, isLoading: isCardsLoading, refetch: refetchCards, searchCards } = useCards();
   const { order, isLoading: isSectionOrderLoading, saveOrder, resetOrder } = useSectionOrder();
   const [isReorganizing, setIsReorganizing] = useState(false);
   const [showRecap, setShowRecap] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const navigation = useNavigation();
+  const searchListRef = useRef(null);
 
   // Mock spending data - replace with real data from your API
   const spendingData = {
@@ -278,6 +279,19 @@ function HomeScreen() {
     topCategoryAmount: 12000,
   };
 
+  // Get all pinned cards across all types
+  const pinnedCards = useMemo(() => {
+    const allPinnedCards = [];
+    Object.values(cardsByType).forEach((cards) => {
+      cards.forEach((card) => {
+        if (card.pinned) {
+          allPinnedCards.push(card);
+        }
+      });
+    });
+    return allPinnedCards.map(getCardDisplayData);
+  }, [cardsByType, getCardDisplayData]);
+
   const sections = useMemo(() => {
     return order.map((sectionId) => {
       const sectionCards = cardsByType[sectionId] || [];
@@ -287,8 +301,8 @@ function HomeScreen() {
         data: sectionCards
           .sort((a, b) => {
             // First sort by pin status
-            if (a.isPinned && !b.isPinned) return -1;
-            if (!a.isPinned && b.isPinned) return 1;
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
 
             // Then sort by card status
             const getPriority = (card) => {
@@ -308,8 +322,54 @@ function HomeScreen() {
     await saveOrder(newOrder);
   };
 
-  const isLoading = isCardsLoading || isSectionOrderLoading;
+  // Handle search
+  const handleSearch = useCallback(
+    (query) => {
+      setSearchText(query);
+      if (!query.trim()) {
+        setSearchResults([]);
+        return;
+      }
+      setSearchResults(searchCards(query));
+    },
+    [searchCards]
+  );
 
+  // Add refresh handler
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        refetchCards(),
+        // Add any other data refetch calls here
+      ]);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refetchCards]);
+
+  // Set up navigation options with search button
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => setShowSearch(!showSearch)}
+          style={{
+            marginRight: 8,
+            backgroundColor: showSearch ? colors.backgroundSecondary : 'transparent',
+            padding: 8,
+            borderRadius: 8,
+          }}
+        >
+          <MagnifyingGlassIcon size={24} color={colors.text} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, colors.text, showSearch]);
+
+  const isLoading = isCardsLoading || isSectionOrderLoading;
   if (isLoading) {
     return (
       <View f={1} ai="center" jc="center" bg={colors.background}>
@@ -319,33 +379,72 @@ function HomeScreen() {
   }
 
   return (
-    <View f={1} bg={colors.background}>
-      <ScrollView
-        f={1}
-        contentContainerStyle={{
-          paddingTop: insets.top - 20,
-          paddingBottom: insets.bottom,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        <SpendingRecapButton onPress={() => setShowRecap(true)} />
-        <SpendingSummary />
-        {sections.map((section) => (
-          <CardCarousel key={section.id} title={section.title} data={section.data} icon={section.icon} />
-        ))}
-        <CustomizeButton onPress={() => setIsReorganizing(true)} />
-      </ScrollView>
+    <>
+      {showSearch && <SearchBar onSearch={handleSearch} searchText={searchText} placeholder="Search cards" />}
+      {showSearch ? (
+        <SearchView
+          searchResults={searchResults}
+          searchText={searchText}
+          listRef={searchListRef}
+          renderItem={({ item }) => <CompactCardComponent item={item} />}
+          emptyMessage="Try searching for a different card or merchant."
+          searchTerm="card"
+        />
+      ) : (
+        <ScrollView
+          f={1}
+          contentContainerStyle={{
+            paddingTop: 24,
+            paddingBottom: insets.bottom,
+          }}
+          showsVerticalScrollIndicator={false}
+          contentInsetAdjustmentBehavior="automatic"
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={colors.text}
+              colors={[colors.primary]}
+              progressBackgroundColor={colors.backgroundSecondary}
+              progressViewOffset={10}
+            />
+          }
+        >
+          <SpendingRecapButton onPress={() => setShowRecap(true)} />
 
-      <ReorganizeSheet
-        isOpen={isReorganizing}
-        onOpenChange={setIsReorganizing}
-        sections={sections}
-        onReorder={handleReorder}
-        onReset={resetOrder}
-      />
+          <SpendingSummary />
 
-      <SpendingRecapStory isVisible={showRecap} onClose={() => setShowRecap(false)} spendingData={spendingData} />
-    </View>
+          {/* Pinned Cards Section */}
+          {pinnedCards.length > 0 && (
+            <CardCarousel
+              key="pinned"
+              title={SECTION_CONFIG.PINNED.title}
+              data={pinnedCards}
+              icon={SECTION_CONFIG.PINNED.icon}
+            />
+          )}
+
+          {/* Regular Sections */}
+          {sections.map((section) => (
+            <CardCarousel key={section.id} title={section.title} data={section.data} icon={section.icon} />
+          ))}
+
+          <CustomizeButton onPress={() => setIsReorganizing(true)} />
+
+          {/* Absolute Positioned Components */}
+          <>
+            <ReorganizeSheet
+              isOpen={isReorganizing}
+              onOpenChange={setIsReorganizing}
+              sections={sections}
+              onReorder={handleReorder}
+              onReset={resetOrder}
+            />
+            <SpendingRecapStory isVisible={showRecap} onClose={() => setShowRecap(false)} spendingData={spendingData} />
+          </>
+        </ScrollView>
+      )}
+    </>
   );
 }
 

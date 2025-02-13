@@ -1,5 +1,5 @@
 import { View, Text, YStack, XStack, Button, Input, Circle, Slider } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { PlusIcon, ArrowPathIcon } from 'react-native-heroicons/solid';
@@ -15,10 +15,12 @@ import ColorPicker, { Panel1, Preview, HueSlider } from 'reanimated-color-picker
 import BottomSheet from '@/components/BottomSheet';
 import { getCardCustomization, saveCardCustomization, resetCardCustomization, Defaults } from '@/utils/storage';
 import Toast from 'react-native-toast-message';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const EditCardScreen = () => {
   const colors = useColors();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const route = useRoute();
   const { cardId } = route.params;
   const { getCardById } = useCards();
@@ -348,7 +350,15 @@ const EditCardScreen = () => {
           )}
 
           {/* Bottom Buttons */}
-          <YStack width="100%" gap="$2.5" borderTopWidth={1} borderTopColor={colors.border} pt="$4" mt="$4">
+          <YStack
+            width="100%"
+            gap="$2.5"
+            borderTopWidth={1}
+            borderTopColor={colors.border}
+            pt="$4"
+            mt="$4"
+            pb={insets.bottom + 15}
+          >
             <Button
               backgroundColor={colors.primary}
               pressStyle={{ backgroundColor: colors.primaryDark }}

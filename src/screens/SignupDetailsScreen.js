@@ -1,5 +1,5 @@
 import { View, Text, YStack, Input, Button, XStack } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useState } from 'react';
 import {
   StyleSheet,
@@ -86,9 +86,9 @@ const SignupDetailsScreen = () => {
         };
 
         //console.log('📤 Submitting signup data to API:', formattedData);
-        await signupMutation.mutateAsync(formattedData);
-        //console.log('✅ Account created successfully, navigating to main app');
-        resetSignupData(); // Reset signup data after successful registration
+        const response = await signupMutation.mutateAsync(formattedData);
+        //console.log('✅ Account created successfully, navigating to connect bank');
+        navigation.navigate(Paths.CONNECT_BANK, { registrationData: response });
       } catch (error) {
         console.error('❌ Account creation failed:', error);
         // Error handling is done in the mutation

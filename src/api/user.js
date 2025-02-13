@@ -1,4 +1,4 @@
-import instance from '.';
+import instance from './index';
 
 export const getAllUsers = async () => {
   const response = await instance.get('/user/view-all');
@@ -15,7 +15,22 @@ export const getUser = async () => {
   return response.data;
 };
 
-export const updateUser = async (userData) => {
-  const response = await instance.put('/user/me', userData);
+export const updateUser = async (updates) => {
+  const response = await instance.put('/user/me', updates);
+  return response.data;
+};
+
+export const getCardIssuanceLimit = async () => {
+  const response = await instance.get('/user/me/card-issuance-limit');
+  return response.data;
+};
+
+export const disconnectBank = async () => {
+  const response = await instance.post('/user/me/disconnect-bank');
+  return response.data;
+};
+
+export const connectBank = async (bankAccountUsername) => {
+  const response = await instance.post('/user/me/connect-bank', { bankAccountUsername });
   return response.data;
 };

@@ -3,6 +3,8 @@ import { View } from 'react-native';
 import { YStack, Text } from 'tamagui';
 import { CurrencyDollarIcon } from 'react-native-heroicons/solid';
 import { useColors } from '@/config/colors';
+
+
 import { formatCurrency } from '@/utils/utils';
 import { styles } from './styles';
 

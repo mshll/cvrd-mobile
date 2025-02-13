@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { Text, XStack } from 'tamagui';
 import DragList from 'react-native-draglist';
 import { Bars3Icon } from 'react-native-heroicons/solid';

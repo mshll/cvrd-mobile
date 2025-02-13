@@ -4,8 +4,6 @@ import { useAuthContext } from '@/context/AuthContext';
 import Toast from 'react-native-toast-message';
 
 export function useSignup() {
-  const { setUser } = useAuthContext();
-
   return useMutation({
     mutationFn: async (userData) => {
       console.log('🚀 Starting API registration call with data:', userData);
@@ -14,8 +12,6 @@ export function useSignup() {
       return response;
     },
     onSuccess: (data) => {
-      console.log('✨ Setting user data in context:', data);
-      setUser(data);
       Toast.show({
         type: 'success',
         text1: 'Success',

@@ -1,82 +1,110 @@
 import { View, Text, XStack, YStack } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { StyleSheet, Animated, TouchableOpacity } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCards } from '@/hooks/useCards';
-import { useNavigation } from '@react-navigation/native';
-import { Paths } from '@/navigation/paths';
+import TransactionDetailsSheet from './TransactionDetailsSheet';
+import { format } from 'date-fns';
+import { CheckCircleIcon, XCircleIcon } from 'react-native-heroicons/solid';
 
 const formatTransactionDate = (dateString) => {
   const date = new Date(dateString);
-  const month = date.toLocaleString('en-US', { month: 'short' });
-  const day = date.getDate();
-  const hours = date.getHours();
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const period = hours >= 12 ? 'PM' : 'AM';
-  const formattedHours = hours % 12 || 12;
-
-  return `${month} ${day}, ${formattedHours}:${minutes} ${period}`;
+  return format(date, 'MMM d, h:mm a');
 };
 
-const TransactionCard = ({ transaction }) => {
+const TransactionCard = ({ transaction, backgroundColor }) => {
   const colors = useColors();
-  const navigation = useNavigation();
   const { getCardById } = useCards();
+  const [showDetails, setShowDetails] = useState(false);
   const { name, amount, date, status, cardId } = transaction;
   const card = getCardById(cardId);
+  const bg = backgroundColor || colors.backgroundSecondary;
 
-  // If card is not found, use a default color
-  const cardColor = card?.cardColor || Colors.cards.blue;
-  const bgColor = `${cardColor}26`; // 15% opacity
-
-  const handlePress = () => {
-    if (card) {
-      navigation.navigate(Paths.CARD_DETAILS, {
-        cardId: card.id,
-      });
+  // Get status info
+  const getStatusInfo = (status) => {
+    const normalizedStatus = status?.toUpperCase();
+    switch (normalizedStatus) {
+      case 'APPROVED':
+        return {
+          color: Colors.cards.green,
+          text: 'Approved',
+          icon: CheckCircleIcon,
+        };
+      case 'DECLINED':
+        return {
+          color: Colors.cards.red,
+          text: 'Declined',
+          icon: XCircleIcon,
+        };
+      default:
+        return {
+          color: colors.textSecondary,
+          text: status || 'Unknown',
+          icon: XCircleIcon,
+        };
     }
   };
 
-  return (
+  const statusInfo = getStatusInfo(status);
+  const StatusIcon = statusInfo.icon;
 
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
-      <XStack
-        backgroundColor={colors.card}
-        p={16}
-        mb={10}
-        br={12}
-        ai="center"
-        jc="space-between"
-        borderWidth={1}
-        borderColor={colors.border}
-      >
-        <XStack ai="center" gap={12} f={1}>
-          <View width={50} height={50} br={8} backgroundColor={colors.backgroundTertiary} ai="center" jc="center">
-            <Text fontSize={20}>{card?.cardIcon || '💳'}</Text>
-          </View>
-          <YStack f={1}>
-            <XStack>
-              <View backgroundColor={bgColor} br={6} px={'$2'} py={'$1.5'} fd="row" ai="center" gap={4} maxWidth="80%">
-                <Text color={cardColor} fontSize={14} fontWeight="500" numberOfLines={1} ellipsizeMode="tail">
-                  {name}
-                </Text>
-              </View>
-            </XStack>
-            <Text color={colors.textSecondary} fontSize={12} mt={4}>
-              {formatTransactionDate(date)}
+  return (
+    <>
+      <TouchableOpacity onPress={() => setShowDetails(true)} activeOpacity={0.7}>
+        <XStack
+          backgroundColor={bg}
+          height={80}
+          br={16}
+          borderWidth={1}
+          borderColor={colors.border}
+          p={16}
+          ai="center"
+          jc="space-between"
+          gap={16}
+        >
+          {/* Left section with icon and details */}
+          <XStack ai="center" gap={16} f={1}>
+            <View
+              width={48}
+              height={48}
+              backgroundColor={`${card?.cardColor || colors.primary}15`}
+              ai="center"
+              jc="center"
+              borderRadius={14}
+              borderWidth={1}
+              borderColor={`${card?.cardColor || colors.primary}30`}
+            >
+              <Text fontSize={24}>{card?.cardIcon || '💳'}</Text>
+            </View>
+
+            {/* Middle section with name and date */}
+            <YStack f={1} gap={4}>
+              <Text color={colors.text} fontSize={16} fontWeight="600" numberOfLines={1}>
+                {name}
+              </Text>
+              <Text color={colors.textSecondary} fontSize={13} fontFamily="$mono">
+                {formatTransactionDate(date)}
+              </Text>
+            </YStack>
+          </XStack>
+
+          {/* Right section with amount and status */}
+          <YStack ai="flex-end" gap={6}>
+            <Text color={colors.text} fontSize={16} fontWeight="600">
+              - KD {amount}
             </Text>
+            <XStack ai="center" gap={4}>
+              <StatusIcon size={12} color={statusInfo.color} />
+              <Text color={statusInfo.color} fontSize={13} fontWeight="500">
+                {statusInfo.text}
+              </Text>
+            </XStack>
           </YStack>
         </XStack>
-        <YStack ai="flex-end" ml={8}>
-          <Text color={colors.text} fontSize={16} fontWeight="500">
-            - KD {amount}
-          </Text>
-          <Text color={status === 'Declined' ? colors.primary : colors.textSecondary} fontSize={14}>
-            {status}
-          </Text>
-        </YStack>
-      </XStack>
-    </TouchableOpacity>
+      </TouchableOpacity>
+
+      <TransactionDetailsSheet transaction={transaction} isOpen={showDetails} onClose={() => setShowDetails(false)} />
+    </>
   );
 };
 
@@ -103,23 +131,22 @@ const TransactionCardSkeleton = () => {
 
   const styles = StyleSheet.create({
     skeletonIcon: {
-      width: 50,
-      height: 50,
-      borderRadius: 8,
+      width: 48,
+      height: 48,
+      borderRadius: 14,
       backgroundColor: colors.backgroundTertiary,
     },
-    skeletonBadge: {
+    skeletonTitle: {
       width: 120,
-      height: 26,
-      borderRadius: 20,
+      height: 20,
+      borderRadius: 4,
       backgroundColor: colors.backgroundTertiary,
     },
     skeletonDate: {
-      width: 100,
+      width: 80,
       height: 16,
       borderRadius: 4,
       backgroundColor: colors.backgroundTertiary,
-      marginTop: 4,
     },
     skeletonAmount: {
       width: 80,
@@ -132,22 +159,29 @@ const TransactionCardSkeleton = () => {
       height: 16,
       borderRadius: 4,
       backgroundColor: colors.backgroundTertiary,
-      marginTop: 4,
     },
   });
 
   return (
-    <XStack backgroundColor={colors.card} p={16} mb={10} br={12} ai="center" jc="space-between">
-      <XStack ai="center" gap={12} f={1}>
+    <XStack
+      backgroundColor={colors.backgroundSecondary}
+      height={80}
+      br={16}
+      borderWidth={1}
+      borderColor={colors.border}
+      mb={10}
+      p={16}
+      ai="center"
+      jc="space-between"
+    >
+      <XStack ai="center" gap={16} f={1}>
         <Animated.View style={[styles.skeletonIcon, { opacity: fadeAnim }]} />
-        <YStack f={1}>
-          <XStack>
-            <Animated.View style={[styles.skeletonBadge, { opacity: fadeAnim }]} />
-          </XStack>
+        <YStack f={1} gap={4}>
+          <Animated.View style={[styles.skeletonTitle, { opacity: fadeAnim }]} />
           <Animated.View style={[styles.skeletonDate, { opacity: fadeAnim }]} />
         </YStack>
       </XStack>
-      <YStack ai="flex-end" ml={8}>
+      <YStack ai="flex-end" gap={6}>
         <Animated.View style={[styles.skeletonAmount, { opacity: fadeAnim }]} />
         <Animated.View style={[styles.skeletonStatus, { opacity: fadeAnim }]} />
       </YStack>
@@ -155,40 +189,4 @@ const TransactionCardSkeleton = () => {
   );
 };
 
-const LoadingSkeleton = () => {
-  const colors = useColors();
-
-  const styles = StyleSheet.create({
-    content: {
-      paddingHorizontal: 20,
-    },
-    sectionHeader: {
-      paddingVertical: 12,
-      paddingHorizontal: 16,
-      marginBottom: 8,
-    },
-    skeletonMonth: {
-      width: 150,
-      height: 20,
-      borderRadius: 4,
-      backgroundColor: colors.backgroundTertiary,
-    },
-  });
-
-  return (
-    <View style={styles.content}>
-      <View style={styles.sectionHeader} backgroundColor={colors.background}>
-        <Animated.View style={styles.skeletonMonth} />
-      </View>
-
-      {/* Show only 4 items which is typically what fits in the viewport */}
-      {Array(6)
-        .fill(0)
-        .map((_, index) => (
-          <TransactionCardSkeleton key={index} />
-        ))}
-    </View>
-  );
-};
-
-export { TransactionCard as default, LoadingSkeleton };
+export { TransactionCard as default, TransactionCardSkeleton as LoadingSkeleton };

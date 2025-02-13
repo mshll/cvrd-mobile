@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Animated, Pressable } from 'react-native';
 import { View, XStack, YStack, Text, Button } from 'tamagui';
-import { Colors } from '../config/colors';
+import { Colors } from '@/context/ColorSchemeContext';
 import { useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '../navigation/paths';
@@ -70,10 +70,14 @@ function CardCarousel({ title, data = [], icon: Icon }) {
     const index = Math.round(position / ITEM_WIDTH);
 
     if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({
-        offset: index * ITEM_WIDTH,
-        animated: true,
-      });
+      try {
+        flatListRef.current.scrollToOffset({
+          offset: index * ITEM_WIDTH,
+          animated: true,
+        });
+      } catch (error) {
+        console.log('❌ Error scrolling to offset:', error);
+      }
     }
   }, []);
 
@@ -130,16 +134,22 @@ function CardCarousel({ title, data = [], icon: Icon }) {
     // Center the first card after mounting
     if (flatListRef.current && data.length > 0) {
       setTimeout(() => {
-        flatListRef.current.scrollToOffset({
-          offset: 0,
-          animated: false,
-        });
+        try {
+          flatListRef.current.scrollToOffset({
+            offset: 0,
+            animated: false,
+          });
+        } catch (error) {
+          console.log('❌ Error scrolling to offset:', error);
+        }
       }, 100);
     }
   }, [data]);
 
   const handleAddCard = () => {
-    navigation.navigate(Paths.ADD_CARD_SCREEN);
+    navigation.navigate(Paths.ADD_CARD_SCREEN, {
+      initialCardType: title.replace(' Cards', '').replace('-Locked', '_LOCKED').toUpperCase(),
+    });
   };
 
   return (
@@ -150,12 +160,13 @@ function CardCarousel({ title, data = [], icon: Icon }) {
           {title}
         </Text>
       </XStack>
-      <View w="100%" h={CARD_HEIGHT} ai="center">
+      <View w="100%" h={data.length === 0 ? 60 : CARD_HEIGHT} ai="center">
         {data.length === 0 ? (
           <Button
+            height={50}
             width={CARD_WIDTH}
-            height={CARD_HEIGHT}
-            borderRadius={15}
+            px="$4"
+            borderRadius={12}
             borderWidth={1}
             borderStyle="dashed"
             borderColor={colors.border}
@@ -164,9 +175,11 @@ function CardCarousel({ title, data = [], icon: Icon }) {
             onPress={handleAddCard}
             alignItems="center"
             justifyContent="center"
-            mx={SPACING}
           >
-            <PlusIcon size={24} color={colors.textTertiary} />
+            <PlusIcon size={20} color={colors.textTertiary} />
+            <Text color={colors.textTertiary} fontSize="$3" fontWeight="500">
+              Create Card
+            </Text>
           </Button>
         ) : (
           <AnimatedFlatList

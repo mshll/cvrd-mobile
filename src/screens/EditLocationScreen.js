@@ -1,30 +1,36 @@
 import { View, Text, YStack, XStack, Button, Input } from 'tamagui';
-import { Colors, useColors } from '@/config/colors';
-import { useState, useCallback, useRef } from 'react';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useCards } from '@/hooks/useCards';
+import { useCardMutations } from '@/hooks/useCardMutations';
 import { StyleSheet, StatusBar, TouchableOpacity } from 'react-native';
 import MapView, { Circle as MapCircle, Marker } from 'react-native-maps';
-import { QuestionMarkCircleIcon, PencilIcon, ChevronLeftIcon } from 'react-native-heroicons/solid';
+import { QuestionMarkCircleIcon, PencilIcon, ChevronLeftIcon, MapPinIcon } from 'react-native-heroicons/solid';
 import BottomSheet from '@/components/BottomSheet';
 import Slider from '@react-native-community/slider';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Location from 'expo-location';
 // Convert miles to km
 const DEFAULT_RADIUS = 0.5; // in km
-const MAX_RADIUS = 100; // in km
-const MIN_RADIUS = 0.2; // in km
+const MAX_RADIUS = 10; // in km for slider
+const MIN_RADIUS = 0.1; // in km
 
 const EditLocationScreen = () => {
   const colors = useColors();
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
   const { cardId, initialLocation, initialRadius, onSave } = route.params;
-  const { getCardById, updateCard } = useCards();
+  const { getCardById } = useCards();
+  const { updateCardLocationMutation } = useCardMutations();
   const card = cardId ? getCardById(cardId) : null;
   const mapRef = useRef(null);
 
+  console.log('card', card);
+
   // Get the appropriate color - either from existing card or use primary color
-  const markerColor = card ? Colors.cards[card.card_color] : colors.primary;
+  const markerColor = card ? card.cardColor : colors.primary;
 
   // State
   const [location, setLocation] = useState(
@@ -37,6 +43,7 @@ const EditLocationScreen = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [isEditingRadius, setIsEditingRadius] = useState(false);
   const [tempRadius, setTempRadius] = useState('');
+  const [userLocation, setUserLocation] = useState(null);
 
   const initialRegion = {
     latitude: location.latitude,
@@ -45,26 +52,72 @@ const EditLocationScreen = () => {
     longitudeDelta: (radius * 4) / 111,
   };
 
+  // Get user's current location
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.log('Permission to access location was denied');
+          return;
+        }
+
+        const location = await Location.getCurrentPositionAsync({});
+        setUserLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+      } catch (error) {
+        console.error('Error getting current location:', error);
+      }
+    })();
+  }, []);
+
+  const handleCenterOnUser = useCallback(() => {
+    if (userLocation) {
+      setLocation(userLocation);
+      mapRef.current?.animateToRegion(
+        {
+          ...userLocation,
+          latitudeDelta: (radius * 4) / 111,
+          longitudeDelta: (radius * 4) / 111,
+        },
+        500
+      );
+    }
+  }, [userLocation, radius]);
+
   const handleSave = useCallback(() => {
     if (cardId) {
       // If editing an existing card
-      updateCard(cardId, {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        radius,
-      });
+      updateCardLocationMutation.mutate(
+        {
+          cardId,
+          locationData: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            radius,
+          },
+        },
+        {
+          onSuccess: () => {
+            navigation.goBack();
+          },
+        }
+      );
     } else if (onSave) {
       // If selecting location during card creation
       onSave(location, radius);
+      navigation.goBack();
     }
-    navigation.goBack();
-  }, [cardId, location, radius, updateCard, onSave, navigation]);
+  }, [cardId, location, radius, updateCardLocationMutation, onSave, navigation]);
 
   const handleRadiusInput = (text) => {
     setTempRadius(text);
     const value = parseFloat(text);
     if (!isNaN(value)) {
-      const clampedValue = Math.min(Math.max(value, MIN_RADIUS), MAX_RADIUS);
+      // Only clamp the minimum value, allow any maximum
+      const clampedValue = Math.max(value, MIN_RADIUS);
       setRadius(clampedValue);
     }
   };
@@ -83,6 +136,7 @@ const EditLocationScreen = () => {
         style={StyleSheet.absoluteFill}
         initialRegion={initialRegion}
         onLongPress={(e) => setLocation(e.nativeEvent.coordinate)}
+        showsUserLocation={true}
       >
         <Marker
           coordinate={location}
@@ -167,10 +221,27 @@ const EditLocationScreen = () => {
         />
       </XStack>
 
+      {/* Center on User Location Button */}
+      {userLocation && (
+        <Button
+          size="$3"
+          circular
+          position="absolute"
+          right="$4"
+          top={120}
+          backgroundColor={colors.backgroundSecondary}
+          pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+          onPress={handleCenterOnUser}
+          icon={<MapPinIcon size={20} color={colors.primary} />}
+          borderWidth={1}
+          borderColor={colors.border}
+        />
+      )}
+
       {/* Bottom Controls */}
       <YStack
         position="absolute"
-        bottom={40}
+        bottom={insets.bottom + 75}
         left="$4"
         right="$4"
         gap="$4"

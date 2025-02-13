@@ -3,7 +3,7 @@ import { StyleSheet, Platform } from 'react-native';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { BlurView } from 'expo-blur';
 import { FullWindowOverlay } from 'react-native-screens';
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { View } from 'tamagui';
 
 const BottomSheet = ({ isOpen, onClose, children, aboveAll = true, ...props }) => {

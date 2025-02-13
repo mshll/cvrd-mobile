@@ -1,11 +1,11 @@
-import { Colors, useColors } from '@/config/colors';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { View, Text, YStack, XStack, Button, Avatar, ScrollView, Circle, Spinner } from 'tamagui';
 import { useUser } from '@/hooks/useUser';
 import { useCards } from '@/hooks/useCards';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { formatCurrency } from '@/utils/utils';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Image, RefreshControl } from 'react-native';
 import {
   BellIcon,
   CreditCardIcon,
@@ -19,13 +19,17 @@ import {
   ShareIcon,
   BanknotesIcon,
   ClockIcon,
+  BuildingLibraryIcon,
+  XMarkIcon,
 } from 'react-native-heroicons/outline';
 import { UserIcon as UserIconFilled } from 'react-native-heroicons/solid';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import BottomSheet from '@/components/BottomSheet';
 import { Paths } from '@/navigation/paths';
 import { deleteToken } from '@/api/storage';
 import { useAuthContext } from '@/context/AuthContext';
+import Toast from 'react-native-toast-message';
+import { disconnectBank } from '@/api/user';
 
 const MenuItem = ({ icon: Icon, label, value, onPress, showArrow = true }) => {
   const colors = useColors();
@@ -129,7 +133,10 @@ const ProfileScreen = () => {
   const navigation = useNavigation();
   const { cards } = useCards();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const { user, isLoading, error } = useUser();
+  const { user, isLoading, error, logout, refreshUser } = useUser();
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const limits = {
     monthlyNewCards: {
@@ -158,9 +165,20 @@ const ProfileScreen = () => {
     { active: 0, paused: 0, closed: 0, shared: 0 }
   );
 
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshUser();
+    } catch (error) {
+      console.error('Error refreshing profile:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refreshUser]);
+
   const handleLogout = async () => {
     await deleteToken();
-    setUser(null);
+    logout();
   };
 
   const handlePersonalInfo = () => {
@@ -169,6 +187,37 @@ const ProfileScreen = () => {
 
   const handleSecurity = () => {
     navigation.navigate(Paths.SECURITY);
+  };
+
+  const handleConnectBank = () => {
+    navigation.navigate('BoubyanLogin', {
+      onSuccess: () => {
+        refreshUser();
+      },
+    });
+  };
+
+  const handleDisconnectBank = async () => {
+    setIsDisconnecting(true);
+    try {
+      await disconnectBank();
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Bank account disconnected successfully',
+      });
+      refreshUser();
+      setShowDisconnectConfirm(false);
+    } catch (error) {
+      console.log('🔴 Error disconnecting bank account:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Failed to disconnect bank account',
+      });
+    } finally {
+      setIsDisconnecting(false);
+    }
   };
 
   if (isLoading) {
@@ -188,80 +237,189 @@ const ProfileScreen = () => {
   }
 
   return (
-    <View f={1} bg={colors.background}>
-      <ScrollView
-        contentContainerStyle={{
-          paddingTop: insets.top - 20,
-          paddingBottom: insets.bottom + 40,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Title Section */}
-        <YStack gap="$3" mb="$2" px={16}>
-          <XStack ai="center" mb="$2" gap="$2">
-            <UserIconFilled size={20} color={colors.text} />
-            <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
-              Profile
-            </Text>
-          </XStack>
-        </YStack>
+    <ScrollView
+      f={1}
+      contentContainerStyle={{
+        paddingTop: 20,
+        paddingBottom: insets.bottom,
+      }}
+      showsVerticalScrollIndicator={false}
+      contentInsetAdjustmentBehavior="automatic"
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={handleRefresh}
+          tintColor={colors.text}
+          colors={[colors.primary]}
+          progressBackgroundColor={colors.backgroundSecondary}
+          progressViewOffset={10}
+        />
+      }
+    >
+      {/* Title Section */}
+      <YStack gap="$3" mb="$2" px={16}>
+        <XStack ai="center" mb="$2" gap="$2">
+          <UserIconFilled size={20} color={colors.text} />
+          <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+            Profile
+          </Text>
+        </XStack>
+      </YStack>
 
-        {/* Profile Header */}
-        <YStack ai="center" pb="$6" px="$4" gap="$4">
-          <Circle backgroundColor={colors.border} borderWidth={'$2'} borderColor={colors.border}>
-            <Avatar circular size="$12">
-              <Avatar.Image
-                source={user?.profilePic ? { uri: user?.profilePic } : require('@/../assets/default.png')}
-              />
-              <Avatar.Fallback backgroundColor={colors.backgroundSecondary}>
-                <UserIcon size={32} color={colors.textSecondary} />
-              </Avatar.Fallback>
-            </Avatar>
-          </Circle>
-          <YStack ai="center" gap="$1">
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
-              {user ? `${user.firstName} ${user.lastName}` : 'User'}
+      {/* Profile Header */}
+      <YStack ai="center" pb="$6" px="$4" gap="$4">
+        <Circle backgroundColor={colors.border} borderWidth={'$2'} borderColor={colors.border}>
+          <Avatar circular size="$12">
+            <Avatar.Image source={user?.profilePic ? { uri: user?.profilePic } : require('@/../assets/default.png')} />
+            <Avatar.Fallback backgroundColor={colors.backgroundSecondary} />
+          </Avatar>
+        </Circle>
+        <YStack ai="center" gap="$1">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            {user ? `${user.firstName} ${user.lastName}` : 'User'}
+          </Text>
+          <Text color={colors.textSecondary} fontSize="$3">
+            {user?.email}
+          </Text>
+          {/* <XStack ai="center" gap="$2" mt="$2">
+            <Text color={colors.textSecondary} fontSize="$3">
+              {user?.subscription} Plan
             </Text>
             <Text color={colors.textSecondary} fontSize="$3">
-              {user?.email}
+              •
             </Text>
-            <XStack ai="center" gap="$2" mt="$2">
-              <Text color={colors.textSecondary} fontSize="$3">
-                {user?.subscription} Plan
-              </Text>
-              <Text color={colors.textSecondary} fontSize="$3">
-                •
-              </Text>
-              <Text color={colors.textSecondary} fontSize="$3">
-                {user?.phoneNumber}
-              </Text>
+            <Text color={colors.textSecondary} fontSize="$3">
+              {user?.phoneNumber}
+            </Text>
+          </XStack> */}
+        </YStack>
+      </YStack>
+
+      {/* Account Stats */}
+      <YStack px="$4" pb="$6" gap="$4">
+        {/* Bank Account Status */}
+        <View bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
+          <YStack gap="$4">
+            <XStack ai="center" jc="space-between">
+              <XStack ai="center" gap="$3">
+                <Image
+                  source={require('@/../assets/boubyan-logo-min.png')}
+                  style={{ width: 40, height: 40, resizeMode: 'contain' }}
+                />
+                <YStack>
+                  <Text color={colors.text} fontSize="$4" fontWeight="600">
+                    Boubyan Bank
+                  </Text>
+                  <Text color={colors.textSecondary} fontSize="$2">
+                    {user?.bankAccountNumber ? 'Connected' : 'Not Connected'}
+                  </Text>
+                </YStack>
+              </XStack>
+              {user?.bankAccountNumber ? (
+                <Button
+                  size="$3"
+                  backgroundColor={`${colors.danger}10`}
+                  pressStyle={{ backgroundColor: `${colors.danger}20` }}
+                  onPress={() => setShowDisconnectConfirm(true)}
+                  borderRadius={8}
+                  disabled={isDisconnecting}
+                  borderWidth={1}
+                  borderColor={`${colors.danger}30`}
+                >
+                  <XStack ai="center" gap="$2">
+                    <XMarkIcon size={16} color={colors.danger} />
+                    <Text color={colors.danger} fontSize="$3" fontWeight="600">
+                      Disconnect
+                    </Text>
+                  </XStack>
+                </Button>
+              ) : (
+                <Button
+                  size="$3"
+                  backgroundColor={colors.primary}
+                  pressStyle={{ backgroundColor: colors.primaryDark }}
+                  onPress={handleConnectBank}
+                  borderRadius={8}
+                >
+                  <Text color="white" fontSize="$3" fontWeight="600">
+                    Connect
+                  </Text>
+                </Button>
+              )}
             </XStack>
+            {user?.bankAccountNumber && (
+              <View
+                backgroundColor={`${colors.backgroundTertiary}80`}
+                p="$3"
+                br={8}
+                borderWidth={1}
+                borderColor={colors.border}
+              >
+                <YStack gap="$2">
+                  <XStack ai="center" jc="space-between">
+                    <Text color={colors.textSecondary} fontSize="$3">
+                      Account Number
+                    </Text>
+                    <Text color={colors.text} fontSize="$3" fontWeight="600" fontFamily="$mono">
+                      {user.bankAccountNumber}
+                    </Text>
+                  </XStack>
+                  <XStack ai="center" jc="space-between">
+                    <Text color={colors.textSecondary} fontSize="$3">
+                      Username
+                    </Text>
+                    <Text color={colors.text} fontSize="$3" fontWeight="600" fontFamily="$mono">
+                      {user.bankAccountUsername}
+                    </Text>
+                  </XStack>
+                </YStack>
+              </View>
+            )}
           </YStack>
-        </YStack>
+        </View>
+        <XStack gap="$3">
+          <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
+            <Text color={colors.textSecondary} fontSize="$3" mb="$2">
+              Active Cards
+            </Text>
+            <Text color={colors.text} fontSize="$5" fontWeight="700">
+              {user?.activeCardsCount || 0}
+            </Text>
+          </View>
+          <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
+            <Text color={colors.textSecondary} fontSize="$3" mb="$2">
+              Member Since
+            </Text>
+            <Text color={colors.text} fontSize="$3" fontWeight="600">
+              {new Date(user?.createdAt || new Date()).toLocaleDateString()}
+            </Text>
+          </View>
+        </XStack>
+      </YStack>
 
-        {/* Account Stats */}
-        <YStack px="$4" pb="$6" gap="$4">
-          <XStack gap="$3">
-            <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
-              <Text color={colors.textSecondary} fontSize="$3" mb="$2">
-                Active Cards
-              </Text>
-              <Text color={colors.text} fontSize="$5" fontWeight="700">
-                {user?.activeCardsCount || 0}
-              </Text>
-            </View>
-            <View f={1} bg={colors.backgroundSecondary} br={12} p="$4" borderWidth={1} borderColor={colors.border}>
-              <Text color={colors.textSecondary} fontSize="$3" mb="$2">
-                Member Since
-              </Text>
-              <Text color={colors.text} fontSize="$3" fontWeight="600">
-                {new Date(user?.createdAt || new Date()).toLocaleDateString()}
-              </Text>
-            </View>
-          </XStack>
-        </YStack>
+      {/* Progress Bars Section */}
+      <YStack gap="$3">
+        <XStack gap="$3" jc="space-between" ai="flex-end">
+          <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
+            Account Limits
+          </Text>
 
-        {/* Progress Bars Section */}
+          <Button
+            bg="transparent"
+            h={'auto'}
+            borderWidth={0}
+            mx="$1"
+            py="0"
+            my="0"
+            hitSlop={40}
+            pressStyle={{ backgroundColor: 'transparent', opacity: 0.5 }}
+          >
+            <Text color={colors.text} fontSize="$2" fontWeight="500" textDecorationLine="underline">
+              Upgrade Plan
+            </Text>
+          </Button>
+        </XStack>
+
         <View
           mx="$4"
           mb="$6"
@@ -281,14 +439,14 @@ const ProfileScreen = () => {
               isCurrency={false}
             />
             <ProgressBar
-              label="Daily Spend Limit"
+              label="Daily Limit"
               value={limits.dailySpend.current}
               max={limits.dailySpend.max}
               color={Colors.cards.green}
               icon={BanknotesIcon}
             />
             <ProgressBar
-              label="Monthly Spend Limit"
+              label="Monthly Limit"
               value={limits.monthlySpend.current}
               max={limits.monthlySpend.max}
               color={Colors.cards.pink}
@@ -296,53 +454,92 @@ const ProfileScreen = () => {
             />
           </YStack>
         </View>
+      </YStack>
 
-        {/* Menu Items */}
-        <YStack gap="$6">
-          <YStack gap="$3">
-            <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
-              Account
-            </Text>
-            <YStack gap="$2">
-              <MenuItem icon={UserIcon} label="Personal Information" onPress={handlePersonalInfo} />
-              <MenuItem icon={ShieldCheckIcon} label="Security" onPress={handleSecurity} />
-              <MenuItem icon={BellIcon} label="Notifications" onPress={() => {}} />
-              <MenuItem icon={Cog6ToothIcon} label="Preferences" onPress={() => {}} />
-            </YStack>
-          </YStack>
-
-          <YStack gap="$3">
-            <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
-              Support
-            </Text>
-            <YStack gap="$2">
-              <MenuItem icon={QuestionMarkCircleIcon} label="Help Center" onPress={() => {}} />
-              <MenuItem icon={DocumentTextIcon} label="Terms & Privacy" onPress={() => {}} />
-            </YStack>
+      {/* Menu Items */}
+      <YStack gap="$6">
+        <YStack gap="$3">
+          <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
+            Account
+          </Text>
+          <YStack gap="$2">
+            <MenuItem icon={UserIcon} label="Personal Information" onPress={handlePersonalInfo} />
+            <MenuItem icon={ShieldCheckIcon} label="Security" onPress={handleSecurity} />
+            <MenuItem icon={BellIcon} label="Notifications" onPress={() => {}} />
+            <MenuItem icon={Cog6ToothIcon} label="Preferences" onPress={() => {}} />
           </YStack>
         </YStack>
 
-        {/* Logout Button */}
-        <Button
-          mx="$4"
-          mt="$6"
-          size="$5"
-          backgroundColor={colors.backgroundSecondary}
-          pressStyle={{ backgroundColor: colors.backgroundTertiary, scale: 0.98 }}
-          onPress={() => setShowLogoutConfirm(true)}
-          borderWidth={1}
-          borderColor={colors.border}
-          br={12}
-          animation="quick"
-        >
-          <XStack ai="center" gap="$2">
-            <PowerIcon size={20} color={colors.danger} />
-            <Text color={colors.danger} fontSize="$4" fontWeight="600">
-              Log Out
-            </Text>
-          </XStack>
-        </Button>
-      </ScrollView>
+        <YStack gap="$3">
+          <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" px="$4">
+            Support
+          </Text>
+          <YStack gap="$2">
+            <MenuItem icon={QuestionMarkCircleIcon} label="Help Center" onPress={() => {}} />
+            <MenuItem icon={DocumentTextIcon} label="Terms & Privacy" onPress={() => {}} />
+          </YStack>
+        </YStack>
+      </YStack>
+
+      {/* Logout Button */}
+      <Button
+        mx="$4"
+        mt="$6"
+        size="$5"
+        backgroundColor={colors.backgroundSecondary}
+        pressStyle={{ backgroundColor: colors.backgroundTertiary, scale: 0.98 }}
+        onPress={() => setShowLogoutConfirm(true)}
+        borderWidth={1}
+        borderColor={colors.border}
+        br={12}
+        animation="quick"
+      >
+        <XStack ai="center" gap="$2">
+          <PowerIcon size={20} color={colors.danger} />
+          <Text color={colors.danger} fontSize="$4" fontWeight="600">
+            Log Out
+          </Text>
+        </XStack>
+      </Button>
+
+      {/* Bank Disconnect Confirmation Sheet */}
+      <BottomSheet isOpen={showDisconnectConfirm} onClose={() => setShowDisconnectConfirm(false)}>
+        <YStack gap="$4" px="$4" pt="$2" pb="$6">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            Disconnect Bank Account
+          </Text>
+          <Text color={colors.textSecondary} fontSize="$4">
+            Are you sure you want to disconnect your bank account? This will affect your ability to use your cards.
+          </Text>
+          <YStack gap="$3">
+            <Button
+              backgroundColor={colors.danger}
+              pressStyle={{ backgroundColor: colors.danger }}
+              onPress={handleDisconnectBank}
+              size="$5"
+              borderRadius={12}
+              disabled={isDisconnecting}
+            >
+              <Text color="white" fontSize="$4" fontWeight="600">
+                {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
+              </Text>
+            </Button>
+            <Button
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={() => setShowDisconnectConfirm(false)}
+              size="$5"
+              borderRadius={12}
+              borderWidth={1}
+              borderColor={colors.border}
+            >
+              <Text color={colors.text} fontSize="$4" fontWeight="600">
+                Cancel
+              </Text>
+            </Button>
+          </YStack>
+        </YStack>
+      </BottomSheet>
 
       {/* Logout Confirmation Sheet */}
       <BottomSheet isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)}>
@@ -381,7 +578,7 @@ const ProfileScreen = () => {
           </YStack>
         </YStack>
       </BottomSheet>
-    </View>
+    </ScrollView>
   );
 };
 

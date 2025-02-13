@@ -1,6 +1,9 @@
-import { Colors } from '@/config/colors';
 import instance from './index';
+
 import { api } from './index';
+
+import { Colors } from '@/context/ColorSchemeContext';
+
 
 // Default configurations for each card type
 export const CARD_DEFAULTS = {
@@ -33,14 +36,14 @@ function processLimits(limits) {
   // Log the incoming limits
   //console.log('📊 Processing limits:', limits);
 
-  // Initialize all limits to 0
+  // Initialize all limits to null
   const processedLimits = {
-    per_transaction: 0,
-    per_day: 0,
-    per_week: 0,
-    per_month: 0,
-    per_year: 0,
-    total: 0,
+    per_transaction: null,
+    per_day: null,
+    per_week: null,
+    per_month: null,
+    per_year: null,
+    total: null,
   };
 
   // Update with any non-zero values from the input
@@ -211,6 +214,7 @@ export async function updateCard(cardId, updates) {
   return response.data;
 }
 
+
 export async function getUserCards() {
   try {
     const response = await instance.get('/user/me/cards');
@@ -219,4 +223,18 @@ export async function getUserCards() {
     console.error('Error fetching user cards:', error);
     throw error;
   }
+
+/**
+ * Updates a card's location and radius
+ * @param {string} cardId - The ID of the card to update
+ * @param {Object} locationData - The new location data
+ * @param {number} locationData.latitude - The latitude coordinate
+ * @param {number} locationData.longitude - The longitude coordinate
+ * @param {number} locationData.radius - The radius in kilometers
+ * @returns {Promise<Object>} The updated card data
+ */
+export async function updateCardLocation(cardId, locationData) {
+  const response = await instance.put(`/card/update-location/${cardId}`, locationData);
+  return response.data;
+
 }
