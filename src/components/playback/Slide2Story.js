@@ -1,21 +1,65 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { VideoSlide } from './VideoSlide';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Text, YStack, XStack } from 'tamagui';
 import { Colors } from '@/context/ColorSchemeContext';
+import { getUserCards } from '@/api/cards';
 
 const AnimatedText = Animated.createAnimatedComponent(Text);
 const AnimatedYStack = Animated.createAnimatedComponent(YStack);
 
 export function Slide2Story() {
   const colors = Colors;
+  const [cardCounts, setCardCounts] = useState({
+    total: 0,
+    merchant: 0,
+    burner: 0,
+    location: 0,
+    category: 0,
+  });
+
+  // Fetch card data when component mounts
+  useEffect(() => {
+    async function fetchCardData() {
+      try {
+        const cards = await getUserCards();
+        const counts = cards.reduce(
+          (acc, card) => {
+            acc.total++;
+            switch (card.cardType) {
+              case 'MERCHANT_LOCKED':
+                acc.merchant++;
+                break;
+              case 'BURNER':
+                acc.burner++;
+                break;
+              case 'LOCATION_LOCKED':
+                acc.location++;
+                break;
+              case 'CATEGORY_LOCKED':
+                acc.category++;
+                break;
+            }
+            return acc;
+          },
+          { total: 0, merchant: 0, burner: 0, location: 0, category: 0 }
+        );
+
+        setCardCounts(counts);
+      } catch (error) {
+        console.error('Error fetching card data:', error);
+      }
+    }
+
+    fetchCardData();
+  }, []);
 
   const LIST_ITEMS = [
-    { number: '48', text: 'MERCHANT', color: colors.cards.red },
-    { number: '35', text: 'BURNER', color: colors.cards.pink },
-    { number: '22', text: 'LOCATION', color: colors.cards.green },
-    { number: '19', text: 'CATEGORY', color: colors.cards.navy },
+    { number: cardCounts.merchant.toString(), text: 'MERCHANT', color: colors.cards.red },
+    { number: cardCounts.burner.toString(), text: 'BURNER', color: colors.cards.pink },
+    { number: cardCounts.location.toString(), text: 'LOCATION', color: colors.cards.green },
+    { number: cardCounts.category.toString(), text: 'CATEGORY', color: colors.cards.navy },
   ];
 
   const firstLineOpacity = useSharedValue(0);
@@ -71,8 +115,6 @@ export function Slide2Story() {
           fontSize="$8"
           color="$white"
           textAlign="center"
-          // textShadowColor="rgba(0, 0, 0, 0.75)"
-          // textShadowOffset={{ width: 2, height: 2 }}
           textShadowRadius={5}
           style={firstLineStyle}
         >
@@ -86,7 +128,7 @@ export function Slide2Story() {
           textShadowRadius={5}
           style={secondLineStyle}
         >
-          124 CARDS
+          {cardCounts.total} CARDS
         </AnimatedText>
       </AnimatedYStack>
 
