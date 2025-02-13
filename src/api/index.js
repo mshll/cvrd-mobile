@@ -3,7 +3,7 @@ import { getToken } from './storage';
 
 let IP = '';
 // input ip address here (comment out to use localhost)
-IP = '192.168.2.31';
+IP = '192.168.80.1';
 
 const instance = axios.create({
   baseURL: `http://${IP || 'localhost'}:8080`,

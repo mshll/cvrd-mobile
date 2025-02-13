@@ -1,5 +1,6 @@
 import { Colors } from '@/config/colors';
 import instance from './index';
+import { api } from './index';
 
 // Default configurations for each card type
 export const CARD_DEFAULTS = {
@@ -208,4 +209,14 @@ export async function updateCard(cardId, updates) {
 
   const response = await instance.put(`/card/update/${cardId}`, updates);
   return response.data;
+}
+
+export async function getUserCards() {
+  try {
+    const response = await instance.get('/user/me/cards');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user cards:', error);
+    throw error;
+  }
 }

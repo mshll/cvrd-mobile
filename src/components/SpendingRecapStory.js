@@ -16,6 +16,7 @@ import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   IntroStory,
+  VideoStory,
   TotalSpentStory,
   BiggestMonthStory,
   HighestPurchaseStory,
@@ -164,40 +165,35 @@ export function SpendingRecapStory({ isVisible, onClose, spendingData }) {
       case 0:
         return <IntroStory />;
       case 1:
-        return <TotalSpentStory totalSpent={spendingData?.totalSpent} />;
+        return <VideoStory videoSource={require('../../assets/playback-vids/slide2.MP4')} />;
       case 2:
+        return <TotalSpentStory totalSpent={spendingData?.totalSpent} />;
+      case 3:
         return (
           <BiggestMonthStory
             biggestMonth={spendingData?.biggestMonth}
             biggestMonthAmount={spendingData?.biggestMonthAmount}
           />
         );
-      case 3:
+      case 4:
         return (
           <HighestPurchaseStory
             highestPurchase={spendingData?.highestPurchase}
             highestPurchaseMerchant={spendingData?.highestPurchaseMerchant}
           />
         );
-      case 4:
+      case 5:
         return (
           <TopMerchantStory
             topMerchant={spendingData?.topMerchant}
             topMerchantVisits={spendingData?.topMerchantVisits}
           />
         );
-      case 5:
+      case 6:
         return (
           <TopLocationStory
             topLocation={spendingData?.topLocation}
             topLocationAmount={spendingData?.topLocationAmount}
-          />
-        );
-      case 6:
-        return (
-          <TopCategoryStory
-            topCategory={spendingData?.topCategory}
-            topCategoryAmount={spendingData?.topCategoryAmount}
           />
         );
       case 7:

@@ -9,6 +9,9 @@ const config = getDefaultConfig(__dirname, {
 // Add additional module paths for Tamagui
 config.resolver.nodeModulesPaths = [...config.resolver.nodeModulesPaths, './node_modules'];
 
+// Add video file support
+config.resolver.assetExts = [...config.resolver.assetExts, 'mp4', 'MP4'];
+
 // Tamagui needs these to work properly
 config.transformer.minifierPath = require.resolve('metro-minify-terser');
 config.transformer.babelTransformerPath = require.resolve('react-native-css-transformer');
