@@ -33,7 +33,7 @@ function SearchBar({ onSearch, searchText, placeholder = 'Search' }) {
         autoCapitalize="none"
         returnKeyType="search"
         clearButtonMode="while-editing"
-        autoFocus={true}
+        // autoFocus={true}
       />
     </XStack>
   );

@@ -106,7 +106,7 @@ const TransactionDetailsSheet = ({ transaction, isOpen, onClose }) => {
             </Text>
           </XStack>
           {transaction.declineReason && (
-            <Text color={Colors.cards.red} fontSize="$2" fontWeight="500" mt="$1">
+            <Text color={Colors.cards.red} fontSize="$2" fontWeight="500" mt="$1" textAlign="center" px="$4">
               {transaction.declineReason}
             </Text>
           )}

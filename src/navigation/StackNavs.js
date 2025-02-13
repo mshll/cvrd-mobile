@@ -18,6 +18,7 @@ import { useNavigation, useNavigationState } from '@react-navigation/native';
 import PersonalInfoScreen from '@/screens/PersonalInfoScreen';
 import SecurityScreen from '@/screens/SecurityScreen';
 import { useEffect, useRef } from 'react';
+import ConnectBankScreen from '@/screens/ConnectBankScreen';
 
 const Stack = createNativeStackNavigator();
 

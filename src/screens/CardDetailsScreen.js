@@ -22,7 +22,6 @@ import Accordion from '@/components/Accordion';
 import BottomSheet from '@/components/BottomSheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TransactionList from '@/components/TransactionList';
-import TransactionListHeader from '@/components/TransactionListHeader';
 
 const MAP_HEIGHT = 200;
 
@@ -298,22 +297,7 @@ const CardDetailsScreen = () => {
   const [showConfirmClose, setShowConfirmClose] = useState(false);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ['10%', '50%', '90%'], []);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [dateSort, setDateSort] = useState('desc');
-  const [amountSort, setAmountSort] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [sortOption, setSortOption] = useState('date');
-
-  // Add focus effect to refetch card data
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      refetchCards();
-    });
-
-    return unsubscribe;
-  }, [navigation, refetchCards]);
 
   // Get card data
   const card = useMemo(() => {
@@ -330,37 +314,6 @@ const CardDetailsScreen = () => {
     isLoading: isTransactionsLoading,
     refetch: refetchTransactions,
   } = useTransactions(cardId);
-
-  // Get filtered transactions
-  const filteredTransactions = useMemo(() => {
-    let filtered = [...cardTransactions];
-
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter((transaction) => transaction.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
-
-    // Apply status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter((transaction) => transaction.status === statusFilter);
-    }
-
-    // Apply sorting
-    if (amountSort) {
-      filtered.sort((a, b) => {
-        const comparison = a.amount - b.amount;
-        return amountSort === 'desc' ? -comparison : comparison;
-      });
-    } else {
-      // Default to date sorting if amount sort is not active
-      filtered.sort((a, b) => {
-        const comparison = new Date(a.date) - new Date(b.date);
-        return dateSort === 'desc' ? -comparison : comparison;
-      });
-    }
-
-    return filtered;
-  }, [cardTransactions, searchQuery, dateSort, amountSort, statusFilter]);
 
   // Add refresh handler
   const handleRefresh = useCallback(async () => {
@@ -705,19 +658,7 @@ const CardDetailsScreen = () => {
               </Text>
             </XStack>
 
-            <TransactionListHeader
-              searchText={searchQuery}
-              onSearch={setSearchQuery}
-              showFilters={showFilters}
-              setShowFilters={setShowFilters}
-              sortOption={sortOption}
-              setSortOption={setSortOption}
-              statusFilter={statusFilter}
-              setStatusFilter={setStatusFilter}
-              backgroundColor={colors.backgroundTertiary}
-            />
-
-            {filteredTransactions.length === 0 ? (
+            {cardTransactions.length === 0 ? (
               <YStack f={1} ai="center" jc="flex-start" gap="$4" px="$4" pt="$6">
                 <History size={40} color={colors.primary} />
                 <YStack ai="center" gap="$2">
@@ -725,14 +666,12 @@ const CardDetailsScreen = () => {
                     No Transactions Found
                   </Text>
                   <Text color={colors.textSecondary} fontSize="$3" textAlign="center">
-                    {searchQuery || statusFilter !== 'all'
-                      ? 'Try adjusting your filters'
-                      : 'Transactions for this card will appear here'}
+                    Transactions for this card will appear here
                   </Text>
                 </YStack>
               </YStack>
             ) : (
-              <ActivitySection transactions={filteredTransactions} />
+              <ActivitySection transactions={cardTransactions} />
             )}
           </YStack>
         </BottomSheetView>

@@ -24,6 +24,7 @@ import AuthNav from './AuthNav';
 import { TouchableOpacity } from 'react-native';
 import { StarIcon } from 'react-native-heroicons/solid';
 import { StarIcon as StarIconOutline } from 'react-native-heroicons/outline';
+import BoubyanLoginScreen from '@/screens/BoubyanLoginScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -134,6 +135,14 @@ const MainNav = () => {
         options={{
           presentation: 'modal',
           headerShown: false,
+          animation: 'slide_from_bottom',
+        }}
+      />
+      <Stack.Screen
+        name="BoubyanLogin"
+        component={BoubyanLoginScreen}
+        options={{
+          presentation: 'modal',
           animation: 'slide_from_bottom',
         }}
       />
