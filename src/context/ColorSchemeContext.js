@@ -1,5 +1,8 @@
-import { createContext, useContext } from 'react';
-import { useColorScheme } from 'react-native';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { useColorScheme as useNativeColorScheme } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const STORAGE_KEY = 'cvrd:appearance_mode';
 
 export const Colors = {
   dark: {
@@ -36,7 +39,7 @@ export const Colors = {
     warning: '#f39c12',
     info: '#3498db',
   },
-    cards: {
+  cards: {
     red: '#d6515b',
     green: '#7bd497',
     blue: '#3981A6',
@@ -57,20 +60,60 @@ export const Colors = {
 const ColorSchemeContext = createContext(null);
 
 export function useColors() {
-  const colorScheme = useColorScheme();
-  return Colors[colorScheme || 'light'];
+  const { effectiveColorScheme } = useAppTheme();
+  return Colors[effectiveColorScheme || 'light'];
 }
 
 export function ColorSchemeProvider({ children }) {
-  const colorScheme = useColorScheme();
+  const systemColorScheme = useNativeColorScheme();
+  const [appearanceMode, setAppearanceMode] = useState('system'); // 'system', 'light', or 'dark'
 
-  return <ColorSchemeContext.Provider value={colorScheme}>{children}</ColorSchemeContext.Provider>;
+  // Load saved appearance mode on mount
+  useEffect(() => {
+    const loadAppearanceMode = async () => {
+      try {
+        const savedMode = await AsyncStorage.getItem(STORAGE_KEY);
+        if (savedMode) {
+          setAppearanceMode(savedMode);
+        }
+      } catch (error) {
+        console.error('Failed to load appearance mode:', error);
+      }
+    };
+    loadAppearanceMode();
+  }, []);
+
+  // Save appearance mode when it changes
+  const updateAppearanceMode = async (mode) => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, mode);
+      setAppearanceMode(mode);
+    } catch (error) {
+      console.error('Failed to save appearance mode:', error);
+    }
+  };
+
+  // Calculate effective color scheme based on appearance mode
+  const effectiveColorScheme = appearanceMode === 'system' ? systemColorScheme : appearanceMode;
+
+  return (
+    <ColorSchemeContext.Provider
+      value={{
+        appearanceMode,
+        updateAppearanceMode,
+        effectiveColorScheme,
+        colorScheme: effectiveColorScheme, // for backward compatibility
+      }}
+    >
+      {children}
+    </ColorSchemeContext.Provider>
+  );
 }
 
-export function useColorSchemeContext() {
+export function useAppTheme() {
   const context = useContext(ColorSchemeContext);
   if (context === undefined) {
-    throw new Error('useColorSchemeContext must be used within a ColorSchemeProvider');
+    throw new Error('useAppTheme must be used within a ColorSchemeProvider');
   }
   return context;
 }

@@ -31,6 +31,8 @@ import { useAuthContext } from '@/context/AuthContext';
 import Toast from 'react-native-toast-message';
 import { disconnectBank } from '@/api/user';
 import { useNotificationSettings } from '@/hooks/useNotificationSettings';
+import { useAppTheme } from '@/context/ColorSchemeContext';
+import { SunIcon, MoonIcon, ComputerDesktopIcon } from 'react-native-heroicons/outline';
 
 const MenuItem = ({ icon: Icon, label, value, onPress, showArrow = true, rightElement }) => {
   const colors = useColors();
@@ -128,6 +130,53 @@ const ProgressBar = ({ label, value, max, color, icon: Icon, isCurrency = true }
   );
 };
 
+// Appearance Settings Sheet
+const AppearanceSheet = ({ isOpen, onClose }) => {
+  const colors = useColors();
+  const { appearanceMode, updateAppearanceMode } = useAppTheme();
+
+  const options = [
+    { value: 'system', label: 'Use System Settings', icon: ComputerDesktopIcon },
+    { value: 'light', label: 'Light Mode', icon: SunIcon },
+    { value: 'dark', label: 'Dark Mode', icon: MoonIcon },
+  ];
+
+  return (
+    <BottomSheet isOpen={isOpen} onClose={onClose}>
+      <YStack gap="$4" px="$4" pt="$2" pb="$6">
+        <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          Appearance
+        </Text>
+        <YStack gap="$3">
+          {options.map((option) => {
+            const Icon = option.icon;
+            return (
+              <Button
+                key={option.value}
+                backgroundColor={appearanceMode === option.value ? colors.primary : colors.backgroundTertiary}
+                pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+                onPress={() => {
+                  updateAppearanceMode(option.value);
+                  onClose();
+                }}
+                size="$5"
+                borderRadius={12}
+              >
+                <XStack ai="center" gap="$2">
+                  <Icon size={20} color={appearanceMode === option.value ? 'white' : colors.text} />
+                  <Text color={appearanceMode === option.value ? 'white' : colors.text} fontSize="$4" fontWeight="600">
+                    {option.label}
+                  </Text>
+                </XStack>
+              </Button>
+            );
+          })}
+        </YStack>
+      </YStack>
+    </BottomSheet>
+  );
+};
+
 const ProfileScreen = () => {
   const { setUser } = useAuthContext();
   const colors = useColors();
@@ -140,6 +189,8 @@ const ProfileScreen = () => {
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toggleNotifications, isToggling } = useNotificationSettings();
+  const [showAppearanceSheet, setShowAppearanceSheet] = useState(false);
+  const { appearanceMode } = useAppTheme();
 
   const limits = {
     monthlyNewCards: {
@@ -220,6 +271,28 @@ const ProfileScreen = () => {
       });
     } finally {
       setIsDisconnecting(false);
+    }
+  };
+
+  const getAppearanceIcon = () => {
+    switch (appearanceMode) {
+      case 'light':
+        return SunIcon;
+      case 'dark':
+        return MoonIcon;
+      default:
+        return ComputerDesktopIcon;
+    }
+  };
+
+  const getAppearanceLabel = () => {
+    switch (appearanceMode) {
+      case 'light':
+        return 'Light Mode';
+      case 'dark':
+        return 'Dark Mode';
+      default:
+        return 'System';
     }
   };
 
@@ -483,7 +556,13 @@ const ProfileScreen = () => {
                 />
               }
             />
-            <MenuItem icon={Cog6ToothIcon} label="Preferences" onPress={() => {}} />
+            <MenuItem
+              icon={getAppearanceIcon()}
+              label="Appearance"
+              value={getAppearanceLabel()}
+              onPress={() => setShowAppearanceSheet(true)}
+            />
+            {/* <MenuItem icon={Cog6ToothIcon} label="Preferences" onPress={() => {}} /> */}
           </YStack>
         </YStack>
 
@@ -595,6 +674,9 @@ const ProfileScreen = () => {
           </YStack>
         </YStack>
       </BottomSheet>
+
+      {/* Appearance Settings Sheet */}
+      <AppearanceSheet isOpen={showAppearanceSheet} onClose={() => setShowAppearanceSheet(false)} />
     </ScrollView>
   );
 };

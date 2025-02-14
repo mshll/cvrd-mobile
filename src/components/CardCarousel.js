@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Animated, Pressable } from 'react-native';
 import { View, XStack, YStack, Text, Button } from 'tamagui';
-import { Colors } from '@/context/ColorSchemeContext';
-import { useColorScheme } from 'react-native';
+import { Colors, useColors } from '@/context/ColorSchemeContext';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '../navigation/paths';
 import CardComponent from './CardComponent';
@@ -19,8 +18,7 @@ const SIDE_SPACING = (WINDOW_WIDTH - CARD_WIDTH) / 2;
 const AnimatedFlatList = Animated.createAnimatedComponent(Animated.FlatList);
 
 function CardCarousel({ title, data = [], icon: Icon }) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme || 'light'];
+  const colors = useColors();
   const navigation = useNavigation();
   const scrollX = React.useRef(new Animated.Value(0)).current;
   const flatListRef = React.useRef(null);

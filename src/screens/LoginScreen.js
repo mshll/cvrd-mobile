@@ -1,5 +1,5 @@
 import { View, Text, YStack, Input, Button, XStack } from 'tamagui';
-import { Colors, useColors } from '@/context/ColorSchemeContext';
+import { Colors, useAppTheme, useColors } from '@/context/ColorSchemeContext';
 import { useState } from 'react';
 import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,6 +18,7 @@ const LoginScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const loginMutation = useLogin();
+  const { effectiveColorScheme } = useAppTheme();
 
   const validateForm = () => {
     console.log('🔍 Validating login form with:', { email });
@@ -79,7 +80,11 @@ const LoginScreen = () => {
             {/* Logo */}
             <YStack ai="flex-start" mt="$4">
               <Image
-                source={require('@/../assets/logo-primary.png')}
+                source={
+                  effectiveColorScheme === 'dark'
+                    ? require('@/../assets/logo-primary.png')
+                    : require('@/../assets/logo-primary-dark.png')
+                }
                 style={{ height: 40, resizeMode: 'contain', width: 100 }}
               />
             </YStack>
