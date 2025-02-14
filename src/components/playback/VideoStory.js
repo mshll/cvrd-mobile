@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { StyleSheet, Dimensions, View, Text, ActivityIndicator } from 'react-native';
 import { Video } from 'expo-av';
-import { useColors } from '@/config/colors';
+import { useColors } from '@/context/ColorSchemeContext';
 import { useCardStats } from '@/hooks/useCardStats';
 import { YStack } from 'tamagui';
 import Animated, { useAnimatedStyle, withDelay, withTiming, useSharedValue } from 'react-native-reanimated';
