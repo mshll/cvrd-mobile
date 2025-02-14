@@ -11,21 +11,32 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 
 // Placeholder positions for the squares - you can adjust these
 const SQUARE_POSITIONS = [
-  { top: '35%', left: '20%', rotate: '-15deg' },
-  { top: '35%', left: '50%', rotate: '10deg' },
-  { top: '55%', left: '35%', rotate: '-5deg' },
-  { top: '55%', left: '65%', rotate: '15deg' },
+  { top: '21%', left: '6%', rotate: '-8deg' },
+  { top: '8%', left: '63%', rotate: '15deg' },
+  { top: '87%', left: '5%', rotate: '-10deg' },
+  { top: '67%', left: '55%', rotate: '8deg' },
 ];
 
-const CARD_TYPES = ['BURNER', 'MERCHANT_LOCKED', 'CATEGORY_LOCKED', 'LOCATION_LOCKED'];
+const CATEGORIES = ['FOOD', 'SHOPPING', 'TRAVEL', 'ENTERTAINMENT'];
+
+const DEFAULT_CATEGORY_EMOJIS = {
+  FOOD: '🍽️',
+  SHOPPING: '🛍️',
+  TRAVEL: '✈️',
+  ENTERTAINMENT: '🎬',
+};
 
 export function Slide5Story() {
   const colors = Colors;
   const [topCards, setTopCards] = useState(
-    CARD_TYPES.reduce(
-      (acc, type) => ({
+    CATEGORIES.reduce(
+      (acc, category) => ({
         ...acc,
-        [type]: { name: '', emoji: CARD_DEFAULTS[type]?.cardIcon || '💳' },
+        [category]: {
+          name: 'No Cards Yet',
+          category: category,
+          cardIcon: DEFAULT_CATEGORY_EMOJIS[category] || '💳',
+        },
       }),
       {}
     )
@@ -35,31 +46,48 @@ export function Slide5Story() {
   const titleOpacity = useSharedValue(0);
   const emojiOpacities = SQUARE_POSITIONS.map(() => useSharedValue(0));
   const nameOpacities = SQUARE_POSITIONS.map(() => useSharedValue(0));
+  const categoryOpacities = SQUARE_POSITIONS.map(() => useSharedValue(0));
+
+  // Format card type for display
+  const formatCardType = (type) => {
+    return type
+      .replace('_LOCKED', '')
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
 
   useEffect(() => {
     async function fetchCardData() {
       try {
         const cards = await getUserCards();
 
-        // Group cards by type and find the one with highest totalSpent in each category
-        const topSpendersByType = cards.reduce((acc, card) => {
-          if (!card.closed && card.cardType) {
+        // Filter for category-locked cards and group by category
+        const topSpendersByCategory = cards.reduce((acc, card) => {
+          if (!card.closed && card.cardType === 'CATEGORY_LOCKED' && card.categoryName) {
             const totalSpent = Number(card.totalSpent) || 0;
-            if (!acc[card.cardType] || totalSpent > (acc[card.cardType].totalSpent || 0)) {
-              acc[card.cardType] = {
+            if (!acc[card.categoryName] || totalSpent > (acc[card.categoryName].totalSpent || 0)) {
+              acc[card.categoryName] = {
                 name: card.cardName,
+                category: card.categoryName,
                 totalSpent: totalSpent,
-                emoji: CARD_DEFAULTS[card.cardType]?.cardIcon || '💳',
+                cardIcon: card.cardIcon || DEFAULT_CATEGORY_EMOJIS[card.categoryName] || '💳',
               };
             }
           }
           return acc;
         }, {});
 
-        setTopCards((prevCards) => ({
-          ...prevCards,
-          ...topSpendersByType,
-        }));
+        // Merge with defaults, keeping existing cards and adding defaults for missing categories
+        setTopCards((prevCards) => {
+          const updatedCards = { ...prevCards };
+          Object.entries(topSpendersByCategory).forEach(([category, card]) => {
+            if (CATEGORIES.includes(category)) {
+              updatedCards[category] = card;
+            }
+          });
+          return updatedCards;
+        });
       } catch (error) {
         console.error('Error fetching card data:', error);
       }
@@ -69,33 +97,55 @@ export function Slide5Story() {
   }, []);
 
   useEffect(() => {
-    // Title appears at 2 seconds
+    // Title appears immediately
     const titleAppear = setTimeout(() => {
       titleOpacity.value = withTiming(1, { duration: 500 });
     }, 1000);
 
-    // Emojis appear at 6 seconds
-    const emojiAppear = setTimeout(() => {
-      emojiOpacities.forEach((opacity, index) => {
-        setTimeout(() => {
-          opacity.value = withTiming(1, { duration: 300 });
-        }, index * 200);
-      });
-    }, 5000);
+    // Emojis appear one by one starting at 3.5 seconds
+    const emojiAppearTimeouts = emojiOpacities.map((opacity, index) => {
+      return setTimeout(() => {
+        opacity.value = withTiming(1, { duration: 300 });
+      }, 3500 + index * 200);
+    });
 
-    // Names appear at 7 seconds
-    const namesAppear = setTimeout(() => {
-      nameOpacities.forEach((opacity, index) => {
+    // Names appear one by one starting at 5 seconds
+    const nameAppearTimeouts = nameOpacities.map((opacity, index) => {
+      return setTimeout(() => {
+        opacity.value = withTiming(1, { duration: 300 });
+        // Switch to category after 1 second
         setTimeout(() => {
-          opacity.value = withTiming(1, { duration: 300 });
-        }, index * 200);
-      });
-    }, 7000);
+          nameOpacities[index].value = withTiming(0, { duration: 300 });
+          setTimeout(() => {
+            categoryOpacities[index].value = withTiming(1, { duration: 300 });
+          }, 300);
+        }, 1000);
+      }, 5000 + index * 200);
+    });
+
+    // Start disappearing one by one at 9.5 seconds
+    const disappearTimeouts = SQUARE_POSITIONS.map((_, index) => {
+      return setTimeout(() => {
+        // Fade out category first
+        categoryOpacities[index].value = withTiming(0, { duration: 300 });
+        // Fade out emoji 200ms later
+        setTimeout(() => {
+          emojiOpacities[index].value = withTiming(0, { duration: 300 });
+        }, 200);
+      }, 9500 + index * 400);
+    });
+
+    // Title disappears last
+    const titleDisappear = setTimeout(() => {
+      titleOpacity.value = withTiming(0, { duration: 500 });
+    }, 12000);
 
     return () => {
       clearTimeout(titleAppear);
-      clearTimeout(emojiAppear);
-      clearTimeout(namesAppear);
+      clearTimeout(titleDisappear);
+      emojiAppearTimeouts.forEach(clearTimeout);
+      nameAppearTimeouts.forEach(clearTimeout);
+      disappearTimeouts.forEach(clearTimeout);
     };
   }, []);
 
@@ -110,7 +160,7 @@ export function Slide5Story() {
       {/* Main Title */}
       <AnimatedText
         pos="absolute"
-        t="48%"
+        t="45%"
         l={0}
         r={0}
         fontFamily="$archivoBlack"
@@ -120,51 +170,122 @@ export function Slide5Story() {
         textShadowRadius={5}
         style={titleStyle}
       >
-        TOP SPENDERS
+        TOP SPENDERS By CATEGORY
       </AnimatedText>
 
-      {/* Squares with Emojis and Names */}
+      {/* Squares with Emojis and Names/Categories */}
       {SQUARE_POSITIONS.map((position, index) => {
-        const cardType = CARD_TYPES[index];
-        const card = topCards[cardType] || { name: 'No Card', emoji: '💳' };
+        const category = CATEGORIES[index];
+        const card = topCards[category] || { name: 'No Card', category: category, cardIcon: '💳' };
+        const isNameBelow = index === 1 || index === 3;
 
         return (
           <View key={index} pos="absolute" {...position}>
-            {/* Card Name */}
-            <AnimatedText
-              pos="absolute"
-              t="-24px"
-              l={0}
-              r={0}
-              fontFamily="$archivoBlack"
-              fontSize="$5"
-              color="$white"
-              textAlign="center"
-              textShadowRadius={5}
-              style={[
-                useAnimatedStyle(() => ({
-                  opacity: nameOpacities[index].value,
-                })),
-                {
-                  transform: [{ rotate: position.rotate }],
-                },
-              ]}
-            >
-              {card.name || 'No Card'}
-            </AnimatedText>
+            <YStack ai="center" jc="center">
+              {/* Text Above */}
+              {!isNameBelow && (
+                <YStack ai="center" w="100%">
+                  <AnimatedText
+                    fontFamily="$archivoBlack"
+                    fontSize="$5"
+                    color="$white"
+                    textAlign="center"
+                    mb="$6"
+                    textShadowRadius={5}
+                    w="100%"
+                    style={[
+                      useAnimatedStyle(() => ({
+                        opacity: nameOpacities[index].value,
+                      })),
+                      {
+                        transform: [{ rotate: position.rotate }],
+                      },
+                    ]}
+                  >
+                    {card.name}
+                  </AnimatedText>
+                  <AnimatedText
+                    fontFamily="$archivoBlack"
+                    fontSize="$5"
+                    color="$white"
+                    mb="$6"
+                    textAlign="center"
+                    w={200}
+                    textShadowRadius={5}
+                    style={[
+                      useAnimatedStyle(() => ({
+                        opacity: categoryOpacities[index].value,
+                      })),
+                      {
+                        transform: [{ rotate: position.rotate }],
+                        position: 'absolute',
+                      },
+                    ]}
+                  >
+                    {card.category}
+                  </AnimatedText>
+                </YStack>
+              )}
 
-            {/* Emoji */}
-            <AnimatedView
-              w={60}
-              h={60}
-              ai="center"
-              jc="center"
-              style={useAnimatedStyle(() => ({
-                opacity: emojiOpacities[index].value,
-              }))}
-            >
-              <Text fontSize={32}>{card.emoji}</Text>
-            </AnimatedView>
+              {/* Emoji */}
+              <AnimatedView
+                w={60}
+                h={60}
+                ai="center"
+                jc="center"
+                style={useAnimatedStyle(() => ({
+                  opacity: emojiOpacities[index].value,
+                }))}
+              >
+                <Text opacity={0.8} fontSize={48}>
+                  {card.cardIcon}
+                </Text>
+              </AnimatedView>
+
+              {/* Text Below */}
+              {isNameBelow && (
+                <YStack ai="center" w="100%">
+                  <AnimatedText
+                    fontFamily="$archivoBlack"
+                    fontSize="$5"
+                    color="$white"
+                    mt="$8"
+                    textAlign="center"
+                    textShadowRadius={5}
+                    style={[
+                      useAnimatedStyle(() => ({
+                        opacity: nameOpacities[index].value,
+                      })),
+                      {
+                        transform: [{ rotate: position.rotate }],
+                      },
+                    ]}
+                  >
+                    {card.name}
+                  </AnimatedText>
+                  <AnimatedText
+                    fontFamily="$archivoBlack"
+                    fontSize="$5"
+                    color="$white"
+                    w={200}
+                    mt="$8"
+                    textAlign="center"
+                    textShadowRadius={5}
+                    style={[
+                      useAnimatedStyle(() => ({
+                        opacity: categoryOpacities[index].value,
+                      })),
+                      {
+                        transform: [{ rotate: position.rotate }],
+                        position: 'absolute',
+                      },
+                    ]}
+                  >
+                    {card.category}
+                  </AnimatedText>
+                </YStack>
+              )}
+            </YStack>
           </View>
         );
       })}
