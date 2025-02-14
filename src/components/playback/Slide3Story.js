@@ -26,6 +26,7 @@ export function Slide3Story() {
   const titleOpacity = useSharedValue(0);
   const titleTranslateY = useSharedValue(0);
   const bottomTextOpacity = useSharedValue(0);
+  const subtitleOpacity = useSharedValue(0);
   const listOpacities = topCards.map(() => useSharedValue(0));
 
   // Format currency
@@ -113,10 +114,18 @@ export function Slide3Story() {
 
     // Title moves up at 3 seconds
     const titleMoveUp = setTimeout(() => {
-      titleTranslateY.value = withTiming(-250, { duration: 1000 });
+      titleTranslateY.value = withTiming(-280, { duration: 1100 });
     }, 2250);
 
     // Bottom text appears at 7 seconds
+    const subtitleAppear = setTimeout(() => {
+      subtitleOpacity.value = withTiming(1, { duration: 200 });
+    }, 4000);
+
+    const subtitleDisappear = setTimeout(() => {
+      subtitleOpacity.value = withTiming(0, { duration: 200 });
+    }, 6000);
+
     const bottomTextAppear = setTimeout(() => {
       bottomTextOpacity.value = withTiming(1, { duration: 500 });
     }, 7000);
@@ -131,6 +140,8 @@ export function Slide3Story() {
     return () => {
       clearTimeout(titleAppear);
       clearTimeout(titleMoveUp);
+      clearTimeout(subtitleAppear);
+      clearTimeout(subtitleDisappear);
       clearTimeout(bottomTextAppear);
     };
   }, []);
@@ -140,8 +151,13 @@ export function Slide3Story() {
     transform: [{ translateY: titleTranslateY.value }],
   }));
 
+  const subtitleStyle = useAnimatedStyle(() => ({
+    opacity: subtitleOpacity.value,
+  }));
+
   const bottomTextStyle = useAnimatedStyle(() => ({
     opacity: bottomTextOpacity.value,
+    transform: [{ rotate: '-8deg' }],
   }));
 
   return (
@@ -151,7 +167,7 @@ export function Slide3Story() {
       {/* Main Title */}
       <AnimatedYStack pos="absolute" t="43%" l={0} r={0} ai="center" style={titleStyle}>
         <AnimatedText fontFamily="$archivoBlack" fontSize="$8" color="$white" textAlign="center" textShadowRadius={5}>
-          YOUR TOP CARDS
+          YOUR MOST LOVED CARDS
         </AnimatedText>
       </AnimatedYStack>
 
@@ -169,8 +185,8 @@ export function Slide3Story() {
               opacity: listOpacities[index].value,
             }))}
           >
-            <Text color={card.color} fontFamily="$archivoBlack" fontSize="$6">
-              {card.text}
+            <Text color="$white" fontFamily="$archivoBlack" fontSize="$6">
+              {index + 2}. {card.text}
             </Text>
             <Text color="$white" fontFamily="$archivoBlack" fontSize="$5">
               {' '}
@@ -179,6 +195,22 @@ export function Slide3Story() {
           </AnimatedText>
         ))}
       </YStack>
+
+      {/* Subtitle - "YOU WERE SWIPING!" */}
+      <AnimatedText
+        pos="absolute"
+        b="20%"
+        l={0}
+        r={0}
+        fontFamily="$archivoBlack"
+        fontSize="$6"
+        textAlign="center"
+        textShadowRadius={5}
+        color="$white"
+        style={subtitleStyle}
+      >
+        YOU WERE SWIPING!
+      </AnimatedText>
 
       {/* Bottom Text - Top Spender */}
       <AnimatedText
@@ -190,15 +222,10 @@ export function Slide3Story() {
         fontSize="$6"
         textAlign="center"
         textShadowRadius={5}
-        style={[
-          bottomTextStyle,
-          {
-            transform: [{ rotate: '-8deg' }],
-          },
-        ]}
+        style={bottomTextStyle}
       >
-        <Text color={topSpender.color} fontFamily="$archivoBlack" fontSize="$6">
-          {topSpender.text}
+        <Text color="$white" fontFamily="$archivoBlack" fontSize="$6">
+          1. {topSpender.text}
         </Text>
         <Text color="$white" fontFamily="$archivoBlack" fontSize="$5">
           {' '}
