@@ -572,7 +572,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
       };
 
       // Add type-specific data
-      if (cardType === 'Merchant') {
+      if (cardType === 'MERCHANT_LOCKED') {
         cardData.merchant = selectedMerchant;
       } else if (cardType === 'LOCATION_LOCKED') {
         cardData.location = {
