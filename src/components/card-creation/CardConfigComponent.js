@@ -54,14 +54,17 @@ const DEFAULT_RADIUS = 0.5; // in km
 
 const CATEGORIES = [
   { id: '1', name: 'Entertainment', emoji: '🎬', description: 'Movies, streaming, and events' },
-  { id: '2', name: 'Shopping', emoji: '🛍️', description: 'Retail stores and online shopping' },
-  { id: '3', name: 'Travel', emoji: '✈️', description: 'Airlines, hotels, and transportation' },
-  { id: '4', name: 'Food', emoji: '🍔', description: 'Restaurants and food delivery' },
-  { id: '5', name: 'Transport', emoji: '🚌', description: 'Public transport and ride-sharing' },
-  { id: '6', name: 'Health', emoji: '🏥', description: 'Medical services and pharmacies' },
-  { id: '7', name: 'Education', emoji: '📚', description: 'Schools, courses, and learning materials' },
-  { id: '8', name: 'Utilities', emoji: '🔌', description: 'Bills and utility payments' },
-  { id: '9', name: 'Other', emoji: '🛠️', description: 'Miscellaneous expenses' },
+  { id: '2', name: 'Groceries', emoji: '🛒', description: 'Grocery stores and supermarkets' },
+  { id: '3', name: 'Shopping', emoji: '🛍️', description: 'Retail stores and online shopping' },
+  { id: '4', name: 'Electronics', emoji: '📱', description: 'Electronics and appliances' },
+  { id: '5', name: 'Travel', emoji: '✈️', description: 'Airlines, hotels, and transportation' },
+  { id: '6', name: 'Furniture', emoji: '🛋️', description: 'Furniture and home decor' },
+  { id: '7', name: 'Food', emoji: '🍔', description: 'Restaurants and food delivery' },
+  { id: '8', name: 'Transport', emoji: '🚌', description: 'Public transport and ride-sharing' },
+  { id: '9', name: 'Health', emoji: '🏥', description: 'Medical services and pharmacies' },
+  { id: '10', name: 'Education', emoji: '📚', description: 'Schools, courses, and learning materials' },
+  { id: '11', name: 'Utilities', emoji: '🔌', description: 'Bills and utility payments' },
+  { id: '12', name: 'Other', emoji: '🛠️', description: 'Miscellaneous expenses' },
 ];
 
 const RADIUS_OPTIONS = [

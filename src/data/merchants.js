@@ -6,7 +6,7 @@ export const MERCHANTS = [
     name: 'Netflix',
     logo: require('@/../assets/merchant-logos/netflix.png'),
     pattern: require('@/../assets/merchant-patterns/netflix.png'),
-    url: `${baseUrl}netflix`,
+    url: `${baseUrl}/netflix`,
     description: 'Stream award-winning Netflix originals, movies, TV shows, documentaries, and more.',
     minAmount: 'KD 4.99',
     color: '#E50914', // Netflix red
@@ -16,7 +16,7 @@ export const MERCHANTS = [
     name: 'Disney+',
     logo: require('@/../assets/merchant-logos/disney-plus.png'),
     pattern: require('@/../assets/merchant-patterns/disney-plus.png'),
-    url: `${baseUrl}disney`,
+    url: `${baseUrl}/disney`,
     description: 'Stream Disney+ Originals, Marvel, Pixar, Star Wars, and National Geographic.',
     minAmount: 'KD 4.99',
     color: '#0063E5', // Disney+ blue
@@ -26,7 +26,7 @@ export const MERCHANTS = [
     name: 'Prime Video',
     logo: require('@/../assets/merchant-logos/prime-video.png'),
     pattern: require('@/../assets/merchant-patterns/prime-video.png'),
-    url: `${baseUrl}prime`,
+    url: `${baseUrl}/prime`,
     description: 'Access Prime Video, free shipping, music, and exclusive deals with Amazon Prime.',
     minAmount: 'KD 3.99',
     color: '#00A8E1', // Prime blue
@@ -36,7 +36,7 @@ export const MERCHANTS = [
     name: 'HBO Max',
     logo: require('@/../assets/merchant-logos/hbo-max.png'),
     pattern: require('@/../assets/merchant-patterns/hbo-max.png'),
-    url: `${baseUrl}hbo`,
+    url: `${baseUrl}/hbo`,
     description: 'Watch exclusive HBO Max originals, blockbuster movies, and iconic TV series.',
     minAmount: 'KD 5.99',
     color: '#5822B4', // HBO purple
@@ -46,7 +46,7 @@ export const MERCHANTS = [
     name: 'Apple TV+',
     logo: require('@/../assets/merchant-logos/apple-tv-plus.png'),
     pattern: require('@/../assets/merchant-patterns/apple-tv-plus.png'),
-    url: `${baseUrl}apple`,
+    url: `${baseUrl}/apple`,
     description: 'Get Apple Music, Apple TV+, Apple Arcade, and iCloud+ in one subscription.',
     minAmount: 'KD 6.99',
     color: '#000000', // Apple black
@@ -56,7 +56,7 @@ export const MERCHANTS = [
     name: 'Hulu',
     logo: require('@/../assets/merchant-logos/hulu.png'),
     pattern: require('@/../assets/merchant-patterns/hulu.png'),
-    url: `${baseUrl}hulu`,
+    url: `${baseUrl}/hulu`,
     description: 'Stream current hit shows, classic series, and acclaimed Hulu originals.',
     minAmount: 'KD 4.99',
     color: '#1CE783', // Hulu green
@@ -66,7 +66,7 @@ export const MERCHANTS = [
     name: 'Paramount+',
     logo: require('@/../assets/merchant-logos/paramount-plus.png'),
     pattern: require('@/../assets/merchant-patterns/paramount-plus.png'),
-    url: `${baseUrl}paramount`,
+    url: `${baseUrl}/paramount`,
     description: 'Stream Paramount+ Originals, movies, series, and more.',
     minAmount: 'KD 4.99',
     color: '#0064FF', // Paramount blue
@@ -76,7 +76,7 @@ export const MERCHANTS = [
     name: 'Crunchyroll',
     logo: require('@/../assets/merchant-logos/crunchyroll.png'),
     pattern: require('@/../assets/merchant-patterns/crunchyroll.png'),
-    url: `${baseUrl}crunchyroll`,
+    url: `${baseUrl}/crunchyroll`,
     description: 'Watch the latest and best anime series and movies.',
     minAmount: 'KD 4.99',
     color: '#F47521', // Crunchyroll orange
@@ -86,7 +86,7 @@ export const MERCHANTS = [
     name: 'OSN',
     logo: require('@/../assets/merchant-logos/osn.png'),
     pattern: require('@/../assets/merchant-patterns/osn.png'),
-    url: `${baseUrl}osn`,
+    url: `${baseUrl}/osn`,
     description: 'Premium entertainment platform offering the latest movies, series, and Arabic content.',
     minAmount: 'KD 5.99',
     color: '#2B2B2B', // OSN dark gray
