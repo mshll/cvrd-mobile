@@ -54,7 +54,7 @@ const TransactionDetailsSheet = ({ transaction, isOpen, onClose }) => {
     }
   };
 
-  const formattedDate = formatTransactionDate(transaction?.date);
+  const formattedDate = formatTransactionDate(transaction?.createdAt);
 
   // Status color and text
   const getStatusInfo = (status) => {
@@ -85,6 +85,8 @@ const TransactionDetailsSheet = ({ transaction, isOpen, onClose }) => {
   const StatusIcon = statusInfo.icon;
 
   if (!transaction) return null;
+
+  console.log(transaction);
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose}>
@@ -128,8 +130,8 @@ const TransactionDetailsSheet = ({ transaction, isOpen, onClose }) => {
           <DetailRow icon={CreditCardIcon} label="Card" value={card ? card.cardName : 'Unknown Card'} />
           <DetailRow icon={ClockIcon} label="Date" value={formattedDate} />
           {transaction.category && <DetailRow icon={TagIcon} label="Category" value={transaction.category} />}
-          {transaction.isRecurring !== undefined && (
-            <DetailRow icon={ArrowPathIcon} label="Recurring" value={transaction.isRecurring ? 'Yes' : 'No'} />
+          {transaction.recurring !== undefined && (
+            <DetailRow icon={ArrowPathIcon} label="Recurring" value={transaction.recurring ? 'Yes' : 'No'} />
           )}
         </View>
       </YStack>

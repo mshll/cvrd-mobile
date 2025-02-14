@@ -5,7 +5,7 @@ import { useCards } from '@/hooks/useCards';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { formatCurrency } from '@/utils/utils';
-import { StyleSheet, Image, RefreshControl } from 'react-native';
+import { StyleSheet, Image, RefreshControl, Switch } from 'react-native';
 import {
   BellIcon,
   CreditCardIcon,
@@ -30,8 +30,9 @@ import { deleteToken } from '@/api/storage';
 import { useAuthContext } from '@/context/AuthContext';
 import Toast from 'react-native-toast-message';
 import { disconnectBank } from '@/api/user';
+import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 
-const MenuItem = ({ icon: Icon, label, value, onPress, showArrow = true }) => {
+const MenuItem = ({ icon: Icon, label, value, onPress, showArrow = true, rightElement }) => {
   const colors = useColors();
   return (
     <Button
@@ -61,6 +62,7 @@ const MenuItem = ({ icon: Icon, label, value, onPress, showArrow = true }) => {
               {value}
             </Text>
           )}
+          {rightElement}
           {showArrow && <ChevronRightIcon size={16} color={colors.textSecondary} />}
         </XStack>
       </XStack>
@@ -137,6 +139,7 @@ const ProfileScreen = () => {
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { toggleNotifications, isToggling } = useNotificationSettings();
 
   const limits = {
     monthlyNewCards: {
@@ -465,7 +468,21 @@ const ProfileScreen = () => {
           <YStack gap="$2">
             <MenuItem icon={UserIcon} label="Personal Information" onPress={handlePersonalInfo} />
             <MenuItem icon={ShieldCheckIcon} label="Security" onPress={handleSecurity} />
-            <MenuItem icon={BellIcon} label="Notifications" onPress={() => {}} />
+            <MenuItem
+              icon={BellIcon}
+              label="Notifications"
+              showArrow={false}
+              rightElement={
+                <Switch
+                  value={user?.notificationEnabled}
+                  onValueChange={toggleNotifications}
+                  disabled={isToggling}
+                  trackColor={{ false: `${colors.backgroundTertiary}`, true: colors.primary }}
+                  thumbColor={colors.background}
+                  ios_backgroundColor={colors.backgroundTertiary}
+                />
+              }
+            />
             <MenuItem icon={Cog6ToothIcon} label="Preferences" onPress={() => {}} />
           </YStack>
         </YStack>

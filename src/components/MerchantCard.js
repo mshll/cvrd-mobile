@@ -18,9 +18,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const MerchantCard = ({ merchant }) => {
+const MerchantCard = ({ merchant, isSubscribed }) => {
   const colors = useColors();
-  const { name, logo, url, description, isSubscribed, minAmount } = merchant;
+  const { name, logo, url, description, minAmount } = merchant;
   const [logoWidth, setLogoWidth] = useState(MAX_WIDTH);
 
   // Get theme for the card background

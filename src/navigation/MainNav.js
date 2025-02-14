@@ -11,11 +11,11 @@ import EditLocationScreen from '@/screens/EditLocationScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCards } from '@/hooks/useCards';
 import { useCardMutations } from '@/hooks/useCardMutations';
-import { WalletIcon, QueueListIcon, BellIcon, UserCircleIcon, PlusIcon } from 'react-native-heroicons/solid';
+import { WalletIcon, QueueListIcon, ArrowPathIcon, UserCircleIcon, PlusIcon } from 'react-native-heroicons/solid';
 import {
   WalletIcon as WalletIconOutline,
   QueueListIcon as QueueListIconOutline,
-  BellIcon as BellIconOutline,
+  ArrowPathIcon as ArrowPathIconOutline,
   UserCircleIcon as UserCircleIconOutline,
 } from 'react-native-heroicons/outline';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -74,7 +74,7 @@ const TabNavigator = () => {
         component={SubscriptionsStack}
         options={{
           tabBarIcon: ({ focused, color, size }) =>
-            focused ? <BellIcon color={color} size={size} /> : <BellIconOutline color={color} size={size} />,
+            focused ? <ArrowPathIcon color={color} size={size} /> : <ArrowPathIconOutline color={color} size={size} />,
         }}
       />
       <Tab.Screen

@@ -88,8 +88,8 @@ export async function createBurnerCard(cardData) {
 export async function createCategoryCard(cardData) {
   const requestBody = {
     cardName: cardData.name,
-    cardIcon: CARD_DEFAULTS.CATEGORY_LOCKED.icon,
-    cardColor: CARD_DEFAULTS.CATEGORY_LOCKED.color,
+    cardIcon: cardData.cardIcon || CARD_DEFAULTS.CATEGORY_LOCKED.icon,
+    cardColor: cardData.cardColor || CARD_DEFAULTS.CATEGORY_LOCKED.color,
     categoryName: cardData.category.name.toUpperCase(),
     ...processLimits(cardData.limits),
   };
@@ -112,8 +112,8 @@ export async function createCategoryCard(cardData) {
 export async function createMerchantCard(cardData) {
   const requestBody = {
     cardName: cardData.name,
-    cardIcon: CARD_DEFAULTS.MERCHANT_LOCKED.icon,
-    cardColor: CARD_DEFAULTS.MERCHANT_LOCKED.color,
+    cardIcon: cardData.cardIcon || CARD_DEFAULTS.MERCHANT_LOCKED.icon,
+    cardColor: cardData.cardColor || CARD_DEFAULTS.MERCHANT_LOCKED.color,
     ...processLimits(cardData.limits),
   };
 
@@ -136,8 +136,8 @@ export async function createMerchantCard(cardData) {
 export async function createLocationCard(cardData) {
   const requestBody = {
     cardName: cardData.name,
-    cardIcon: CARD_DEFAULTS.LOCATION_LOCKED.icon,
-    cardColor: CARD_DEFAULTS.LOCATION_LOCKED.color,
+    cardIcon: cardData.cardIcon || CARD_DEFAULTS.LOCATION_LOCKED.icon,
+    cardColor: cardData.cardColor || CARD_DEFAULTS.LOCATION_LOCKED.color,
     latitude: cardData.location.latitude,
     longitude: cardData.location.longitude,
     radius: cardData.radius,

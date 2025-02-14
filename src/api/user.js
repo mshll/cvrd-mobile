@@ -30,7 +30,8 @@ export const disconnectBank = async () => {
   return response.data;
 };
 
-export const connectBank = async (bankAccountUsername) => {
-  const response = await instance.post('/user/me/connect-bank', { bankAccountUsername });
+export const connectBank = async (bankAccountUsername, token) => {
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  const response = await instance.post('/user/me/connect-bank', { bankAccountUsername }, config);
   return response.data;
 };

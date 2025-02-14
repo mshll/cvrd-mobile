@@ -17,7 +17,7 @@ import {
   formatExpiryDate,
 } from '@/utils/cardUtils';
 
-const AUTO_FLIP_DELAY = 5000;
+const AUTO_FLIP_DELAY = 10000;
 
 const CardFlipComponent = ({ cardId }) => {
   const { getCardById } = useCards();
@@ -65,6 +65,27 @@ const CardFlipComponent = ({ cardId }) => {
       text1: 'Card number copied to clipboard',
     });
   };
+
+  const handleCopyCVV = async () => {
+    if (card.closed) return;
+
+    await Clipboard.setStringAsync(card.cvv);
+    Toast.show({
+      type: 'success',
+      text1: 'CVV copied to clipboard',
+    });
+  };
+
+  const CopyButton = ({ onPress, label, style }) => (
+    <TouchableOpacity onPress={onPress} style={style} hitSlop={10}>
+      <BlurView intensity={10} tint={'regular'} style={styles.blurView}>
+        <ClipboardDocumentIcon size={14} color={textColor} />
+        <Text color={textColor} fos={12} fontWeight="600" ml="$2">
+          Copy {label}
+        </Text>
+      </BlurView>
+    </TouchableOpacity>
+  );
 
   const flipCard = () => {
     // Don't allow flipping if card is closed
@@ -157,7 +178,7 @@ const CardFlipComponent = ({ cardId }) => {
 
           {/* Animated Card Details */}
           <Animated.View style={[{ opacity: detailsFadeAnim }]}>
-            <YStack ai="flex-end" jc="space-between" w="100%" h={CARD_HEIGHT - 100} px="$6" pb="$6" pt="$2" gap="$5">
+            <YStack ai="flex-end" jc="space-between" w="100%" h={CARD_HEIGHT - 100} px="$6" pb="$6" pt="$4" gap="$5">
               <View ai="flex-end">
                 <XStack ai="flex-end" gap="$3">
                   <View>
@@ -200,16 +221,12 @@ const CardFlipComponent = ({ cardId }) => {
             </YStack>
           </Animated.View>
 
-          {/* Copy Button */}
+          {/* Copy Buttons */}
           {isFlipped && (
-            <TouchableOpacity onPress={handleCopyCardNumber} style={styles.copyButton} hitSlop={10}>
-              <BlurView intensity={10} tint={'regular'} style={styles.blurView}>
-                <ClipboardDocumentIcon size={14} color={textColor} />
-                <Text color={textColor} fos={12} fontWeight="600" ml="$2">
-                  Copy
-                </Text>
-              </BlurView>
-            </TouchableOpacity>
+            <View style={styles.copyButtonsContainer}>
+              <CopyButton onPress={handleCopyCardNumber} label="Num" />
+              <CopyButton onPress={handleCopyCVV} label="CVV" />
+            </View>
           )}
         </View>
       </View>
@@ -258,11 +275,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  copyButton: {
+  copyButtonsContainer: {
     position: 'absolute',
     bottom: 12,
     left: 12,
     zIndex: 1,
+    gap: 4,
   },
   blurView: {
     borderRadius: 8,

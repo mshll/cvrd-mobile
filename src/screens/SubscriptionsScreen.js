@@ -4,9 +4,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SubscriptionCard from '@/components/SubscriptionCard';
 import MerchantList from '@/components/MerchantList';
 import StoreList from '@/components/StoreList';
-import { BellIcon } from 'react-native-heroicons/solid';
-import { StyleSheet, Dimensions, Animated } from 'react-native';
+import { ArrowPathIcon } from 'react-native-heroicons/solid';
+import { StyleSheet, Dimensions, Animated, RefreshControl } from 'react-native';
 import { useState, useEffect, useCallback } from 'react';
+import { useSubscriptions } from '@/hooks/useSubscriptions';
 
 // Constants for card dimensions
 const CARD_WIDTH = 300;
@@ -229,7 +230,7 @@ const LoadingSkeleton = () => {
       {/* Subscriptions Section Skeleton */}
       <YStack gap="$4" mb="$6">
         <XStack ai="center" gap="$2" px="$4">
-          <BellIcon size={20} color={colors.text} />
+          <ArrowPathIcon size={20} color={colors.text} />
           <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
             Subscriptions
           </Text>
@@ -284,47 +285,16 @@ const LoadingSkeleton = () => {
   );
 };
 
-// Dummy data for subscriptions
-const DUMMY_SUBSCRIPTIONS = [
-  {
-    id: '1',
-    merchantName: 'Netflix',
-    amount: 'KD 19.99',
-    nextBillingDate: '2/6/2025',
-    logo: require('@/../assets/merchant-logos/Netflix.png'),
-    backgroundColor: Colors.cards.pink,
-  },
-  {
-    id: '2',
-    merchantName: 'Hbo',
-    amount: 'KD 14.99',
-    nextBillingDate: '15/6/2025',
-    logo: require('@/../assets/merchant-logos/Hbo.png'),
-    backgroundColor: Colors.cards.blue,
-  },
-  {
-    id: '3',
-    merchantName: 'Hulu',
-    amount: 'KD 9.99',
-    nextBillingDate: '22/6/2025',
-    logo: require('@/../assets/merchant-logos/Hulu.png'),
-    backgroundColor: Colors.cards.green,
-  },
-];
-
 const SubscriptionsScreen = () => {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const [isLoading, setIsLoading] = useState(true);
+  const { subscriptions, isLoading, refetch, toggleSubscription, isToggling } = useSubscriptions();
 
-  useEffect(() => {
-    // Simulate loading time
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const handleToggleSubscription = (subscriptionId) => {
+    if (!isToggling) {
+      toggleSubscription(subscriptionId);
+    }
+  };
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -332,32 +302,52 @@ const SubscriptionsScreen = () => {
 
   return (
     <View f={1} bg={colors.background}>
-      <ScrollView contentContainerStyle={styles.container} pt={insets.top - 20}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        pt={insets.top - 20}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={refetch}
+            tintColor={colors.text}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.backgroundSecondary}
+          />
+        }
+      >
         {/* Subscriptions Section */}
         <YStack gap="$4" mb="$6">
           <XStack ai="center" gap="$2" px="$4">
-            <BellIcon size={20} color={colors.text} />
+            <ArrowPathIcon size={20} color={colors.text} />
             <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
               Subscriptions
             </Text>
           </XStack>
 
           {/* Subscription Cards */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.cardsContainer}
-            snapToInterval={CARD_WIDTH + CARD_MARGIN}
-            decelerationRate="fast"
-            snapToAlignment="center"
-            pagingEnabled={false}
-          >
-            {DUMMY_SUBSCRIPTIONS.map((subscription) => (
-              <View key={subscription.id} style={styles.cardWrapper}>
-                <SubscriptionCard subscription={subscription} />
-              </View>
-            ))}
-          </ScrollView>
+          {subscriptions.length > 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.cardsContainer}
+              snapToInterval={CARD_WIDTH + CARD_MARGIN}
+              decelerationRate="fast"
+              snapToAlignment="center"
+              pagingEnabled={false}
+            >
+              {subscriptions.map((subscription) => (
+                <View key={subscription.id} style={styles.cardWrapper}>
+                  <SubscriptionCard subscription={subscription} onToggle={handleToggleSubscription} />
+                </View>
+              ))}
+            </ScrollView>
+          ) : (
+            <View px="$4" py="$6">
+              <Text color={colors.textSecondary} fontSize="$3" textAlign="center">
+                No active subscriptions
+              </Text>
+            </View>
+          )}
         </YStack>
 
         {/* Merchant List */}

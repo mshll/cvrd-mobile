@@ -19,7 +19,7 @@ const BoubyanLoginScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
-  const { onSuccess } = route.params || {};
+  const { onSuccess, token } = route.params || {};
   const { refreshUser } = useUser();
 
   const validateForm = () => {
@@ -49,7 +49,7 @@ const BoubyanLoginScreen = () => {
 
     setIsLoading(true);
     try {
-      const response = await connectBank(username);
+      const response = await connectBank(username, token);
       await refreshUser();
 
       Toast.show({

@@ -16,8 +16,7 @@ const TransactionCard = ({ transaction, backgroundColor }) => {
   const colors = useColors();
   const { getCardById } = useCards();
   const [showDetails, setShowDetails] = useState(false);
-  const { name, amount, date, status, cardId } = transaction;
-  const card = getCardById(cardId);
+  const card = getCardById(transaction.cardId);
   const bg = backgroundColor || colors.backgroundSecondary;
 
   // Get status info
@@ -39,13 +38,13 @@ const TransactionCard = ({ transaction, backgroundColor }) => {
       default:
         return {
           color: colors.textSecondary,
-          text: status || 'Unknown',
+          text: transaction.status || 'Unknown',
           icon: XCircleIcon,
         };
     }
   };
 
-  const statusInfo = getStatusInfo(status);
+  const statusInfo = getStatusInfo(transaction.status);
   const StatusIcon = statusInfo.icon;
 
   return (
@@ -80,10 +79,10 @@ const TransactionCard = ({ transaction, backgroundColor }) => {
             {/* Middle section with name and date */}
             <YStack f={1} gap={4}>
               <Text color={colors.text} fontSize={16} fontWeight="600" numberOfLines={1}>
-                {name}
+                {transaction.merchant}
               </Text>
               <Text color={colors.textSecondary} fontSize={13} fontFamily="$mono">
-                {formatTransactionDate(date)}
+                {formatTransactionDate(transaction.createdAt)}
               </Text>
             </YStack>
           </XStack>
@@ -91,7 +90,7 @@ const TransactionCard = ({ transaction, backgroundColor }) => {
           {/* Right section with amount and status */}
           <YStack ai="flex-end" gap={6}>
             <Text color={colors.text} fontSize={16} fontWeight="600">
-              - KD {amount}
+              - KD {transaction.amount}
             </Text>
             <XStack ai="center" gap={4}>
               <StatusIcon size={12} color={statusInfo.color} />

@@ -20,23 +20,23 @@ export const Colors = {
     info: '#33b5e5',
   },
   light: {
-    primary: '#d6515b', // Keep brand color consistent
-    primaryDark: '#b9444d', // Slightly darker for pressed states
-    background: '#ffffff', // Pure white base
-    backgroundSecondary: '#f8f9fa', // Subtle off-white for layered surfaces
-    backgroundTertiary: '#e9ecef', // Light gray for contrast
-    card: '#ffffff', // Clean white for cards/modals
-    text: '#212529', // High-contrast charcoal
-    textSecondary: '#495057', // Medium gray for secondary text
-    textTertiary: '#868e96', // Light gray for disabled/tertiary
-    border: '#dee2e6', // Soft borders for light mode
-    borderSecondary: '#ced4da', // Slightly darker borders when needed
-    danger: '#F4405E',
-    success: '#7bd497',
-    warning: '#EBE14B',
-    info: '#47D5FF',
+    primary: '#c93b46',
+    primaryLight: '#e66a74',
+    background: '#f0f0f0',
+    backgroundSecondary: '#e3e3e3',
+    backgroundTertiary: '#d6d6d6',
+    card: '#f5f5f5',
+    text: '#212121',
+    textSecondary: '#666666',
+    textTertiary: '#999999',
+    border: '#cccccc',
+    borderSecondary: '#b3b3b3',
+    danger: '#e74c3c',
+    success: '#2ecc71',
+    warning: '#f39c12',
+    info: '#3498db',
   },
-  cards: {
+    cards: {
     red: '#d6515b',
     green: '#7bd497',
     blue: '#3981A6',
