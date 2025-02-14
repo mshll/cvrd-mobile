@@ -158,7 +158,7 @@ export function Slide7Story() {
       </YStack>
 
       {/* Store Stats */}
-      <YStack pos="absolute" t="30%" l={0} r={0} gap="$2">
+      <YStack pos="absolute" t="30%" l={0} r={0} gap="$2" >
         <AnimatedText
           fontFamily="$archivoBlack"
           fontSize="$12"

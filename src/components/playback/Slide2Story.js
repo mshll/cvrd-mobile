@@ -59,7 +59,7 @@ export function Slide2Story() {
     { number: cardCounts.merchant.toString(), text: 'MERCHANT', color: colors.cards.red },
     { number: cardCounts.burner.toString(), text: 'BURNER', color: colors.cards.pink },
     { number: cardCounts.location.toString(), text: 'LOCATION', color: colors.cards.green },
-    { number: cardCounts.category.toString(), text: 'CATEGORY', color: colors.cards.navy },
+    { number: cardCounts.category.toString(), text: 'CATEGORY', color: colors.cards.yellow },
   ];
 
   const firstLineOpacity = useSharedValue(0);

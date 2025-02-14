@@ -119,7 +119,7 @@ export function Slide5Story() {
           setTimeout(() => {
             categoryOpacities[index].value = withTiming(1, { duration: 300 });
           }, 300);
-        }, 1000);
+        }, 2500);
       }, 5000 + index * 200);
     });
 
@@ -170,7 +170,7 @@ export function Slide5Story() {
         textShadowRadius={5}
         style={titleStyle}
       >
-        TOP SPENDERS By CATEGORY
+        TOP SPENDERS BY CATEGORY
       </AnimatedText>
 
       {/* Squares with Emojis and Names/Categories */}

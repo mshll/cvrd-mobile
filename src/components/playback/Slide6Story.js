@@ -172,7 +172,7 @@ export function Slide6Story() {
               opacity: subscriptionOpacities[index].value,
             }))}
           >
-            {subscription.label}
+            {index + 1}. {subscription.label}
             {subscription.totalSpent > 0 && ` • ${formatAmount(subscription.totalSpent)}`}
           </AnimatedText>
         ))}
