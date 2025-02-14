@@ -13,7 +13,10 @@
       "backgroundColor": "#06070c"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "We need your Face ID to securely authenticate when creating new cards"
+      }
     },
     "android": {
       "adaptiveIcon": {
