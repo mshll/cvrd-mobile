@@ -6,8 +6,8 @@ import { Paths } from './paths';
 import SubscriptionsScreen from '@/screens/SubscriptionsScreen';
 import AllMerchantsScreen from '@/screens/AllMerchantsScreen';
 import AllStoresScreen from '@/screens/AllStoresScreen';
-import { Colors, useColors } from '@/context/ColorSchemeContext';
-import { Image, TouchableOpacity, Animated, View, Easing, useColorScheme } from 'react-native';
+import { Colors, useColors, useAppTheme } from '@/context/ColorSchemeContext';
+import { Image, TouchableOpacity, Animated, View, Easing } from 'react-native';
 import CardDetailsScreen from '@/screens/CardDetailsScreen';
 import { TransitionPresets } from '@react-navigation/stack';
 import AddCardScreen from '@/screens/AddCardScreen';
@@ -58,7 +58,7 @@ const modalScreenOptions = {
 const AnimatedLogo = ({ routeName }) => {
   const logoColorAnim = useRef(new Animated.Value(0)).current;
   const colors = useColors();
-  const colorScheme = useColorScheme();
+  const { effectiveColorScheme } = useAppTheme();
 
   useEffect(() => {
     // Define color values based on route
@@ -85,7 +85,9 @@ const AnimatedLogo = ({ routeName }) => {
     <View style={{ width: 100, height: 24, position: 'relative' }}>
       {/* Base logo part 1 (static black/white based on theme) */}
       <Image
-        source={colorScheme === 'dark' ? require('@/../assets/logo-p1.png') : require('@/../assets/logo-p1-dark.png')}
+        source={
+          effectiveColorScheme === 'dark' ? require('@/../assets/logo-p1.png') : require('@/../assets/logo-p1-dark.png')
+        }
         style={{ width: '100%', height: '100%', resizeMode: 'contain' }}
       />
       {/* Logo part 2 (animated color) */}

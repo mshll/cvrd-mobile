@@ -1,5 +1,5 @@
 import { View, Text, YStack, Input, Button, XStack } from 'tamagui';
-import { Colors, useColors } from '@/context/ColorSchemeContext';
+import { useColors, useAppTheme } from '@/context/ColorSchemeContext';
 import { useState } from 'react';
 import { StyleSheet, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,8 +19,9 @@ const BoubyanLoginScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
-  const { onSuccess } = route.params || {};
+  const { onSuccess, token } = route.params || {};
   const { refreshUser } = useUser();
+  const { effectiveColorScheme } = useAppTheme();
 
   const validateForm = () => {
     const newErrors = {};
@@ -49,7 +50,7 @@ const BoubyanLoginScreen = () => {
 
     setIsLoading(true);
     try {
-      const response = await connectBank(username);
+      const response = await connectBank(username, token);
       await refreshUser();
 
       Toast.show({
@@ -104,7 +105,11 @@ const BoubyanLoginScreen = () => {
           {/* Logo */}
           <YStack ai="center" mt="$4">
             <Image
-              source={require('@/../assets/boubyan-logo.png')}
+              source={
+                effectiveColorScheme === 'dark'
+                  ? require('@/../assets/boubyan-logo.png')
+                  : require('@/../assets/boubyan-logo-dark.png')
+              }
               style={{ width: 200, height: 80, resizeMode: 'contain' }}
             />
           </YStack>

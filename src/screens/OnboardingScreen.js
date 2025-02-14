@@ -1,6 +1,6 @@
 import { View, Text, Button } from 'tamagui';
-import { Colors, useColors } from '@/context/ColorSchemeContext';
-import { StyleSheet, Animated, Dimensions, Image, FlatList, Pressable } from 'react-native';
+import { Colors, useColors, useAppTheme } from '@/context/ColorSchemeContext';
+import { StyleSheet, Animated, Dimensions, Image, FlatList, Pressable, useWindowDimensions } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -68,6 +68,8 @@ const SLIDE_DURATION = 500;
 const TRANSITION_DURATION = 500;
 
 const AnimatedScreen = ({ fadeAnim, logoColorAnim, currentIndex }) => {
+  const colors = useColors();
+
   return (
     <View style={styles.screen}>
       {/* Background Pattern */}
@@ -79,13 +81,18 @@ const AnimatedScreen = ({ fadeAnim, logoColorAnim, currentIndex }) => {
           },
         ]}
       >
-        <Image source={CARD_SLIDES[currentIndex].pattern} style={styles.backgroundPattern} />
+        <Image source={CARD_SLIDES[currentIndex].pattern} style={styles.backgroundPattern} tintColor={colors.text} />
       </Animated.View>
 
       {/* Logo */}
       <View style={styles.logoContainer}>
         {/* Base logo part 1 (static white) */}
-        <Image source={require('@/../assets/logo-p1.png')} style={[styles.logo]} resizeMode="contain" />
+        <Image
+          source={require('@/../assets/logo-p1.png')}
+          style={[styles.logo]}
+          resizeMode="contain"
+          tintColor={colors.text}
+        />
         {/* Logo part 2 (animated color) */}
         <Animated.Image
           source={require('@/../assets/logo-p2.png')}
@@ -120,7 +127,8 @@ const ContentScreen = ({ title, description, pattern, color }) => {
   const animationFrame = useRef(null);
   const circleOpacity = useRef(new Animated.Value(0)).current;
   const circleScale = useRef(new Animated.Value(1)).current;
-
+  const colors = useColors();
+  const { effectiveColorScheme } = useAppTheme();
   useEffect(() => {
     // Fade in the circle
     Animated.timing(circleOpacity, {
@@ -199,12 +207,12 @@ const ContentScreen = ({ title, description, pattern, color }) => {
             },
           ]}
         >
-          <BlurView intensity={100} tint="dark" style={styles.blurView}>
+          <BlurView intensity={100} tint={effectiveColorScheme} style={styles.blurView}>
             <View style={[styles.animatedCircle, { backgroundColor: color }]} />
           </BlurView>
           {/* Additional blur layers for hazier edges */}
-          <BlurView intensity={60} tint="dark" style={[styles.blurView, styles.outerBlur]} />
-          <BlurView intensity={40} tint="dark" style={[styles.blurView, styles.outerMostBlur]} />
+          <BlurView intensity={60} tint={effectiveColorScheme} style={[styles.blurView, styles.outerBlur]} />
+          <BlurView intensity={40} tint={effectiveColorScheme} style={[styles.blurView, styles.outerMostBlur]} />
         </Animated.View>
       </View>
 
@@ -214,7 +222,7 @@ const ContentScreen = ({ title, description, pattern, color }) => {
           {title}
         </Text>
         <Text
-          color={Colors.dark.textSecondary}
+          color={colors.textSecondary}
           fontSize="$4"
           textAlign="center"
           mt="$4"
@@ -245,13 +253,14 @@ const OnboardingScreen = () => {
   const containerBorderRadius = useRef(new Animated.Value(20)).current;
   const textOpacity = useRef(new Animated.Value(0)).current;
   const indicatorsOpacity = useRef(new Animated.Value(1)).current;
+  const windowWidth = useWindowDimensions().width;
 
   useEffect(() => {
     if (currentScreen === ONBOARDING_SCREENS.length - 1) {
       // Morph to button
       Animated.parallel([
         Animated.timing(containerWidth, {
-          toValue: 200,
+          toValue: windowWidth * 0.8,
           duration: 300,
           useNativeDriver: false,
         }),
@@ -425,13 +434,13 @@ const OnboardingScreen = () => {
           styles.morphContainer,
           {
             bottom: insets.bottom + 40,
-            width: containerWidth,
+            width: currentScreen === ONBOARDING_SCREENS.length - 1 ? windowWidth * 0.8 : containerWidth,
             height: containerHeight,
             borderRadius: containerBorderRadius,
             backgroundColor:
-              currentScreen === ONBOARDING_SCREENS.length - 1 ? Colors.dark.primary : Colors.dark.backgroundSecondary,
+              currentScreen === ONBOARDING_SCREENS.length - 1 ? colors.primary : colors.backgroundSecondary,
             borderWidth: currentScreen === ONBOARDING_SCREENS.length - 1 ? 0 : 1,
-            borderColor: Colors.dark.border,
+            borderColor: colors.border,
           },
         ]}
       >
@@ -443,7 +452,7 @@ const OnboardingScreen = () => {
               style={[
                 styles.indicator,
                 {
-                  backgroundColor: index === currentScreen ? Colors.dark.primary : Colors.dark.backgroundTertiary,
+                  backgroundColor: index === currentScreen ? colors.primary : colors.backgroundTertiary,
                   width: index === currentScreen ? 24 : 8,
                 },
               ]}
@@ -457,8 +466,13 @@ const OnboardingScreen = () => {
             Get Started
           </Text>
         </Animated.View>
-
-        <Pressable style={StyleSheet.absoluteFill} onPress={handleSkip} />
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={() => {
+            if (currentScreen < ONBOARDING_SCREENS.length - 1) return; // Don't skip if not on last screen
+            handleSkip();
+          }}
+        />
       </Animated.View>
     </View>
   );

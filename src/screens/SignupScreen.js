@@ -1,5 +1,5 @@
 import { View, Text, YStack, Input, Button, XStack } from 'tamagui';
-import { Colors, useColors } from '@/context/ColorSchemeContext';
+import { Colors, useAppTheme, useColors } from '@/context/ColorSchemeContext';
 import { TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
@@ -13,6 +13,7 @@ import Toast from 'react-native-toast-message';
 
 const SignupScreen = () => {
   const colors = useColors();
+  const { effectiveColorScheme } = useAppTheme();
   const { signupData, updateSignupData } = useAuthContext();
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -96,7 +97,11 @@ const SignupScreen = () => {
             {/* Logo */}
             <YStack ai="flex-start" mt="$4">
               <Image
-                source={require('@/../assets/logo-primary.png')}
+                source={
+                  effectiveColorScheme === 'dark'
+                    ? require('@/../assets/logo-primary.png')
+                    : require('@/../assets/logo-primary-dark.png')
+                }
                 style={{ height: 40, resizeMode: 'contain', width: 100 }}
               />
             </YStack>

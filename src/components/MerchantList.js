@@ -7,11 +7,16 @@ import MerchantCard from './MerchantCard';
 import { MERCHANTS } from '@/data/merchants';
 import { useNavigation } from '@react-navigation/native';
 import { Paths } from '@/navigation/paths';
+import { useSubscriptions } from '@/hooks/useSubscriptions';
 
 const MerchantList = () => {
   const colors = useColors();
   const navigation = useNavigation();
+  const { subscriptions } = useSubscriptions();
   const displayedMerchants = MERCHANTS.slice(0, 3);
+
+  // Create a Set of subscribed merchant names for O(1) lookup
+  const subscribedMerchants = new Set(subscriptions.map((sub) => sub.merchant));
 
   const handleViewMore = () => {
     navigation.navigate(Paths.ALL_MERCHANTS);
@@ -35,7 +40,7 @@ const MerchantList = () => {
       {/* Merchant Cards */}
       <YStack px="$4">
         {displayedMerchants.map((merchant) => (
-          <MerchantCard key={merchant.id} merchant={merchant} />
+          <MerchantCard key={merchant.id} merchant={merchant} isSubscribed={subscribedMerchants.has(merchant.name)} />
         ))}
 
         {/* View More Button */}

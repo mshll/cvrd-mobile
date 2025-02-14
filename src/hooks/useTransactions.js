@@ -15,23 +15,5 @@ export function useTransactions(cardId = null) {
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
     retry: 3,
-    select: (data) => {
-      // Transform API response to match frontend needs
-      return data.map((transaction) => ({
-        id: transaction.id.toString(),
-        name: transaction.merchant,
-        amount: transaction.amount,
-        status: transaction.status,
-        date: transaction.createdAt,
-        type: transaction.type,
-        category: transaction.category,
-        isRecurring: transaction.isRecurring || false,
-        latitude: transaction.latitude,
-        longitude: transaction.longitude,
-        declineReason: transaction.declineReason,
-        cardId: transaction.cardId,
-        merchant: transaction.merchant,
-      }));
-    },
   });
 }

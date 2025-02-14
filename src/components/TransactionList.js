@@ -8,7 +8,7 @@ import { MagnifyingGlassIcon } from 'react-native-heroicons/solid';
 // Helper function to group transactions by month
 const groupTransactionsByMonth = (transactions) => {
   const groups = transactions.reduce((acc, transaction) => {
-    const date = new Date(transaction.date);
+    const date = new Date(transaction.createdAt);
     const monthYear = date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
     if (!acc[monthYear]) {
@@ -65,8 +65,8 @@ const TransactionList = ({
 
     // Apply sorting
     filtered.sort((a, b) => {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
       const amountDiff = a.amount - b.amount;
 
       switch (sortOption) {

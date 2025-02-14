@@ -3,7 +3,7 @@ import tamaguiConfig from './tamagui.config';
 import { NavigationContainer } from '@react-navigation/native';
 import { useState, useEffect, useRef } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { StatusBar, useColorScheme, AppState, Animated } from 'react-native';
+import { StatusBar, AppState, Animated } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -16,7 +16,7 @@ import { BreadcrumbProvider } from '@/context/BreadcrumbContext';
 import toastConfig from '@/config/toastConfig';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ColorSchemeProvider } from '@/context/ColorSchemeContext';
+import { ColorSchemeProvider, useAppTheme } from '@/context/ColorSchemeContext';
 import { deleteToken, getToken } from '@/api/storage';
 import { Colors } from '@/context/ColorSchemeContext';
 import { useFonts } from 'expo-font';
@@ -127,6 +127,62 @@ const Navigation = () => {
   return <MainNav />;
 };
 
+const ThemedApp = () => {
+  const { effectiveColorScheme } = useAppTheme();
+  const [showSecurityOverlay, setShowSecurityOverlay] = useState(false);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      console.log('AppState', nextAppState);
+      setShowSecurityOverlay(nextAppState !== 'active');
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  return (
+    <Theme name={effectiveColorScheme === 'dark' ? 'dark' : 'light'}>
+      <QueryClientProvider client={queryClient}>
+        <ActionSheetProvider>
+          <SafeAreaProvider>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <AuthProvider>
+                <NavigationContainer>
+                  <BreadcrumbProvider>
+                    <PortalProvider>
+                      <BottomSheetModalProvider>
+                        <StatusBar
+                          animated={true}
+                          barStyle={effectiveColorScheme === 'dark' ? 'light-content' : 'dark-content'}
+                        />
+                        <Navigation />
+                        <Toast config={toastConfig} />
+                        <SecurityOverlay visible={showSecurityOverlay} />
+                      </BottomSheetModalProvider>
+                    </PortalProvider>
+                  </BreadcrumbProvider>
+                </NavigationContainer>
+              </AuthProvider>
+            </GestureHandlerRootView>
+          </SafeAreaProvider>
+        </ActionSheetProvider>
+      </QueryClientProvider>
+    </Theme>
+  );
+};
+
+const AppContent = () => {
+  return (
+    <TamaguiProvider config={tamaguiConfig}>
+      <ColorSchemeProvider>
+        <ThemedApp />
+      </ColorSchemeProvider>
+    </TamaguiProvider>
+  );
+};
+
 export default function App() {
   const [fontsLoaded, fontsError] = useFonts({
     // Archivo Regular Weights
@@ -160,50 +216,8 @@ export default function App() {
     Inter_800ExtraBold: require('./assets/fonts/Inter/Inter_24pt-ExtraBold.ttf'),
     Inter_900Black: require('./assets/fonts/Inter/Inter_24pt-Black.ttf'),
   });
-  const colorScheme = useColorScheme();
-  const [showSecurityOverlay, setShowSecurityOverlay] = useState(false);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      console.log('AppState', nextAppState);
-      setShowSecurityOverlay(nextAppState !== 'active');
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
 
   if (!fontsLoaded) return null;
 
-  return (
-    <TamaguiProvider config={tamaguiConfig}>
-      <Theme name={colorScheme === 'dark' ? 'dark' : 'light'}>
-        <ColorSchemeProvider>
-          <QueryClientProvider client={queryClient}>
-            <ActionSheetProvider>
-              <SafeAreaProvider>
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                  <AuthProvider>
-                    <NavigationContainer>
-                      <BreadcrumbProvider>
-                        <PortalProvider>
-                          <BottomSheetModalProvider>
-                            <StatusBar animated={true} barStyle="default" />
-                            <Navigation />
-                            <Toast config={toastConfig} />
-                            <SecurityOverlay visible={showSecurityOverlay} />
-                          </BottomSheetModalProvider>
-                        </PortalProvider>
-                      </BreadcrumbProvider>
-                    </NavigationContainer>
-                  </AuthProvider>
-                </GestureHandlerRootView>
-              </SafeAreaProvider>
-            </ActionSheetProvider>
-          </QueryClientProvider>
-        </ColorSchemeProvider>
-      </Theme>
-    </TamaguiProvider>
-  );
+  return <AppContent />;
 }
