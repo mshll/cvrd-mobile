@@ -1,4 +1,5 @@
 import instance from './index';
+
 import { Colors } from '@/context/ColorSchemeContext';
 
 // Default configurations for each card type
@@ -208,6 +209,16 @@ export async function updateCard(cardId, updates) {
 
   const response = await instance.put(`/card/update/${cardId}`, updates);
   return response.data;
+}
+
+export async function getUserCards() {
+  try {
+    const response = await instance.get('/user/me/cards');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user cards:', error);
+    throw error;
+  }
 }
 
 /**

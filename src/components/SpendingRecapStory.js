@@ -15,18 +15,18 @@ import Animated, {
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  IntroStory,
-  TotalSpentStory,
-  BiggestMonthStory,
-  HighestPurchaseStory,
-  TopMerchantStory,
-  TopLocationStory,
-  TopCategoryStory,
-  OutroStory,
+  Slide1Story,
+  Slide2Story,
+  Slide3Story,
+  Slide4Story,
+  Slide5Story,
+  Slide6Story,
+  Slide7Story,
+  Slide8Story,
 } from './playback';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const STORY_DURATION = 5000; // 5 seconds per story
+const STORY_DURATION = 15000; // 15 seconds per story
 const NUM_STORIES = 8;
 const DISMISS_THRESHOLD = 150; // pixels to slide down before dismissing
 
@@ -162,46 +162,21 @@ export function SpendingRecapStory({ isVisible, onClose, spendingData }) {
   const renderStoryContent = () => {
     switch (currentStory) {
       case 0:
-        return <IntroStory />;
+        return <Slide1Story />;
       case 1:
-        return <TotalSpentStory totalSpent={spendingData?.totalSpent} />;
+        return <Slide2Story />;
       case 2:
-        return (
-          <BiggestMonthStory
-            biggestMonth={spendingData?.biggestMonth}
-            biggestMonthAmount={spendingData?.biggestMonthAmount}
-          />
-        );
+        return <Slide3Story />;
       case 3:
-        return (
-          <HighestPurchaseStory
-            highestPurchase={spendingData?.highestPurchase}
-            highestPurchaseMerchant={spendingData?.highestPurchaseMerchant}
-          />
-        );
+        return <Slide4Story />;
       case 4:
-        return (
-          <TopMerchantStory
-            topMerchant={spendingData?.topMerchant}
-            topMerchantVisits={spendingData?.topMerchantVisits}
-          />
-        );
+        return <Slide5Story />;
       case 5:
-        return (
-          <TopLocationStory
-            topLocation={spendingData?.topLocation}
-            topLocationAmount={spendingData?.topLocationAmount}
-          />
-        );
+        return <Slide6Story />;
       case 6:
-        return (
-          <TopCategoryStory
-            topCategory={spendingData?.topCategory}
-            topCategoryAmount={spendingData?.topCategoryAmount}
-          />
-        );
+        return <Slide7Story />;
       case 7:
-        return <OutroStory />;
+        return <Slide8Story />;
     }
   };
 

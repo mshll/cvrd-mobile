@@ -18,6 +18,7 @@ import {
   ArrowPathIcon as ArrowPathIconOutline,
   UserCircleIcon as UserCircleIconOutline,
 } from 'react-native-heroicons/outline';
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { CustomTabBar } from '@/components/CustomTabBar';
 import AuthNav from './AuthNav';
@@ -78,6 +79,7 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
+
         name={Paths.PROFILE}
         component={ProfileStack}
         options={{
