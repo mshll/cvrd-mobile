@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const StorageKeys = {
   CARD_CUSTOMIZATION: 'cvrd:card_customizations',
+  HIDE_PAUSE_WARNING: 'cvrd:hide_pause_warning1',
 };
 
 const DEFAULT_CUSTOMIZATION = {
@@ -80,3 +81,21 @@ export const resetCardCustomization = async (cardId) => {
 };
 
 export const { EMOJI: DEFAULT_EMOJI, COLOR: DEFAULT_COLOR } = Defaults;
+
+// Pause warning preference
+export const getHidePauseWarning = async () => {
+  try {
+    const value = await AsyncStorage.getItem(StorageKeys.HIDE_PAUSE_WARNING);
+    return value === 'true';
+  } catch {
+    return false;
+  }
+};
+
+export const setHidePauseWarning = async (hide) => {
+  try {
+    await AsyncStorage.setItem(StorageKeys.HIDE_PAUSE_WARNING, hide.toString());
+  } catch (error) {
+    console.error('Failed to save pause warning preference:', error);
+  }
+};
