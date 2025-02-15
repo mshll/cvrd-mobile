@@ -35,3 +35,33 @@ export const connectBank = async (bankAccountUsername, token) => {
   const response = await instance.post('/user/me/connect-bank', { bankAccountUsername }, config);
   return response.data;
 };
+
+export const updateProfilePicture = async (imageUri) => {
+  const formData = new FormData();
+  const filename = imageUri.split('/').pop();
+  const match = /\.(\w+)$/.exec(filename);
+  const type = match ? `image/${match[1]}` : 'image';
+
+  formData.append('file', {
+    uri: imageUri,
+    name: filename,
+    type,
+  });
+
+  const response = await instance.post('/user/me/profile-picture', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+export const deleteProfilePicture = async () => {
+  const response = await instance.delete('/user/me/profile-picture');
+  return response.data;
+};
+
+export const getProfilePictureUrl = (profilePicFilename) => {
+  if (!profilePicFilename) return null;
+  return `${instance.defaults.baseURL}/user/uploads/${profilePicFilename}`;
+};

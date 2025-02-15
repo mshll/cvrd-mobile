@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { getUser, updateUser, getCardIssuanceLimit } from '@/api/user';
+import { getUser, updateUser, getCardIssuanceLimit, updateProfilePicture, deleteProfilePicture } from '@/api/user';
 import { useAuthContext } from '@/context/AuthContext';
 import Toast from 'react-native-toast-message';
 import { useCallback } from 'react';
@@ -45,6 +45,42 @@ export function useUser() {
     },
   });
 
+  const updateProfilePictureMutation = useMutation({
+    mutationFn: updateProfilePicture,
+    onSuccess: (data) => {
+      queryClient.setQueryData(['user'], data);
+      Toast.show({
+        type: 'success',
+        text1: 'Profile picture updated successfully',
+      });
+    },
+    onError: (error) => {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Failed to update profile picture',
+      });
+    },
+  });
+
+  const deleteProfilePictureMutation = useMutation({
+    mutationFn: deleteProfilePicture,
+    onSuccess: (data) => {
+      queryClient.setQueryData(['user'], data);
+      Toast.show({
+        type: 'success',
+        text1: 'Profile picture removed successfully',
+      });
+    },
+    onError: (error) => {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Failed to remove profile picture',
+      });
+    },
+  });
+
   const refreshUser = () => {
     queryClient.invalidateQueries({ queryKey: ['user'] });
   };
@@ -63,6 +99,10 @@ export function useUser() {
     refreshUser,
     updateUser: updateUserMutation.mutateAsync,
     isUpdating: updateUserMutation.isPending,
+    updateProfilePicture: updateProfilePictureMutation.mutateAsync,
+    isUpdatingProfilePicture: updateProfilePictureMutation.isPending,
+    deleteProfilePicture: deleteProfilePictureMutation.mutateAsync,
+    isDeletingProfilePicture: deleteProfilePictureMutation.isPending,
     issuanceLimit,
     logout,
   };
