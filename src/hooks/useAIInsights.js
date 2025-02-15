@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { AI_CONFIG } from '@/config/ai';
+import { ENV } from '@/config/env';
 
 // Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(AI_CONFIG.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(ENV.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
 function analyzeTransactions(transactions) {
