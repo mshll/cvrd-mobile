@@ -66,8 +66,8 @@ function processLimits(limits) {
 export async function createBurnerCard(cardData) {
   const requestBody = {
     cardName: cardData.name,
-    cardIcon: CARD_DEFAULTS.BURNER.icon,
-    cardColor: CARD_DEFAULTS.BURNER.color,
+    cardIcon: cardData.cardIcon || CARD_DEFAULTS.BURNER.icon,
+    cardColor: cardData.cardColor || CARD_DEFAULTS.BURNER.color,
     ...processLimits(cardData.limits),
   };
 

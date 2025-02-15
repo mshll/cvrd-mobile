@@ -28,6 +28,10 @@ import {
   MagnifyingGlassIcon,
   StarIcon,
 } from 'react-native-heroicons/solid';
+import { AIInsightsButton } from '@/components/AIInsightsButton';
+import { AIInsightsSheet } from '@/components/AIInsightsSheet';
+import { useAIInsights } from '@/hooks/useAIInsights';
+import { fetchUserTransactions } from '@/api/transactions';
 
 // ============================================================================
 // Constants & Config
@@ -119,7 +123,7 @@ function SpendingStats() {
       <XStack ai="center" mb="$2" gap="$2">
         <BanknotesIcon size={20} color={colors.text} />
         <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
-          Total Spending
+          Spending Overview
         </Text>
       </XStack>
       <XStack gap="$3">
@@ -263,6 +267,9 @@ function HomeScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const navigation = useNavigation();
   const searchListRef = useRef(null);
+  const { insights, isLoading: isAILoading, error: aiError, fetchInsights } = useAIInsights();
+  const [showAIInsights, setShowAIInsights] = useState(false);
+  const [isInsightsOpen, setIsInsightsOpen] = useState(false);
 
   // Mock spending data - replace with real data from your API
   const spendingData = {
@@ -369,6 +376,16 @@ function HomeScreen() {
     });
   }, [navigation, colors.text, showSearch]);
 
+  const handleShowInsights = async () => {
+    setIsInsightsOpen(true);
+    try {
+      const transactions = await fetchUserTransactions();
+      await fetchInsights(transactions);
+    } catch (error) {
+      console.error('Error fetching insights:', error);
+    }
+  };
+
   const isLoading = isCardsLoading || isSectionOrderLoading;
   if (isLoading) {
     return (
@@ -411,6 +428,7 @@ function HomeScreen() {
           }
         >
           <SpendingRecapButton onPress={() => setShowRecap(true)} />
+          <AIInsightsButton onPress={handleShowInsights} />
 
           <SpendingSummary />
 
@@ -441,6 +459,12 @@ function HomeScreen() {
               onReset={resetOrder}
             />
             <SpendingRecapStory isVisible={showRecap} onClose={() => setShowRecap(false)} spendingData={spendingData} />
+            <AIInsightsSheet
+              isOpen={isInsightsOpen}
+              onClose={() => setIsInsightsOpen(false)}
+              insights={insights}
+              isLoading={isAILoading}
+            />
           </>
         </ScrollView>
       )}
