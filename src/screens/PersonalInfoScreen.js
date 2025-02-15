@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronLeftIcon, ChevronDownIcon, CalendarIcon } from 'react-native-heroicons/outline';
+import { ChevronLeftIcon, ChevronDownIcon, CalendarIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import { useUser } from '@/hooks/useUser';
 import Toast from 'react-native-toast-message';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -104,27 +104,31 @@ const PersonalInfoScreen = () => {
     <View f={1} bg={colors.background}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         {/* Fixed Header */}
-        <View style={{ paddingTop: insets.top }}>
-          <YStack px="$4" pb="$4">
-            {/* Header with Back Button */}
-            <XStack ai="center" mt="$4">
-              <Button
-                size="$3"
-                circular
-                backgroundColor={colors.backgroundSecondary}
-                pressStyle={{ backgroundColor: colors.backgroundTertiary }}
-                onPress={() => navigation.goBack()}
-                borderWidth={1}
-                borderColor={colors.border}
-                mr="$4"
-              >
-                <ChevronLeftIcon size={20} color={colors.text} />
-              </Button>
-              <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
-                Personal Information
-              </Text>
-            </XStack>
-          </YStack>
+        <View
+          backgroundColor={colors.background}
+          style={{
+            paddingTop: 16,
+            paddingBottom: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: `${colors.border}40`,
+          }}
+        >
+          <XStack ai="center" jc="space-between" px="$4" pt="$2">
+            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+              Personal Information
+            </Text>
+            <Button
+              size="$3"
+              circular
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={() => navigation.goBack()}
+              borderWidth={1}
+              borderColor={colors.border}
+            >
+              <XMarkIcon size={20} color={colors.text} />
+            </Button>
+          </XStack>
         </View>
 
         {/* Scrollable Content */}

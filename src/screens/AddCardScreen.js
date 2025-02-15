@@ -1,5 +1,5 @@
 import { Colors, useColors } from '@/context/ColorSchemeContext';
-import { View, Button, Text, Spinner, YStack } from 'tamagui';
+import { View, Button, Text, Spinner, YStack, XStack } from 'tamagui';
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -27,6 +27,8 @@ import { useUser } from '@/hooks/useUser';
 import { BanknotesIcon } from 'react-native-heroicons/outline';
 import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import Toast from 'react-native-toast-message';
+import { usePlans } from '@/hooks/usePlans';
+import { SparklesIcon } from 'react-native-heroicons/outline';
 
 const window = Dimensions.get('window');
 const WINDOW_WIDTH = window.width;
@@ -150,6 +152,7 @@ const Carousel = ({
   initialIndex,
   colors,
   orderedCards,
+  isPremium,
 }) => {
   const flatListRef = useAnimatedRef();
 
@@ -199,7 +202,13 @@ const Carousel = ({
         initialScrollIndex={initialIndex}
         initialNumToRender={orderedCards.length}
       />
-      <AnimatedDescription scrollX={scrollX} showCarousel={showCarousel} colors={colors} cards={orderedCards} />
+      <AnimatedDescription
+        scrollX={scrollX}
+        showCarousel={showCarousel}
+        colors={colors}
+        cards={orderedCards}
+        isPremium={isPremium}
+      />
     </View>
   );
 };
@@ -301,7 +310,7 @@ const AnimatedTitle = memo(({ scrollX, showCarousel, colors, cards }) => {
   );
 });
 
-const AnimatedDescription = memo(({ scrollX, showCarousel, colors, cards }) => {
+const AnimatedDescription = memo(({ scrollX, showCarousel, colors, cards, isPremium }) => {
   const descriptionContainerStyle = useAnimatedStyle(() => {
     return {
       opacity: showCarousel ? withDelay(200, withSpring(1, { damping: 12, stiffness: 35 })) : 0,
@@ -363,6 +372,8 @@ const AnimatedDescription = memo(({ scrollX, showCarousel, colors, cards }) => {
           };
         });
 
+        const isPremiumOnly = ['CATEGORY_LOCKED', 'LOCATION_LOCKED'].includes(card.type);
+
         return (
           <Animated.View
             key={card.id}
@@ -378,16 +389,36 @@ const AnimatedDescription = memo(({ scrollX, showCarousel, colors, cards }) => {
               containerStyle,
             ]}
           >
-            <Text
-              style={{
-                fontSize: 14,
-                color: colors.textSecondary,
-                textAlign: 'center',
-                lineHeight: 20,
-              }}
-            >
-              {card.description}
-            </Text>
+            <YStack gap="$2" ai="center">
+              {isPremiumOnly && !isPremium && (
+                <XStack
+                  backgroundColor={`${colors.primary}15`}
+                  px="$2"
+                  py="$1"
+                  br={20}
+                  borderWidth={1}
+                  borderColor={`${colors.primary}30`}
+                  ai="center"
+                  gap="$1"
+                  mb="$1"
+                >
+                  <SparklesIcon size={10} color={colors.primary} />
+                  <Text color={colors.primary} fontSize={11} fontWeight="500">
+                    Premium only
+                  </Text>
+                </XStack>
+              )}
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: colors.textSecondary,
+                  textAlign: 'center',
+                  lineHeight: 20,
+                }}
+              >
+                {card.description}
+              </Text>
+            </YStack>
           </Animated.View>
         );
       })}
@@ -395,7 +426,7 @@ const AnimatedDescription = memo(({ scrollX, showCarousel, colors, cards }) => {
   );
 });
 
-const SelectButton = memo(({ showCarousel, selectedCard, onSelect, colors }) => {
+const SelectButton = memo(({ showCarousel, selectedCard, onSelect, onUpgrade, colors, isPremium }) => {
   const buttonStyle = useAnimatedStyle(() => {
     return {
       opacity: showCarousel ? withDelay(400, withSpring(1, { damping: 15 })) : 0,
@@ -407,19 +438,31 @@ const SelectButton = memo(({ showCarousel, selectedCard, onSelect, colors }) => 
     };
   });
 
+  const isPremiumOnly = ['CATEGORY_LOCKED', 'LOCATION_LOCKED'].includes(selectedCard?.type);
+  const showUpgradeButton = !isPremium && isPremiumOnly;
+
   return (
     <Animated.View style={[buttonStyle, { width: '100%', paddingHorizontal: 28 }]}>
       <Button
         f={1}
-        backgroundColor={colors.backgroundSecondary}
-        color={colors.text}
+        backgroundColor={showUpgradeButton ? colors.primary : colors.backgroundSecondary}
+        color={showUpgradeButton ? 'white' : colors.text}
         size="$5"
         fontWeight="600"
         borderRadius={12}
-        pressStyle={{ backgroundColor: colors.backgroundTertiary }}
-        onPress={() => onSelect(selectedCard)}
+        pressStyle={{ backgroundColor: showUpgradeButton ? colors.primaryDark : colors.backgroundTertiary }}
+        onPress={() => (showUpgradeButton ? onUpgrade() : onSelect(selectedCard))}
       >
-        Select Card
+        {showUpgradeButton ? (
+          <XStack ai="center" gap="$2">
+            <SparklesIcon size={20} color="white" />
+            <Text color="white" fontSize="$4" fontWeight="600">
+              Upgrade to Premium
+            </Text>
+          </XStack>
+        ) : (
+          'Select Card'
+        )}
       </Button>
     </Animated.View>
   );
@@ -433,6 +476,8 @@ const AddCardScreen = () => {
   const initialCardType = route.params?.initialCardType;
   const { issuanceLimit } = useUser();
   const { authenticate, isAuthenticating } = useBiometricAuth();
+  const { currentPlan } = usePlans();
+  const isPremium = currentPlan === 'PREMIUM';
 
   // Check if user has reached their limit
   const hasReachedLimit = issuanceLimit && issuanceLimit.currentMonthUsage >= issuanceLimit.monthlyLimit;
@@ -626,12 +671,22 @@ const AddCardScreen = () => {
   }, [step]);
 
   const handleSelectCard = (card) => {
+    const isPremiumOnly = ['CATEGORY_LOCKED', 'LOCATION_LOCKED'].includes(card.type);
+    if (isPremiumOnly && !isPremium) {
+      navigation.navigate(Paths.SUBSCRIPTION_MANAGEMENT);
+      return;
+    }
+
     setIsInitialMount(false);
     const index = SAMPLE_CARDS.findIndex((c) => c.id === card.id);
     if (index !== -1) {
       setSelectedIndex(index);
     }
     setStep('config');
+  };
+
+  const handleUpgrade = () => {
+    navigation.navigate(Paths.SUBSCRIPTION_MANAGEMENT);
   };
 
   const handleConfigBack = () => {
@@ -707,6 +762,7 @@ const AddCardScreen = () => {
                 initialIndex={selectedIndex}
                 colors={colors}
                 orderedCards={cards}
+                isPremium={isPremium}
               />
             </View>
           </>
@@ -796,7 +852,9 @@ const AddCardScreen = () => {
                 showCarousel={showCarousel}
                 selectedCard={selectedCard}
                 onSelect={handleSelectCard}
+                onUpgrade={handleUpgrade}
                 colors={colors}
+                isPremium={isPremium}
               />
             </View>
           )}

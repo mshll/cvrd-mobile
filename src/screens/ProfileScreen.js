@@ -24,6 +24,7 @@ import {
   PhotoIcon,
   TrashIcon,
   PlusIcon,
+  SparklesIcon,
 } from 'react-native-heroicons/outline';
 import { UserIcon as UserIconFilled } from 'react-native-heroicons/solid';
 import { useState, useCallback } from 'react';
@@ -38,6 +39,7 @@ import { useAppTheme } from '@/context/ColorSchemeContext';
 import { SunIcon, MoonIcon, ComputerDesktopIcon } from 'react-native-heroicons/outline';
 import * as ImagePicker from 'expo-image-picker';
 import { getProfilePictureUrl } from '@/api/user';
+import { usePlans } from '@/hooks/usePlans';
 
 const MenuItem = ({ icon: Icon, label, value, onPress, showArrow = true, rightElement }) => {
   const colors = useColors();
@@ -182,6 +184,43 @@ const AppearanceSheet = ({ isOpen, onClose }) => {
   );
 };
 
+const formatPlanName = (name) => {
+  return name.charAt(0) + name.slice(1).toLowerCase();
+};
+
+const SubscriptionMenuItem = () => {
+  const colors = useColors();
+  const navigation = useNavigation();
+  const { currentPlan } = usePlans();
+  const isPremium = currentPlan === 'PREMIUM';
+
+  const handlePress = () => {
+    navigation.navigate(Paths.SUBSCRIPTION_MANAGEMENT);
+  };
+
+  return (
+    <MenuItem
+      icon={SparklesIcon}
+      label="Your Plan"
+      rightElement={
+        <View
+          backgroundColor={isPremium ? `${colors.primary}15` : `${colors.textSecondary}15`}
+          px="$3"
+          py="$1"
+          br={20}
+          borderWidth={1}
+          borderColor={isPremium ? `${colors.primary}30` : `${colors.textSecondary}30`}
+        >
+          <Text color={isPremium ? colors.primary : colors.textSecondary} fontSize="$2" fontWeight="600">
+            {formatPlanName(currentPlan)}
+          </Text>
+        </View>
+      }
+      onPress={handlePress}
+    />
+  );
+};
+
 const ProfileScreen = () => {
   const { setUser } = useAuthContext();
   const colors = useColors();
@@ -207,6 +246,8 @@ const ProfileScreen = () => {
   const [showAppearanceSheet, setShowAppearanceSheet] = useState(false);
   const [showProfilePictureSheet, setShowProfilePictureSheet] = useState(false);
   const { appearanceMode } = useAppTheme();
+  const { currentPlan } = usePlans();
+  const isPremium = currentPlan === 'PREMIUM';
 
   const limits = {
     monthlyNewCards: {
@@ -581,20 +622,27 @@ const ProfileScreen = () => {
             Account Limits
           </Text>
 
-          <Button
-            bg="transparent"
-            h={'auto'}
-            borderWidth={0}
-            mx="$1"
-            py="0"
-            my="0"
-            hitSlop={40}
-            pressStyle={{ backgroundColor: 'transparent', opacity: 0.5 }}
-          >
-            <Text color={colors.text} fontSize="$2" fontWeight="500" textDecorationLine="underline">
-              Upgrade Plan
-            </Text>
-          </Button>
+          {!isPremium && (
+            <Button
+              backgroundColor={`${colors.primary}15`}
+              h={'auto'}
+              px="$3"
+              py="$1"
+              mx="$4"
+              pressStyle={{ backgroundColor: `${colors.primary}25`, scale: 0.98 }}
+              onPress={() => navigation.navigate(Paths.SUBSCRIPTION_MANAGEMENT)}
+              br={20}
+              borderWidth={1}
+              borderColor={`${colors.primary}30`}
+            >
+              <XStack ai="center" gap="$2">
+                <SparklesIcon size={14} color={colors.primary} />
+                <Text color={colors.primary} fontSize="$2" fontWeight="600">
+                  Upgrade
+                </Text>
+              </XStack>
+            </Button>
+          )}
         </XStack>
 
         <View
@@ -640,6 +688,7 @@ const ProfileScreen = () => {
             Account
           </Text>
           <YStack gap="$2">
+            <SubscriptionMenuItem />
             <MenuItem icon={UserIcon} label="Personal Information" onPress={handlePersonalInfo} />
             <MenuItem icon={ShieldCheckIcon} label="Security" onPress={handleSecurity} />
             <MenuItem
@@ -672,8 +721,16 @@ const ProfileScreen = () => {
             Support
           </Text>
           <YStack gap="$2">
-            <MenuItem icon={QuestionMarkCircleIcon} label="Help Center" onPress={() => {}} />
-            <MenuItem icon={DocumentTextIcon} label="Terms & Privacy" onPress={() => {}} />
+            <MenuItem
+              icon={QuestionMarkCircleIcon}
+              label="Help Center"
+              onPress={() => navigation.navigate(Paths.HELP_CENTER)}
+            />
+            <MenuItem
+              icon={DocumentTextIcon}
+              label="Terms & Privacy"
+              onPress={() => navigation.navigate(Paths.TERMS_PRIVACY)}
+            />
           </YStack>
         </YStack>
       </YStack>

@@ -26,4 +26,8 @@ export const Paths = {
   SIGNUP: 'Signup',
   SIGNUP_DETAILS: 'SignupDetails',
   CONNECT_BANK: 'ConnectBank',
+
+  SUBSCRIPTION_MANAGEMENT: 'SubscriptionManagement',
+  HELP_CENTER: 'HelpCenter',
+  TERMS_PRIVACY: 'TermsPrivacy',
 };
