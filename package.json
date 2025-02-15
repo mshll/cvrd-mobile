@@ -15,6 +15,7 @@
     "@expo-google-fonts/dev": "^0.2.3",
     "@expo/react-native-action-sheet": "^4.1.0",
     "@expo/vector-icons": "^14.0.4",
+    "@google/generative-ai": "^0.21.0",
     "@gorhom/bottom-sheet": "^5.0.6",
     "@gorhom/portal": "^1.0.14",
     "@react-native-async-storage/async-storage": "1.23.1",

@@ -61,15 +61,19 @@ const TransactionDetailsSheet = ({ transaction, isOpen, onClose }) => {
     const normalizedStatus = status?.toUpperCase();
     switch (normalizedStatus) {
       case 'APPROVED':
+      case 'SETTLED':
+      case 'COMPLETED':
         return {
           color: Colors.cards.green,
-          text: 'Approved',
+          text: status || 'Approved',
           icon: CheckCircleIcon,
         };
       case 'DECLINED':
+      case 'FAILED':
+      case 'REJECTED':
         return {
           color: Colors.cards.red,
-          text: 'Declined',
+          text: status || 'Declined',
           icon: XCircleIcon,
         };
       default:

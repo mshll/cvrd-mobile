@@ -31,6 +31,7 @@ import {
 import { AIInsightsButton } from '@/components/AIInsightsButton';
 import { AIInsightsSheet } from '@/components/AIInsightsSheet';
 import { useAIInsights } from '@/hooks/useAIInsights';
+import { fetchUserTransactions } from '@/api/transactions';
 
 // ============================================================================
 // Constants & Config
@@ -268,6 +269,7 @@ function HomeScreen() {
   const searchListRef = useRef(null);
   const { insights, isLoading: isAILoading, error: aiError, fetchInsights } = useAIInsights();
   const [showAIInsights, setShowAIInsights] = useState(false);
+  const [isInsightsOpen, setIsInsightsOpen] = useState(false);
 
   // Mock spending data - replace with real data from your API
   const spendingData = {
@@ -374,11 +376,14 @@ function HomeScreen() {
     });
   }, [navigation, colors.text, showSearch]);
 
-  const handleAIInsightsPress = async () => {
-    if (!insights) {
-      await fetchInsights();
+  const handleShowInsights = async () => {
+    setIsInsightsOpen(true);
+    try {
+      const transactions = await fetchUserTransactions();
+      await fetchInsights(transactions);
+    } catch (error) {
+      console.error('Error fetching insights:', error);
     }
-    setShowAIInsights(true);
   };
 
   const isLoading = isCardsLoading || isSectionOrderLoading;
@@ -423,7 +428,7 @@ function HomeScreen() {
           }
         >
           <SpendingRecapButton onPress={() => setShowRecap(true)} />
-          <AIInsightsButton onPress={handleAIInsightsPress} />
+          <AIInsightsButton onPress={handleShowInsights} />
 
           <SpendingSummary />
 
@@ -455,8 +460,8 @@ function HomeScreen() {
             />
             <SpendingRecapStory isVisible={showRecap} onClose={() => setShowRecap(false)} spendingData={spendingData} />
             <AIInsightsSheet
-              isOpen={showAIInsights}
-              onClose={() => setShowAIInsights(false)}
+              isOpen={isInsightsOpen}
+              onClose={() => setIsInsightsOpen(false)}
               insights={insights}
               isLoading={isAILoading}
             />
