@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ENV } from '@/config/env';
+import { stores } from '@/data/stores2';
+import { subscriptions } from '@/data/subscriptions';
+import { MERCHANTS } from '@/data/merchants';
 
 // Initialize Gemini AI
 if (!ENV.GEMINI_API_KEY) {
@@ -31,33 +34,97 @@ function analyzeTransactions(transactions) {
   // Find highest spending category
   const highestSpendingCategory = Object.entries(categorySpending).sort(([, a], [, b]) => b - a)[0]?.[0] || 'None';
 
-  // Analyze recurring transactions
+  // Analyze recurring transactions with subscription data
   const recurringTransactions = approvedTransactions
     .filter((t) => t.recurring)
-    .map((t) => ({
-      merchant: t.merchant,
-      amount: t.amount,
-      category: t.category,
-      date: new Date(t.createdAt),
-      type: t.type,
-    }));
+    .map((t) => {
+      // Find matching subscription service
+      const subscriptionService = subscriptions.find(
+        (s) =>
+          s.name.toLowerCase() === t.merchant.toLowerCase() || t.merchant.toLowerCase().includes(s.name.toLowerCase())
+      );
+
+      // Find matching merchant
+      const merchant = MERCHANTS.find(
+        (m) =>
+          m.name.toLowerCase() === t.merchant.toLowerCase() || t.merchant.toLowerCase().includes(m.name.toLowerCase())
+      );
+
+      return {
+        merchant: t.merchant,
+        amount: t.amount,
+        category: t.category,
+        date: new Date(t.createdAt),
+        type: t.type,
+        // Add subscription data if available
+        subscriptionData: subscriptionService
+          ? {
+              lowestTier: Math.min(...subscriptionService.plans.map((p) => p.price)),
+              currentTier: subscriptionService.plans.find((p) => Math.abs(p.price - t.amount) < 0.5)?.name || 'Unknown',
+              potentialSavings: t.amount - Math.min(...subscriptionService.plans.map((p) => p.price)),
+            }
+          : null,
+        merchantData: merchant || null,
+      };
+    });
 
   // Calculate total recurring spend
   const totalRecurringSpend = recurringTransactions.reduce((sum, t) => sum + t.amount, 0);
 
-  // Group recurring transactions by merchant
+  // Group recurring transactions by merchant with enhanced analysis
   const recurringByMerchant = recurringTransactions.reduce((acc, t) => {
     if (!acc[t.merchant]) {
       acc[t.merchant] = {
         total: 0,
         count: 0,
         category: t.category,
+        subscriptionData: t.subscriptionData,
+        merchantData: t.merchantData,
       };
     }
     acc[t.merchant].total += t.amount;
     acc[t.merchant].count++;
     return acc;
   }, {});
+
+  // Analyze store-specific spending
+  const storeSpending = approvedTransactions.reduce((acc, t) => {
+    const store = stores.find(
+      (s) =>
+        s.name.toLowerCase() === t.merchant.toLowerCase() || t.merchant.toLowerCase().includes(s.name.toLowerCase())
+    );
+    if (store) {
+      if (!acc[store.name]) {
+        acc[store.name] = {
+          total: 0,
+          count: 0,
+          category: store.category,
+          averageItemPrice: store.items.reduce((sum, item) => sum + item.price, 0) / store.items.length,
+        };
+      }
+      acc[store.name].total += t.amount;
+      acc[store.name].count++;
+    }
+    return acc;
+  }, {});
+
+  // Find potential subscription downgrades
+  const findPotentialDowngrades = (recurringTransactions) => {
+    const potentialSavings = recurringTransactions
+      .filter((t) => t.subscriptionData && t.subscriptionData.potentialSavings > 0)
+      .map((t) => ({
+        merchant: t.merchant,
+        currentAmount: t.amount,
+        possibleAmount: t.subscriptionData.lowestTier,
+        potentialSaving: t.subscriptionData.potentialSavings,
+        currentTier: t.subscriptionData.currentTier,
+      }))
+      .sort((a, b) => b.potentialSaving - a.potentialSaving);
+
+    return potentialSavings.length > 0 ? potentialSavings[0] : null;
+  };
+
+  const potentialDowngrade = findPotentialDowngrades(recurringTransactions);
 
   // Add date-based analysis
   const dateAnalysis = approvedTransactions.reduce(
@@ -66,10 +133,7 @@ function analyzeTransactions(transactions) {
       const dayOfWeek = date.getDay();
       const hour = date.getHours();
 
-      // Track spending by day of week
       acc.byDayOfWeek[dayOfWeek] = (acc.byDayOfWeek[dayOfWeek] || 0) + t.amount;
-
-      // Track spending by hour
       acc.byHour[hour] = (acc.byHour[hour] || 0) + t.amount;
 
       return acc;
@@ -80,39 +144,7 @@ function analyzeTransactions(transactions) {
     }
   );
 
-  // Define common subscription tiers (in KWD)
-  const subscriptionTiers = {
-    streaming: 2.5, // Basic streaming service tier
-    music: 1.5, // Basic music service tier
-    storage: 1.0, // Basic cloud storage tier
-    fitness: 5.0, // Basic fitness app tier
-  };
-
-  // Analyze subscriptions for potential downgrades
-  const findPotentialDowngrades = (recurringTransactions) => {
-    const highCostSubscriptions = recurringTransactions
-      .filter((t) => {
-        const monthlyAmount = t.amount;
-        // Check if amount exceeds any basic tier by 50% or more
-        return Object.values(subscriptionTiers).some((basicAmount) => monthlyAmount > basicAmount * 1.5);
-      })
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 1); // Get the highest one
-
-    if (highCostSubscriptions.length > 0) {
-      const subscription = highCostSubscriptions[0];
-      return {
-        merchant: subscription.merchant,
-        amount: subscription.amount,
-        potentialSaving: (subscription.amount * 0.4).toFixed(2), // Estimate 40% savings from downgrade
-      };
-    }
-    return null;
-  };
-
-  const potentialDowngrade = findPotentialDowngrades(recurringTransactions);
-
-  // Prepare chart data
+  // Prepare chart data with enhanced context
   const chartData = {
     categoryBreakdown: (() => {
       const totalSpending = Object.values(categorySpending).reduce((sum, amount) => sum + amount, 0);
@@ -134,6 +166,8 @@ function analyzeTransactions(transactions) {
       .map(([merchant, data]) => ({
         x: merchant,
         y: data.total,
+        subscriptionData: data.subscriptionData,
+        merchantData: data.merchantData,
       })),
   };
 
@@ -148,6 +182,7 @@ function analyzeTransactions(transactions) {
     dateAnalysis,
     chartData,
     potentialDowngrade,
+    storeSpending,
   };
 }
 
@@ -233,27 +268,28 @@ export function useAIInsights() {
     setIsLoading(true);
     setError(null);
     try {
-      // First, analyze the transactions locally
       const analysis = analyzeTransactions(transactions);
 
-      const savingsValue = analysis.totalRecurringSpend * 0.1;
-      const downgradeSavings = analysis.potentialDowngrade
-        ? parseFloat(analysis.potentialDowngrade.potentialSaving)
-        : 0;
-      const totalPotentialSavings = (savingsValue + downgradeSavings).toFixed(2);
+      // Calculate savings with more context
+      const baseSavings = analysis.totalRecurringSpend * 0.1;
+      const subscriptionSavings = analysis.potentialDowngrade ? analysis.potentialDowngrade.potentialSaving : 0;
+      const totalPotentialSavings = (baseSavings + subscriptionSavings).toFixed(2);
 
-      // Generate basic insights
+      // Generate insights with store context
       const basicInsights = {
         overview: [
           { title: 'Most Used', value: analysis.mostUsedMerchant },
           { title: 'Top Category', value: analysis.highestSpendingCategory },
+          { title: 'Monthly Recurring', value: 'KWD ' + analysis.totalRecurringSpend.toFixed(2) },
         ],
         savings: [
           {
             title: 'Potential Savings',
             value: 'KWD ' + totalPotentialSavings,
             subtitle: analysis.potentialDowngrade
-              ? `Including KWD ${analysis.potentialDowngrade.potentialSaving} from downgrading ${analysis.potentialDowngrade.merchant}`
+              ? `Save KWD ${analysis.potentialDowngrade.potentialSaving.toFixed(2)} by switching to ${
+                  analysis.potentialDowngrade.merchant
+                }'s basic plan`
               : `Based on ${analysis.recurringTransactions.length} recurring payments`,
           },
         ],
@@ -262,9 +298,9 @@ export function useAIInsights() {
             title: 'Active Subscriptions',
             value: analysis.recurringTransactions.length.toString(),
             subtitle: analysis.potentialDowngrade
-              ? `Consider basic tier for ${
+              ? `Currently on ${analysis.potentialDowngrade.currentTier} plan for ${
                   analysis.potentialDowngrade.merchant
-                } (KWD ${analysis.potentialDowngrade.amount.toFixed(2)}/mo)`
+                } (KWD ${analysis.potentialDowngrade.currentAmount.toFixed(2)}/mo)`
               : undefined,
           },
         ],
@@ -287,7 +323,9 @@ export function useAIInsights() {
                 title: 'Potential Savings',
                 value: 'KWD ' + totalPotentialSavings,
                 subtitle: analysis.potentialDowngrade
-                  ? `Including KWD ${analysis.potentialDowngrade.potentialSaving} from downgrading ${analysis.potentialDowngrade.merchant}`
+                  ? `Save KWD ${analysis.potentialDowngrade.potentialSaving.toFixed(2)} by switching to ${
+                      analysis.potentialDowngrade.merchant
+                    }'s basic plan`
                   : `Based on ${analysis.recurringTransactions.length} recurring payments`,
               },
             ],
@@ -296,9 +334,9 @@ export function useAIInsights() {
                 title: 'Active Subscriptions',
                 value: analysis.recurringTransactions.length.toString(),
                 subtitle: analysis.potentialDowngrade
-                  ? `Consider basic tier for ${
+                  ? `Currently on ${analysis.potentialDowngrade.currentTier} plan for ${
                       analysis.potentialDowngrade.merchant
-                    } (KWD ${analysis.potentialDowngrade.amount.toFixed(2)}/mo)`
+                    } (KWD ${analysis.potentialDowngrade.currentAmount.toFixed(2)}/mo)`
                   : undefined,
               },
             ],
