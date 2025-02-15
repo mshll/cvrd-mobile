@@ -135,16 +135,21 @@ ${analysis.storePurchases
   .map((purchase) => `- ${purchase.merchant} (${purchase.category}): KWD ${purchase.total}`)
   .join('\n')}
 
-Provide specific insights about:
-1. Spending patterns and trends in the overview
-2. Money-saving opportunities based on timing and location
-3. Subscription optimization suggestions
-4. Shopping tips based on the user's patterns
-5. General financial management recommendations
+Provide concise, actionable insights about:
+1. Key spending patterns (max 15 words per insight)
+2. Specific money-saving opportunities (max 15 words per tip)
+3. Subscription optimization ideas (max 15 words per suggestion)
+4. Shopping tips based on timing and location (max 15 words per tip)
+5. Quick financial management recommendations (max 15 words per recommendation)
 
-IMPORTANT: Your response must be a valid JSON object with the exact structure shown above.
-Each array should contain 2-4 clear, actionable insights.
-Do not include any text outside of the JSON structure.`;
+IMPORTANT: 
+- Your response must be a valid JSON object with the exact structure shown above
+- Each array should contain 2-3 insights
+- Keep each insight under 15 words
+- Be specific and actionable
+- Focus on patterns in the data
+- Do not include any text outside of the JSON structure
+`;
 
   try {
     const result = await model.generateContent(prompt);
