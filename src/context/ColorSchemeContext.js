@@ -34,7 +34,7 @@ export const Colors = {
     textTertiary: '#999999',
     border: '#cccccc',
     borderSecondary: '#b3b3b3',
-    danger: '#e74c3c',
+    danger: '#F4405E',
     success: '#2ecc71',
     warning: '#f39c12',
     info: '#3498db',

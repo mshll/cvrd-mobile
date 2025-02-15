@@ -5,7 +5,7 @@ import { useCards } from '@/hooks/useCards';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { formatCurrency } from '@/utils/utils';
-import { StyleSheet, Image, RefreshControl, Switch } from 'react-native';
+import { StyleSheet, Image, RefreshControl, Switch, TouchableOpacity } from 'react-native';
 import {
   BellIcon,
   CreditCardIcon,
@@ -21,6 +21,9 @@ import {
   ClockIcon,
   BuildingLibraryIcon,
   XMarkIcon,
+  PhotoIcon,
+  TrashIcon,
+  PlusIcon,
 } from 'react-native-heroicons/outline';
 import { UserIcon as UserIconFilled } from 'react-native-heroicons/solid';
 import { useState, useCallback } from 'react';
@@ -33,6 +36,8 @@ import { disconnectBank } from '@/api/user';
 import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { useAppTheme } from '@/context/ColorSchemeContext';
 import { SunIcon, MoonIcon, ComputerDesktopIcon } from 'react-native-heroicons/outline';
+import * as ImagePicker from 'expo-image-picker';
+import { getProfilePictureUrl } from '@/api/user';
 
 const MenuItem = ({ icon: Icon, label, value, onPress, showArrow = true, rightElement }) => {
   const colors = useColors();
@@ -184,12 +189,23 @@ const ProfileScreen = () => {
   const navigation = useNavigation();
   const { cards } = useCards();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const { user, isLoading, error, logout, refreshUser } = useUser();
+  const {
+    user,
+    isLoading,
+    error,
+    logout,
+    refreshUser,
+    updateProfilePicture,
+    isUpdatingProfilePicture,
+    deleteProfilePicture,
+    isDeletingProfilePicture,
+  } = useUser();
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toggleNotifications, isToggling } = useNotificationSettings();
   const [showAppearanceSheet, setShowAppearanceSheet] = useState(false);
+  const [showProfilePictureSheet, setShowProfilePictureSheet] = useState(false);
   const { appearanceMode } = useAppTheme();
 
   const limits = {
@@ -296,6 +312,62 @@ const ProfileScreen = () => {
     }
   };
 
+  const handleProfilePicturePress = async () => {
+    if (!user?.profilePic) {
+      // If no profile picture, directly open image picker
+      await handlePickImage();
+    } else {
+      // If user has a profile picture, show options
+      setShowProfilePictureSheet(true);
+    }
+  };
+
+  const handlePickImage = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (permissionResult.granted === false) {
+        Toast.show({
+          type: 'error',
+          text1: 'Permission Required',
+          text2: 'Please allow access to your photo library to change profile picture',
+        });
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5,
+      });
+
+      if (!result.canceled) {
+        await updateProfilePicture(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error updating profile picture:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to update profile picture',
+      });
+    } finally {
+      setShowProfilePictureSheet(false);
+    }
+  };
+
+  const handleDeleteProfilePicture = async () => {
+    try {
+      await deleteProfilePicture();
+    } catch (error) {
+      console.error('Error deleting profile picture:', error);
+    } finally {
+      setShowProfilePictureSheet(false);
+    }
+  };
+
+  // Get profile picture URL
+  const profilePictureUrl = user?.profilePic ? getProfilePictureUrl(user.profilePic) : null;
+
   if (isLoading) {
     return (
       <View f={1} ai="center" jc="center" bg={colors.background}>
@@ -333,25 +405,54 @@ const ProfileScreen = () => {
       }
     >
       {/* Title Section */}
-      <YStack gap="$3" mb="$2" px={16}>
+      {/* <YStack gap="$3" mb="$2" px={16}>
         <XStack ai="center" mb="$2" gap="$2">
           <UserIconFilled size={20} color={colors.text} />
           <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
             Profile
           </Text>
         </XStack>
-      </YStack>
+      </YStack> */}
 
       {/* Profile Header */}
-      <YStack ai="center" pb="$6" px="$4" gap="$4">
-        <Circle backgroundColor={colors.border} borderWidth={'$2'} borderColor={colors.border}>
-          <Avatar circular size="$12">
-            <Avatar.Image source={user?.profilePic ? { uri: user?.profilePic } : require('@/../assets/default.png')} />
-            <Avatar.Fallback backgroundColor={colors.backgroundSecondary} />
-          </Avatar>
-        </Circle>
+      <YStack ai="center" pb="$6" px="$4" gap="$4" mt="$3">
+        <TouchableOpacity onPress={handleProfilePicturePress} disabled={isUpdatingProfilePicture}>
+          <Circle backgroundColor={colors.border} borderWidth={'$1.5'} borderColor={colors.border}>
+            {isUpdatingProfilePicture ? (
+              <View width={96} height={96} ai="center" jc="center">
+                <Spinner size="large" color={colors.primary} />
+              </View>
+            ) : (
+              <View>
+                <Avatar circular size="$12">
+                  <Avatar.Image
+                    source={profilePictureUrl ? { uri: profilePictureUrl } : require('@/../assets/default.png')}
+                  />
+                  <Avatar.Fallback backgroundColor={colors.backgroundSecondary} />
+                </Avatar>
+                {!user?.profilePic && (
+                  <View
+                    position="absolute"
+                    bottom={0}
+                    right={0}
+                    backgroundColor={colors.primary}
+                    width={32}
+                    height={32}
+                    borderRadius={16}
+                    borderWidth={2}
+                    borderColor={colors.background}
+                    ai="center"
+                    jc="center"
+                  >
+                    <PlusIcon size={20} color={colors.background} />
+                  </View>
+                )}
+              </View>
+            )}
+          </Circle>
+        </TouchableOpacity>
         <YStack ai="center" gap="$1">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
             {user ? `${user.firstName} ${user.lastName}` : 'User'}
           </Text>
           <Text color={colors.textSecondary} fontSize="$3">
@@ -428,24 +529,24 @@ const ProfileScreen = () => {
                 backgroundColor={`${colors.backgroundTertiary}80`}
                 p="$3"
                 br={8}
-                borderWidth={1}
+                borderWidth={0}
                 borderColor={colors.border}
               >
                 <YStack gap="$2">
-                  <XStack ai="center" jc="space-between">
-                    <Text color={colors.textSecondary} fontSize="$3">
-                      Account Number
-                    </Text>
-                    <Text color={colors.text} fontSize="$3" fontWeight="600" fontFamily="$mono">
-                      {user.bankAccountNumber}
-                    </Text>
-                  </XStack>
                   <XStack ai="center" jc="space-between">
                     <Text color={colors.textSecondary} fontSize="$3">
                       Username
                     </Text>
                     <Text color={colors.text} fontSize="$3" fontWeight="600" fontFamily="$mono">
                       {user.bankAccountUsername}
+                    </Text>
+                  </XStack>
+                  <XStack ai="center" jc="space-between">
+                    <Text color={colors.textSecondary} fontSize="$3">
+                      Account Number
+                    </Text>
+                    <Text color={colors.text} fontSize="$3" fontWeight="600" fontFamily="$mono">
+                      {user.bankAccountNumber}
                     </Text>
                   </XStack>
                 </YStack>
@@ -582,11 +683,11 @@ const ProfileScreen = () => {
         mx="$4"
         mt="$6"
         size="$5"
-        backgroundColor={colors.backgroundSecondary}
-        pressStyle={{ backgroundColor: colors.backgroundTertiary, scale: 0.98 }}
+        backgroundColor={`${colors.danger}10`}
+        pressStyle={{ backgroundColor: `${colors.danger}20`, scale: 0.98 }}
         onPress={() => setShowLogoutConfirm(true)}
         borderWidth={1}
-        borderColor={colors.border}
+        borderColor={`${colors.danger}30`}
         br={12}
         animation="quick"
       >
@@ -609,14 +710,16 @@ const ProfileScreen = () => {
           </Text>
           <YStack gap="$3">
             <Button
-              backgroundColor={colors.danger}
-              pressStyle={{ backgroundColor: colors.danger }}
+              backgroundColor={`${colors.danger}10`}
+              pressStyle={{ backgroundColor: `${colors.danger}20` }}
               onPress={handleDisconnectBank}
               size="$5"
               borderRadius={12}
+              borderWidth={1}
+              borderColor={`${colors.danger}30`}
               disabled={isDisconnecting}
             >
-              <Text color="white" fontSize="$4" fontWeight="600">
+              <Text color={colors.danger} fontSize="$4" fontWeight="600">
                 {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
               </Text>
             </Button>
@@ -648,15 +751,20 @@ const ProfileScreen = () => {
           </Text>
           <YStack gap="$3">
             <Button
-              backgroundColor={colors.danger}
-              pressStyle={{ backgroundColor: colors.danger }}
+              backgroundColor={`${colors.danger}10`}
+              pressStyle={{ backgroundColor: `${colors.danger}20` }}
               onPress={handleLogout}
               size="$5"
               borderRadius={12}
+              borderWidth={1}
+              borderColor={`${colors.danger}30`}
             >
-              <Text color="white" fontSize="$4" fontWeight="600">
-                Log Out
-              </Text>
+              <XStack ai="center" gap="$2">
+                <PowerIcon size={20} color={colors.danger} />
+                <Text color={colors.danger} fontSize="$4" fontWeight="600">
+                  Log Out
+                </Text>
+              </XStack>
             </Button>
             <Button
               backgroundColor={colors.backgroundSecondary}
@@ -670,6 +778,50 @@ const ProfileScreen = () => {
               <Text color={colors.text} fontSize="$4" fontWeight="600">
                 Cancel
               </Text>
+            </Button>
+          </YStack>
+        </YStack>
+      </BottomSheet>
+
+      {/* Profile Picture Options Sheet */}
+      <BottomSheet isOpen={showProfilePictureSheet} onClose={() => setShowProfilePictureSheet(false)} aboveAll={false}>
+        <YStack gap="$4" px="$4" pt="$2" pb="$6">
+          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            Profile Picture
+          </Text>
+          <YStack gap="$3">
+            <Button
+              backgroundColor={colors.backgroundTertiary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={handlePickImage}
+              size="$5"
+              borderRadius={12}
+              disabled={isUpdatingProfilePicture}
+            >
+              <XStack ai="center" gap="$2">
+                <PhotoIcon size={20} color={colors.text} />
+                <Text color={colors.text} fontSize="$4" fontWeight="600">
+                  {isUpdatingProfilePicture ? 'Uploading...' : 'Change Photo'}
+                </Text>
+              </XStack>
+            </Button>
+
+            <Button
+              backgroundColor={`${colors.danger}10`}
+              pressStyle={{ backgroundColor: `${colors.danger}20` }}
+              onPress={handleDeleteProfilePicture}
+              size="$5"
+              borderRadius={12}
+              disabled={isDeletingProfilePicture}
+              borderWidth={1}
+              borderColor={`${colors.danger}30`}
+            >
+              <XStack ai="center" gap="$2">
+                <TrashIcon size={20} color={colors.danger} />
+                <Text color={colors.danger} fontSize="$4" fontWeight="600">
+                  {isDeletingProfilePicture ? 'Removing...' : 'Remove Photo'}
+                </Text>
+              </XStack>
             </Button>
           </YStack>
         </YStack>

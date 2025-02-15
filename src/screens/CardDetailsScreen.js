@@ -695,13 +695,15 @@ const CardDetailsScreen = () => {
           </Text>
           <YStack gap="$3">
             <Button
-              backgroundColor={colors.danger}
-              pressStyle={{ opacity: 0.8 }}
+              backgroundColor={`${colors.danger}10`}
+              pressStyle={{ backgroundColor: `${colors.danger}20` }}
               onPress={handleConfirmClose}
               size="$5"
               borderRadius={12}
+              borderWidth={1}
+              borderColor={`${colors.danger}30`}
             >
-              <Text color="white" fontSize="$4" fontWeight="600">
+              <Text color={colors.danger} fontSize="$4" fontWeight="600">
                 Yes, Close Card
               </Text>
             </Button>

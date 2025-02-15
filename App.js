@@ -173,12 +173,10 @@ const ThemedApp = () => {
   );
 };
 
-const AppContent = () => {
+const AppContent = ({ children }) => {
   return (
     <TamaguiProvider config={tamaguiConfig}>
-      <ColorSchemeProvider>
-        <ThemedApp />
-      </ColorSchemeProvider>
+      <ColorSchemeProvider>{children}</ColorSchemeProvider>
     </TamaguiProvider>
   );
 };
@@ -217,7 +215,13 @@ export default function App() {
     Inter_900Black: require('./assets/fonts/Inter/Inter_24pt-Black.ttf'),
   });
 
-  if (!fontsLoaded) return null;
+  if (fontsError) console.error('Error while trying to load fonts', fontsError);
+  const appLoaded = fontsLoaded && !fontsError;
+  if (!appLoaded) return null;
 
-  return <AppContent />;
+  return (
+    <AppContent>
+      <ThemedApp />
+    </AppContent>
+  );
 }
