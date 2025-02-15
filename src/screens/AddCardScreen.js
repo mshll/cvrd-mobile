@@ -14,7 +14,7 @@ import Animated, {
   useAnimatedRef,
 } from 'react-native-reanimated';
 import { useEffect, useState, useCallback, memo, useMemo } from 'react';
-import { Dimensions } from 'react-native';
+import { Dimensions, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +25,8 @@ import { Paths } from '@/navigation/paths';
 import CardComponent from '@/components/CardComponent';
 import { useUser } from '@/hooks/useUser';
 import { BanknotesIcon } from 'react-native-heroicons/outline';
+import { useBiometricAuth } from '@/hooks/useBiometricAuth';
+import Toast from 'react-native-toast-message';
 
 const window = Dimensions.get('window');
 const WINDOW_WIDTH = window.width;
@@ -430,6 +432,7 @@ const AddCardScreen = () => {
   const route = useRoute();
   const initialCardType = route.params?.initialCardType;
   const { issuanceLimit } = useUser();
+  const { authenticate, isAuthenticating } = useBiometricAuth();
 
   // Check if user has reached their limit
   const hasReachedLimit = issuanceLimit && issuanceLimit.currentMonthUsage >= issuanceLimit.monthlyLimit;
@@ -644,7 +647,24 @@ const AddCardScreen = () => {
     setStep('config');
   };
 
-  const handleCreateCard = (finalCardData) => {
+  const handleCreateCard = async (finalCardData) => {
+    try {
+      const authenticated = await authenticate();
+
+      if (authenticated) {
+        proceedWithCardCreation(finalCardData);
+      }
+    } catch (error) {
+      console.error('Error during card creation:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Card Creation Failed',
+        text2: 'An error occurred while creating your card',
+      });
+    }
+  };
+
+  const proceedWithCardCreation = (finalCardData) => {
     // Reset navigation state and navigate to Home tab
     navigation.dispatch(
       CommonActions.reset({

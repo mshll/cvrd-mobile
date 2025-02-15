@@ -40,8 +40,8 @@ export const Colors = {
     info: '#3498db',
   },
   cards: {
-    red: '#d6515b',
     green: '#7bd497',
+    red: '#d6515b',
     blue: '#3981A6',
     yellow: '#EBE14B',
     purple: '#9747FF',

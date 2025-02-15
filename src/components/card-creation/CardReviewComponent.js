@@ -208,11 +208,9 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
       // Create the final card data with the current emoji and color
       const finalCardData = {
         ...cardData,
-        icon: emoji,
-        color: cardColor,
+        cardIcon: emoji,
+        cardColor: cardColor,
       };
-
-      console.log('finalCardData', finalCardData);
 
       // Call the appropriate mutation based on card type
       switch (cardType) {
