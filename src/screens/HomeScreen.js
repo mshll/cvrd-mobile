@@ -122,7 +122,7 @@ function SpendingStats() {
       <XStack ai="center" mb="$2" gap="$2">
         <BanknotesIcon size={20} color={colors.text} />
         <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
-          Total Spending
+          Spending Overview
         </Text>
       </XStack>
       <XStack gap="$3">
