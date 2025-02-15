@@ -18,3 +18,12 @@ export async function fetchCardTransactions(cardId) {
   const response = await instance.get(`/transaction/card/${cardId}`);
   return response.data;
 }
+
+/**
+ * Get AI analysis of user's transactions
+ * @returns {Promise<Object>} AI insights object
+ */
+export async function getAIAnalysis() {
+  const response = await instance.get('/ai/analyze');
+  return response.data;
+}

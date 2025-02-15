@@ -28,6 +28,9 @@ import {
   MagnifyingGlassIcon,
   StarIcon,
 } from 'react-native-heroicons/solid';
+import { AIInsightsButton } from '@/components/AIInsightsButton';
+import { AIInsightsSheet } from '@/components/AIInsightsSheet';
+import { useAIInsights } from '@/hooks/useAIInsights';
 
 // ============================================================================
 // Constants & Config
@@ -263,6 +266,8 @@ function HomeScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const navigation = useNavigation();
   const searchListRef = useRef(null);
+  const { insights, isLoading: isAILoading, error: aiError, fetchInsights } = useAIInsights();
+  const [showAIInsights, setShowAIInsights] = useState(false);
 
   // Mock spending data - replace with real data from your API
   const spendingData = {
@@ -369,6 +374,13 @@ function HomeScreen() {
     });
   }, [navigation, colors.text, showSearch]);
 
+  const handleAIInsightsPress = async () => {
+    if (!insights) {
+      await fetchInsights();
+    }
+    setShowAIInsights(true);
+  };
+
   const isLoading = isCardsLoading || isSectionOrderLoading;
   if (isLoading) {
     return (
@@ -411,6 +423,7 @@ function HomeScreen() {
           }
         >
           <SpendingRecapButton onPress={() => setShowRecap(true)} />
+          <AIInsightsButton onPress={handleAIInsightsPress} />
 
           <SpendingSummary />
 
@@ -441,6 +454,12 @@ function HomeScreen() {
               onReset={resetOrder}
             />
             <SpendingRecapStory isVisible={showRecap} onClose={() => setShowRecap(false)} spendingData={spendingData} />
+            <AIInsightsSheet
+              isOpen={showAIInsights}
+              onClose={() => setShowAIInsights(false)}
+              insights={insights}
+              isLoading={isAILoading}
+            />
           </>
         </ScrollView>
       )}
