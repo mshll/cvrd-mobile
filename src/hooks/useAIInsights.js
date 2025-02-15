@@ -3,6 +3,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ENV } from '@/config/env';
 
 // Initialize Gemini AI
+if (!ENV.GEMINI_API_KEY) {
+  console.error('Gemini API key is missing. Please check your environment configuration.');
+}
 const genAI = new GoogleGenerativeAI(ENV.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 

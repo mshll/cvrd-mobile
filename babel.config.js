@@ -11,9 +11,6 @@ module.exports = {
         root: ['./src'],
       },
     ],
-    'inline-dotenv',
-    'react-native-reanimated/plugin', // needs to be last
-    'module:react-native-dotenv',
     [
       'module:react-native-dotenv',
       {
@@ -25,6 +22,7 @@ module.exports = {
         allowUndefined: true,
       },
     ],
+    'react-native-reanimated/plugin', // needs to be last
   ],
   presets: ['module:@react-native/babel-preset'],
 };
