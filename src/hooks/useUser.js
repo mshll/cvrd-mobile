@@ -3,6 +3,7 @@ import { getUser, updateUser, getCardIssuanceLimit, updateProfilePicture, delete
 import { useAuthContext } from '@/context/AuthContext';
 import Toast from 'react-native-toast-message';
 import { useCallback } from 'react';
+import { PLAN_TYPES } from '@/api/plans';
 
 export function useUser() {
   const { user: token, setUser } = useAuthContext();
@@ -92,6 +93,12 @@ export function useUser() {
     setUser(null);
   }, [queryClient, setUser]);
 
+  // Helper functions for plan-related features
+  const isPremium = () => user?.plan === PLAN_TYPES.PREMIUM;
+  const hasReachedDailyLimit = () => user?.currentDailySpend >= user?.dailySpendLimit;
+  const hasReachedMonthlyLimit = () => user?.currentMonthlySpend >= user?.monthlySpendLimit;
+  const hasReachedCardIssuanceLimit = () => user?.currentMonthCardIssuance >= user?.monthlyCardIssuanceLimit;
+
   return {
     user,
     isLoading,
@@ -105,5 +112,10 @@ export function useUser() {
     isDeletingProfilePicture: deleteProfilePictureMutation.isPending,
     issuanceLimit,
     logout,
+    // Plan-related helpers
+    isPremium,
+    hasReachedDailyLimit,
+    hasReachedMonthlyLimit,
+    hasReachedCardIssuanceLimit,
   };
 }

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronLeftIcon, EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
+import { ChevronLeftIcon, EyeIcon, EyeSlashIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import { useUser } from '@/hooks/useUser';
 import Toast from 'react-native-toast-message';
 
@@ -69,12 +69,22 @@ const SecurityScreen = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             flexGrow: 1,
-            paddingTop: insets.top,
           }}
         >
-          <YStack f={1} px="$4" gap="$6">
-            {/* Header with Back Button */}
-            <XStack ai="center" mt="$4">
+          {/* Fixed Header */}
+          <View
+            backgroundColor={colors.background}
+            style={{
+              paddingTop: 16,
+              paddingBottom: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: `${colors.border}40`,
+            }}
+          >
+            <XStack ai="center" jc="space-between" px="$4" pt="$2">
+              <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+                Security
+              </Text>
               <Button
                 size="$3"
                 circular
@@ -83,145 +93,141 @@ const SecurityScreen = () => {
                 onPress={() => navigation.goBack()}
                 borderWidth={1}
                 borderColor={colors.border}
-                mr="$4"
               >
-                <ChevronLeftIcon size={20} color={colors.text} />
+                <XMarkIcon size={20} color={colors.text} />
               </Button>
-              <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
-                Security
-              </Text>
             </XStack>
+          </View>
 
-            {/* Form */}
-            <YStack gap="$4">
-              <YStack gap="$2">
-                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                  Current Password
+          {/* Form */}
+          <YStack f={1} px="$4" gap="$6" pt="$4">
+            <YStack gap="$2">
+              <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
+                Current Password
+              </Text>
+              <XStack ai="center">
+                <Input
+                  value={formData.currentPassword}
+                  onChangeText={(text) => setFormData((prev) => ({ ...prev, currentPassword: text }))}
+                  placeholder="Enter current password"
+                  secureTextEntry={!showCurrentPassword}
+                  backgroundColor={colors.backgroundSecondary}
+                  borderWidth={1}
+                  borderColor={errors.currentPassword ? colors.primary : colors.border}
+                  color={colors.text}
+                  placeholderTextColor={colors.textTertiary}
+                  fontSize="$4"
+                  height={45}
+                  px="$4"
+                  f={1}
+                  br={12}
+                />
+                <Button
+                  position="absolute"
+                  right={8}
+                  backgroundColor="transparent"
+                  onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+                  pressStyle={{ opacity: 0.7 }}
+                  p="$2"
+                >
+                  {showCurrentPassword ? (
+                    <EyeSlashIcon size={20} color={colors.textSecondary} />
+                  ) : (
+                    <EyeIcon size={20} color={colors.textSecondary} />
+                  )}
+                </Button>
+              </XStack>
+              {errors.currentPassword && (
+                <Text color={colors.primary} fontSize="$2">
+                  {errors.currentPassword}
                 </Text>
-                <XStack ai="center">
-                  <Input
-                    value={formData.currentPassword}
-                    onChangeText={(text) => setFormData((prev) => ({ ...prev, currentPassword: text }))}
-                    placeholder="Enter current password"
-                    secureTextEntry={!showCurrentPassword}
-                    backgroundColor={colors.backgroundSecondary}
-                    borderWidth={1}
-                    borderColor={errors.currentPassword ? colors.primary : colors.border}
-                    color={colors.text}
-                    placeholderTextColor={colors.textTertiary}
-                    fontSize="$4"
-                    height={45}
-                    px="$4"
-                    f={1}
-                    br={12}
-                  />
-                  <Button
-                    position="absolute"
-                    right={8}
-                    backgroundColor="transparent"
-                    onPress={() => setShowCurrentPassword(!showCurrentPassword)}
-                    pressStyle={{ opacity: 0.7 }}
-                    p="$2"
-                  >
-                    {showCurrentPassword ? (
-                      <EyeSlashIcon size={20} color={colors.textSecondary} />
-                    ) : (
-                      <EyeIcon size={20} color={colors.textSecondary} />
-                    )}
-                  </Button>
-                </XStack>
-                {errors.currentPassword && (
-                  <Text color={colors.primary} fontSize="$2">
-                    {errors.currentPassword}
-                  </Text>
-                )}
-              </YStack>
+              )}
+            </YStack>
 
-              <YStack gap="$2">
-                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                  New Password
+            <YStack gap="$2">
+              <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
+                New Password
+              </Text>
+              <XStack ai="center">
+                <Input
+                  value={formData.newPassword}
+                  onChangeText={(text) => setFormData((prev) => ({ ...prev, newPassword: text }))}
+                  placeholder="Enter new password"
+                  secureTextEntry={!showNewPassword}
+                  backgroundColor={colors.backgroundSecondary}
+                  borderWidth={1}
+                  borderColor={errors.newPassword ? colors.primary : colors.border}
+                  color={colors.text}
+                  placeholderTextColor={colors.textTertiary}
+                  fontSize="$4"
+                  height={45}
+                  px="$4"
+                  f={1}
+                  br={12}
+                />
+                <Button
+                  position="absolute"
+                  right={8}
+                  backgroundColor="transparent"
+                  onPress={() => setShowNewPassword(!showNewPassword)}
+                  pressStyle={{ opacity: 0.7 }}
+                  p="$2"
+                >
+                  {showNewPassword ? (
+                    <EyeSlashIcon size={20} color={colors.textSecondary} />
+                  ) : (
+                    <EyeIcon size={20} color={colors.textSecondary} />
+                  )}
+                </Button>
+              </XStack>
+              {errors.newPassword && (
+                <Text color={colors.primary} fontSize="$2">
+                  {errors.newPassword}
                 </Text>
-                <XStack ai="center">
-                  <Input
-                    value={formData.newPassword}
-                    onChangeText={(text) => setFormData((prev) => ({ ...prev, newPassword: text }))}
-                    placeholder="Enter new password"
-                    secureTextEntry={!showNewPassword}
-                    backgroundColor={colors.backgroundSecondary}
-                    borderWidth={1}
-                    borderColor={errors.newPassword ? colors.primary : colors.border}
-                    color={colors.text}
-                    placeholderTextColor={colors.textTertiary}
-                    fontSize="$4"
-                    height={45}
-                    px="$4"
-                    f={1}
-                    br={12}
-                  />
-                  <Button
-                    position="absolute"
-                    right={8}
-                    backgroundColor="transparent"
-                    onPress={() => setShowNewPassword(!showNewPassword)}
-                    pressStyle={{ opacity: 0.7 }}
-                    p="$2"
-                  >
-                    {showNewPassword ? (
-                      <EyeSlashIcon size={20} color={colors.textSecondary} />
-                    ) : (
-                      <EyeIcon size={20} color={colors.textSecondary} />
-                    )}
-                  </Button>
-                </XStack>
-                {errors.newPassword && (
-                  <Text color={colors.primary} fontSize="$2">
-                    {errors.newPassword}
-                  </Text>
-                )}
-              </YStack>
+              )}
+            </YStack>
 
-              <YStack gap="$2">
-                <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
-                  Confirm New Password
+            <YStack gap="$2">
+              <Text color={colors.textSecondary} fontSize="$3" fontWeight="600">
+                Confirm New Password
+              </Text>
+              <XStack ai="center">
+                <Input
+                  value={formData.confirmPassword}
+                  onChangeText={(text) => setFormData((prev) => ({ ...prev, confirmPassword: text }))}
+                  placeholder="Confirm new password"
+                  secureTextEntry={!showConfirmPassword}
+                  backgroundColor={colors.backgroundSecondary}
+                  borderWidth={1}
+                  borderColor={errors.confirmPassword ? colors.primary : colors.border}
+                  color={colors.text}
+                  placeholderTextColor={colors.textTertiary}
+                  fontSize="$4"
+                  height={45}
+                  px="$4"
+                  f={1}
+                  br={12}
+                />
+                <Button
+                  position="absolute"
+                  right={8}
+                  backgroundColor="transparent"
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  pressStyle={{ opacity: 0.7 }}
+                  p="$2"
+                >
+                  {showConfirmPassword ? (
+                    <EyeSlashIcon size={20} color={colors.textSecondary} />
+                  ) : (
+                    <EyeIcon size={20} color={colors.textSecondary} />
+                  )}
+                </Button>
+              </XStack>
+              {errors.confirmPassword && (
+                <Text color={colors.primary} fontSize="$2">
+                  {errors.confirmPassword}
                 </Text>
-                <XStack ai="center">
-                  <Input
-                    value={formData.confirmPassword}
-                    onChangeText={(text) => setFormData((prev) => ({ ...prev, confirmPassword: text }))}
-                    placeholder="Confirm new password"
-                    secureTextEntry={!showConfirmPassword}
-                    backgroundColor={colors.backgroundSecondary}
-                    borderWidth={1}
-                    borderColor={errors.confirmPassword ? colors.primary : colors.border}
-                    color={colors.text}
-                    placeholderTextColor={colors.textTertiary}
-                    fontSize="$4"
-                    height={45}
-                    px="$4"
-                    f={1}
-                    br={12}
-                  />
-                  <Button
-                    position="absolute"
-                    right={8}
-                    backgroundColor="transparent"
-                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                    pressStyle={{ opacity: 0.7 }}
-                    p="$2"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeSlashIcon size={20} color={colors.textSecondary} />
-                    ) : (
-                      <EyeIcon size={20} color={colors.textSecondary} />
-                    )}
-                  </Button>
-                </XStack>
-                {errors.confirmPassword && (
-                  <Text color={colors.primary} fontSize="$2">
-                    {errors.confirmPassword}
-                  </Text>
-                )}
-              </YStack>
+              )}
             </YStack>
           </YStack>
         </ScrollView>

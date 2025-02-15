@@ -26,6 +26,7 @@ import { TouchableOpacity } from 'react-native';
 import { StarIcon } from 'react-native-heroicons/solid';
 import { StarIcon as StarIconOutline } from 'react-native-heroicons/outline';
 import BoubyanLoginScreen from '@/screens/BoubyanLoginScreen';
+import SubscriptionManagementScreen from '@/screens/SubscriptionManagementScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -79,7 +80,6 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
-
         name={Paths.PROFILE}
         component={ProfileStack}
         options={{
@@ -146,6 +146,15 @@ const MainNav = () => {
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
+        }}
+      />
+      <Stack.Screen
+        name={Paths.SUBSCRIPTION_MANAGEMENT}
+        component={SubscriptionManagementScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { StyleSheet, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { ChevronLeftIcon, EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
+import { ChevronLeftIcon, EyeIcon, EyeSlashIcon, XMarkIcon } from 'react-native-heroicons/outline';
 import Toast from 'react-native-toast-message';
 import { connectBank } from '@/api/user';
 import { useUser } from '@/hooks/useUser';
@@ -82,9 +82,20 @@ const BoubyanLoginScreen = () => {
   return (
     <View f={1} bg={colors.background}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <YStack f={1} px="$4" gap="$6" pt={insets.top}>
-          {/* Header with Back Button */}
-          <XStack ai="center" mt="$4">
+        {/* Fixed Header */}
+        <View
+          backgroundColor={colors.background}
+          style={{
+            paddingTop: 16,
+            paddingBottom: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: `${colors.border}40`,
+          }}
+        >
+          <XStack ai="center" jc="space-between" px="$4" pt="$2">
+            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+              Login to Boubyan Bank
+            </Text>
             <Button
               size="$3"
               circular
@@ -93,17 +104,15 @@ const BoubyanLoginScreen = () => {
               onPress={handleBack}
               borderWidth={1}
               borderColor={colors.border}
-              mr="$4"
             >
-              <ChevronLeftIcon size={20} color={colors.text} />
+              <XMarkIcon size={20} color={colors.text} />
             </Button>
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
-              Login to Boubyan Bank
-            </Text>
           </XStack>
+        </View>
 
+        <YStack f={1} px="$4" gap="$6" mt={insets.top}>
           {/* Logo */}
-          <YStack ai="center" mt="$4">
+          <YStack ai="center" mt="$6">
             <Image
               source={
                 effectiveColorScheme === 'dark'

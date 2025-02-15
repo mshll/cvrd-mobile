@@ -19,6 +19,9 @@ import PersonalInfoScreen from '@/screens/PersonalInfoScreen';
 import SecurityScreen from '@/screens/SecurityScreen';
 import { useEffect, useRef } from 'react';
 import ConnectBankScreen from '@/screens/ConnectBankScreen';
+import SubscriptionManagementScreen from '@/screens/SubscriptionManagementScreen';
+import HelpCenterScreen from '@/screens/HelpCenterScreen';
+import TermsPrivacyScreen from '@/screens/TermsPrivacyScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -188,6 +191,24 @@ export const ProfileStack = () => {
       <Stack.Screen
         name={Paths.SECURITY}
         component={SecurityScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={Paths.HELP_CENTER}
+        component={HelpCenterScreen}
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={Paths.TERMS_PRIVACY}
+        component={TermsPrivacyScreen}
         options={{
           presentation: 'modal',
           animation: 'slide_from_bottom',
