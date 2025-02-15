@@ -28,6 +28,34 @@ function analyzeTransactions(transactions) {
   // Find highest spending category
   const highestSpendingCategory = Object.entries(categorySpending).sort(([, a], [, b]) => b - a)[0]?.[0] || 'None';
 
+  // Analyze recurring transactions
+  const recurringTransactions = transactions
+    .filter((t) => t.recurring)
+    .map((t) => ({
+      merchant: t.merchant,
+      amount: t.amount,
+      category: t.category,
+      date: new Date(t.createdAt),
+      type: t.type,
+    }));
+
+  // Calculate total recurring spend
+  const totalRecurringSpend = recurringTransactions.reduce((sum, t) => sum + t.amount, 0);
+
+  // Group recurring transactions by merchant
+  const recurringByMerchant = recurringTransactions.reduce((acc, t) => {
+    if (!acc[t.merchant]) {
+      acc[t.merchant] = {
+        total: 0,
+        count: 0,
+        category: t.category,
+      };
+    }
+    acc[t.merchant].total += t.amount;
+    acc[t.merchant].count++;
+    return acc;
+  }, {});
+
   // Parse subscription data
   const subscriptions = transactions
     .filter((t) => t.type === 'SUBSCRIPTION')
@@ -94,6 +122,9 @@ function analyzeTransactions(transactions) {
     subscriptions,
     storePurchases,
     dateAnalysis,
+    recurringTransactions,
+    totalRecurringSpend,
+    recurringByMerchant,
   };
 }
 
@@ -113,8 +144,13 @@ Here's the data to analyze:
 Transaction Data:
 - Most frequent merchant: ${analysis.mostUsedMerchant}
 - Highest spending category: ${analysis.highestSpendingCategory}
-- Total subscriptions: ${analysis.subscriptions.length}
-- Total store purchases: ${analysis.storePurchases.length}
+- Total recurring transactions: ${analysis.recurringTransactions.length}
+- Monthly recurring spend: KWD ${analysis.totalRecurringSpend.toFixed(2)}
+
+Recurring Transactions:
+${Object.entries(analysis.recurringByMerchant)
+  .map(([merchant, data]) => `- ${merchant}: KWD ${data.total.toFixed(2)} (${data.count} transactions)`)
+  .join('\n')}
 
 Spending Patterns:
 - Day of week spending: ${analysis.dateAnalysis.byDayOfWeek
@@ -125,11 +161,6 @@ Spending Patterns:
     .filter(Boolean)
     .join(', ')}
 
-Subscription Details:
-${analysis.subscriptions
-  .map((sub) => `- ${sub.merchant}: ${sub.plan} (${sub.billingCycle}) at KWD ${sub.price}`)
-  .join('\n')}
-
 Store Purchase Analysis:
 ${analysis.storePurchases
   .map((purchase) => `- ${purchase.merchant} (${purchase.category}): KWD ${purchase.total}`)
@@ -137,10 +168,10 @@ ${analysis.storePurchases
 
 Provide concise, actionable insights about:
 1. Key spending patterns (max 15 words per insight)
-2. Specific money-saving opportunities (max 15 words per tip)
-3. Subscription optimization ideas (max 15 words per suggestion)
-4. Shopping tips based on timing and location (max 15 words per tip)
-5. Quick financial management recommendations (max 15 words per recommendation)
+2. Specific money-saving opportunities based on recurring transactions
+3. Subscription and recurring payment optimization ideas
+4. Shopping tips based on timing and location
+5. Quick financial management recommendations
 
 IMPORTANT: 
 - Your response must be a valid JSON object with the exact structure shown above
@@ -148,6 +179,7 @@ IMPORTANT:
 - Keep each insight under 15 words
 - Be specific and actionable
 - Focus on patterns in the data
+- Pay special attention to recurring transactions and potential savings
 - Do not include any text outside of the JSON structure
 `;
 
@@ -163,9 +195,8 @@ IMPORTANT:
         return JSON.parse(jsonMatch[0]);
       } catch (parseError) {
         console.error('Error parsing JSON from match:', parseError);
-        // Return a fallback structured response
         return {
-          overview: [text.slice(0, 200) + '...'],
+          overview: ['Analysis of your spending patterns shows some recurring transactions.'],
           savings: [],
           subscriptionAdvice: [],
           shoppingTips: [],
@@ -174,9 +205,8 @@ IMPORTANT:
       }
     }
 
-    // If no JSON found, structure the raw text into our format
     return {
-      overview: [text.slice(0, 200) + '...'],
+      overview: ['Analysis of your spending patterns shows some recurring transactions.'],
       savings: [],
       subscriptionAdvice: [],
       shoppingTips: [],
