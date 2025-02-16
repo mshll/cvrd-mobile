@@ -203,60 +203,187 @@ async function analyzeTransactions(transactions) {
 }
 
 async function generateAIInsights(analysis) {
-  const prompt = `Analyze this financial data and provide personalized insights. 
-You MUST respond with a valid JSON object in the following format:
-{
-  "overview": ["insight 1", "insight 2"],
-  "savings": ["saving tip 1", "saving tip 2", "saving tip 3"],
-  "subscriptionAdvice": [
-    "• Current subscription status analysis point 1",
-    "• Detailed recommendation for optimization 1",
-    "• Cost-saving opportunity point 1",
-    "• Usage pattern observation 1",
-    "• Action item 1"
-  ]
-}
+  // Helper function to find similar items
+  function findSimilarItems(items) {
+    const categories = {};
 
-Here's the data to analyze:
+    // Group items by similar categories and features
+    items.forEach((item) => {
+      const keywords = [...item.name.toLowerCase().split(' '), ...item.category.toLowerCase().split(' ')];
 
-Transaction Data:
-- Most frequent merchant: ${analysis.mostUsedMerchant}
-- Highest spending category: ${analysis.highestSpendingCategory}
-- Total recurring transactions: ${analysis.recurringTransactions.length}
-- Monthly recurring spend: KWD ${analysis.totalRecurringSpend.toFixed(2)}
+      // Find or create matching category
+      let matchingCategory = Object.keys(categories).find((cat) =>
+        keywords.some((kw) => cat.includes(kw) || kw.includes(cat))
+      );
 
-Subscription Details:
+      if (!matchingCategory) {
+        matchingCategory = item.category.toLowerCase();
+      }
+
+      if (!categories[matchingCategory]) {
+        categories[matchingCategory] = [];
+      }
+
+      categories[matchingCategory].push({
+        ...item,
+        keywords,
+      });
+    });
+
+    // Find price differences within categories
+    return Object.entries(categories)
+      .map(([category, items]) => {
+        const sortedByPrice = [...items].sort((a, b) => a.price - b.price);
+        const cheapest = sortedByPrice[0];
+        const mostExpensive = sortedByPrice[sortedByPrice.length - 1];
+        const priceDiff = mostExpensive.price - cheapest.price;
+
+        return {
+          category,
+          items: sortedByPrice,
+          potentialSavings: priceDiff,
+          cheapestOption: {
+            store: cheapest.storeName,
+            item: cheapest.name,
+            price: cheapest.price,
+          },
+          expensiveOption: {
+            store: mostExpensive.storeName,
+            item: mostExpensive.name,
+            price: mostExpensive.price,
+          },
+        };
+      })
+      .sort((a, b) => b.potentialSavings - a.potentialSavings);
+  }
+
+  // Create store comparison data with flattened items
+  const allItems = stores.flatMap((store) =>
+    store.items.map((item) => ({
+      storeName: store.name,
+      storeCategory: store.category,
+      ...item,
+    }))
+  );
+
+  // Find similar items and potential savings
+  const itemComparisons = findSimilarItems(allItems);
+
+  // Analyze subscription bundles and alternatives
+  const streamingServices = subscriptions
+    .filter((sub) => sub.category === 'Entertainment')
+    .map((sub) => ({
+      name: sub.name,
+      lowestPrice: Math.min(...sub.plans.map((p) => p.price)),
+      bestValue: sub.plans.reduce((best, plan) =>
+        plan.features.length / plan.price > best.features.length / best.price ? plan : best
+      ),
+      plans: sub.plans,
+    }))
+    .sort((a, b) => a.lowestPrice - b.lowestPrice);
+
+  const prompt = `Analyze the user's transaction history and provide personalized savings recommendations.
+If specific savings amounts cannot be calculated, provide general optimization advice based on shopping patterns.
+
+User's Current Shopping Patterns:
+${Object.entries(analysis.storeSpending)
+  .map(
+    ([store, data]) => `
+- ${store}:
+  • Total spent: KWD ${data.total.toFixed(2)}
+  • Number of visits: ${data.count}
+  • Average transaction: KWD ${(data.total / data.count).toFixed(2)}
+  • Store category: ${data.category}`
+  )
+  .join('\n')}
+
+Most frequently visited stores for each category:
+${Object.entries(analysis.categorySpending)
+  .sort(([, a], [, b]) => b - a)
+  .map(([category, amount]) => {
+    const storesInCategory = Object.entries(analysis.storeSpending)
+      .filter(([, data]) => data.category === category)
+      .sort(([, a], [, b]) => b.total - a.total);
+    return `
+- ${category} (Total: KWD ${amount.toFixed(2)}):
+  ${storesInCategory
+    .map(([store, data]) => `• ${store}: KWD ${data.total.toFixed(2)} (${data.count} visits)`)
+    .join('\n  ')}`;
+  })
+  .join('\n')}
+
+Current Subscriptions Analysis:
 ${Object.entries(analysis.recurringByMerchant)
   .map(
     ([merchant, data]) => `
 - ${merchant}:
   • Monthly cost: KWD ${data.total.toFixed(2)}
   • Current tier: ${data.subscriptionData?.currentTier || 'Unknown'}
-  • Lowest tier available: KWD ${data.subscriptionData?.lowestTier?.toFixed(2) || 'Unknown'}
-  • Potential savings: KWD ${data.subscriptionData?.potentialSavings?.toFixed(2) || '0'}`
+  • Lowest available tier: KWD ${data.subscriptionData?.lowestTier?.toFixed(2) || 'Unknown'}
+  • Potential monthly savings: KWD ${data.subscriptionData?.potentialSavings?.toFixed(2) || '0'}`
   )
   .join('\n')}
 
-Spending Patterns:
-- Day of week spending: ${analysis.dateAnalysis.byDayOfWeek
-    .map((amount, index) => `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][index]}: KWD ${amount.toFixed(2)}`)
-    .join(', ')}
+Based on this transaction history, generate exactly 3 highly personalized recommendations for each section.
+For recommendations where specific savings cannot be calculated:
+- Focus on behavioral changes and shopping strategies
+- Suggest specific stores to compare prices
+- Recommend timing of purchases based on patterns
+- Suggest subscription plan optimizations without specific amounts
 
-Provide detailed, actionable insights focusing on:
-1. Subscription optimization opportunities
-2. Specific cost-saving recommendations
-3. Usage pattern analysis
-4. Concrete action items
-5. Potential service consolidation
-6. Alternative plan suggestions
-
-IMPORTANT: 
-- Your response must be a valid JSON object
-- Make insights specific and actionable
-- Include numerical values where relevant
-- Focus heavily on subscription optimization
-- Provide 5 detailed subscription advice points
-- Each subscription advice point should start with a bullet point (•)`;
+Respond in this JSON format:
+{
+  "savings": [
+    {
+      "title": "Store Comparison",
+      "value": ${
+        analysis.storeSpending && Object.keys(analysis.storeSpending).length > 0
+          ? '"Potential Savings: KWD X"'
+          : '"Price Comparison"'
+      },
+      "subtitle": "Specific recommendation based on actual shopping patterns"
+    },
+    {
+      "title": "Subscription Optimization",
+      "value": ${
+        analysis.recurringByMerchant && Object.keys(analysis.recurringByMerchant).length > 0
+          ? '"Monthly Savings: KWD X"'
+          : '"Plan Optimization"'
+      },
+      "subtitle": "Specific recommendation based on current subscriptions"
+    },
+    {
+      "title": "Shopping Pattern",
+      "value": ${analysis.dateAnalysis ? '"Estimated Savings: KWD X"' : '"Smart Shopping"'},
+      "subtitle": "Specific recommendation based on transaction timing and frequency"
+    }
+  ],
+  "subscriptionAdvice": [
+    {
+      "title": "Current Service Optimization",
+      "value": ${
+        analysis.recurringByMerchant && Object.keys(analysis.recurringByMerchant).length > 0
+          ? '"Service-specific recommendation with savings"'
+          : '"Service Optimization"'
+      },
+      "subtitle": "Based on actual usage and available plans"
+    },
+    {
+      "title": "Bundle Opportunity",
+      "value": ${streamingServices.length > 1 ? '"Specific services to bundle with savings"' : '"Bundle Services"'},
+      "subtitle": "Actual cost comparison with bundle savings"
+    },
+    {
+      "title": "Alternative Service",
+      "value": ${
+        analysis.recurringByMerchant && Object.keys(analysis.recurringByMerchant).length > 0
+          ? '"Specific alternative with savings"'
+          : '"Service Alternatives"'
+      },
+      "subtitle": "Based on current service usage patterns"
+    }
+  ]
+}`;
 
   try {
     const result = await model.generateContent(prompt);
@@ -270,19 +397,10 @@ IMPORTANT:
         return JSON.parse(jsonMatch[0]);
       } catch (parseError) {
         console.error('Error parsing JSON from match:', parseError);
-        return {
-          overview: ['Analysis of your spending patterns shows some recurring transactions.'],
-          savings: [],
-          subscriptionAdvice: [],
-        };
+        return null;
       }
     }
-
-    return {
-      overview: ['Analysis of your spending patterns shows some recurring transactions.'],
-      savings: [],
-      subscriptionAdvice: [],
-    };
+    return null;
   } catch (error) {
     console.error('Error generating AI insights:', error);
     return null;
@@ -298,6 +416,7 @@ export function useAIInsights() {
     setIsLoading(true);
     setError(null);
     try {
+      // First, calculate all the basic insights
       const analysis = await analyzeTransactions(transactions);
 
       // Calculate savings with more context
@@ -309,77 +428,52 @@ export function useAIInsights() {
       const allRecurringCount = transactions.filter((t) => t.recurring && t.status === 'APPROVED').length;
       const activeRecurringCount = analysis.recurringTransactions.length;
 
-      // Generate insights with store context
-      const basicInsights = {
+      // Set up basic calculated insights
+      const calculatedInsights = {
         overview: [
           { title: 'Most Used', value: analysis.mostUsedMerchant },
           { title: 'Top Category', value: analysis.highestSpendingCategory },
           { title: 'Monthly Recurring', value: 'KWD ' + analysis.totalRecurringSpend.toFixed(2) },
         ],
-        savings: [
-          {
-            title: 'Potential Savings',
-            value: 'KWD ' + totalPotentialSavings,
-            subtitle: analysis.potentialDowngrade
-              ? `Save KWD ${analysis.potentialDowngrade.potentialSaving.toFixed(2)} by switching to ${
-                  analysis.potentialDowngrade.merchant
-                }'s basic plan`
-              : `Based on ${activeRecurringCount} active subscriptions`,
-          },
-        ],
-        subscriptionAdvice: [
-          {
-            title: 'Subscription Analysis',
-            value: activeRecurringCount.toString(),
-            subtitle:
-              allRecurringCount > activeRecurringCount
-                ? `${allRecurringCount - activeRecurringCount} subscriptions currently paused or closed`
-                : 'All subscriptions active',
-          },
-        ],
         chartData: analysis.chartData,
+        subscriptionSummary: {
+          title: 'Active Subscriptions',
+          value: activeRecurringCount.toString(),
+          subtitle:
+            allRecurringCount > activeRecurringCount
+              ? `${allRecurringCount - activeRecurringCount} subscriptions currently paused or closed`
+              : 'All subscriptions active',
+        },
       };
 
       try {
-        // Enhance with AI-generated insights
-        const aiInsights = await generateAIInsights(analysis);
-        if (aiInsights) {
-          // Merge AI insights with basic insights and chart data
-          setInsights({
-            overview: [
-              { title: 'Most Used', value: analysis.mostUsedMerchant },
-              { title: 'Top Category', value: analysis.highestSpendingCategory },
-              { title: 'Monthly Recurring', value: 'KWD ' + analysis.totalRecurringSpend.toFixed(2) },
-            ],
-            savings: [
-              {
-                title: 'Potential Savings',
-                value: 'KWD ' + totalPotentialSavings,
-                subtitle: analysis.potentialDowngrade
-                  ? `Save KWD ${analysis.potentialDowngrade.potentialSaving.toFixed(2)} by switching to ${
-                      analysis.potentialDowngrade.merchant
-                    }'s basic plan`
-                  : `Based on ${activeRecurringCount} active subscriptions`,
-              },
-            ],
-            subscriptionAdvice: [
-              {
-                title: 'Subscription Analysis',
-                value: activeRecurringCount.toString(),
-                subtitle:
-                  allRecurringCount > activeRecurringCount
-                    ? `${allRecurringCount - activeRecurringCount} subscriptions currently paused or closed`
-                    : 'All subscriptions active',
-              },
-            ],
-            chartData: analysis.chartData,
-          });
-        } else {
-          setInsights(basicInsights);
-        }
+        // Generate AI recommendations
+        const aiRecommendations = await generateAIInsights(analysis);
+
+        // Merge calculated insights with AI recommendations
+        setInsights({
+          ...calculatedInsights,
+          savings: [
+            totalPotentialSavings > 0
+              ? {
+                  title: 'Potential Monthly Savings',
+                  value: 'KWD ' + totalPotentialSavings,
+                  subtitle: `Based on ${activeRecurringCount} active subscriptions and spending patterns`,
+                }
+              : {
+                  title: 'Savings Opportunities',
+                  value: 'Smart Recommendations',
+                  subtitle: 'Personalized suggestions to optimize your spending',
+                },
+            ...(aiRecommendations?.savings || []).slice(0, 2),
+          ].slice(0, 3),
+          subscriptionAdvice: (aiRecommendations?.subscriptionAdvice || []).slice(0, 3),
+          overview: calculatedInsights.overview.slice(0, 3),
+        });
       } catch (aiError) {
-        console.error('AI enhancement failed, using basic insights:', aiError);
-        setInsights(basicInsights);
+        console.error('AI recommendations failed:', aiError);
+        // Still return basic insights even if AI fails
+        setInsights(calculatedInsights);
       }
     } catch (err) {
       setError(err.message);

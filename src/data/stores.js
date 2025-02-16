@@ -1,11 +1,11 @@
-const baseUrl = 'http://localhost:3000/stores';
+const baseUrl = 'https://cvrd-dashboard.vercel.app/stores';
 
 export const STORES = [
   {
     id: 'h-and-m',
     name: 'H&M',
     logo: require('@/../assets/store-logos/h-and-m.png'),
-    url: `${baseUrl}/hm`,
+    url: `${baseUrl}/h-and-m`,
     description: 'Fashion and quality clothing at the best price',
     discountCode: 'HM2024',
     discountAmount: '20% OFF',
