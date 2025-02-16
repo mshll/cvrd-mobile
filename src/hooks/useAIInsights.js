@@ -4,6 +4,7 @@ import { ENV } from '@/config/env';
 import { stores } from '@/data/stores2';
 import { subscriptions } from '@/data/subscriptions';
 import { MERCHANTS } from '@/data/merchants';
+import { getCardById } from '@/api/cards';
 
 // Initialize Gemini AI
 if (!ENV.GEMINI_API_KEY) {
@@ -12,7 +13,7 @@ if (!ENV.GEMINI_API_KEY) {
 const genAI = new GoogleGenerativeAI(ENV.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-function analyzeTransactions(transactions) {
+async function analyzeTransactions(transactions) {
   // Filter for approved transactions only
   const approvedTransactions = transactions.filter((t) => t.status === 'APPROVED');
 
@@ -34,41 +35,56 @@ function analyzeTransactions(transactions) {
   // Find highest spending category
   const highestSpendingCategory = Object.entries(categorySpending).sort(([, a], [, b]) => b - a)[0]?.[0] || 'None';
 
-  // Analyze recurring transactions with subscription data
-  const recurringTransactions = approvedTransactions
-    .filter((t) => t.recurring)
-    .map((t) => {
-      // Find matching subscription service
-      const subscriptionService = subscriptions.find(
-        (s) =>
-          s.name.toLowerCase() === t.merchant.toLowerCase() || t.merchant.toLowerCase().includes(s.name.toLowerCase())
-      );
+  // Analyze recurring transactions with subscription data, checking card status
+  const recurringTransactions = await Promise.all(
+    approvedTransactions
+      .filter((t) => t.recurring)
+      .map(async (t) => {
+        // Get card status
+        try {
+          const card = await getCardById(t.cardId);
+          if (card.closed || card.paused) {
+            return null;
+          }
+        } catch (error) {
+          console.error('Error fetching card:', error);
+          return null;
+        }
 
-      // Find matching merchant
-      const merchant = MERCHANTS.find(
-        (m) =>
-          m.name.toLowerCase() === t.merchant.toLowerCase() || t.merchant.toLowerCase().includes(m.name.toLowerCase())
-      );
+        // Find matching subscription service
+        const subscriptionService = subscriptions.find(
+          (s) =>
+            s.name.toLowerCase() === t.merchant.toLowerCase() || t.merchant.toLowerCase().includes(s.name.toLowerCase())
+        );
 
-      return {
-        merchant: t.merchant,
-        amount: t.amount,
-        category: t.category,
-        date: new Date(t.createdAt),
-        type: t.type,
-        // Add subscription data if available
-        subscriptionData: subscriptionService
-          ? {
-              lowestTier: Math.min(...subscriptionService.plans.map((p) => p.price)),
-              currentTier: subscriptionService.plans.find((p) => Math.abs(p.price - t.amount) < 0.5)?.name || 'Unknown',
-              potentialSavings: t.amount - Math.min(...subscriptionService.plans.map((p) => p.price)),
-            }
-          : null,
-        merchantData: merchant || null,
-      };
-    });
+        // Find matching merchant
+        const merchant = MERCHANTS.find(
+          (m) =>
+            m.name.toLowerCase() === t.merchant.toLowerCase() || t.merchant.toLowerCase().includes(m.name.toLowerCase())
+        );
 
-  // Calculate total recurring spend
+        return {
+          merchant: t.merchant,
+          amount: t.amount,
+          category: t.category,
+          date: new Date(t.createdAt),
+          type: t.type,
+          // Add subscription data if available
+          subscriptionData: subscriptionService
+            ? {
+                lowestTier: Math.min(...subscriptionService.plans.map((p) => p.price)),
+                currentTier:
+                  subscriptionService.plans.find((p) => Math.abs(p.price - t.amount) < 0.5)?.name || 'Unknown',
+                potentialSavings: t.amount - Math.min(...subscriptionService.plans.map((p) => p.price)),
+                plans: subscriptionService.plans,
+              }
+            : null,
+          merchantData: merchant || null,
+        };
+      })
+  ).then((results) => results.filter(Boolean));
+
+  // Calculate total recurring spend (only active subscriptions)
   const totalRecurringSpend = recurringTransactions.reduce((sum, t) => sum + t.amount, 0);
 
   // Group recurring transactions by merchant with enhanced analysis
@@ -191,8 +207,14 @@ async function generateAIInsights(analysis) {
 You MUST respond with a valid JSON object in the following format:
 {
   "overview": ["insight 1", "insight 2"],
-  "savings": ["saving tip 1", "saving tip 2"],
-  "subscriptionAdvice": ["subscription tip 1", "subscription tip 2"]
+  "savings": ["saving tip 1", "saving tip 2", "saving tip 3"],
+  "subscriptionAdvice": [
+    "• Current subscription status analysis point 1",
+    "• Detailed recommendation for optimization 1",
+    "• Cost-saving opportunity point 1",
+    "• Usage pattern observation 1",
+    "• Action item 1"
+  ]
 }
 
 Here's the data to analyze:
@@ -203,9 +225,16 @@ Transaction Data:
 - Total recurring transactions: ${analysis.recurringTransactions.length}
 - Monthly recurring spend: KWD ${analysis.totalRecurringSpend.toFixed(2)}
 
-Recurring Transactions:
+Subscription Details:
 ${Object.entries(analysis.recurringByMerchant)
-  .map(([merchant, data]) => `- ${merchant}: KWD ${data.total.toFixed(2)} (${data.count} transactions)`)
+  .map(
+    ([merchant, data]) => `
+- ${merchant}:
+  • Monthly cost: KWD ${data.total.toFixed(2)}
+  • Current tier: ${data.subscriptionData?.currentTier || 'Unknown'}
+  • Lowest tier available: KWD ${data.subscriptionData?.lowestTier?.toFixed(2) || 'Unknown'}
+  • Potential savings: KWD ${data.subscriptionData?.potentialSavings?.toFixed(2) || '0'}`
+  )
   .join('\n')}
 
 Spending Patterns:
@@ -213,20 +242,21 @@ Spending Patterns:
     .map((amount, index) => `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][index]}: KWD ${amount.toFixed(2)}`)
     .join(', ')}
 
-Provide concise, actionable insights about:
-1. Key spending patterns (max 15 words per insight)
-2. Specific money-saving opportunities based on recurring transactions
-3. Subscription and recurring payment optimization ideas
+Provide detailed, actionable insights focusing on:
+1. Subscription optimization opportunities
+2. Specific cost-saving recommendations
+3. Usage pattern analysis
+4. Concrete action items
+5. Potential service consolidation
+6. Alternative plan suggestions
 
 IMPORTANT: 
-- Your response must be a valid JSON object with the exact structure shown above
-- Each array should contain 2-3 insights
-- Keep each insight under 15 words
-- Be specific and actionable
-- Focus on patterns in the data
-- Pay special attention to recurring transactions and potential savings
-- Do not include any text outside of the JSON structure
-`;
+- Your response must be a valid JSON object
+- Make insights specific and actionable
+- Include numerical values where relevant
+- Focus heavily on subscription optimization
+- Provide 5 detailed subscription advice points
+- Each subscription advice point should start with a bullet point (•)`;
 
   try {
     const result = await model.generateContent(prompt);
@@ -268,12 +298,16 @@ export function useAIInsights() {
     setIsLoading(true);
     setError(null);
     try {
-      const analysis = analyzeTransactions(transactions);
+      const analysis = await analyzeTransactions(transactions);
 
       // Calculate savings with more context
       const baseSavings = analysis.totalRecurringSpend * 0.1;
       const subscriptionSavings = analysis.potentialDowngrade ? analysis.potentialDowngrade.potentialSaving : 0;
       const totalPotentialSavings = (baseSavings + subscriptionSavings).toFixed(2);
+
+      // Count total recurring transactions including paused/closed
+      const allRecurringCount = transactions.filter((t) => t.recurring && t.status === 'APPROVED').length;
+      const activeRecurringCount = analysis.recurringTransactions.length;
 
       // Generate insights with store context
       const basicInsights = {
@@ -290,18 +324,17 @@ export function useAIInsights() {
               ? `Save KWD ${analysis.potentialDowngrade.potentialSaving.toFixed(2)} by switching to ${
                   analysis.potentialDowngrade.merchant
                 }'s basic plan`
-              : `Based on ${analysis.recurringTransactions.length} recurring payments`,
+              : `Based on ${activeRecurringCount} active subscriptions`,
           },
         ],
         subscriptionAdvice: [
           {
-            title: 'Active Subscriptions',
-            value: analysis.recurringTransactions.length.toString(),
-            subtitle: analysis.potentialDowngrade
-              ? `Currently on ${analysis.potentialDowngrade.currentTier} plan for ${
-                  analysis.potentialDowngrade.merchant
-                } (KWD ${analysis.potentialDowngrade.currentAmount.toFixed(2)}/mo)`
-              : undefined,
+            title: 'Subscription Analysis',
+            value: activeRecurringCount.toString(),
+            subtitle:
+              allRecurringCount > activeRecurringCount
+                ? `${allRecurringCount - activeRecurringCount} subscriptions currently paused or closed`
+                : 'All subscriptions active',
           },
         ],
         chartData: analysis.chartData,
@@ -326,18 +359,17 @@ export function useAIInsights() {
                   ? `Save KWD ${analysis.potentialDowngrade.potentialSaving.toFixed(2)} by switching to ${
                       analysis.potentialDowngrade.merchant
                     }'s basic plan`
-                  : `Based on ${analysis.recurringTransactions.length} recurring payments`,
+                  : `Based on ${activeRecurringCount} active subscriptions`,
               },
             ],
             subscriptionAdvice: [
               {
-                title: 'Active Subscriptions',
-                value: analysis.recurringTransactions.length.toString(),
-                subtitle: analysis.potentialDowngrade
-                  ? `Currently on ${analysis.potentialDowngrade.currentTier} plan for ${
-                      analysis.potentialDowngrade.merchant
-                    } (KWD ${analysis.potentialDowngrade.currentAmount.toFixed(2)}/mo)`
-                  : undefined,
+                title: 'Subscription Analysis',
+                value: activeRecurringCount.toString(),
+                subtitle:
+                  allRecurringCount > activeRecurringCount
+                    ? `${allRecurringCount - activeRecurringCount} subscriptions currently paused or closed`
+                    : 'All subscriptions active',
               },
             ],
             chartData: analysis.chartData,

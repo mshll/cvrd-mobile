@@ -32,7 +32,6 @@ import { AIInsightsButton } from '@/components/AIInsightsButton';
 import { AIInsightsSheet } from '@/components/AIInsightsSheet';
 import { useAIInsights } from '@/hooks/useAIInsights';
 import { fetchUserTransactions } from '@/api/transactions';
-import { usePlans } from '@/hooks/usePlans';
 
 // ============================================================================
 // Constants & Config
@@ -271,8 +270,6 @@ function HomeScreen() {
   const { insights, isLoading: isAILoading, error: aiError, fetchInsights } = useAIInsights();
   const [showAIInsights, setShowAIInsights] = useState(false);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
-  const { currentPlan } = usePlans();
-  const isPremium = currentPlan === 'PREMIUM';
 
   // Mock spending data - replace with real data from your API
   const spendingData = {
@@ -302,39 +299,30 @@ function HomeScreen() {
     return allPinnedCards.map(getCardDisplayData);
   }, [cardsByType, getCardDisplayData]);
 
-  // Filter sections based on plan type
   const sections = useMemo(() => {
-    return order
-      .filter((sectionId) => {
-        // Hide location and category sections for basic users
-        if (!isPremium && (sectionId === 'LOCATION' || sectionId === 'CATEGORY')) {
-          return false;
-        }
-        return true;
-      })
-      .map((sectionId) => {
-        const sectionCards = cardsByType[sectionId] || [];
+    return order.map((sectionId) => {
+      const sectionCards = cardsByType[sectionId] || [];
 
-        return {
-          ...SECTION_CONFIG[sectionId],
-          data: sectionCards
-            .sort((a, b) => {
-              // First sort by pin status
-              if (a.pinned && !b.pinned) return -1;
-              if (!a.pinned && b.pinned) return 1;
+      return {
+        ...SECTION_CONFIG[sectionId],
+        data: sectionCards
+          .sort((a, b) => {
+            // First sort by pin status
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
 
-              // Then sort by card status
-              const getPriority = (card) => {
-                if (card.closed) return 2;
-                if (card.paused) return 1;
-                return 0;
-              };
-              return getPriority(a) - getPriority(b);
-            })
-            .map(getCardDisplayData),
-        };
-      });
-  }, [order, cardsByType, getCardDisplayData, isPremium]);
+            // Then sort by card status
+            const getPriority = (card) => {
+              if (card.closed) return 2;
+              if (card.paused) return 1;
+              return 0;
+            };
+            return getPriority(a) - getPriority(b);
+          })
+          .map(getCardDisplayData),
+      };
+    });
+  }, [order, cardsByType, getCardDisplayData]);
 
   const handleReorder = async (reorderedSections) => {
     const newOrder = reorderedSections.map((section) => section.id);

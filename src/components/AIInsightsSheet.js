@@ -14,7 +14,9 @@ import {
   ArrowPathIcon,
 } from 'react-native-heroicons/solid';
 import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
-import { PieChart, BarChart, LineChart } from 'react-native-chart-kit';
+import { PieChart, BarChart } from 'react-native-chart-kit';
+import { useAIInsights } from '@/hooks/useAIInsights';
+import { fetchUserTransactions } from '@/api/transactions';
 
 const AnimatedCard = Animated.createAnimatedComponent(Card);
 const windowWidth = Dimensions.get('window').width;
@@ -357,9 +359,33 @@ function ChartSection({ data, title, icon: Icon, type, delay = 0 }) {
   );
 }
 
-export function AIInsightsSheet({ isOpen, onClose, insights, isLoading }) {
+export function AIInsightsSheet({ isOpen, onClose }) {
   const colors = useColors();
   const scrollViewRef = React.useRef(null);
+  const { insights, isLoading, error, fetchInsights } = useAIInsights();
+  const [hasLoaded, setHasLoaded] = React.useState(false);
+
+  useEffect(() => {
+    async function loadInsights() {
+      if (isOpen && !hasLoaded && !isLoading) {
+        try {
+          setHasLoaded(true);
+          const transactions = await fetchUserTransactions();
+          await fetchInsights(transactions);
+        } catch (error) {
+          console.error('Error fetching insights:', error);
+        }
+      }
+    }
+    loadInsights();
+  }, [isOpen, hasLoaded, isLoading, fetchInsights]);
+
+  // Reset hasLoaded when sheet is closed
+  useEffect(() => {
+    if (!isOpen) {
+      setHasLoaded(false);
+    }
+  }, [isOpen]);
 
   if (!insights && !isLoading) return null;
 

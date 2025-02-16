@@ -221,6 +221,11 @@ export async function getUserCards() {
   }
 }
 
+export async function getCardByNumber(cardNumber) {
+  const response = await instance.get(`/card/${cardNumber}`);
+  return response.data;
+}
+
 /**
  * Updates a card's location and radius
  * @param {string} cardId - The ID of the card to update
@@ -233,4 +238,14 @@ export async function getUserCards() {
 export async function updateCardLocation(cardId, locationData) {
   const response = await instance.put(`/card/update-location/${cardId}`, locationData);
   return response.data;
+}
+
+export async function getCardById(cardId) {
+  try {
+    const response = await instance.get(`/card/id/${cardId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching card by ID:', error);
+    throw error;
+  }
 }
