@@ -22,6 +22,7 @@ import ConnectBankScreen from '@/screens/ConnectBankScreen';
 import SubscriptionManagementScreen from '@/screens/SubscriptionManagementScreen';
 import HelpCenterScreen from '@/screens/HelpCenterScreen';
 import TermsPrivacyScreen from '@/screens/TermsPrivacyScreen';
+import { ColorChangingLogo } from '@/components/ColorChangingLogo';
 
 const Stack = createNativeStackNavigator();
 
@@ -137,7 +138,7 @@ export const HomeStack = () => {
         name={Paths.HOME_SCREEN}
         component={HomeScreen}
         options={{
-          headerTitle: () => <AnimatedLogo routeName={Paths.HOME_SCREEN} />,
+          headerTitle: () => <ColorChangingLogo routeName={Paths.HOME_SCREEN} />,
         }}
       />
     </Stack.Navigator>
@@ -150,7 +151,7 @@ export const ActivityStack = () => {
     <Stack.Navigator screenOptions={{ ...defaultScreenOptions(colors) }}>
       <Stack.Screen
         options={{
-          headerTitle: () => <AnimatedLogo routeName={Paths.ACTIVITY_SCREEN} />,
+          headerTitle: () => <ColorChangingLogo routeName={Paths.ACTIVITY_SCREEN} />,
         }}
         name={Paths.ACTIVITY_SCREEN}
         component={ActivityScreen}
@@ -176,7 +177,7 @@ export const ProfileStack = () => {
         name={Paths.PROFILE}
         component={ProfileScreen}
         options={{
-          headerTitle: () => <AnimatedLogo routeName={Paths.PROFILE} />,
+          headerTitle: () => <ColorChangingLogo routeName={Paths.PROFILE} />,
         }}
       />
       <Stack.Screen
@@ -227,7 +228,7 @@ export const SubscriptionsStack = () => {
         name={Paths.SUBSCRIPTIONS_SCREEN}
         component={SubscriptionsScreen}
         options={{
-          headerTitle: () => <AnimatedLogo routeName={Paths.SUBSCRIPTIONS_SCREEN} />,
+          headerTitle: () => <ColorChangingLogo routeName={Paths.SUBSCRIPTIONS_SCREEN} />,
         }}
       />
       <Stack.Screen

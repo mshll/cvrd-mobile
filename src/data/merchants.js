@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:3000/subscriptions';
+const baseUrl = 'https://cvrd-dashboard.vercel.app/subscriptions';
 
 export const MERCHANTS = [
   {
@@ -16,7 +16,7 @@ export const MERCHANTS = [
     name: 'Disney+',
     logo: require('@/../assets/merchant-logos/disney-plus.png'),
     pattern: require('@/../assets/merchant-patterns/disney-plus.png'),
-    url: `${baseUrl}/disney`,
+    url: `${baseUrl}/disney-plus`,
     description: 'Stream Disney+ Originals, Marvel, Pixar, Star Wars, and National Geographic.',
     minAmount: 'KD 4.99',
     color: '#0063E5', // Disney+ blue
@@ -26,7 +26,7 @@ export const MERCHANTS = [
     name: 'Prime Video',
     logo: require('@/../assets/merchant-logos/prime-video.png'),
     pattern: require('@/../assets/merchant-patterns/prime-video.png'),
-    url: `${baseUrl}/prime`,
+    url: `${baseUrl}/prime-video`,
     description: 'Access Prime Video, free shipping, music, and exclusive deals with Amazon Prime.',
     minAmount: 'KD 3.99',
     color: '#00A8E1', // Prime blue
@@ -36,7 +36,7 @@ export const MERCHANTS = [
     name: 'HBO Max',
     logo: require('@/../assets/merchant-logos/hbo-max.png'),
     pattern: require('@/../assets/merchant-patterns/hbo-max.png'),
-    url: `${baseUrl}/hbo`,
+    url: `${baseUrl}/hbo-max`,
     description: 'Watch exclusive HBO Max originals, blockbuster movies, and iconic TV series.',
     minAmount: 'KD 5.99',
     color: '#5822B4', // HBO purple
@@ -46,7 +46,7 @@ export const MERCHANTS = [
     name: 'Apple TV+',
     logo: require('@/../assets/merchant-logos/apple-tv-plus.png'),
     pattern: require('@/../assets/merchant-patterns/apple-tv-plus.png'),
-    url: `${baseUrl}/apple`,
+    url: `${baseUrl}/apple-tv`,
     description: 'Get Apple Music, Apple TV+, Apple Arcade, and iCloud+ in one subscription.',
     minAmount: 'KD 6.99',
     color: '#000000', // Apple black
@@ -66,7 +66,7 @@ export const MERCHANTS = [
     name: 'Paramount+',
     logo: require('@/../assets/merchant-logos/paramount-plus.png'),
     pattern: require('@/../assets/merchant-patterns/paramount-plus.png'),
-    url: `${baseUrl}/paramount`,
+    url: `${baseUrl}/paramount-plus`,
     description: 'Stream Paramount+ Originals, movies, series, and more.',
     minAmount: 'KD 4.99',
     color: '#0064FF', // Paramount blue

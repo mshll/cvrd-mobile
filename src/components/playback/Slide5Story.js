@@ -11,10 +11,10 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 
 // Placeholder positions for the squares - you can adjust these
 const SQUARE_POSITIONS = [
-  { top: '21%', left: '6%', rotate: '-8deg' },
-  { top: '8%', left: '63%', rotate: '15deg' },
-  { top: '87%', left: '5%', rotate: '-10deg' },
-  { top: '67%', left: '55%', rotate: '8deg' },
+  { top: '21%', left: '5%', rotate: '-6deg' },
+  { top: '8%', left: '54%', rotate: '14deg' },
+  { top: '87%', left: '6%', rotate: '-9deg' },
+  { top: '67%', left: '54%', rotate: '8deg' },
 ];
 
 const CATEGORIES = ['FOOD', 'SHOPPING', 'TRAVEL', 'ENTERTAINMENT'];

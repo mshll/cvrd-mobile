@@ -476,16 +476,16 @@ const ProfileScreen = () => {
                     position="absolute"
                     bottom={0}
                     right={0}
-                    backgroundColor={colors.primary}
+                    backgroundColor={colors.border}
                     width={32}
                     height={32}
                     borderRadius={16}
                     borderWidth={2}
-                    borderColor={colors.background}
+                    borderColor={colors.border}
                     ai="center"
                     jc="center"
                   >
-                    <PlusIcon size={20} color={colors.background} />
+                    <PlusIcon size={20} color="white" strokeWidth={1} />
                   </View>
                 )}
               </View>

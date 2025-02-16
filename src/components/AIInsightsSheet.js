@@ -12,9 +12,12 @@ import {
   BuildingStorefrontIcon,
   TagIcon,
   ArrowPathIcon,
+  LightBulbIcon,
 } from 'react-native-heroicons/solid';
 import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
-import { PieChart, BarChart, LineChart } from 'react-native-chart-kit';
+import { PieChart, BarChart } from 'react-native-chart-kit';
+import { useAIInsights } from '@/hooks/useAIInsights';
+import { fetchUserTransactions } from '@/api/transactions';
 
 const AnimatedCard = Animated.createAnimatedComponent(Card);
 const windowWidth = Dimensions.get('window').width;
@@ -153,8 +156,8 @@ const SkeletonSection = ({ type = 'card', delay = 0 }) => {
 function InsightCard({ title, value, subtitle, icon: Icon, simplified = false }) {
   const colors = useColors();
   return (
-    <Card f={1} bg={colors.card} p="$4" br={12} borderWidth={1} borderColor={colors.border}>
-      {!simplified && (
+    <Card f={1} bg={colors.card} p="$4" br={12} borderWidth={1} borderColor={colors.border} animation="quick">
+      {!simplified && Icon && title !== 'Smart Recommendations' && (
         <XStack ai="center" gap="$2" mb="$2">
           <Icon size={20} color={colors.primary} />
           <Text color={colors.textSecondary} fontSize="$3">
@@ -162,11 +165,11 @@ function InsightCard({ title, value, subtitle, icon: Icon, simplified = false })
           </Text>
         </XStack>
       )}
-      <Text color={colors.text} fontSize="$5" fontWeight="700" mb={subtitle ? '$1' : undefined}>
+      <Text color={colors.text} fontSize="$5" fontWeight="700" mb={subtitle ? '$1' : undefined} numberOfLines={2}>
         {value}
       </Text>
       {subtitle && (
-        <Text color={colors.textSecondary} fontSize="$2">
+        <Text color={colors.textSecondary} fontSize="$2" numberOfLines={3} style={{ lineHeight: 18 }}>
           {subtitle}
         </Text>
       )}
@@ -179,7 +182,7 @@ function InsightSection({ title, items, icon: Icon, delay = 0 }) {
 
   if (!items || items.length === 0) return null;
 
-  const isSimplifiedSection = title === 'Potential Savings' || title === 'Subscription Analysis';
+  const isSimplifiedSection = title === 'Potential Savings' || title === 'Smart Recommendations';
   const getIconForInsight = (insight) => {
     if (title === 'Overview') {
       if (insight.title.includes('Most Used')) return BuildingStorefrontIcon;
@@ -187,7 +190,13 @@ function InsightSection({ title, items, icon: Icon, delay = 0 }) {
       if (insight.title.includes('Recurring')) return ArrowPathIcon;
       return ChartBarIcon;
     }
-    return Icon;
+    if (title === 'Potential Savings') {
+      if (insight.title.includes('Store')) return BuildingStorefrontIcon;
+      if (insight.title.includes('Entertainment')) return ChartBarIcon;
+      return BanknotesIcon;
+    }
+    // Remove icon selection for Smart Recommendations
+    return null;
   };
 
   return (
@@ -357,9 +366,33 @@ function ChartSection({ data, title, icon: Icon, type, delay = 0 }) {
   );
 }
 
-export function AIInsightsSheet({ isOpen, onClose, insights, isLoading }) {
+export function AIInsightsSheet({ isOpen, onClose }) {
   const colors = useColors();
   const scrollViewRef = React.useRef(null);
+  const { insights, isLoading, error, fetchInsights } = useAIInsights();
+  const [hasLoaded, setHasLoaded] = React.useState(false);
+
+  useEffect(() => {
+    async function loadInsights() {
+      if (isOpen && !hasLoaded && !isLoading) {
+        try {
+          setHasLoaded(true);
+          const transactions = await fetchUserTransactions();
+          await fetchInsights(transactions);
+        } catch (error) {
+          console.error('Error fetching insights:', error);
+        }
+      }
+    }
+    loadInsights();
+  }, [isOpen, hasLoaded, isLoading, fetchInsights]);
+
+  // Reset hasLoaded when sheet is closed
+  useEffect(() => {
+    if (!isOpen) {
+      setHasLoaded(false);
+    }
+  }, [isOpen]);
 
   if (!insights && !isLoading) return null;
 
@@ -411,6 +444,7 @@ export function AIInsightsSheet({ isOpen, onClose, insights, isLoading }) {
             bounces={false}
             scrollEventThrottle={16}
           >
+            {/* Calculated Insights */}
             <InsightSection title="Overview" items={insights?.overview} icon={ChartBarIcon} delay={100} />
 
             <ChartSection
@@ -437,14 +471,29 @@ export function AIInsightsSheet({ isOpen, onClose, insights, isLoading }) {
               delay={400}
             />
 
-            <InsightSection title="Potential Savings" items={insights?.savings} icon={BanknotesIcon} delay={500} />
+            {/* Subscription Summary */}
+            {insights?.subscriptionSummary && (
+              <InsightSection
+                title="Subscription Overview"
+                items={[insights.subscriptionSummary]}
+                icon={ClockIcon}
+                delay={450}
+              />
+            )}
 
-            <InsightSection
-              title="Subscription Analysis"
-              items={insights?.subscriptionAdvice}
-              icon={ClockIcon}
-              delay={600}
-            />
+            {/* AI-Generated Insights */}
+            {insights?.savings && insights.savings.length > 0 && (
+              <InsightSection title="Potential Savings" items={insights.savings} icon={BanknotesIcon} delay={500} />
+            )}
+
+            {insights?.subscriptionAdvice && insights.subscriptionAdvice.length > 0 && (
+              <InsightSection
+                title="Smart Recommendations"
+                items={insights.subscriptionAdvice}
+                icon={LightBulbIcon}
+                delay={600}
+              />
+            )}
           </ScrollView>
         )}
       </YStack>
