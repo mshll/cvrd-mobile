@@ -18,7 +18,8 @@
         "NSFaceIDUsageDescription": "We need your Face ID to securely authenticate when creating new cards",
         "NSPhotoLibraryUsageDescription": "Allow CVRD to access your photos to update your profile picture",
         "NSCameraUsageDescription": "Allow CVRD to access your camera to take a profile picture"
-      }
+      },
+      "bundleIdentifier": "com.meshall.cvrd"
     },
     "android": {
       "adaptiveIcon": {
@@ -28,8 +29,11 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
-      ]
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ],
+      "package": "com.meshall.cvrd"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -40,6 +44,7 @@
       }
     },
     "owner": "meshall",
+    "jsEngine": "jsc",
     "plugins": [
       [
         "expo-local-authentication",
