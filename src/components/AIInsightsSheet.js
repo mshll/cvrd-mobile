@@ -1,12 +1,23 @@
 import React, { useEffect } from 'react';
-import { ScrollView, View, Animated as RNAnimated } from 'react-native';
+import { ScrollView, View, Animated as RNAnimated, Dimensions } from 'react-native';
 import { Text, YStack, XStack, Card } from 'tamagui';
-import { useColors } from '@/context/ColorSchemeContext';
+import { useColors, Colors } from '@/context/ColorSchemeContext';
 import BottomSheet from '@/components/BottomSheet';
-import { ChartBarIcon, BanknotesIcon, ClockIcon, ShoppingBagIcon, LightBulbIcon } from 'react-native-heroicons/solid';
+import {
+  ChartBarIcon,
+  BanknotesIcon,
+  ClockIcon,
+  ArrowTrendingUpIcon,
+  CalendarIcon,
+  BuildingStorefrontIcon,
+  TagIcon,
+  ArrowPathIcon,
+} from 'react-native-heroicons/solid';
 import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
+import { PieChart, BarChart, LineChart } from 'react-native-chart-kit';
 
 const AnimatedCard = Animated.createAnimatedComponent(Card);
+const windowWidth = Dimensions.get('window').width;
 
 // Skeleton loader component
 const SkeletonLoader = ({ children, style }) => {
@@ -56,18 +67,12 @@ const SkeletonLoader = ({ children, style }) => {
 };
 
 // Skeleton section component
-const SkeletonSection = ({ delay = 0 }) => {
+const SkeletonSection = ({ type = 'card', delay = 0 }) => {
   const colors = useColors();
-  return (
-    <Card
-      bg={colors.backgroundSecondary}
-      mb="$4"
-      p="$4"
-      br={12}
-      animation="quick"
-    >
-      <YStack f={1} jc="space-between">
-        {/* Header */}
+
+  if (type === 'chart') {
+    return (
+      <Card bg={colors.backgroundSecondary} mb="$4" p="$4" br={12} animation="quick">
         <XStack ai="center" gap="$2" mb="$4">
           <SkeletonLoader style={{ width: 24, height: 24, borderRadius: 12 }}>
             <View f={1} />
@@ -76,29 +81,194 @@ const SkeletonSection = ({ delay = 0 }) => {
             <View f={1} />
           </SkeletonLoader>
         </XStack>
+        <SkeletonLoader style={{ width: '100%', height: 200, borderRadius: 12 }}>
+          <View f={1} />
+        </SkeletonLoader>
+      </Card>
+    );
+  }
 
-        {/* Content Lines */}
-        <YStack gap="$3">
-          {[1, 2, 3].map((item) => (
-            <XStack key={item} gap="$2" ai="center">
-              <SkeletonLoader style={{ width: 8, height: 8, borderRadius: 4 }}>
+  if (type === 'ranked-list') {
+    return (
+      <Card bg="transparent" mb="$4" animation="quick">
+        <XStack ai="center" gap="$2" mb="$3" px="$2">
+          <SkeletonLoader style={{ width: 24, height: 24, borderRadius: 12 }}>
+            <View f={1} />
+          </SkeletonLoader>
+          <SkeletonLoader style={{ width: 140, height: 24, borderRadius: 6 }}>
+            <View f={1} />
+          </SkeletonLoader>
+        </XStack>
+        <Card bg={colors.backgroundSecondary} p="$4" br={12}>
+          <YStack gap="$3">
+            {[1, 2, 3, 4, 5].map((item) => (
+              <XStack key={item} ai="center" jc="space-between">
+                <XStack ai="center" gap="$2" f={1}>
+                  <SkeletonLoader style={{ width: 24, height: 24, borderRadius: 12 }}>
+                    <View f={1} />
+                  </SkeletonLoader>
+                  <SkeletonLoader style={{ width: '60%', height: 20, borderRadius: 6 }}>
+                    <View f={1} />
+                  </SkeletonLoader>
+                </XStack>
+                <SkeletonLoader style={{ width: 80, height: 20, borderRadius: 6 }}>
+                  <View f={1} />
+                </SkeletonLoader>
+              </XStack>
+            ))}
+          </YStack>
+        </Card>
+      </Card>
+    );
+  }
+
+  return (
+    <Card bg="transparent" mb="$4" animation="quick">
+      <XStack ai="center" gap="$2" mb="$3" px="$2">
+        <SkeletonLoader style={{ width: 24, height: 24, borderRadius: 12 }}>
+          <View f={1} />
+        </SkeletonLoader>
+        <SkeletonLoader style={{ width: 140, height: 24, borderRadius: 6 }}>
+          <View f={1} />
+        </SkeletonLoader>
+      </XStack>
+      <YStack gap="$3">
+        {[1, 2, 3].map((item) => (
+          <Card key={item} bg={colors.backgroundSecondary} p="$4" br={12}>
+            <YStack gap="$2">
+              <SkeletonLoader style={{ width: '100%', height: 24, borderRadius: 6 }}>
                 <View f={1} />
               </SkeletonLoader>
-              <SkeletonLoader style={{ width: '85%', height: 20, borderRadius: 6 }}>
+              <SkeletonLoader style={{ width: '80%', height: 16, borderRadius: 6 }}>
                 <View f={1} />
               </SkeletonLoader>
-            </XStack>
-          ))}
-        </YStack>
+            </YStack>
+          </Card>
+        ))}
       </YStack>
     </Card>
   );
 };
 
+function InsightCard({ title, value, subtitle, icon: Icon, simplified = false }) {
+  const colors = useColors();
+  return (
+    <Card f={1} bg={colors.card} p="$4" br={12} borderWidth={1} borderColor={colors.border}>
+      {!simplified && (
+        <XStack ai="center" gap="$2" mb="$2">
+          <Icon size={20} color={colors.primary} />
+          <Text color={colors.textSecondary} fontSize="$3">
+            {title}
+          </Text>
+        </XStack>
+      )}
+      <Text color={colors.text} fontSize="$5" fontWeight="700" mb={subtitle ? '$1' : undefined}>
+        {value}
+      </Text>
+      {subtitle && (
+        <Text color={colors.textSecondary} fontSize="$2">
+          {subtitle}
+        </Text>
+      )}
+    </Card>
+  );
+}
+
 function InsightSection({ title, items, icon: Icon, delay = 0 }) {
   const colors = useColors();
 
   if (!items || items.length === 0) return null;
+
+  const isSimplifiedSection = title === 'Potential Savings' || title === 'Subscription Analysis';
+  const getIconForInsight = (insight) => {
+    if (title === 'Overview') {
+      if (insight.title.includes('Most Used')) return BuildingStorefrontIcon;
+      if (insight.title.includes('Category')) return TagIcon;
+      if (insight.title.includes('Recurring')) return ArrowPathIcon;
+      return ChartBarIcon;
+    }
+    return Icon;
+  };
+
+  return (
+    <AnimatedCard entering={FadeInDown.delay(delay).springify()} exiting={FadeOut} bg="transparent" mb="$4">
+      <XStack ai="center" gap="$2" mb="$3" px="$2">
+        <Icon size={20} color={colors.primary} />
+        <Text color={colors.text} fontSize="$5" fontWeight="600">
+          {title}
+        </Text>
+      </XStack>
+      <YStack gap="$3">
+        {items.map((item, index) => (
+          <InsightCard
+            key={index}
+            title={item.title}
+            value={item.value}
+            subtitle={item.subtitle}
+            icon={getIconForInsight(item)}
+            simplified={isSimplifiedSection}
+          />
+        ))}
+      </YStack>
+    </AnimatedCard>
+  );
+}
+
+function ChartSection({ data, title, icon: Icon, type, delay = 0 }) {
+  const colors = useColors();
+  const chartWidth = windowWidth - 100; // Increased padding from 64 to 80
+
+  if (!data || data.length === 0) return null;
+
+  const chartConfig = {
+    backgroundGradientFrom: colors.card,
+    backgroundGradientTo: colors.card,
+    color: (opacity = 1) =>
+      colors.primary +
+      Math.round(opacity * 255)
+        .toString(16)
+        .padStart(2, '0'),
+    labelColor: () => colors.text,
+    strokeWidth: 2,
+    barPercentage: 0.7,
+    useShadowColorFromDataset: false,
+    decimalPlaces: type === 'pie' ? 1 : 0,
+    propsForLabels: {
+      fontSize: 12,
+    },
+  };
+
+  if (type === 'ranked-list') {
+    return (
+      <AnimatedCard entering={FadeInDown.delay(delay).springify()} exiting={FadeOut} bg="transparent" mb="$4">
+        <XStack ai="center" gap="$2" mb="$3" px="$2">
+          <Icon size={20} color={colors.primary} />
+          <Text color={colors.text} fontSize="$5" fontWeight="600">
+            {title}
+          </Text>
+        </XStack>
+        <Card bg={colors.card} p="$4" br={12} borderWidth={1} borderColor={colors.border}>
+          <YStack gap="$3">
+            {data.map((item, index) => (
+              <XStack key={index} ai="center" jc="space-between">
+                <XStack ai="center" gap="$2" f={1}>
+                  <Text color={colors.white} fontSize="$5" fontWeight="700">
+                    #{index + 1}
+                  </Text>
+                  <Text color={colors.text} fontSize="$4" numberOfLines={1} f={1}>
+                    {item.x}
+                  </Text>
+                </XStack>
+                <Text color={colors.text} fontSize="$4" fontWeight="600">
+                  KWD {item.y.toFixed(2)}
+                </Text>
+              </XStack>
+            ))}
+          </YStack>
+        </Card>
+      </AnimatedCard>
+    );
+  }
 
   return (
     <AnimatedCard
@@ -117,24 +287,79 @@ function InsightSection({ title, items, icon: Icon, delay = 0 }) {
           {title}
         </Text>
       </XStack>
-      <YStack gap="$2">
-        {items.map((item, index) => (
-          <XStack key={index} gap="$2">
-            <Text color={colors.textSecondary} fontSize={16}>
-              •
-            </Text>
-            <Text color={colors.text} fontSize="$4" lineHeight={24}>
-              {item}
-            </Text>
-          </XStack>
-        ))}
-      </YStack>
+
+      {type === 'pie' ? (
+        <PieChart
+          data={data.map((item, index) => ({
+            name: item.x,
+            amount: item.y,
+            color: [Colors.cards.blue, Colors.cards.pink, Colors.cards.green, Colors.cards.yellow, Colors.cards.red][
+              index
+            ],
+            legendFontColor: colors.text,
+          }))}
+          width={chartWidth}
+          height={200}
+          chartConfig={{
+            ...chartConfig,
+            decimalPlaces: 0,
+          }}
+          accessor="amount"
+          backgroundColor="transparent"
+          paddingLeft="0"
+          absolute
+          hasLegend={true}
+          avoidFalseZero
+          yAxisLabel="%"
+        />
+      ) : (
+        <BarChart
+          data={{
+            labels: data.map((d) => d.x),
+            datasets: [
+              {
+                data: data.map((d) => d.y),
+              },
+            ],
+          }}
+          width={chartWidth}
+          height={280}
+          chartConfig={{
+            ...chartConfig,
+            propsForHorizontalLabels: {
+              fontSize: 12,
+              rotation: 0,
+              fontWeight: '500',
+            },
+            propsForVerticalLabels: {
+              fontSize: 12,
+            },
+            formatYLabel: (value) => {
+              // Round to nearest 10
+              return (Math.round(value / 10) * 10).toString();
+            },
+            count: 5,
+            // Ensure y-axis starts at 0 and segments in multiples of 10
+            segment: 10,
+          }}
+          style={{
+            marginTop: 20,
+            borderRadius: 16,
+          }}
+          showValuesOnTopOfBars
+          fromZero
+          withInnerLines={false}
+          showBarTops={false}
+          flatColor
+        />
+      )}
     </AnimatedCard>
   );
 }
 
 export function AIInsightsSheet({ isOpen, onClose, insights, isLoading }) {
   const colors = useColors();
+  const scrollViewRef = React.useRef(null);
 
   if (!insights && !isLoading) return null;
 
@@ -165,41 +390,60 @@ export function AIInsightsSheet({ isOpen, onClose, insights, isLoading }) {
 
         {isLoading ? (
           <ScrollView
+            ref={scrollViewRef}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 40 }}
             bounces={false}
+            scrollEventThrottle={16}
           >
             <SkeletonSection delay={100} />
-            <SkeletonSection delay={200} />
-            <SkeletonSection delay={300} />
-            <SkeletonSection delay={400} />
+            <SkeletonSection type="chart" delay={200} />
+            <SkeletonSection type="chart" delay={300} />
+            <SkeletonSection type="ranked-list" delay={400} />
             <SkeletonSection delay={500} />
+            <SkeletonSection delay={600} />
           </ScrollView>
         ) : (
           <ScrollView
+            ref={scrollViewRef}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 40 }}
             bounces={false}
+            scrollEventThrottle={16}
           >
             <InsightSection title="Overview" items={insights?.overview} icon={ChartBarIcon} delay={100} />
-            <InsightSection title="Potential Savings" items={insights?.savings} icon={BanknotesIcon} delay={200} />
+
+            <ChartSection
+              title="Category Breakdown (%)"
+              data={insights?.chartData?.categoryBreakdown}
+              icon={ArrowTrendingUpIcon}
+              type="pie"
+              delay={200}
+            />
+
+            <ChartSection
+              title="Weekly Spending"
+              data={insights?.chartData?.weeklySpending}
+              icon={CalendarIcon}
+              type="bar"
+              delay={300}
+            />
+
+            <ChartSection
+              title="Top Recurring Expenses"
+              data={insights?.chartData?.recurringSpending}
+              icon={BuildingStorefrontIcon}
+              type="ranked-list"
+              delay={400}
+            />
+
+            <InsightSection title="Potential Savings" items={insights?.savings} icon={BanknotesIcon} delay={500} />
+
             <InsightSection
               title="Subscription Analysis"
               items={insights?.subscriptionAdvice}
               icon={ClockIcon}
-              delay={300}
-            />
-            <InsightSection
-              title="Smart Shopping Tips"
-              items={insights?.shoppingTips}
-              icon={ShoppingBagIcon}
-              delay={400}
-            />
-            <InsightSection
-              title="Recommendations"
-              items={insights?.recommendations}
-              icon={LightBulbIcon}
-              delay={500}
+              delay={600}
             />
           </ScrollView>
         )}
