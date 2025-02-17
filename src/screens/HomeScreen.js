@@ -34,6 +34,8 @@ import { AIInsightsButton } from '@/components/AIInsightsButton';
 import { AIInsightsSheet } from '@/components/AIInsightsSheet';
 import { useAIInsights } from '@/hooks/useAIInsights';
 import { fetchUserTransactions } from '@/api/transactions';
+import { StyleSheet, Linking, Image, Animated } from 'react-native';
+import { CARD_HEIGHT, CARD_WIDTH } from '@/utils/cardUtils';
 import { Paths } from '@/navigation/paths';
 
 // ============================================================================
@@ -284,6 +286,129 @@ function ReorganizeSheet({ isOpen, onOpenChange, sections, onReorder, onReset })
 // Main Screen Component
 // ============================================================================
 
+// Add Skeleton Components
+const CardCarouselSkeleton = () => {
+  const colors = useColors();
+  const fadeAnim = useRef(new Animated.Value(0.3)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0.3,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [fadeAnim]);
+
+  return (
+    <View w="100%" mb="$7" gap="$4">
+      <XStack ai="center" mb="$2" gap="$2" px="$4">
+        <Animated.View
+          style={[
+            {
+              width: 120,
+              height: 24,
+              borderRadius: 6,
+              backgroundColor: colors.backgroundTertiary,
+              opacity: fadeAnim,
+            },
+          ]}
+        />
+      </XStack>
+      <View w="100%" h={CARD_HEIGHT * 0.9} ai="center">
+        <Animated.View
+          style={[
+            {
+              width: CARD_WIDTH * 0.9,
+              height: CARD_HEIGHT * 0.9,
+              borderRadius: 16,
+              backgroundColor: colors.backgroundTertiary,
+              opacity: fadeAnim,
+            },
+          ]}
+        />
+      </View>
+    </View>
+  );
+};
+
+const SpendingStatsSkeleton = () => {
+  const colors = useColors();
+  const fadeAnim = useRef(new Animated.Value(0.3)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0.3,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [fadeAnim]);
+
+  return (
+    <YStack gap="$3" mb="$2" px={16}>
+      <XStack ai="center" mb="$2" gap="$2">
+        <Animated.View
+          style={[
+            {
+              width: 150,
+              height: 24,
+              borderRadius: 6,
+              backgroundColor: colors.backgroundTertiary,
+              opacity: fadeAnim,
+            },
+          ]}
+        />
+      </XStack>
+      <XStack gap="$3">
+        {[1, 2].map((i) => (
+          <Card key={i} f={1} bg={colors.card} p="$4" br={12} borderWidth={1} borderColor={colors.border}>
+            <Animated.View
+              style={[
+                {
+                  width: 80,
+                  height: 16,
+                  borderRadius: 4,
+                  backgroundColor: colors.backgroundTertiary,
+                  marginBottom: 8,
+                  opacity: fadeAnim,
+                },
+              ]}
+            />
+            <Animated.View
+              style={[
+                {
+                  width: 100,
+                  height: 24,
+                  borderRadius: 4,
+                  backgroundColor: colors.backgroundTertiary,
+                  opacity: fadeAnim,
+                },
+              ]}
+            />
+          </Card>
+        ))}
+      </XStack>
+    </YStack>
+  );
+};
+
 function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -301,6 +426,32 @@ function HomeScreen() {
   const [showAIInsights, setShowAIInsights] = useState(false);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
   const [viewMode, setViewMode] = useState(VIEW_MODES.CAROUSEL);
+  const [contentVisible, setContentVisible] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(50)).current;
+
+  // Animate content on mount
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setContentVisible(true);
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.spring(translateY, {
+          toValue: 0,
+          damping: 15,
+          mass: 1,
+          stiffness: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   // Mock spending data - replace with real data from your API
   const spendingData = {
@@ -424,9 +575,19 @@ function HomeScreen() {
   const isLoading = isCardsLoading || isSectionOrderLoading;
   if (isLoading) {
     return (
-      <View f={1} ai="center" jc="center" bg={colors.background}>
-        <Spinner size="large" color={colors.text} />
-      </View>
+      <ScrollView
+        f={1}
+        contentContainerStyle={{
+          paddingTop: 24,
+          paddingBottom: insets.bottom,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <SpendingStatsSkeleton />
+        {[1, 2, 3].map((i) => (
+          <CardCarouselSkeleton key={i} />
+        ))}
+      </ScrollView>
     );
   }
 
@@ -462,10 +623,16 @@ function HomeScreen() {
             />
           }
         >
-          <SpendingRecapButton onPress={() => setShowRecap(true)} />
-          <AIInsightsButton onPress={handleShowInsights} />
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY }],
+            }}
+          >
+            <SpendingRecapButton onPress={() => setShowRecap(true)} />
+            <AIInsightsButton onPress={handleShowInsights} />
 
-          <SpendingSummary viewMode={viewMode} onToggleViewMode={handleToggleViewMode} />
+            <SpendingSummary viewMode={viewMode} onToggleViewMode={handleToggleViewMode} />
 
           {/* Pinned Cards Section */}
           {pinnedCards.length > 0 &&
@@ -494,7 +661,8 @@ function HomeScreen() {
             )
           )}
 
-          <CustomizeButton onPress={() => setIsReorganizing(true)} />
+            <CustomizeButton onPress={() => setIsReorganizing(true)} />
+          </Animated.View>
 
           {/* Absolute Positioned Components */}
           <>
