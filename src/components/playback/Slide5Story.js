@@ -4,6 +4,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 import { Text, YStack, View } from 'tamagui';
 import { Colors } from '@/context/ColorSchemeContext';
 import { getUserCards } from '@/api/cards';
+import { fetchUserTransactions } from '@/api/transactions';
 import { CARD_DEFAULTS } from '@/api/cards';
 
 const AnimatedText = Animated.createAnimatedComponent(Text);
@@ -60,23 +61,56 @@ export function Slide5Story() {
   useEffect(() => {
     async function fetchCardData() {
       try {
-        const cards = await getUserCards();
+        const [cards, transactions] = await Promise.all([getUserCards(), fetchUserTransactions()]);
+
+        console.log('Fetched Cards:', cards);
+        console.log('Fetched Transactions:', transactions);
+
+        // Create a map to store total spending per category
+        const categorySpendingMap = new Map();
+
+        // Calculate total spending per category from transactions
+        transactions.forEach((transaction) => {
+          const { cardId, amount, category } = transaction;
+          const card = cards.find((c) => c.id === cardId);
+          if (card && card.categoryName) {
+            const currentTotal = categorySpendingMap.get(card.categoryName) || 0;
+            categorySpendingMap.set(card.categoryName, currentTotal + Number(amount));
+          }
+        });
+
+        console.log('Category Spending Map:', Object.fromEntries(categorySpendingMap));
 
         // Filter for category-locked cards and group by category
         const topSpendersByCategory = cards.reduce((acc, card) => {
-          if (!card.closed && card.cardType === 'CATEGORY_LOCKED' && card.categoryName) {
-            const totalSpent = Number(card.totalSpent) || 0;
-            if (!acc[card.categoryName] || totalSpent > (acc[card.categoryName].totalSpent || 0)) {
-              acc[card.categoryName] = {
-                name: card.cardName,
-                category: card.categoryName,
-                totalSpent: totalSpent,
-                cardIcon: card.cardIcon || DEFAULT_CATEGORY_EMOJIS[card.categoryName] || '💳',
-              };
+          console.log('Processing card:', card);
+          // Map the backend category names to our frontend categories if needed
+          const categoryMapping = {
+            GROCERIES: 'FOOD',
+            FURNITURE: 'SHOPPING',
+            // Add other mappings as needed
+          };
+
+          if (!card.closed && card.categoryName) {
+            const frontendCategory = categoryMapping[card.categoryName] || card.categoryName;
+            if (CATEGORIES.includes(frontendCategory)) {
+              const totalSpent = categorySpendingMap.get(card.categoryName) || 0;
+              console.log(`Card ${card.cardName} for category ${frontendCategory} spent ${totalSpent}`);
+
+              if (!acc[frontendCategory] || totalSpent > (acc[frontendCategory].totalSpent || 0)) {
+                acc[frontendCategory] = {
+                  name: card.cardName,
+                  category: frontendCategory,
+                  totalSpent: totalSpent,
+                  cardIcon: card.cardIcon || DEFAULT_CATEGORY_EMOJIS[frontendCategory] || '💳',
+                };
+              }
             }
           }
           return acc;
         }, {});
+
+        console.log('Top Spenders by Category:', topSpendersByCategory);
 
         // Merge with defaults, keeping existing cards and adding defaults for missing categories
         setTopCards((prevCards) => {
@@ -86,10 +120,11 @@ export function Slide5Story() {
               updatedCards[category] = card;
             }
           });
+          console.log('Final Cards State:', updatedCards);
           return updatedCards;
         });
       } catch (error) {
-        console.error('Error fetching card data:', error);
+        console.error('Error fetching card and transaction data:', error);
       }
     }
 

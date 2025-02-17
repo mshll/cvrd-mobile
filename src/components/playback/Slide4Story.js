@@ -11,11 +11,10 @@ const AnimatedYStack = Animated.createAnimatedComponent(YStack);
 const AnimatedXStack = Animated.createAnimatedComponent(XStack);
 
 // Location Badge Component
-const LocationBadge = ({ name, color, transactions, style }) => (
+const LocationBadge = ({ name, color, style }) => (
   <Button backgroundColor={color || Colors.cards.navy} size="$3" borderRadius={20} height={32} px="$3" style={style}>
     <Text color="white" fontSize="$3" fontFamily="$archivoBlack">
       {name}
-      {transactions > 0 && ` • ${transactions}`}
     </Text>
   </Button>
 );
@@ -68,7 +67,7 @@ export function Slide4Story() {
             return {
               name: card.cardName,
               transactions: transactions.length,
-              color: card.cardColor || colors.cards.navy,
+              color: colors.cards.navy,
               latitude: card.latitude,
               longitude: card.longitude,
             };
@@ -187,7 +186,7 @@ export function Slide4Story() {
         style={badgesStyle}
       >
         {locationStats.topLocations.map((location, index) => (
-          <LocationBadge key={index} name={location.name} color={location.color} transactions={location.transactions} />
+          <LocationBadge key={index} name={location.name} color={location.color} />
         ))}
       </AnimatedXStack>
     </YStack>

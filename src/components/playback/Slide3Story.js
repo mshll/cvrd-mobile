@@ -29,14 +29,6 @@ export function Slide3Story() {
   const subtitleOpacity = useSharedValue(0);
   const listOpacities = topCards.map(() => useSharedValue(0));
 
-  // Format currency
-  function formatAmount(amount) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'KWD',
-      minimumFractionDigits: 3,
-    }).format(amount);
-  }
 
   // Fetch and process card data when component mounts
   useEffect(() => {
@@ -190,7 +182,7 @@ export function Slide3Story() {
             </Text>
             <Text color="$white" fontFamily="$archivoBlack" fontSize="$5">
               {' '}
-              • {formatAmount(card.amount)}
+              • {card.amount} KD
             </Text>
           </AnimatedText>
         ))}
@@ -229,7 +221,7 @@ export function Slide3Story() {
         </Text>
         <Text color="$white" fontFamily="$archivoBlack" fontSize="$5">
           {' '}
-          • {formatAmount(topSpender.amount)}
+          • {topSpender.amount} KD
         </Text>
       </AnimatedText>
     </YStack>

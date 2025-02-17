@@ -157,82 +157,87 @@ export function Slide7Story() {
             opacity: subtitleOpacity.value,
           }))}
         >
-          YOU COULDN'T GET ENOUGH{'\n'}OF THIS SHOP!
+          YOUR FAVORITE SHOPPING DESTINATION{'\n'}THIS YEAR
         </AnimatedText>
       </YStack>
 
       {/* Store Stats */}
-      <YStack pos="absolute" t="30%" l={0} r={0} px="$4" gap="$4">
+      <YStack pos="absolute" t="25%" l={0} r={0} px="$4" gap="$3">
         {/* Store Name Card */}
         <AnimatedCard
-          bg={colors.backgroundSecondary + 'E6'}
+          bg={Colors.light.card}
           br={16}
           p="$4"
           borderWidth={1}
-          borderColor={colors.border}
+          borderColor={Colors.light.border}
           style={useAnimatedStyle(() => ({
             opacity: storeNameOpacity.value,
           }))}
         >
           <XStack ai="center" gap="$3">
-            <BuildingStorefrontIcon size={24} color={Colors.cards.pink} />
-            <Text fontFamily="$archivoBlack" fontSize="$8" color={colors.text}>
-              {topStore.name}
-            </Text>
+            <BuildingStorefrontIcon size={28} color={Colors.cards.pink} />
+            <YStack>
+              <Text color={Colors.light.textSecondary} fontSize="$3">
+                Most Visited
+              </Text>
+              <Text fontFamily="$archivoBlack" fontSize="$8" color={Colors.light.text}>
+                {topStore.name}
+              </Text>
+            </YStack>
           </XStack>
         </AnimatedCard>
 
         {/* Total Spent Card */}
         <AnimatedCard
-          bg={colors.backgroundSecondary + 'E6'}
+          bg={Colors.light.card}
           br={16}
           p="$4"
           borderWidth={1}
-          borderColor={colors.border}
+          borderColor={Colors.light.border}
           style={useAnimatedStyle(() => ({
             opacity: totalSpentOpacity.value,
           }))}
         >
-          <YStack gap="$2">
-            <XStack ai="center" gap="$3">
-              <CurrencyDollarIcon size={24} color={Colors.cards.green} />
-              <Text fontFamily="$body" fontSize="$5" color={colors.textSecondary}>
+          <XStack ai="center" gap="$3">
+            <CurrencyDollarIcon size={24} color={Colors.cards.green} />
+            <YStack>
+              <Text color={Colors.light.textSecondary} fontSize="$3">
                 Total Spent
               </Text>
-            </XStack>
-            <Text fontFamily="$archivoBlack" fontSize="$9" color={colors.text}>
-              {formatAmount(topStore.totalSpent)}
-            </Text>
-          </YStack>
+              <Text fontFamily="$archivoBlack" fontSize="$6" color={Colors.light.text}>
+                {formatAmount(topStore.totalSpent)}
+              </Text>
+            </YStack>
+          </XStack>
         </AnimatedCard>
 
         {/* Visits Card */}
         <AnimatedCard
-          bg={colors.backgroundSecondary + 'E6'}
+          bg={Colors.light.card}
           br={16}
           p="$4"
           borderWidth={1}
-          borderColor={colors.border}
+          borderColor={Colors.light.border}
           style={useAnimatedStyle(() => ({
             opacity: visitsOpacity.value,
           }))}
         >
-          <YStack gap="$2">
-            <XStack ai="center" gap="$3">
-              <ShoppingBagIcon size={24} color={Colors.cards.blue} />
-              <Text fontFamily="$body" fontSize="$5" color={colors.textSecondary}>
+          <XStack ai="center" gap="$3">
+            <ShoppingBagIcon size={24} color={Colors.cards.blue} />
+            <YStack>
+              <Text color={Colors.light.textSecondary} fontSize="$3">
                 Total Visits
               </Text>
-            </XStack>
-            <XStack ai="flex-end" gap="$2">
-              <Text fontFamily="$archivoBlack" fontSize="$9" color={colors.text}>
-                {topStore.visits}
-              </Text>
-              <Text fontFamily="$body" fontSize="$4" color={colors.textSecondary} mb="$1">
-                purchases
-              </Text>
-            </XStack>
-          </YStack>
+              <XStack ai="flex-end" gap="$2">
+                <Text fontFamily="$archivoBlack" fontSize="$6" color={Colors.light.text}>
+                  {topStore.visits}
+                </Text>
+                <Text fontFamily="$body" fontSize="$4" color={Colors.light.textSecondary}>
+                  times
+                </Text>
+              </XStack>
+            </YStack>
+          </XStack>
         </AnimatedCard>
       </YStack>
     </YStack>
