@@ -44,7 +44,7 @@ function Badge({ icon: Icon, text, color, backgroundColor }) {
   );
 }
 
-function CompactCardComponent({ item }) {
+function CompactCardComponent({ item, showTypeBadge = true }) {
   const colors = useColors();
   const navigation = useNavigation();
   const { Icon: TypeIcon, color: typeColor } = getCardTypeInfo(item.type);
@@ -116,7 +116,9 @@ function CompactCardComponent({ item }) {
 
         {/* Right section with badges */}
         <YStack alignItems="flex-end" gap={6}>
-          <Badge icon={TypeIcon} text={item.type.replace('_LOCKED', '').toLowerCase()} color={typeColor} />
+          {showTypeBadge && (
+            <Badge icon={TypeIcon} text={item.type.replace('_LOCKED', '').toLowerCase()} color={typeColor} />
+          )}
           {statusBadge && <Badge icon={statusBadge.Icon} text={statusBadge.text} color={statusBadge.color} />}
         </YStack>
       </XStack>

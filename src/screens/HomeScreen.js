@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useColors } from '@/context/ColorSchemeContext';
+import { useColors, Colors } from '@/context/ColorSchemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RefreshControl } from 'react-native';
 import CardCarousel from '../components/CardCarousel';
@@ -27,11 +27,14 @@ import {
   BanknotesIcon,
   MagnifyingGlassIcon,
   StarIcon,
+  ListBulletIcon,
+  Squares2X2Icon,
 } from 'react-native-heroicons/solid';
 import { AIInsightsButton } from '@/components/AIInsightsButton';
 import { AIInsightsSheet } from '@/components/AIInsightsSheet';
 import { useAIInsights } from '@/hooks/useAIInsights';
 import { fetchUserTransactions } from '@/api/transactions';
+import { Paths } from '@/navigation/paths';
 
 // ============================================================================
 // Constants & Config
@@ -63,6 +66,11 @@ const SECTION_CONFIG = {
     title: 'Location-Locked Cards',
     icon: MapPinIcon,
   },
+};
+
+const VIEW_MODES = {
+  CAROUSEL: 'carousel',
+  LIST: 'list',
 };
 
 // ============================================================================
@@ -164,33 +172,55 @@ function CardStats() {
     );
   }, [cards]);
 
+  return <></>;
+}
+
+function CompactCardList({ section }) {
+  const colors = useColors();
+  const Icon = section.icon;
+
+  if (!section.data?.length) return null;
+
   return (
-    // <YStack gap="$3">
-    //   <XStack ai="center" gap="$2">
-    //     <CreditCardIcon size={20} color={getColors().text} />
-    //     <Text color={getColors().text} fontSize="$4" fontFamily="$archivoBlack">
-    //       Cards
-    //     </Text>
-    //   </XStack>
-    //   <XStack gap="$3">
-    //     <StatCard dotColor={Colors.cards.green} label="Active" value={stats.active} />
-    //     <StatCard icon={PauseIcon} iconColor={Colors.cards.yellow} label="Paused" value={stats.paused} />
-    //   </XStack>
-    //   <XStack gap="$3">
-    //     <StatCard icon={XCircleIcon} iconColor={Colors.cards.pink} label="Closed" value={stats.closed} />
-    //     <StatCard icon={ShareIcon} iconColor={Colors.cards.blue} label="Shared" value={stats.shared} />
-    //   </XStack>
-    // </YStack>
-    <></>
+    <YStack gap="$2" mb="$8" px="$4">
+      <XStack ai="center" gap="$2" mb="$3">
+        <Icon size={20} color={colors.text} />
+        <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+          {section.title}
+        </Text>
+      </XStack>
+      <YStack gap="$3">
+        {section.data.map((card) => (
+          <CompactCardComponent key={card.id} item={card} showTypeBadge={false} />
+        ))}
+      </YStack>
+    </YStack>
   );
 }
 
-function SpendingSummary() {
+function SpendingSummary({ viewMode, onToggleViewMode }) {
+  const colors = useColors();
   return (
     <YStack mb="$4" gap="$4">
       <UserGreeting />
       <SpendingStats />
-      {/* <CardStats /> */}
+      <XStack px="$4" jc="flex-end">
+        <Button
+          size="$3"
+          backgroundColor={colors.backgroundSecondary}
+          pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+          borderRadius={8}
+          borderWidth={1}
+          borderColor={colors.border}
+          onPress={onToggleViewMode}
+        >
+          {viewMode === VIEW_MODES.CAROUSEL ? (
+            <ListBulletIcon size={20} color={colors.text} />
+          ) : (
+            <Squares2X2Icon size={20} color={colors.text} />
+          )}
+        </Button>
+      </XStack>
     </YStack>
   );
 }
@@ -270,6 +300,7 @@ function HomeScreen() {
   const { insights, isLoading: isAILoading, error: aiError, fetchInsights } = useAIInsights();
   const [showAIInsights, setShowAIInsights] = useState(false);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
+  const [viewMode, setViewMode] = useState(VIEW_MODES.CAROUSEL);
 
   // Mock spending data - replace with real data from your API
   const spendingData = {
@@ -386,6 +417,10 @@ function HomeScreen() {
     }
   };
 
+  const handleToggleViewMode = useCallback(() => {
+    setViewMode((current) => (current === VIEW_MODES.CAROUSEL ? VIEW_MODES.LIST : VIEW_MODES.CAROUSEL));
+  }, []);
+
   const isLoading = isCardsLoading || isSectionOrderLoading;
   if (isLoading) {
     return (
@@ -430,22 +465,34 @@ function HomeScreen() {
           <SpendingRecapButton onPress={() => setShowRecap(true)} />
           <AIInsightsButton onPress={handleShowInsights} />
 
-          <SpendingSummary />
+          <SpendingSummary viewMode={viewMode} onToggleViewMode={handleToggleViewMode} />
 
           {/* Pinned Cards Section */}
-          {pinnedCards.length > 0 && (
-            <CardCarousel
-              key="pinned"
-              title={SECTION_CONFIG.PINNED.title}
-              data={pinnedCards}
-              icon={SECTION_CONFIG.PINNED.icon}
-            />
-          )}
+          {pinnedCards.length > 0 &&
+            (viewMode === VIEW_MODES.CAROUSEL ? (
+              <CardCarousel
+                key="pinned"
+                title={SECTION_CONFIG.PINNED.title}
+                data={pinnedCards}
+                icon={SECTION_CONFIG.PINNED.icon}
+              />
+            ) : (
+              <CompactCardList
+                section={{
+                  ...SECTION_CONFIG.PINNED,
+                  data: pinnedCards,
+                }}
+              />
+            ))}
 
           {/* Regular Sections */}
-          {sections.map((section) => (
-            <CardCarousel key={section.id} title={section.title} data={section.data} icon={section.icon} />
-          ))}
+          {sections.map((section) =>
+            viewMode === VIEW_MODES.CAROUSEL ? (
+              <CardCarousel key={section.id} title={section.title} data={section.data} icon={section.icon} />
+            ) : (
+              <CompactCardList key={section.id} section={section} />
+            )
+          )}
 
           <CustomizeButton onPress={() => setIsReorganizing(true)} />
 
