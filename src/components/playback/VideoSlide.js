@@ -48,7 +48,7 @@ export function VideoSlide({ videoSource }) {
             }
           }
         } catch (error) {
-          console.error('Error loading video:', error);
+          console.log('Error loading video:', error);
         }
       }
     }

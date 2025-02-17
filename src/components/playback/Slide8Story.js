@@ -305,7 +305,7 @@ export function Slide8Story() {
     } catch (error) {
       // Make sure to hide background even if there's an error
       setShowBackground(false);
-      console.error('Error sharing:', error);
+      console.log('Error sharing:', error);
     }
   };
 

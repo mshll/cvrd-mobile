@@ -68,7 +68,7 @@ export function useBiometricAuth() {
 
       return false;
     } catch (error) {
-      console.error('Authentication error:', error);
+      console.log('Authentication error:', error);
 
       // More detailed error information
       if (error.code) {

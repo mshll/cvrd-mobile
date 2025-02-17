@@ -281,7 +281,7 @@ const ProfileScreen = () => {
     try {
       await refreshUser();
     } catch (error) {
-      console.error('Error refreshing profile:', error);
+      console.log('Error refreshing profile:', error);
     } finally {
       setIsRefreshing(false);
     }
@@ -386,7 +386,7 @@ const ProfileScreen = () => {
         await updateProfilePicture(result.assets[0].uri);
       }
     } catch (error) {
-      console.error('Error updating profile picture:', error);
+      console.log('Error updating profile picture:', error);
       Toast.show({
         type: 'error',
         text1: 'Failed to update profile picture',
@@ -400,7 +400,7 @@ const ProfileScreen = () => {
     try {
       await deleteProfilePicture();
     } catch (error) {
-      console.error('Error deleting profile picture:', error);
+      console.log('Error deleting profile picture:', error);
     } finally {
       setShowProfilePictureSheet(false);
     }

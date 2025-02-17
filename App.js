@@ -112,7 +112,7 @@ const Navigation = () => {
           }
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.log('Auth check failed:', error);
         await deleteToken();
         setUser(null);
       } finally {
@@ -218,7 +218,7 @@ export default function App() {
     Inter_900Black: require('./assets/fonts/Inter/Inter_24pt-Black.ttf'),
   });
 
-  if (fontsError) console.error('Error while trying to load fonts', fontsError);
+  if (fontsError) console.log('Error while trying to load fonts', fontsError);
   const appLoaded = fontsLoaded && !fontsError;
   if (!appLoaded) return null;
 

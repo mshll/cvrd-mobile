@@ -33,7 +33,7 @@ const parseDescription = (description) => {
     }
     return null;
   } catch (error) {
-    console.error('Error parsing transaction description:', error);
+    console.log('Error parsing transaction description:', error);
     return null;
   }
 };

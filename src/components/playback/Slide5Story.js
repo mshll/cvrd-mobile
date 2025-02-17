@@ -124,7 +124,7 @@ export function Slide5Story() {
           return updatedCards;
         });
       } catch (error) {
-        console.error('Error fetching card and transaction data:', error);
+        console.log('Error fetching card and transaction data:', error);
       }
     }
 

@@ -127,7 +127,7 @@ export function Slide6Story() {
   // Log error if any
   React.useEffect(() => {
     if (error) {
-      console.error('Error fetching subscription data:', error);
+      console.log('Error fetching subscription data:', error);
     }
   }, [error]);
 

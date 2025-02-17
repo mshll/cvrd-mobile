@@ -380,7 +380,7 @@ export function AIInsightsSheet({ isOpen, onClose }) {
           const transactions = await fetchUserTransactions();
           await fetchInsights(transactions);
         } catch (error) {
-          console.error('Error fetching insights:', error);
+          console.log('Error fetching insights:', error);
         }
       }
     }

@@ -77,7 +77,7 @@ export function ColorSchemeProvider({ children }) {
           setAppearanceMode(savedMode);
         }
       } catch (error) {
-        console.error('Failed to load appearance mode:', error);
+        console.log('Failed to load appearance mode:', error);
       }
     };
     loadAppearanceMode();
@@ -89,7 +89,7 @@ export function ColorSchemeProvider({ children }) {
       await AsyncStorage.setItem(STORAGE_KEY, mode);
       setAppearanceMode(mode);
     } catch (error) {
-      console.error('Failed to save appearance mode:', error);
+      console.log('Failed to save appearance mode:', error);
     }
   };
 

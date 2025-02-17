@@ -128,7 +128,7 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
           longitude: location.coords.longitude,
         });
       } catch (error) {
-        console.error('Error getting current location:', error);
+        console.log('Error getting current location:', error);
       }
     })();
   }, []);
@@ -163,7 +163,7 @@ const LocationMap = ({ latitude, longitude, radius, color, onEdit }) => {
         }));
       }
     } catch (error) {
-      console.error('Error getting location info:', error);
+      console.log('Error getting location info:', error);
     }
   };
 
@@ -321,7 +321,7 @@ const CardDetailsScreen = () => {
     try {
       await Promise.all([refetchCards(), refetchTransactions()]);
     } catch (error) {
-      console.error('Error refreshing card details:', error);
+      console.log('Error refreshing card details:', error);
     } finally {
       setIsRefreshing(false);
     }

@@ -93,7 +93,7 @@ export function Slide4Story() {
           topLocations: topLocations.slice(0, 3),
         });
       } catch (error) {
-        console.error('Error fetching location data:', error);
+        console.log('Error fetching location data:', error);
         setLocationStats({
           totalRadius: 0,
           totalCards: 0,

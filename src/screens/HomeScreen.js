@@ -655,7 +655,7 @@ function HomeScreen() {
         // Add any other data refetch calls here
       ]);
     } catch (error) {
-      console.error('Error refreshing data:', error);
+      console.log('Error refreshing data:', error);
     } finally {
       setIsRefreshing(false);
     }
@@ -686,7 +686,7 @@ function HomeScreen() {
       const transactions = await fetchUserTransactions();
       await fetchInsights(transactions);
     } catch (error) {
-      console.error('Error fetching insights:', error);
+      console.log('Error fetching insights:', error);
     }
   };
 

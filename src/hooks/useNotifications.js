@@ -92,7 +92,7 @@ export function useNotifications(token) {
 
       return token;
     } catch (error) {
-      console.error('Failed to register for push notifications:', error);
+      console.log('Failed to register for push notifications:', error);
     }
   }, []);
 
@@ -143,12 +143,12 @@ export function useNotifications(token) {
               console.log('📩 Received notification:', notification);
               await scheduleNotification(notification);
             } catch (error) {
-              console.error('Failed to process notification:', error);
+              console.log('Failed to process notification:', error);
             }
           });
         },
         (error) => {
-          console.error('WebSocket error:', error);
+          console.log('WebSocket error:', error);
           // Schedule reconnection attempt
           if (token) {
             reconnectTimeoutRef.current = setTimeout(() => {
@@ -159,7 +159,7 @@ export function useNotifications(token) {
         }
       );
     } catch (error) {
-      console.error('Failed to initialize WebSocket:', error);
+      console.log('Failed to initialize WebSocket:', error);
       // Schedule reconnection attempt
       if (token) {
         reconnectTimeoutRef.current = setTimeout(() => {
@@ -184,7 +184,7 @@ export function useNotifications(token) {
           stompClientRef.current = null;
         });
       } catch (error) {
-        console.error('Error closing WebSocket:', error);
+        console.log('Error closing WebSocket:', error);
         stompClientRef.current = null;
       }
     }
@@ -228,7 +228,7 @@ export function useNotifications(token) {
           // Register notification handlers
           return registerNotificationHandlers();
         } catch (error) {
-          console.error('Failed to initialize notifications:', error);
+          console.log('Failed to initialize notifications:', error);
         }
       };
 

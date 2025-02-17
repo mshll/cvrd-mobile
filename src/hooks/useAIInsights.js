@@ -8,7 +8,7 @@ import { getCardById } from '@/api/cards';
 
 // Initialize Gemini AI
 if (!ENV.GEMINI_API_KEY) {
-  console.error('Gemini API key is missing. Please check your environment configuration.');
+  console.log('Gemini API key is missing. Please check your environment configuration.');
 }
 const genAI = new GoogleGenerativeAI(ENV.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
@@ -47,7 +47,7 @@ async function analyzeTransactions(transactions) {
             return null;
           }
         } catch (error) {
-          console.error('Error fetching card:', error);
+          console.log('Error fetching card:', error);
           return null;
         }
 
@@ -396,13 +396,13 @@ Respond in this JSON format:
       try {
         return JSON.parse(jsonMatch[0]);
       } catch (parseError) {
-        console.error('Error parsing JSON from match:', parseError);
+        console.log('Error parsing JSON from match:', parseError);
         return null;
       }
     }
     return null;
   } catch (error) {
-    console.error('Error generating AI insights:', error);
+    console.log('Error generating AI insights:', error);
     return null;
   }
 }
@@ -471,13 +471,13 @@ export function useAIInsights() {
           overview: calculatedInsights.overview.slice(0, 3),
         });
       } catch (aiError) {
-        console.error('AI recommendations failed:', aiError);
+        console.log('AI recommendations failed:', aiError);
         // Still return basic insights even if AI fails
         setInsights(calculatedInsights);
       }
     } catch (err) {
       setError(err.message);
-      console.error('Error analyzing transactions:', err);
+      console.log('Error analyzing transactions:', err);
     } finally {
       setIsLoading(false);
     }

@@ -29,7 +29,6 @@ export function Slide3Story() {
   const subtitleOpacity = useSharedValue(0);
   const listOpacities = topCards.map(() => useSharedValue(0));
 
-
   // Fetch and process card data when component mounts
   useEffect(() => {
     async function fetchCardData() {
@@ -80,7 +79,7 @@ export function Slide3Story() {
 
         setTopCards(displayCards.slice(0, 3));
       } catch (error) {
-        console.error('Error fetching card data:', error);
+        console.log('Error fetching card data:', error);
         // Set default values in case of error
         setTopSpender({
           text: 'No Data Available',

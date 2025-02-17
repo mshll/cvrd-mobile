@@ -190,7 +190,7 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
         }));
       }
     } catch (error) {
-      console.error('Error getting location info:', error);
+      console.log('Error getting location info:', error);
     }
   };
 

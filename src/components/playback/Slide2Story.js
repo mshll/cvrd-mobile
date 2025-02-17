@@ -48,7 +48,7 @@ export function Slide2Story() {
 
         setCardCounts(counts);
       } catch (error) {
-        console.error('Error fetching card data:', error);
+        console.log('Error fetching card data:', error);
       }
     }
 

@@ -280,7 +280,7 @@ const SubscriptionManagementScreen = () => {
       }
       setShowConfirmation(false);
     } catch (error) {
-      console.error('Error changing plan:', error);
+      console.log('Error changing plan:', error);
     }
   };
 

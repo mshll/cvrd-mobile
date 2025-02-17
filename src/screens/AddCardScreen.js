@@ -712,7 +712,7 @@ const AddCardScreen = () => {
         proceedWithCardCreation(finalCardData);
       }
     } catch (error) {
-      console.error('Error during card creation:', error);
+      console.log('Error during card creation:', error);
       Toast.show({
         type: 'error',
         text1: 'Card Creation Failed',

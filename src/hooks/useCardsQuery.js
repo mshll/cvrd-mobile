@@ -16,7 +16,7 @@ export function useCardsQuery() {
       console.log('🎯 Query succeeded, cards in cache:', data?.length || 0);
     },
     onError: (error) => {
-      console.error('💥 Query failed:', error.message);
+      console.log('💥 Query failed:', error.message);
     },
   });
 }

@@ -163,7 +163,7 @@ export async function fetchUserCards() {
     //console.log('✅ Cards fetched successfully:', response.data);
     return response.data;
   } catch (error) {
-    console.error('❌ Error fetching cards:', error.response?.data || error.message);
+    console.log('❌ Error fetching cards:', error.response?.data || error.message);
     throw error;
   }
 }
@@ -216,7 +216,7 @@ export async function getUserCards() {
     const response = await instance.get('/user/me/cards');
     return response.data;
   } catch (error) {
-    console.error('Error fetching user cards:', error);
+    console.log('Error fetching user cards:', error);
     throw error;
   }
 }
@@ -245,7 +245,7 @@ export async function getCardById(cardId) {
     const response = await instance.get(`/card/id/${cardId}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching card by ID:', error);
+    console.log('Error fetching card by ID:', error);
     throw error;
   }
 }

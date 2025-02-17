@@ -64,7 +64,7 @@ export const saveCardCustomization = async (cardId, emojis, colors) => {
     };
     await AsyncStorage.setItem(StorageKeys.CARD_CUSTOMIZATION, JSON.stringify(customizations));
   } catch (error) {
-    console.error('Failed to save card customization:', error);
+    console.log('Failed to save card customization:', error);
   }
 };
 
@@ -97,7 +97,7 @@ export const setHidePauseWarning = async (hide) => {
   try {
     await AsyncStorage.setItem(StorageKeys.HIDE_PAUSE_WARNING, hide.toString());
   } catch (error) {
-    console.error('Failed to save pause warning preference:', error);
+    console.log('Failed to save pause warning preference:', error);
   }
 };
 
@@ -115,6 +115,6 @@ export const setCardViewMode = async (mode) => {
   try {
     await AsyncStorage.setItem(StorageKeys.CARD_VIEW_MODE, mode);
   } catch (error) {
-    console.error('Failed to save card view mode preference:', error);
+    console.log('Failed to save card view mode preference:', error);
   }
 };

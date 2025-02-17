@@ -90,7 +90,7 @@ const SignupDetailsScreen = () => {
         //console.log('✅ Account created successfully, navigating to connect bank');
         navigation.navigate(Paths.CONNECT_BANK, { registrationData: response });
       } catch (error) {
-        console.error('❌ Account creation failed:', error);
+        console.log('❌ Account creation failed:', error);
         // Error handling is done in the mutation
       }
     } else {

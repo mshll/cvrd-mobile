@@ -44,7 +44,7 @@ export function useCardStats() {
 
         setStats(cardStats);
       } catch (error) {
-        console.error('Error fetching card stats:', error);
+        console.log('Error fetching card stats:', error);
         setError(error);
       } finally {
         setLoading(false);

@@ -19,7 +19,7 @@ export function useSignup() {
       });
     },
     onError: (error) => {
-      console.error('💥 Registration error:', error.response?.data || error);
+      console.log('💥 Registration error:', error.response?.data || error);
       Toast.show({
         type: 'error',
         text1: 'Error',
@@ -49,7 +49,7 @@ export function useLogin() {
       });
     },
     onError: (error) => {
-      console.error('💥 Login error:', error.response?.data || error);
+      console.log('💥 Login error:', error.response?.data || error);
       Toast.show({
         type: 'error',
         text1: 'Login Failed',

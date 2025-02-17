@@ -117,7 +117,7 @@ const EditCardScreen = () => {
       setShowColorWheel(false);
       setShowEmojiPicker(false);
     } catch (error) {
-      console.error('Failed to reset customizations:', error);
+      console.log('Failed to reset customizations:', error);
     }
   }, [cardId, card]);
 

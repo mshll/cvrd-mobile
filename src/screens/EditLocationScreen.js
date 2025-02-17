@@ -68,7 +68,7 @@ const EditLocationScreen = () => {
           longitude: location.coords.longitude,
         });
       } catch (error) {
-        console.error('Error getting current location:', error);
+        console.log('Error getting current location:', error);
       }
     })();
   }, []);
