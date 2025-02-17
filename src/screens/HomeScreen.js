@@ -29,6 +29,9 @@ import {
   StarIcon,
   ListBulletIcon,
   Squares2X2Icon,
+  SparklesIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
 } from 'react-native-heroicons/solid';
 import { AIInsightsButton } from '@/components/AIInsightsButton';
 import { AIInsightsSheet } from '@/components/AIInsightsSheet';
@@ -38,6 +41,7 @@ import { StyleSheet, Linking, Image, Animated } from 'react-native';
 import { CARD_HEIGHT, CARD_WIDTH } from '@/utils/cardUtils';
 import { Paths } from '@/navigation/paths';
 import { getCardViewMode, setCardViewMode } from '@/utils/storage';
+import { useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 
 // ============================================================================
 // Constants & Config
@@ -500,6 +504,9 @@ function HomeScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(50)).current;
   const [cardFilter, setCardFilter] = useState('all');
+  const [showInsights, setShowInsights] = useState(false);
+  const insightsHeight = useRef(new Animated.Value(0)).current;
+  const insightsOpacity = useRef(new Animated.Value(0)).current;
 
   // Animate content on mount
   useEffect(() => {
@@ -746,8 +753,69 @@ function HomeScreen() {
               transform: [{ translateY }],
             }}
           >
-            <SpendingRecapButton onPress={() => setShowRecap(true)} />
-            <AIInsightsButton onPress={handleShowInsights} />
+            <YStack gap="$2" mb="$4">
+              <XStack ai="center" jc="space-between" px="$4">
+                <XStack ai="center" gap="$2">
+                  <SparklesIcon size={20} color={colors.text} />
+                  <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+                    Insights
+                  </Text>
+                </XStack>
+                <Button
+                  size="$3"
+                  backgroundColor={colors.backgroundSecondary}
+                  pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+                  onPress={() => {
+                    Animated.parallel([
+                      Animated.spring(insightsHeight, {
+                        toValue: showInsights ? 0 : 1,
+                        useNativeDriver: false,
+                        damping: 15,
+                        mass: 1,
+                        stiffness: 100,
+                      }),
+                      Animated.spring(insightsOpacity, {
+                        toValue: showInsights ? 0 : 1,
+                        useNativeDriver: false,
+                        damping: 15,
+                        mass: 1,
+                        stiffness: 100,
+                      }),
+                    ]).start();
+                    setShowInsights(!showInsights);
+                  }}
+                  borderWidth={1}
+                  borderColor={colors.border}
+                  br={8}
+                  px="$3"
+                >
+                  <XStack ai="center" gap="$2">
+                    <Text color={colors.text} fontSize="$2" fontWeight="600">
+                      {showInsights ? 'Hide' : 'Show'}
+                    </Text>
+                    {showInsights ? (
+                      <ChevronUpIcon size={16} color={colors.text} />
+                    ) : (
+                      <ChevronDownIcon size={16} color={colors.text} />
+                    )}
+                  </XStack>
+                </Button>
+              </XStack>
+
+              <Animated.View
+                style={{
+                  maxHeight: insightsHeight.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 250], // Adjust this value based on your content height
+                  }),
+                  opacity: insightsOpacity,
+                  overflow: 'hidden',
+                }}
+              >
+                <SpendingRecapButton onPress={() => setShowRecap(true)} />
+                <AIInsightsButton onPress={handleShowInsights} />
+              </Animated.View>
+            </YStack>
 
             <Header
               viewMode={viewMode}
