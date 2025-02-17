@@ -21,6 +21,7 @@ import { deleteToken, getToken } from '@/api/storage';
 import { Colors } from '@/context/ColorSchemeContext';
 import { useFonts } from 'expo-font';
 import { validateToken } from '@/api/auth';
+import { FullWindowOverlay } from 'react-native-screens';
 
 const queryClient = new QueryClient();
 
@@ -158,7 +159,9 @@ const ThemedApp = () => {
                           barStyle={effectiveColorScheme === 'dark' ? 'light-content' : 'dark-content'}
                         />
                         <Navigation />
-                        <Toast config={toastConfig} />
+                        <FullWindowOverlay>
+                          <Toast config={toastConfig} />
+                        </FullWindowOverlay>
                         <SecurityOverlay visible={showSecurityOverlay} />
                       </BottomSheetModalProvider>
                     </PortalProvider>

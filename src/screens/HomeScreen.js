@@ -37,6 +37,7 @@ import { fetchUserTransactions } from '@/api/transactions';
 import { StyleSheet, Linking, Image, Animated } from 'react-native';
 import { CARD_HEIGHT, CARD_WIDTH } from '@/utils/cardUtils';
 import { Paths } from '@/navigation/paths';
+import { getCardViewMode, setCardViewMode } from '@/utils/storage';
 
 // ============================================================================
 // Constants & Config
@@ -200,13 +201,82 @@ function CompactCardList({ section }) {
   );
 }
 
-function SpendingSummary({ viewMode, onToggleViewMode }) {
+function Header({ viewMode, onToggleViewMode, cardFilter, onFilterChange }) {
   const colors = useColors();
+  const { cards } = useCards();
+
   return (
-    <YStack mb="$4" gap="$4">
+    <YStack my="$4" gap="$4">
       <UserGreeting />
       <SpendingStats />
-      <XStack px="$4" jc="flex-end">
+      <XStack px="$4" jc="space-between" ai="center">
+        {/* Filter Badges */}
+        <XStack gap="$2">
+          <Button
+            size="$2"
+            backgroundColor={cardFilter === 'all' ? colors.primary : colors.backgroundSecondary}
+            pressStyle={{ backgroundColor: cardFilter === 'all' ? colors.primaryDark : colors.backgroundTertiary }}
+            borderRadius={20}
+            borderWidth={1}
+            borderColor={cardFilter === 'all' ? colors.primary : colors.border}
+            onPress={() => onFilterChange('all')}
+            px="$3"
+          >
+            <Text color={cardFilter === 'all' ? 'white' : colors.text} fontSize="$2" fontWeight="600">
+              All
+            </Text>
+          </Button>
+          <Button
+            size="$2"
+            backgroundColor={cardFilter === 'active' ? Colors.cards.green : colors.backgroundSecondary}
+            pressStyle={{
+              backgroundColor: cardFilter === 'active' ? `${Colors.cards.green}CC` : colors.backgroundTertiary,
+            }}
+            borderRadius={20}
+            borderWidth={1}
+            borderColor={cardFilter === 'active' ? Colors.cards.green : colors.border}
+            onPress={() => onFilterChange('active')}
+            px="$3"
+          >
+            <Text color={cardFilter === 'active' ? 'white' : colors.text} fontSize="$2" fontWeight="600">
+              Active
+            </Text>
+          </Button>
+          <Button
+            size="$2"
+            backgroundColor={cardFilter === 'paused' ? Colors.cards.yellow : colors.backgroundSecondary}
+            pressStyle={{
+              backgroundColor: cardFilter === 'paused' ? `${Colors.cards.yellow}CC` : colors.backgroundTertiary,
+            }}
+            borderRadius={20}
+            borderWidth={1}
+            borderColor={cardFilter === 'paused' ? Colors.cards.yellow : colors.border}
+            onPress={() => onFilterChange('paused')}
+            px="$3"
+          >
+            <Text color={cardFilter === 'paused' ? 'black' : colors.text} fontSize="$2" fontWeight="600">
+              Paused
+            </Text>
+          </Button>
+          <Button
+            size="$2"
+            backgroundColor={cardFilter === 'closed' ? Colors.cards.red : colors.backgroundSecondary}
+            pressStyle={{
+              backgroundColor: cardFilter === 'closed' ? `${Colors.cards.red}CC` : colors.backgroundTertiary,
+            }}
+            borderRadius={20}
+            borderWidth={1}
+            borderColor={cardFilter === 'closed' ? Colors.cards.red : colors.border}
+            onPress={() => onFilterChange('closed')}
+            px="$3"
+          >
+            <Text color={cardFilter === 'closed' ? 'white' : colors.text} fontSize="$2" fontWeight="600">
+              Closed
+            </Text>
+          </Button>
+        </XStack>
+
+        {/* View Mode Toggle */}
         <Button
           size="$3"
           backgroundColor={colors.backgroundSecondary}
@@ -429,6 +499,7 @@ function HomeScreen() {
   const [contentVisible, setContentVisible] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(50)).current;
+  const [cardFilter, setCardFilter] = useState('all');
 
   // Animate content on mount
   useEffect(() => {
@@ -451,6 +522,15 @@ function HomeScreen() {
     }, 100);
 
     return () => clearTimeout(timeout);
+  }, []);
+
+  // Load saved view mode preference
+  useEffect(() => {
+    const loadViewMode = async () => {
+      const savedMode = await getCardViewMode();
+      setViewMode(savedMode);
+    };
+    loadViewMode();
   }, []);
 
   // Mock spending data - replace with real data from your API
@@ -505,6 +585,41 @@ function HomeScreen() {
       };
     });
   }, [order, cardsByType, getCardDisplayData]);
+
+  // Filter cards based on selected filter
+  const filteredSections = useMemo(() => {
+    return sections.map((section) => {
+      const filteredData = section.data.filter((card) => {
+        switch (cardFilter) {
+          case 'active':
+            return !card.isClosed && !card.isPaused;
+          case 'paused':
+            return card.isPaused && !card.isClosed;
+          case 'closed':
+            return card.isClosed;
+          default:
+            return true;
+        }
+      });
+      return { ...section, data: filteredData };
+    });
+  }, [sections, cardFilter]);
+
+  // Filter pinned cards
+  const filteredPinnedCards = useMemo(() => {
+    return pinnedCards.filter((card) => {
+      switch (cardFilter) {
+        case 'active':
+          return !card.isClosed && !card.isPaused;
+        case 'paused':
+          return card.isPaused && !card.isClosed;
+        case 'closed':
+          return card.isClosed;
+        default:
+          return true;
+      }
+    });
+  }, [pinnedCards, cardFilter]);
 
   const handleReorder = async (reorderedSections) => {
     const newOrder = reorderedSections.map((section) => section.id);
@@ -568,9 +683,11 @@ function HomeScreen() {
     }
   };
 
-  const handleToggleViewMode = useCallback(() => {
-    setViewMode((current) => (current === VIEW_MODES.CAROUSEL ? VIEW_MODES.LIST : VIEW_MODES.CAROUSEL));
-  }, []);
+  const handleToggleViewMode = useCallback(async () => {
+    const newMode = viewMode === VIEW_MODES.CAROUSEL ? VIEW_MODES.LIST : VIEW_MODES.CAROUSEL;
+    setViewMode(newMode);
+    await setCardViewMode(newMode);
+  }, [viewMode]);
 
   const isLoading = isCardsLoading || isSectionOrderLoading;
   if (isLoading) {
@@ -632,34 +749,39 @@ function HomeScreen() {
             <SpendingRecapButton onPress={() => setShowRecap(true)} />
             <AIInsightsButton onPress={handleShowInsights} />
 
-            <SpendingSummary viewMode={viewMode} onToggleViewMode={handleToggleViewMode} />
+            <Header
+              viewMode={viewMode}
+              onToggleViewMode={handleToggleViewMode}
+              cardFilter={cardFilter}
+              onFilterChange={setCardFilter}
+            />
 
-          {/* Pinned Cards Section */}
-          {pinnedCards.length > 0 &&
-            (viewMode === VIEW_MODES.CAROUSEL ? (
-              <CardCarousel
-                key="pinned"
-                title={SECTION_CONFIG.PINNED.title}
-                data={pinnedCards}
-                icon={SECTION_CONFIG.PINNED.icon}
-              />
-            ) : (
-              <CompactCardList
-                section={{
-                  ...SECTION_CONFIG.PINNED,
-                  data: pinnedCards,
-                }}
-              />
-            ))}
+            {/* Pinned Cards Section */}
+            {filteredPinnedCards.length > 0 &&
+              (viewMode === VIEW_MODES.CAROUSEL ? (
+                <CardCarousel
+                  key="pinned"
+                  title={SECTION_CONFIG.PINNED.title}
+                  data={filteredPinnedCards}
+                  icon={SECTION_CONFIG.PINNED.icon}
+                />
+              ) : (
+                <CompactCardList
+                  section={{
+                    ...SECTION_CONFIG.PINNED,
+                    data: filteredPinnedCards,
+                  }}
+                />
+              ))}
 
-          {/* Regular Sections */}
-          {sections.map((section) =>
-            viewMode === VIEW_MODES.CAROUSEL ? (
-              <CardCarousel key={section.id} title={section.title} data={section.data} icon={section.icon} />
-            ) : (
-              <CompactCardList key={section.id} section={section} />
-            )
-          )}
+            {/* Regular Sections */}
+            {filteredSections.map((section) =>
+              viewMode === VIEW_MODES.CAROUSEL ? (
+                <CardCarousel key={section.id} title={section.title} data={section.data} icon={section.icon} />
+              ) : (
+                <CompactCardList key={section.id} section={section} />
+              )
+            )}
 
             <CustomizeButton onPress={() => setIsReorganizing(true)} />
           </Animated.View>

@@ -144,7 +144,7 @@ const ActivityScreen = () => {
       <BottomSheet isOpen={showSortSheet} onClose={() => setShowSortSheet(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
           <XStack jc="space-between" ai="center">
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
               Sort By
             </Text>
             <Button

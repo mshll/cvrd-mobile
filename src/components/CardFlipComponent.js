@@ -17,7 +17,7 @@ import {
   formatExpiryDate,
 } from '@/utils/cardUtils';
 
-const AUTO_FLIP_DELAY = 10000;
+const AUTO_FLIP_DELAY = 15000;
 
 const CardFlipComponent = ({ cardId }) => {
   const { getCardById } = useCards();
@@ -224,8 +224,8 @@ const CardFlipComponent = ({ cardId }) => {
           {/* Copy Buttons */}
           {isFlipped && (
             <View style={styles.copyButtonsContainer}>
-              <CopyButton onPress={handleCopyCardNumber} label="Num" />
-              <CopyButton onPress={handleCopyCVV} label="CVV" />
+              <CopyButton onPress={handleCopyCardNumber} label="" />
+              {/* <CopyButton onPress={handleCopyCVV} label="CVV" /> */}
             </View>
           )}
         </View>

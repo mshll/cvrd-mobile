@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const StorageKeys = {
   CARD_CUSTOMIZATION: 'cvrd:card_customizations',
   HIDE_PAUSE_WARNING: 'cvrd:hide_pause_warning1',
+  CARD_VIEW_MODE: 'cvrd:card_view_mode',
 };
 
 const DEFAULT_CUSTOMIZATION = {
@@ -97,5 +98,23 @@ export const setHidePauseWarning = async (hide) => {
     await AsyncStorage.setItem(StorageKeys.HIDE_PAUSE_WARNING, hide.toString());
   } catch (error) {
     console.error('Failed to save pause warning preference:', error);
+  }
+};
+
+// Card view mode preference
+export const getCardViewMode = async () => {
+  try {
+    const value = await AsyncStorage.getItem(StorageKeys.CARD_VIEW_MODE);
+    return value || 'carousel';
+  } catch {
+    return 'carousel';
+  }
+};
+
+export const setCardViewMode = async (mode) => {
+  try {
+    await AsyncStorage.setItem(StorageKeys.CARD_VIEW_MODE, mode);
+  } catch (error) {
+    console.error('Failed to save card view mode preference:', error);
   }
 };

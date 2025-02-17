@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState, useEffect } from 'react';
 
 const STORAGE_KEY = '@section_order';
-const DEFAULT_ORDER = ['BURNER', 'MERCHANT', 'CATEGORY', 'LOCATION'];
+const DEFAULT_ORDER = ['MERCHANT','BURNER', 'CATEGORY', 'LOCATION'];
 
 export function useSectionOrder() {
   const [order, setOrder] = useState(DEFAULT_ORDER);
