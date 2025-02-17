@@ -228,13 +228,13 @@ function Header({ viewMode, onToggleViewMode, cardFilter, onFilterChange }) {
           </Button>
           <Button
             size="$2"
-            backgroundColor={cardFilter === 'active' ? Colors.cards.green : colors.backgroundSecondary}
+            backgroundColor={cardFilter === 'active' ? colors.success : colors.backgroundSecondary}
             pressStyle={{
-              backgroundColor: cardFilter === 'active' ? `${Colors.cards.green}CC` : colors.backgroundTertiary,
+              backgroundColor: cardFilter === 'active' ? `${colors.success}CC` : colors.backgroundTertiary,
             }}
             borderRadius={20}
             borderWidth={1}
-            borderColor={cardFilter === 'active' ? Colors.cards.green : colors.border}
+            borderColor={cardFilter === 'active' ? colors.success : colors.border}
             onPress={() => onFilterChange('active')}
             px="$3"
           >
@@ -244,13 +244,13 @@ function Header({ viewMode, onToggleViewMode, cardFilter, onFilterChange }) {
           </Button>
           <Button
             size="$2"
-            backgroundColor={cardFilter === 'paused' ? Colors.cards.yellow : colors.backgroundSecondary}
+            backgroundColor={cardFilter === 'paused' ? colors.warning : colors.backgroundSecondary}
             pressStyle={{
-              backgroundColor: cardFilter === 'paused' ? `${Colors.cards.yellow}CC` : colors.backgroundTertiary,
+              backgroundColor: cardFilter === 'paused' ? `${colors.warning}CC` : colors.backgroundTertiary,
             }}
             borderRadius={20}
             borderWidth={1}
-            borderColor={cardFilter === 'paused' ? Colors.cards.yellow : colors.border}
+            borderColor={cardFilter === 'paused' ? colors.warning : colors.border}
             onPress={() => onFilterChange('paused')}
             px="$3"
           >
@@ -260,13 +260,13 @@ function Header({ viewMode, onToggleViewMode, cardFilter, onFilterChange }) {
           </Button>
           <Button
             size="$2"
-            backgroundColor={cardFilter === 'closed' ? Colors.cards.red : colors.backgroundSecondary}
+            backgroundColor={cardFilter === 'closed' ? colors.danger : colors.backgroundSecondary}
             pressStyle={{
-              backgroundColor: cardFilter === 'closed' ? `${Colors.cards.red}CC` : colors.backgroundTertiary,
+              backgroundColor: cardFilter === 'closed' ? `${colors.danger}CC` : colors.backgroundTertiary,
             }}
             borderRadius={20}
             borderWidth={1}
-            borderColor={cardFilter === 'closed' ? Colors.cards.red : colors.border}
+            borderColor={cardFilter === 'closed' ? colors.danger : colors.border}
             onPress={() => onFilterChange('closed')}
             px="$3"
           >

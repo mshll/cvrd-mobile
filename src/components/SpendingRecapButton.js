@@ -25,6 +25,7 @@ export function SpendingRecapButton({ onPress }) {
         source={require('@/../assets/patterns/pattern2.png')}
         style={styles.backgroundImage}
         imageStyle={styles.backgroundPattern}
+        tintColor={colors.text}
       >
         <YStack p="$4" gap="$1" f={1} jc="space-between">
           <YStack gap="$1">

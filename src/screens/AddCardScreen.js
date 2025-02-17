@@ -452,6 +452,8 @@ const SelectButton = memo(({ showCarousel, selectedCard, onSelect, onUpgrade, co
         borderRadius={12}
         pressStyle={{ backgroundColor: showUpgradeButton ? colors.primaryDark : colors.backgroundTertiary }}
         onPress={() => (showUpgradeButton ? onUpgrade() : onSelect(selectedCard))}
+        borderWidth={1}
+        borderColor={showUpgradeButton ? colors.primaryDark : colors.border}
       >
         {showUpgradeButton ? (
           <XStack ai="center" gap="$2">
@@ -461,7 +463,7 @@ const SelectButton = memo(({ showCarousel, selectedCard, onSelect, onUpgrade, co
             </Text>
           </XStack>
         ) : (
-          'Select Card'
+          'Create Card'
         )}
       </Button>
     </Animated.View>

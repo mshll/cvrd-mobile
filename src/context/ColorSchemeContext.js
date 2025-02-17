@@ -23,21 +23,21 @@ export const Colors = {
     info: '#33b5e5',
   },
   light: {
-    primary: '#c93b46',
-    primaryLight: '#e66a74',
-    background: '#f0f0f0',
-    backgroundSecondary: '#e3e3e3',
-    backgroundTertiary: '#d6d6d6',
-    card: '#f5f5f5',
-    text: '#212121',
-    textSecondary: '#666666',
-    textTertiary: '#999999',
-    border: '#cccccc',
-    borderSecondary: '#b3b3b3',
-    danger: '#F4405E',
-    success: '#2ecc71',
-    warning: '#f39c12',
-    info: '#3498db',
+    primary: '#b8323a', // Darker shade of your dark mode primary
+    primaryDark: '#9c2b32',
+    background: '#f1f5fa', // Soft blue-tinted white
+    backgroundSecondary: '#e3eaf3', // Slightly darker, subtle blue tint
+    backgroundTertiary: '#d4deea',
+    card: '#e3eaf3',
+    text: '#1a1e27', // Deep navy/charcoal for contrast
+    textSecondary: '#4a5568',
+    textTertiary: '#6b7280',
+    border: '#c4cbd6',
+    borderSecondary: '#a9b4c4',
+    danger: '#d32f4f', // Slightly toned down for light mode
+    success: '#009d46',
+    warning: '#e89f1c',
+    info: '#239ec3',
   },
   cards: {
     green: '#7bd497',

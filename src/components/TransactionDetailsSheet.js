@@ -64,7 +64,7 @@ const TransactionDetailsSheet = ({ transaction, isOpen, onClose }) => {
       case 'SETTLED':
       case 'COMPLETED':
         return {
-          color: Colors.cards.green,
+          color: colors.success,
           text: status || 'Approved',
           icon: CheckCircleIcon,
         };
@@ -72,7 +72,7 @@ const TransactionDetailsSheet = ({ transaction, isOpen, onClose }) => {
       case 'FAILED':
       case 'REJECTED':
         return {
-          color: Colors.cards.red,
+          color: colors.danger,
           text: status || 'Declined',
           icon: XCircleIcon,
         };
@@ -112,7 +112,7 @@ const TransactionDetailsSheet = ({ transaction, isOpen, onClose }) => {
             </Text>
           </XStack>
           {transaction.declineReason && (
-            <Text color={Colors.cards.red} fontSize="$2" fontWeight="500" mt="$1" textAlign="center" px="$4">
+            <Text color={colors.danger} fontSize="$2" fontWeight="500" mt="$1" textAlign="center" px="$4">
               {transaction.declineReason}
             </Text>
           )}

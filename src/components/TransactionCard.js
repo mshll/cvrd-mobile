@@ -27,7 +27,7 @@ const TransactionCard = ({ transaction, backgroundColor }) => {
       case 'SETTLED':
       case 'COMPLETED':
         return {
-          color: Colors.cards.green,
+          color: colors.success,
           text: 'Approved',
           icon: CheckCircleIcon,
         };
@@ -35,7 +35,7 @@ const TransactionCard = ({ transaction, backgroundColor }) => {
       case 'FAILED':
       case 'REJECTED':
         return {
-          color: Colors.cards.red,
+          color: colors.danger,
           text: 'Declined',
           icon: XCircleIcon,
         };

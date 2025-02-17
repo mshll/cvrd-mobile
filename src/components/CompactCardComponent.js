@@ -61,14 +61,14 @@ function CompactCardComponent({ item, showTypeBadge = true }) {
       return {
         Icon: XCircleIcon,
         text: 'Closed',
-        color: Colors.cards.pink,
+        color: colors.danger,
       };
     }
     if (item.isPaused) {
       return {
         Icon: PauseCircleIcon,
         text: 'Paused',
-        color: Colors.cards.yellow,
+        color: colors.warning,
       };
     }
     return null;

@@ -546,9 +546,9 @@ const ProfileScreen = () => {
                 >
                   <XStack ai="center" gap="$2">
                     <XMarkIcon size={16} color={colors.danger} />
-                    <Text color={colors.danger} fontSize="$3" fontWeight="600">
+                    {/* <Text color={colors.danger} fontSize="$3" fontWeight="600">
                       Disconnect
-                    </Text>
+                    </Text> */}
                   </XStack>
                 </Button>
               ) : (
