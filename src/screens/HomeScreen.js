@@ -172,88 +172,7 @@ function CardStats() {
     );
   }, [cards]);
 
-  return (
-    // <YStack gap="$3">
-    //   <XStack ai="center" gap="$2">
-    //     <CreditCardIcon size={20} color={getColors().text} />
-    //     <Text color={getColors().text} fontSize="$4" fontFamily="$archivoBlack">
-    //       Cards
-    //     </Text>
-    //   </XStack>
-    //   <XStack gap="$3">
-    //     <StatCard dotColor={Colors.cards.green} label="Active" value={stats.active} />
-    //     <StatCard icon={PauseIcon} iconColor={Colors.cards.yellow} label="Paused" value={stats.paused} />
-    //   </XStack>
-    //   <XStack gap="$3">
-    //     <StatCard icon={XCircleIcon} iconColor={Colors.cards.pink} label="Closed" value={stats.closed} />
-    //     <StatCard icon={ShareIcon} iconColor={Colors.cards.blue} label="Shared" value={stats.shared} />
-    //   </XStack>
-    // </YStack>
-    <></>
-  );
-}
-
-function CompactCardRow({ card }) {
-  const colors = useColors();
-  const navigation = useNavigation();
-
-  if (!card) return null;
-
-  return (
-    <TouchableOpacity onPress={() => navigation.navigate(Paths.CARD_DETAILS, { cardId: card.id })} activeOpacity={0.7}>
-      <XStack
-        backgroundColor={colors.backgroundSecondary}
-        height={80}
-        br={16}
-        borderWidth={1}
-        borderColor={colors.border}
-        p={16}
-        ai="center"
-        jc="space-between"
-        gap={16}
-      >
-        {/* Left section with card preview and details */}
-        <XStack ai="center" gap={16} f={1}>
-          {/* Card Preview */}
-          <View
-            width={48}
-            height={48}
-            backgroundColor={`${card.backgroundColor || Colors.cards[card.type.toLowerCase()]}15`}
-            ai="center"
-            jc="center"
-            borderRadius={14}
-            borderWidth={1}
-            borderColor={`${card.backgroundColor || Colors.cards[card.type.toLowerCase()]}30`}
-            opacity={card.isClosed ? 0.5 : 1}
-          >
-            <Text fontSize={24}>{card.emoji || '💳'}</Text>
-          </View>
-
-          {/* Card Info */}
-          <YStack f={1} gap={4}>
-            <Text
-              color={card.isClosed ? colors.textSecondary : colors.text}
-              fontSize={16}
-              fontWeight="600"
-              numberOfLines={1}
-            >
-              {card.label || 'Unnamed Card'}
-            </Text>
-            {(card.isPaused || card.isClosed) && (
-              <Text color={colors.textSecondary} fontSize={13}>
-                {card.isClosed ? 'Closed' : 'Paused'}
-              </Text>
-            )}
-          </YStack>
-        </XStack>
-
-        {/* Right section with last 4 digits */}
-        <Text color={colors.textSecondary} fontSize={13} fontFamily="$mono">
-          •••• {card.lastFourDigits}
-        </Text>
-      </XStack>
-    </TouchableOpacity>
-  );
+  return <></>;
 }
 
 function CompactCardList({ section }) {
@@ -263,7 +182,7 @@ function CompactCardList({ section }) {
   if (!section.data?.length) return null;
 
   return (
-    <YStack gap="$2" mb="$4" px="$4">
+    <YStack gap="$2" mb="$8" px="$4">
       <XStack ai="center" gap="$2" mb="$3">
         <Icon size={20} color={colors.text} />
         <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
@@ -272,7 +191,7 @@ function CompactCardList({ section }) {
       </XStack>
       <YStack gap="$3">
         {section.data.map((card) => (
-          <CompactCardRow key={card.id} card={card} />
+          <CompactCardComponent key={card.id} item={card} showTypeBadge={false} />
         ))}
       </YStack>
     </YStack>
