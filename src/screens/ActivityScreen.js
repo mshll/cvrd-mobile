@@ -103,11 +103,8 @@ const ActivityScreen = () => {
       <YStack gap="$2" pt={24} pb="$2">
         {/* Title */}
         <XStack ai="center" gap="$2" px="$4">
-          {/* <History size={20} color={colors.text} />
+          <History size={20} color={colors.text} />
           <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
-            Activity
-          </Text> */}
-          <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="$archivoBlack">
             Activity
           </Text>
         </XStack>

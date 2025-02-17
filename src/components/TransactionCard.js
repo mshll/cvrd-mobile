@@ -28,7 +28,7 @@ const TransactionCard = ({ transaction, backgroundColor }) => {
       case 'COMPLETED':
         return {
           color: Colors.cards.green,
-          text: status || 'Approved',
+          text: 'Approved',
           icon: CheckCircleIcon,
         };
       case 'DECLINED':
@@ -36,7 +36,7 @@ const TransactionCard = ({ transaction, backgroundColor }) => {
       case 'REJECTED':
         return {
           color: Colors.cards.red,
-          text: status || 'Declined',
+          text: 'Declined',
           icon: XCircleIcon,
         };
       default:
@@ -94,7 +94,7 @@ const TransactionCard = ({ transaction, backgroundColor }) => {
           {/* Right section with amount and status */}
           <YStack ai="flex-end" gap={6}>
             <Text color={colors.text} fontSize={16} fontWeight="600">
-              - KD {transaction.amount}
+              - KD {transaction.amount.toFixed(2)}
             </Text>
             <XStack ai="center" gap={4}>
               <StatusIcon size={12} color={statusInfo.color} />
