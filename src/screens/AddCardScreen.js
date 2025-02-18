@@ -293,7 +293,7 @@ const AnimatedTitle = memo(({ scrollX, showCarousel, colors, cards }) => {
             <Animated.Text
               style={{
                 fontSize: 24,
-                fontWeight: '600',
+                fontFamily: 'Archivo_700Bold',
                 color: colors.text,
                 textAlign: 'center',
                 includeFontPadding: false,
@@ -412,6 +412,7 @@ const AnimatedDescription = memo(({ scrollX, showCarousel, colors, cards, isPrem
                 style={{
                   fontSize: 14,
                   color: colors.textSecondary,
+                  fontFamily: '$archivo',
                   textAlign: 'center',
                   lineHeight: 20,
                 }}

@@ -12,9 +12,9 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 
 // Placeholder positions for the squares - you can adjust these
 const SQUARE_POSITIONS = [
-  { top: '21%', left: '5%', rotate: '-6deg' },
-  { top: '8%', left: '54%', rotate: '14deg' },
-  { top: '87%', left: '6%', rotate: '-9deg' },
+  { top: '21%', left: '9%', rotate: '-6deg' },
+  { top: '7%', left: '61%', rotate: '14deg' },
+  { top: '87%', left: '6%', rotate: '-7deg' },
   { top: '67%', left: '54%', rotate: '8deg' },
 ];
 
