@@ -753,53 +753,44 @@ function HomeScreen() {
               transform: [{ translateY }],
             }}
           >
-            <YStack gap="$2" mb="$4">
-              <XStack ai="center" jc="space-between" px="$4">
+            <YStack gap="$2" mb="$2">
+              <XStack
+                ai="center"
+                jc="space-between"
+                px="$4"
+                onPress={() => {
+                  Animated.parallel([
+                    Animated.spring(insightsHeight, {
+                      toValue: showInsights ? 0 : 1,
+                      useNativeDriver: false,
+                      damping: 15,
+                      mass: 1,
+                      stiffness: 100,
+                    }),
+                    Animated.spring(insightsOpacity, {
+                      toValue: showInsights ? 0 : 1,
+                      useNativeDriver: false,
+                      damping: 15,
+                      mass: 1,
+                      stiffness: 100,
+                    }),
+                  ]).start();
+                  setShowInsights(!showInsights);
+                }}
+              >
                 <XStack ai="center" gap="$2">
                   <SparklesIcon size={20} color={colors.text} />
                   <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
                     Insights
                   </Text>
                 </XStack>
-                <Button
-                  size="$3"
-                  backgroundColor={colors.backgroundSecondary}
-                  pressStyle={{ backgroundColor: colors.backgroundTertiary }}
-                  onPress={() => {
-                    Animated.parallel([
-                      Animated.spring(insightsHeight, {
-                        toValue: showInsights ? 0 : 1,
-                        useNativeDriver: false,
-                        damping: 15,
-                        mass: 1,
-                        stiffness: 100,
-                      }),
-                      Animated.spring(insightsOpacity, {
-                        toValue: showInsights ? 0 : 1,
-                        useNativeDriver: false,
-                        damping: 15,
-                        mass: 1,
-                        stiffness: 100,
-                      }),
-                    ]).start();
-                    setShowInsights(!showInsights);
-                  }}
-                  borderWidth={1}
-                  borderColor={colors.border}
-                  br={8}
-                  px="$3"
-                >
-                  <XStack ai="center" gap="$2">
-                    <Text color={colors.text} fontSize="$2" fontWeight="600">
-                      {showInsights ? 'Hide' : 'Show'}
-                    </Text>
-                    {showInsights ? (
-                      <ChevronUpIcon size={16} color={colors.text} />
-                    ) : (
-                      <ChevronDownIcon size={16} color={colors.text} />
-                    )}
-                  </XStack>
-                </Button>
+                <XStack ai="center" gap="$2" px="$2">
+                  {showInsights ? (
+                    <ChevronUpIcon size={16} color={colors.text} />
+                  ) : (
+                    <ChevronDownIcon size={16} color={colors.text} />
+                  )}
+                </XStack>
               </XStack>
 
               <Animated.View

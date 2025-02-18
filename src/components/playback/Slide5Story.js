@@ -200,7 +200,7 @@ export function Slide5Story() {
         r={0}
         fontFamily="$archivoBlack"
         fontSize="$8"
-        color="$white"
+        color="white"
         textAlign="center"
         textShadowRadius={5}
         style={titleStyle}
@@ -223,7 +223,7 @@ export function Slide5Story() {
                   <AnimatedText
                     fontFamily="$archivoBlack"
                     fontSize="$5"
-                    color="$white"
+                    color="white"
                     textAlign="center"
                     mb="$6"
                     textShadowRadius={5}
@@ -242,7 +242,7 @@ export function Slide5Story() {
                   <AnimatedText
                     fontFamily="$archivoBlack"
                     fontSize="$5"
-                    color="$white"
+                    color="white"
                     mb="$6"
                     textAlign="center"
                     w={200}
@@ -283,7 +283,7 @@ export function Slide5Story() {
                   <AnimatedText
                     fontFamily="$archivoBlack"
                     fontSize="$5"
-                    color="$white"
+                    color="white"
                     mt="$8"
                     textAlign="center"
                     textShadowRadius={5}
@@ -301,7 +301,7 @@ export function Slide5Story() {
                   <AnimatedText
                     fontFamily="$archivoBlack"
                     fontSize="$5"
-                    color="$white"
+                    color="white"
                     w={200}
                     mt="$8"
                     textAlign="center"

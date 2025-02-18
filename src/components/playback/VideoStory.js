@@ -78,7 +78,7 @@ export function VideoStory({ videoSource }) {
       return (
         <YStack space="$4" ai="center">
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.stat, { color: colors.text }]}>Loading stats...</Text>
+          <Text style={[styles.stat, { color: Colors.dark.text }]}>Loading stats...</Text>
         </YStack>
       );
     }
@@ -93,20 +93,20 @@ export function VideoStory({ videoSource }) {
 
     return (
       <YStack space="$4" ai="center">
-        <AnimatedText style={[styles.title, { color: colors.text }, titleStyle]}>You Generated</AnimatedText>
-        <AnimatedText style={[styles.stat, { color: colors.text, fontSize: 32 }, totalStyle]}>
+        <AnimatedText style={[styles.title, { color: Colors.dark.text }, titleStyle]}>You Generated</AnimatedText>
+        <AnimatedText style={[styles.stat, { color: Colors.dark.text, fontSize: 32 }, totalStyle]}>
           {stats.total} Cards
         </AnimatedText>
-        <AnimatedText style={[styles.stat, { color: colors.text }, merchantStyle]}>
+        <AnimatedText style={[styles.stat, { color: Colors.dark.text }, merchantStyle]}>
           {stats.merchant} Merchant Cards
         </AnimatedText>
-        <AnimatedText style={[styles.stat, { color: colors.text }, burnerStyle]}>
+        <AnimatedText style={[styles.stat, { color: Colors.dark.text }, burnerStyle]}>
           {stats.burner} Burner Cards
         </AnimatedText>
-        <AnimatedText style={[styles.stat, { color: colors.text }, locationStyle]}>
+        <AnimatedText style={[styles.stat, { color: Colors.dark.text }, locationStyle]}>
           {stats.location} Location Cards
         </AnimatedText>
-        <AnimatedText style={[styles.stat, { color: colors.text }, categoryStyle]}>
+        <AnimatedText style={[styles.stat, { color: Colors.dark.text }, categoryStyle]}>
           {stats.category} Category Cards
         </AnimatedText>
       </YStack>

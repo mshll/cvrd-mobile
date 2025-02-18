@@ -157,7 +157,7 @@ export function Slide3Story() {
 
       {/* Main Title */}
       <AnimatedYStack pos="absolute" t="43%" l={0} r={0} ai="center" style={titleStyle}>
-        <AnimatedText fontFamily="$archivoBlack" fontSize="$8" color="$white" textAlign="center" textShadowRadius={5}>
+        <AnimatedText fontFamily="$archivoBlack" fontSize="$8" color="white" textAlign="center" textShadowRadius={5}>
           YOUR MOST LOVED CARDS
         </AnimatedText>
       </AnimatedYStack>
@@ -176,10 +176,10 @@ export function Slide3Story() {
               opacity: listOpacities[index].value,
             }))}
           >
-            <Text color="$white" fontFamily="$archivoBlack" fontSize="$6">
+            <Text color="white" fontFamily="$archivoBlack" fontSize="$6">
               {index + 2}. {card.text}
             </Text>
-            <Text color="$white" fontFamily="$archivoBlack" fontSize="$5">
+            <Text color="white" fontFamily="$archivoBlack" fontSize="$5">
               {' '}
               • {card.amount} KD
             </Text>
@@ -197,7 +197,7 @@ export function Slide3Story() {
         fontSize="$6"
         textAlign="center"
         textShadowRadius={5}
-        color="$white"
+        color="white"
         style={subtitleStyle}
       >
         YOU WERE SWIPING!
@@ -215,10 +215,10 @@ export function Slide3Story() {
         textShadowRadius={5}
         style={bottomTextStyle}
       >
-        <Text color="$white" fontFamily="$archivoBlack" fontSize="$6">
+        <Text color="white" fontFamily="$archivoBlack" fontSize="$6">
           1. {topSpender.text}
         </Text>
-        <Text color="$white" fontFamily="$archivoBlack" fontSize="$5">
+        <Text color="white" fontFamily="$archivoBlack" fontSize="$5">
           {' '}
           • {topSpender.amount} KD
         </Text>

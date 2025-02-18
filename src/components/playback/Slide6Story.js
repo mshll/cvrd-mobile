@@ -18,11 +18,7 @@ const DEFAULT_SUBSCRIPTIONS = [
 
 // Format currency helper
 const formatAmount = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'KWD',
-    minimumFractionDigits: 3,
-  }).format(amount);
+  return `KD ${Number(amount).toFixed(3)}`;
 };
 
 export function Slide6Story() {
@@ -138,7 +134,7 @@ export function Slide6Story() {
       {/* Loading Spinner */}
       {isLoading && (
         <YStack pos="absolute" f={1} ai="center" jc="center" t={0} l={0} r={0} b={0}>
-          <Spinner size="large" color="$white" />
+          <Spinner size="large" color="white" />
         </YStack>
       )}
 
@@ -150,7 +146,7 @@ export function Slide6Story() {
         r={0}
         fontFamily="$archivoBlack"
         fontSize="$8"
-        color="$white"
+        color="white"
         textAlign="center"
         textShadowRadius={5}
         style={titleStyle}
@@ -165,7 +161,7 @@ export function Slide6Story() {
             key={`${subscription.cardId}-${index}`}
             fontFamily="$archivoBlack"
             fontSize="$6"
-            color="$white"
+            color="white"
             textAlign="center"
             textShadowRadius={5}
             style={useAnimatedStyle(() => ({

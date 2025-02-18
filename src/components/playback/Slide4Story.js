@@ -158,17 +158,17 @@ export function Slide4Story() {
 
       {/* Main Title */}
       <AnimatedYStack pos="absolute" t="15%" l={0} r={0} ai="center" style={titleStyle}>
-        <AnimatedText fontFamily="$archivoBlack" fontSize="$8" color="$white" textAlign="center" textShadowRadius={5}>
+        <AnimatedText fontFamily="$archivoBlack" fontSize="$8" color="white" textAlign="center" textShadowRadius={5}>
           LOCATION CARDS
         </AnimatedText>
       </AnimatedYStack>
 
       {/* Stats */}
       <AnimatedYStack pos="absolute" t="25%" l={0} r={0} ai="center" gap="$2" style={statsStyle}>
-        <AnimatedText fontFamily="$archivoBlack" fontSize="$6" color="$white" textAlign="center" textShadowRadius={5}>
+        <AnimatedText fontFamily="$archivoBlack" fontSize="$6" color="white" textAlign="center" textShadowRadius={5}>
           Total Cards: {locationStats.totalCards}
         </AnimatedText>
-        <AnimatedText fontFamily="$archivoBlack" fontSize="$6" color="$white" textAlign="center" textShadowRadius={5}>
+        <AnimatedText fontFamily="$archivoBlack" fontSize="$6" color="white" textAlign="center" textShadowRadius={5}>
           Combined Radius: {locationStats.totalRadius}km
         </AnimatedText>
       </AnimatedYStack>

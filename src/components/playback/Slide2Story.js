@@ -113,7 +113,7 @@ export function Slide2Story() {
         <AnimatedText
           fontFamily="$archivoBlack"
           fontSize="$8"
-          color="$white"
+          color="white"
           textAlign="center"
           textShadowRadius={5}
           style={firstLineStyle}
@@ -123,7 +123,7 @@ export function Slide2Story() {
         <AnimatedText
           fontFamily="$archivoBlack"
           fontSize="$12"
-          color="$white"
+          color="white"
           textAlign="center"
           textShadowRadius={5}
           style={secondLineStyle}
@@ -148,7 +148,7 @@ export function Slide2Story() {
             <Text color={item.color} fontFamily="$archivoBlack" fontSize="$10">
               {item.number}
             </Text>{' '}
-            <Text color="$white" fontFamily="$archivoBlack" fontSize="$6">
+            <Text color="white" fontFamily="$archivoBlack" fontSize="$6">
               {item.text}
             </Text>
           </AnimatedText>

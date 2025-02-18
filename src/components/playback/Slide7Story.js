@@ -14,11 +14,7 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 
 // Format currency helper
 const formatAmount = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'KWD',
-    minimumFractionDigits: 3,
-  }).format(amount);
+  return `KD ${Number(amount).toFixed(3)}`;
 };
 
 // Parse transaction description
@@ -137,7 +133,7 @@ export function Slide7Story() {
         <AnimatedText
           fontFamily="$archivoBlack"
           fontSize="$8"
-          color="$white"
+          color="white"
           textAlign="center"
           textShadowRadius={5}
           style={useAnimatedStyle(() => ({
@@ -150,7 +146,7 @@ export function Slide7Story() {
         <AnimatedText
           fontFamily="$archivoBlack"
           fontSize="$4"
-          color="$white"
+          color="white"
           textAlign="center"
           textShadowRadius={5}
           style={useAnimatedStyle(() => ({

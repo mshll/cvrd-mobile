@@ -92,7 +92,7 @@ const StatCard = ({ title, value, subtitle, icon, delay, color, valueFirst = tru
           <YStack space={8} flex={1}>
             <XStack space={8} alignItems="center">
               {icon}
-              <Text color={colors.textSecondary} fontSize={14} fontWeight="600">
+              <Text color={Colors.dark.textSecondary} fontSize={14} fontWeight="600">
                 {title}
               </Text>
             </XStack>
@@ -103,7 +103,7 @@ const StatCard = ({ title, value, subtitle, icon, delay, color, valueFirst = tru
                     {value}
                   </Text>
                   {subtitle && (
-                    <Text color={colors.textSecondary} fontSize={13} numberOfLines={1}>
+                    <Text color={Colors.dark.textSecondary} fontSize={13} numberOfLines={1}>
                       {subtitle}
                     </Text>
                   )}
@@ -160,7 +160,7 @@ const StoresList = ({ stores, delay = 2000 }) => {
           <YStack space={16}>
             <XStack space={8} alignItems="center">
               <Text fontSize={24}>🏪</Text>
-              <Text color={colors.textSecondary} fontSize={14} fontWeight="600">
+              <Text color={Colors.dark.textSecondary} fontSize={14} fontWeight="600">
                 TOP STORES
               </Text>
             </XStack>
@@ -171,7 +171,7 @@ const StoresList = ({ stores, delay = 2000 }) => {
                     <Text color="white" fontSize={16} fontWeight="600">
                       {store.name}
                     </Text>
-                    <Text color={colors.textSecondary} fontSize={13}>
+                    <Text color={Colors.dark.textSecondary} fontSize={13}>
                       {store.visits} visits
                     </Text>
                   </YStack>
@@ -290,18 +290,18 @@ export function Slide8Story() {
       setShowBackground(true);
 
       // Small delay to ensure background is rendered
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 250));
 
       const uri = await viewShotRef.current.capture();
-
-      // Hide background after capture
-      setShowBackground(false);
 
       await Share.share({
         url: uri,
         title: 'My 2025 CVR Summary',
-        message: 'Check out my 2025 CVR card usage summary!',
+        message: 'Have you seen my 2025 CVR? Check out mine!',
       });
+
+      // Hide background after capture
+      setShowBackground(false);
     } catch (error) {
       // Make sure to hide background even if there's an error
       setShowBackground(false);
@@ -360,7 +360,7 @@ export function Slide8Story() {
               <Text color="white" fontSize={32} fontFamily="$archivoBlack" textAlign="center">
                 2025 CVR SUMMARY
               </Text>
-              <Text color={colors.textSecondary} fontSize={16} textAlign="center">
+              <Text color={Colors.dark.textSecondary} fontSize={16} textAlign="center">
                 Your year in spending
               </Text>
             </YStack>
