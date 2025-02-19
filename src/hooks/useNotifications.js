@@ -1,7 +1,7 @@
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { instance, IP } from '@/api';
+import { instance, IP, URL } from '@/api';
 import { saveNotificationToken } from '@/api/notifications';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
@@ -18,9 +18,10 @@ Notifications.setNotificationHandler({
 
 // Get the WebSocket URL based on environment
 const getWebSocketUrl = () => {
-  const PORT = '8080';
-  const host = IP || 'localhost';
-  return `http://${host}:${PORT}`;
+  // const PORT = '8080';
+  // const host = IP || 'localhost';
+  // return `http://${host}:${PORT}`;
+  return URL;
 };
 
 export function useNotifications(token) {

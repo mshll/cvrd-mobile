@@ -4,10 +4,12 @@ import { getToken } from './storage';
 // input ip address here (comment out to use localhost)
 
 // let IP = '';
-export const IP = '161.35.226.11';
+// export const IP = '146.190.206.232';
+export const URL = 'https://cvrd-be.mshl.me';
 
 const instance = axios.create({
-  baseURL: `http://${IP || 'localhost'}:8080`,
+  // baseURL: `http://${IP || 'localhost'}:8080`,
+  baseURL: URL,
 });
 
 instance.interceptors.request.use(async (config) => {

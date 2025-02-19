@@ -19,7 +19,7 @@
         "NSPhotoLibraryUsageDescription": "Allow CVRD to access your photos to update your profile picture",
         "NSCameraUsageDescription": "Allow CVRD to access your camera to take a profile picture"
       },
-      "bundleIdentifier": "com.meshall.cvrd"
+      "bundleIdentifier": "com.2ZHKND955JTJ.explicit"
     },
     "android": {
       "adaptiveIcon": {
@@ -33,7 +33,7 @@
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT"
       ],
-      "package": "com.meshall.cvrd"
+      "package": "com.2ZHKND955JTJ.explicit"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -50,6 +50,12 @@
         "expo-local-authentication",
         {
           "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "enableBackgroundRemoteNotifications": true
         }
       ],
       "expo-font"

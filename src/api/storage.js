@@ -1,5 +1,6 @@
 import { deleteItemAsync, getItemAsync, setItemAsync } from 'expo-secure-store';
 import { jwtDecode } from 'jwt-decode';
+import 'core-js/stable/atob';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const setToken = async (token) => {
