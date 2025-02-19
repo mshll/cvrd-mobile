@@ -613,7 +613,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
   };
 
   return (
-    <View f={1} backgroundColor={colors.background} pt={insets.top - 20}>
+    <View f={1} backgroundColor={colors.background}>
       <ScrollView contentContainerStyle={styles.container}>
         {/* Header Section */}
         <Animated.View style={[{ flex: 1 }, contentStyle]}>
@@ -707,6 +707,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingHorizontal: 16,
+    paddingTop: 16,
   },
 });
 

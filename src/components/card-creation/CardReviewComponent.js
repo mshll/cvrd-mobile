@@ -290,20 +290,20 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
 
   return (
     <View f={1} bg={colors.background}>
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.container}>
         {/* Card Preview */}
-        <YStack>
-          <YStack gap="$1" ai="center" pt="$3" mb="$5">
-            <Animated.View style={cardStyle}>
-              <View height={'auto'} overflow="hidden" borderRadius={15} w="100%">
-                <View ai="center">
-                  <CardComponent scale={0.8} displayData={cardPreviewData} />
+        <Animated.View style={[{ flex: 1 }, contentStyle]}>
+          <YStack>
+            <YStack gap="$1" ai="center" pt="$3" mb="$5">
+              <Animated.View style={cardStyle}>
+                <View height={'auto'} overflow="hidden" borderRadius={15} w="100%">
+                  <View ai="center">
+                    <CardComponent scale={0.8} displayData={cardPreviewData} />
+                  </View>
                 </View>
-              </View>
-            </Animated.View>
+              </Animated.View>
 
-            {/* Customization Buttons */}
-            <Animated.View style={contentStyle}>
+              {/* Customization Buttons */}
               <XStack mt="$4" gap="$3" ai="center" jc="center" w="100%">
                 <Button
                   f={1}
@@ -338,10 +338,8 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
                   </Text>
                 </Button>
               </XStack>
-            </Animated.View>
-          </YStack>
+            </YStack>
 
-          <Animated.View style={contentStyle}>
             <YStack gap="$5">
               {/* Card Summary */}
               <View
@@ -470,8 +468,8 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
                 </View>
               )}
             </YStack>
-          </Animated.View>
-        </YStack>
+          </YStack>
+        </Animated.View>
 
         {/* Bottom Buttons */}
         <Animated.View style={contentStyle}>
@@ -482,7 +480,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
             borderTopColor={`${colors.border}40`}
             pt="$4"
             mt="auto"
-            mb={insets.bottom + 100}
+            mb={insets.bottom + 80}
             jc="space-between"
           >
             <Button
@@ -620,9 +618,8 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     paddingHorizontal: 16,
-    justifyContent: 'space-between',
   },
 });
 
