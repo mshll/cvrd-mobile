@@ -27,6 +27,10 @@ import { StarIcon } from 'react-native-heroicons/solid';
 import { StarIcon as StarIconOutline } from 'react-native-heroicons/outline';
 import BoubyanLoginScreen from '@/screens/BoubyanLoginScreen';
 import SubscriptionManagementScreen from '@/screens/SubscriptionManagementScreen';
+import HelpCenterScreen from '@/screens/HelpCenterScreen';
+import TermsPrivacyScreen from '@/screens/TermsPrivacyScreen';
+import SecurityScreen from '@/screens/SecurityScreen';
+import PersonalInfoScreen from '@/screens/PersonalInfoScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -115,8 +119,22 @@ const MainNav = () => {
       }}
     >
       <Stack.Screen name="Main" component={TabNavigator} />
-      <Stack.Screen name={Paths.EDIT_CARD} component={EditCardScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name={Paths.EDIT_LOCATION} component={EditLocationScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen
+        name={Paths.EDIT_CARD}
+        component={EditCardScreen}
+        options={
+          {
+            // presentation: 'modal'
+          }
+        }
+      />
+      <Stack.Screen
+        name={Paths.EDIT_LOCATION}
+        component={EditLocationScreen}
+        options={{
+          presentation: 'modal',
+        }}
+      />
       <Stack.Screen
         name={Paths.CARD_DETAILS}
         component={CardDetailsScreen}
@@ -135,7 +153,7 @@ const MainNav = () => {
         name={Paths.ADD_CARD_SCREEN}
         component={AddCardScreen}
         options={{
-          presentation: 'modal',
+          // presentation: 'modal',
           headerShown: false,
           animation: 'slide_from_bottom',
         }}
@@ -152,7 +170,43 @@ const MainNav = () => {
         name={Paths.SUBSCRIPTION_MANAGEMENT}
         component={SubscriptionManagementScreen}
         options={{
-          presentation: 'modal',
+          // presentation: 'modal',
+          animation: 'slide_from_bottom',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={Paths.PERSONAL_INFO}
+        component={PersonalInfoScreen}
+        options={{
+          // presentation: 'modal',
+          animation: 'slide_from_bottom',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={Paths.SECURITY}
+        component={SecurityScreen}
+        options={{
+          // presentation: 'modal',
+          animation: 'slide_from_bottom',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={Paths.HELP_CENTER}
+        component={HelpCenterScreen}
+        options={{
+          // presentation: 'modal',
+          animation: 'slide_from_bottom',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={Paths.TERMS_PRIVACY}
+        component={TermsPrivacyScreen}
+        options={{
+          // presentation: 'modal',
           animation: 'slide_from_bottom',
           headerShown: false,
         }}

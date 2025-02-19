@@ -9,8 +9,8 @@ import { View } from 'tamagui';
 const BottomSheet = ({ isOpen, onClose, children, aboveAll = true, ...props }) => {
   const colors = useColors();
   const bottomSheetModalRef = useRef(null);
-  const containerComp = useCallback((props) => <FullWindowOverlay>{props.children}</FullWindowOverlay>, []);
-  const containerComponent = Platform.OS === 'ios' ? containerComp : undefined;
+  // const containerComp = useCallback((props) => <FullWindowOverlay>{props.children}</FullWindowOverlay>, []);
+  // const containerComponent = Platform.OS === 'ios' ? containerComp : undefined;
 
   const renderBackdrop = useCallback(
     (props) => (
@@ -30,15 +30,11 @@ const BottomSheet = ({ isOpen, onClose, children, aboveAll = true, ...props }) =
 
   // Present/dismiss handlers
   const handlePresentModal = useCallback(() => {
-    if (bottomSheetModalRef.current) {
-      bottomSheetModalRef.current.present();
-    }
+    bottomSheetModalRef?.current?.present();
   }, []);
 
   const handleDismissModal = useCallback(() => {
-    if (bottomSheetModalRef.current) {
-      bottomSheetModalRef.current.dismiss();
-    }
+    bottomSheetModalRef?.current?.dismiss();
   }, []);
 
   // Effect to handle isOpen changes
@@ -64,7 +60,7 @@ const BottomSheet = ({ isOpen, onClose, children, aboveAll = true, ...props }) =
       handleIndicatorStyle={{
         backgroundColor: colors.backgroundTertiary,
       }}
-      containerComponent={aboveAll ? containerComponent : undefined}
+      // containerComponent={aboveAll ? containerComponent : undefined}
       onDismiss={handleDismiss}
       {...props}
     >
