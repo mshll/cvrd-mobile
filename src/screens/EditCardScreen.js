@@ -391,7 +391,7 @@ const EditCardScreen = () => {
 
       <BottomSheet isOpen={showColorWheel} onClose={() => setShowColorWheel(false)}>
         <YStack gap="$5" px="$4" mt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily={'$archivoBlack'}>
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Custom Color
           </Text>
 

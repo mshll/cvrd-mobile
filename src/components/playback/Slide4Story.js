@@ -13,7 +13,7 @@ const AnimatedXStack = Animated.createAnimatedComponent(XStack);
 // Location Badge Component
 const LocationBadge = ({ name, color, style }) => (
   <Button backgroundColor={color || Colors.cards.navy} size="$3" borderRadius={20} height={32} px="$3" style={style}>
-    <Text color="white" fontSize="$3" fontFamily="$archivoBlack">
+    <Text color="white" fontSize="$3" fontFamily="Archivo-Black" fontWeight="900">
       {name}
     </Text>
   </Button>
@@ -158,17 +158,38 @@ export function Slide4Story() {
 
       {/* Main Title */}
       <AnimatedYStack pos="absolute" t="15%" l={0} r={0} ai="center" style={titleStyle}>
-        <AnimatedText fontFamily="$archivoBlack" fontSize="$8" color="white" textAlign="center" textShadowRadius={5}>
+        <AnimatedText
+          fontFamily="Archivo-Black"
+          fontSize="$8"
+          color="white"
+          textAlign="center"
+          textShadowRadius={5}
+          fontWeight="900"
+        >
           LOCATION CARDS
         </AnimatedText>
       </AnimatedYStack>
 
       {/* Stats */}
       <AnimatedYStack pos="absolute" t="25%" l={0} r={0} ai="center" gap="$2" style={statsStyle}>
-        <AnimatedText fontFamily="$archivoBlack" fontSize="$6" color="white" textAlign="center" textShadowRadius={5}>
+        <AnimatedText
+          fontFamily="Archivo-Black"
+          fontSize="$6"
+          color="white"
+          textAlign="center"
+          textShadowRadius={5}
+          fontWeight="900"
+        >
           Total Cards: {locationStats.totalCards}
         </AnimatedText>
-        <AnimatedText fontFamily="$archivoBlack" fontSize="$6" color="white" textAlign="center" textShadowRadius={5}>
+        <AnimatedText
+          fontFamily="Archivo-Black"
+          fontSize="$6"
+          color="white"
+          textAlign="center"
+          textShadowRadius={5}
+          fontWeight="900"
+        >
           Combined Radius: {locationStats.totalRadius}km
         </AnimatedText>
       </AnimatedYStack>

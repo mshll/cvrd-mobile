@@ -145,7 +145,7 @@ const SignupDetailsScreen = () => {
               >
                 <ChevronLeftIcon size={20} color={colors.text} />
               </Button>
-              <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+              <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
                 Additional Details
               </Text>
             </XStack>
@@ -265,7 +265,7 @@ const SignupDetailsScreen = () => {
             size="$5"
             borderRadius={15}
           >
-            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
               {signupMutation.isPending ? 'Creating Account...' : 'Create Account'}
             </Text>
           </Button>
@@ -276,7 +276,7 @@ const SignupDetailsScreen = () => {
       <BottomSheet isOpen={showDatePicker} onClose={() => setShowDatePicker(false)} enableContentPanningGesture={false}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
           <XStack jc="space-between" ai="center">
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
               Date of Birth
             </Text>
             <Button
@@ -328,7 +328,7 @@ const SignupDetailsScreen = () => {
       {/* Gender Selection Sheet */}
       <BottomSheet isOpen={showGenderSheet} onClose={() => setShowGenderSheet(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Select Gender
           </Text>
           <YStack gap="$3">

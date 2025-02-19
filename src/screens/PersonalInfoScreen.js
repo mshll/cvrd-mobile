@@ -114,7 +114,7 @@ const PersonalInfoScreen = () => {
           }}
         >
           <XStack ai="center" jc="space-between" px="$4" pt="$2">
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+            <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
               Personal Information
             </Text>
             <Button
@@ -319,7 +319,7 @@ const PersonalInfoScreen = () => {
             size="$5"
             borderRadius={15}
           >
-            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
               {isUpdating ? 'Saving...' : 'Save Changes'}
             </Text>
           </Button>
@@ -329,7 +329,7 @@ const PersonalInfoScreen = () => {
       {/* Gender Selection Sheet */}
       <BottomSheet isOpen={showGenderSheet} onClose={() => setShowGenderSheet(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Select Gender
           </Text>
           <YStack gap="$3">
@@ -355,7 +355,7 @@ const PersonalInfoScreen = () => {
       <BottomSheet isOpen={showDatePicker} onClose={() => setShowDatePicker(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
           <XStack jc="space-between" ai="center">
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
               Date of Birth
             </Text>
             <Button

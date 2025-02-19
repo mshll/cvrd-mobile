@@ -221,8 +221,8 @@ const SubscriptionCard = ({ subscription, onToggle }) => {
               <Text
                 color={textColor}
                 fontSize={28}
-                fontWeight="700"
-                fontFamily={'$archivoBlack'}
+                fontWeight="900"
+                fontFamily="Archivo-Black"
                 opacity={isCardPaused ? 0.7 : 1}
               >
                 {formatCurrency(amount)}
@@ -241,7 +241,7 @@ const SubscriptionCard = ({ subscription, onToggle }) => {
       {/* Pause Warning Sheet */}
       <BottomSheet isOpen={showPauseWarning} onClose={handleCancelToggle}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Pause Card
           </Text>
 

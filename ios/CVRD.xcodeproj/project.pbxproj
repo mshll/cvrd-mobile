@@ -10,34 +10,72 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		2A4FA5C4955B49EB9959F397 /* Inter_24pt-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 54BE8F9B24B74F8E921BA376 /* Inter_24pt-Medium.ttf */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
+		448CE77D5FD644AAB1CC7AE7 /* Inter_24pt-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C60AE93B84A345AFBF61398F /* Inter_24pt-Regular.ttf */; };
+		4844406709EC47E0A0DD76F5 /* Inter_24pt-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AEF843CBFCE04F3AB67D539E /* Inter_24pt-ExtraBold.ttf */; };
+		4AD401EBFF4541BCB67CAC31 /* Archivo-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 23AAB93809FA4A8FBBFC5358 /* Archivo-BlackItalic.ttf */; };
 		51C1D95E2D626A66009777A3 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 51C1D95D2D626A66009777A3 /* main.jsbundle */; };
 		51C1D9622D627049009777A3 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 51C1D9612D627049009777A3 /* assets */; };
+		56344496E80247B7BB3B3173 /* Archivo-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F05572D07B44805A9D25F3F /* Archivo-Medium.ttf */; };
 		5CE21A2713404BAFAF0A2BA6 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CB8AC7063CE49CEBA0D6671 /* noop-file.swift */; };
+		6742BC0AFBA4484AB65306D6 /* Inter_24pt-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5DF88152246B4083A89AF78B /* Inter_24pt-Black.ttf */; };
+		7761F1100279424B8C20842D /* Archivo-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0DA8E4E89DF34DD0BE40DB09 /* Archivo-Light.ttf */; };
 		96905EF65AED1B983A6B3ABC /* libPods-CVRD.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-CVRD.a */; };
+		9ACF50AE0D744D36BEB04019 /* Inter_24pt-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6F6E847DF8334195AD666751 /* Inter_24pt-Light.ttf */; };
+		9D6C3DD0A8D64F6EA9E93C44 /* Archivo-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F9F722DB827449D9D7F0E67 /* Archivo-Thin.ttf */; };
+		A03A80CEB3A840B58F735C79 /* Archivo-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E3E5A2B473ED45D28D35B8C0 /* Archivo-Black.ttf */; };
+		A060DE94CA3244D3BD6F029B /* Archivo-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6976B0C1DA384010B2897091 /* Archivo-SemiBold.ttf */; };
+		A97A9DED063047E3AB07E243 /* Inter_24pt-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F680D005DB5F4957B80426D8 /* Inter_24pt-SemiBold.ttf */; };
+		AF282BD174824D77B539CC29 /* Archivo-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6148D0E0D3564021A4709921 /* Archivo-Regular.ttf */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		BB71B720A6304DEED4313E57 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 931475468BEDD362B9A9B21D /* PrivacyInfo.xcprivacy */; };
+		C6B5ABE114F04499B1F3D72A /* Archivo-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = ADFFD79BE31C43ADA9F1B6AB /* Archivo-ExtraLight.ttf */; };
+		C8C27F2E9F7141F98A2C9C55 /* Archivo-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5F307E58ACE94D93A29564F3 /* Archivo-ExtraBold.ttf */; };
+		CDE0B9269E994625A012780D /* Inter_24pt-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 34F526E4E006442A98CD4D27 /* Inter_24pt-Thin.ttf */; };
+		D2513776985F4F10B315F4D7 /* Archivo-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A5926D46B934C52A9232851 /* Archivo-Bold.ttf */; };
+		DC036B56F5364BAB88E3EE61 /* Inter_24pt-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6FF95DAA5DB643D486F50D35 /* Inter_24pt-Bold.ttf */; };
+		F751F3E903644501A01589AC /* Inter_24pt-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 70E1EC621D0A450FA8727EED /* Inter_24pt-ExtraLight.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0DA8E4E89DF34DD0BE40DB09 /* Archivo-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Archivo-Light.ttf"; path = "../assets/fonts/Archivo/Archivo-Light.ttf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* CVRD.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CVRD.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = CVRD/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = CVRD/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = CVRD/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = CVRD/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = CVRD/main.m; sourceTree = "<group>"; };
+		23AAB93809FA4A8FBBFC5358 /* Archivo-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Archivo-BlackItalic.ttf"; path = "../assets/fonts/Archivo/Archivo-BlackItalic.ttf"; sourceTree = "<group>"; };
+		34F526E4E006442A98CD4D27 /* Inter_24pt-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter_24pt-Thin.ttf"; path = "../assets/fonts/Inter/Inter_24pt-Thin.ttf"; sourceTree = "<group>"; };
+		4A5926D46B934C52A9232851 /* Archivo-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Archivo-Bold.ttf"; path = "../assets/fonts/Archivo/Archivo-Bold.ttf"; sourceTree = "<group>"; };
 		51C1D95D2D626A66009777A3 /* main.jsbundle */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		51C1D9612D627049009777A3 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = "<group>"; };
+		54BE8F9B24B74F8E921BA376 /* Inter_24pt-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter_24pt-Medium.ttf"; path = "../assets/fonts/Inter/Inter_24pt-Medium.ttf"; sourceTree = "<group>"; };
 		58EEBF8E8E6FB1BC6CAF49B5 /* libPods-CVRD.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CVRD.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5BB0422F56C24FBB87D51C9E /* CVRD-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "CVRD-Bridging-Header.h"; path = "CVRD/CVRD-Bridging-Header.h"; sourceTree = "<group>"; };
+		5DF88152246B4083A89AF78B /* Inter_24pt-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter_24pt-Black.ttf"; path = "../assets/fonts/Inter/Inter_24pt-Black.ttf"; sourceTree = "<group>"; };
+		5F05572D07B44805A9D25F3F /* Archivo-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Archivo-Medium.ttf"; path = "../assets/fonts/Archivo/Archivo-Medium.ttf"; sourceTree = "<group>"; };
+		5F307E58ACE94D93A29564F3 /* Archivo-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Archivo-ExtraBold.ttf"; path = "../assets/fonts/Archivo/Archivo-ExtraBold.ttf"; sourceTree = "<group>"; };
+		5F9F722DB827449D9D7F0E67 /* Archivo-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Archivo-Thin.ttf"; path = "../assets/fonts/Archivo/Archivo-Thin.ttf"; sourceTree = "<group>"; };
+		6148D0E0D3564021A4709921 /* Archivo-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Archivo-Regular.ttf"; path = "../assets/fonts/Archivo/Archivo-Regular.ttf"; sourceTree = "<group>"; };
+		6976B0C1DA384010B2897091 /* Archivo-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Archivo-SemiBold.ttf"; path = "../assets/fonts/Archivo/Archivo-SemiBold.ttf"; sourceTree = "<group>"; };
 		6C2E3173556A471DD304B334 /* Pods-CVRD.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CVRD.debug.xcconfig"; path = "Target Support Files/Pods-CVRD/Pods-CVRD.debug.xcconfig"; sourceTree = "<group>"; };
+		6F6E847DF8334195AD666751 /* Inter_24pt-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter_24pt-Light.ttf"; path = "../assets/fonts/Inter/Inter_24pt-Light.ttf"; sourceTree = "<group>"; };
+		6FF95DAA5DB643D486F50D35 /* Inter_24pt-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter_24pt-Bold.ttf"; path = "../assets/fonts/Inter/Inter_24pt-Bold.ttf"; sourceTree = "<group>"; };
+		70E1EC621D0A450FA8727EED /* Inter_24pt-ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter_24pt-ExtraLight.ttf"; path = "../assets/fonts/Inter/Inter_24pt-ExtraLight.ttf"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-CVRD.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CVRD.release.xcconfig"; path = "Target Support Files/Pods-CVRD/Pods-CVRD.release.xcconfig"; sourceTree = "<group>"; };
 		7CB8AC7063CE49CEBA0D6671 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "CVRD/noop-file.swift"; sourceTree = "<group>"; };
 		931475468BEDD362B9A9B21D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = CVRD/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = CVRD/SplashScreen.storyboard; sourceTree = "<group>"; };
+		ADFFD79BE31C43ADA9F1B6AB /* Archivo-ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Archivo-ExtraLight.ttf"; path = "../assets/fonts/Archivo/Archivo-ExtraLight.ttf"; sourceTree = "<group>"; };
+		AEF843CBFCE04F3AB67D539E /* Inter_24pt-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter_24pt-ExtraBold.ttf"; path = "../assets/fonts/Inter/Inter_24pt-ExtraBold.ttf"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
+		C60AE93B84A345AFBF61398F /* Inter_24pt-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter_24pt-Regular.ttf"; path = "../assets/fonts/Inter/Inter_24pt-Regular.ttf"; sourceTree = "<group>"; };
+		E3E5A2B473ED45D28D35B8C0 /* Archivo-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Archivo-Black.ttf"; path = "../assets/fonts/Archivo/Archivo-Black.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F680D005DB5F4957B80426D8 /* Inter_24pt-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Inter_24pt-SemiBold.ttf"; path = "../assets/fonts/Inter/Inter_24pt-SemiBold.ttf"; sourceTree = "<group>"; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-CVRD/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -97,6 +135,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				D65327D7A22EEC0BE12398D9 /* Pods */,
 				D7E4C46ADA2E9064B798F356 /* ExpoModulesProviders */,
+				C6773A9BB4D34A0C98931D26 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -126,6 +165,32 @@
 			);
 			name = Supporting;
 			path = CVRD/Supporting;
+			sourceTree = "<group>";
+		};
+		C6773A9BB4D34A0C98931D26 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				5F9F722DB827449D9D7F0E67 /* Archivo-Thin.ttf */,
+				ADFFD79BE31C43ADA9F1B6AB /* Archivo-ExtraLight.ttf */,
+				0DA8E4E89DF34DD0BE40DB09 /* Archivo-Light.ttf */,
+				6148D0E0D3564021A4709921 /* Archivo-Regular.ttf */,
+				5F05572D07B44805A9D25F3F /* Archivo-Medium.ttf */,
+				6976B0C1DA384010B2897091 /* Archivo-SemiBold.ttf */,
+				4A5926D46B934C52A9232851 /* Archivo-Bold.ttf */,
+				5F307E58ACE94D93A29564F3 /* Archivo-ExtraBold.ttf */,
+				E3E5A2B473ED45D28D35B8C0 /* Archivo-Black.ttf */,
+				23AAB93809FA4A8FBBFC5358 /* Archivo-BlackItalic.ttf */,
+				34F526E4E006442A98CD4D27 /* Inter_24pt-Thin.ttf */,
+				70E1EC621D0A450FA8727EED /* Inter_24pt-ExtraLight.ttf */,
+				6F6E847DF8334195AD666751 /* Inter_24pt-Light.ttf */,
+				C60AE93B84A345AFBF61398F /* Inter_24pt-Regular.ttf */,
+				54BE8F9B24B74F8E921BA376 /* Inter_24pt-Medium.ttf */,
+				F680D005DB5F4957B80426D8 /* Inter_24pt-SemiBold.ttf */,
+				6FF95DAA5DB643D486F50D35 /* Inter_24pt-Bold.ttf */,
+				AEF843CBFCE04F3AB67D539E /* Inter_24pt-ExtraBold.ttf */,
+				5DF88152246B4083A89AF78B /* Inter_24pt-Black.ttf */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 		D65327D7A22EEC0BE12398D9 /* Pods */ = {
@@ -211,6 +276,25 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				BB71B720A6304DEED4313E57 /* PrivacyInfo.xcprivacy in Resources */,
+				9D6C3DD0A8D64F6EA9E93C44 /* Archivo-Thin.ttf in Resources */,
+				C6B5ABE114F04499B1F3D72A /* Archivo-ExtraLight.ttf in Resources */,
+				7761F1100279424B8C20842D /* Archivo-Light.ttf in Resources */,
+				AF282BD174824D77B539CC29 /* Archivo-Regular.ttf in Resources */,
+				56344496E80247B7BB3B3173 /* Archivo-Medium.ttf in Resources */,
+				A060DE94CA3244D3BD6F029B /* Archivo-SemiBold.ttf in Resources */,
+				D2513776985F4F10B315F4D7 /* Archivo-Bold.ttf in Resources */,
+				C8C27F2E9F7141F98A2C9C55 /* Archivo-ExtraBold.ttf in Resources */,
+				A03A80CEB3A840B58F735C79 /* Archivo-Black.ttf in Resources */,
+				4AD401EBFF4541BCB67CAC31 /* Archivo-BlackItalic.ttf in Resources */,
+				CDE0B9269E994625A012780D /* Inter_24pt-Thin.ttf in Resources */,
+				F751F3E903644501A01589AC /* Inter_24pt-ExtraLight.ttf in Resources */,
+				9ACF50AE0D744D36BEB04019 /* Inter_24pt-Light.ttf in Resources */,
+				448CE77D5FD644AAB1CC7AE7 /* Inter_24pt-Regular.ttf in Resources */,
+				2A4FA5C4955B49EB9959F397 /* Inter_24pt-Medium.ttf in Resources */,
+				A97A9DED063047E3AB07E243 /* Inter_24pt-SemiBold.ttf in Resources */,
+				DC036B56F5364BAB88E3EE61 /* Inter_24pt-Bold.ttf in Resources */,
+				4844406709EC47E0A0DD76F5 /* Inter_24pt-ExtraBold.ttf in Resources */,
+				6742BC0AFBA4484AB65306D6 /* Inter_24pt-Black.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -385,11 +469,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = CVRD/CVRD.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 7759DNKHZ2;
+				DEVELOPMENT_TEAM = 7P98PG3748;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -408,10 +491,9 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.2ZHKND955JTJ.explicit;
+				PRODUCT_BUNDLE_IDENTIFIER = com.meshall.cvrd;
 				PRODUCT_NAME = CVRD;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "MS Distribution Do Not Touch";
 				SWIFT_OBJC_BRIDGING_HEADER = "CVRD/CVRD-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -427,11 +509,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = CVRD/CVRD.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 7759DNKHZ2;
+				DEVELOPMENT_TEAM = 7P98PG3748;
 				INFOPLIST_FILE = CVRD/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -445,10 +526,9 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.2ZHKND955JTJ.explicit;
+				PRODUCT_BUNDLE_IDENTIFIER = com.meshall.cvrd;
 				PRODUCT_NAME = CVRD;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "MS Distribution Do Not Touch";
 				SWIFT_OBJC_BRIDGING_HEADER = "CVRD/CVRD-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

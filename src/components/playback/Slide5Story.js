@@ -198,7 +198,8 @@ export function Slide5Story() {
         t="45%"
         l={0}
         r={0}
-        fontFamily="$archivoBlack"
+        fontFamily="Archivo-Black"
+        fontWeight="900"
         fontSize="$8"
         color="white"
         textAlign="center"
@@ -221,7 +222,8 @@ export function Slide5Story() {
               {!isNameBelow && (
                 <YStack ai="center" w="100%">
                   <AnimatedText
-                    fontFamily="$archivoBlack"
+                    fontFamily="Archivo-Black"
+                    fontWeight="900"
                     fontSize="$5"
                     color="white"
                     textAlign="center"
@@ -240,7 +242,8 @@ export function Slide5Story() {
                     {card.name}
                   </AnimatedText>
                   <AnimatedText
-                    fontFamily="$archivoBlack"
+                    fontFamily="Archivo-Black"
+                    fontWeight="900"
                     fontSize="$5"
                     color="white"
                     mb="$6"
@@ -281,7 +284,8 @@ export function Slide5Story() {
               {isNameBelow && (
                 <YStack ai="center" w="100%">
                   <AnimatedText
-                    fontFamily="$archivoBlack"
+                    fontFamily="Archivo-Black"
+                    fontWeight="900"
                     fontSize="$5"
                     color="white"
                     mt="$8"
@@ -299,7 +303,8 @@ export function Slide5Story() {
                     {card.name}
                   </AnimatedText>
                   <AnimatedText
-                    fontFamily="$archivoBlack"
+                      fontFamily="Archivo-Black"
+                    fontWeight="900"
                     fontSize="$5"
                     color="white"
                     w={200}

@@ -67,7 +67,7 @@ const SubscriptionListItem = ({ subscription }) => {
           </View>
           <View opacity={0.9}>{getCardIcon(card_type)}</View>
         </XStack>
-        <Text color={colors.textSecondary} fontSize={12} mt={4} fontFamily="$body">
+        <Text color={colors.textSecondary} fontSize={12} mt={4} fontFamily="Archivo-Medium" fontWeight="500">
           Next billing on {formatDate(next_billing_date)}
         </Text>
       </YStack>
@@ -81,7 +81,7 @@ const SubscriptionList = ({ subscriptions = [] }) => {
   if (subscriptions.length === 0) {
     return (
       <View p={16} ai="center" jc="center">
-        <Text color={colors.textSecondary} fontFamily="$body">
+        <Text color={colors.textSecondary} fontFamily="Archivo-Medium" fontWeight="500">
           No active subscriptions
         </Text>
       </View>

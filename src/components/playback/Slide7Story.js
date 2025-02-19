@@ -131,7 +131,8 @@ export function Slide7Story() {
       {/* Title Section */}
       <YStack pos="absolute" t="15%" l={0} r={0} gap="$4">
         <AnimatedText
-          fontFamily="$archivoBlack"
+          fontFamily="Archivo-Black"
+          fontWeight="900"
           fontSize="$8"
           color="white"
           textAlign="center"
@@ -144,7 +145,8 @@ export function Slide7Story() {
         </AnimatedText>
 
         <AnimatedText
-          fontFamily="$archivoBlack"
+          fontFamily="Archivo-Black"
+          fontWeight="900"
           fontSize="$4"
           color="white"
           textAlign="center"
@@ -176,7 +178,7 @@ export function Slide7Story() {
               <Text color={Colors.light.textSecondary} fontSize="$3">
                 Most Visited
               </Text>
-              <Text fontFamily="$archivoBlack" fontSize="$8" color={Colors.light.text}>
+              <Text fontFamily="Archivo-Black" fontSize="$8" color={Colors.light.text} fontWeight="900">
                 {topStore.name}
               </Text>
             </YStack>
@@ -200,7 +202,7 @@ export function Slide7Story() {
               <Text color={Colors.light.textSecondary} fontSize="$3">
                 Total Spent
               </Text>
-              <Text fontFamily="$archivoBlack" fontSize="$6" color={Colors.light.text}>
+              <Text fontFamily="Archivo-Black" fontSize="$6" color={Colors.light.text} fontWeight="900">
                 {formatAmount(topStore.totalSpent)}
               </Text>
             </YStack>
@@ -225,10 +227,10 @@ export function Slide7Story() {
                 Total Visits
               </Text>
               <XStack ai="flex-end" gap="$2">
-                <Text fontFamily="$archivoBlack" fontSize="$6" color={Colors.light.text}>
+                <Text fontFamily="Archivo-Black" fontSize="$6" color={Colors.light.text} fontWeight="900">
                   {topStore.visits}
                 </Text>
-                <Text fontFamily="$body" fontSize="$4" color={Colors.light.textSecondary}>
+                <Text fontFamily="Archivo-Medium" fontWeight="500" fontSize="$4" color={Colors.light.textSecondary}>
                   times
                 </Text>
               </XStack>

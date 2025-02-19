@@ -89,7 +89,7 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, error }) => 
     <YStack gap="$5">
       {/* Card Name Input */}
       <YStack gap="$3">
-        <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
+        <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="Archivo-SemiBold">
           Card Name
         </Text>
         <Input
@@ -116,7 +116,7 @@ const CommonSettings = ({ cardName, setCardName, limits, setLimits, error }) => 
 
       {/* Spending Limits Button */}
       <YStack gap="$3">
-        <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
+        <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="Archivo-SemiBold">
           Spending Limits
         </Text>
         <Button
@@ -212,7 +212,7 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
 
   return (
     <YStack gap="$4">
-      <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
+      <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="Archivo-SemiBold">
         Select Location
       </Text>
 
@@ -286,7 +286,7 @@ const LocationSettings = ({ location, setLocation, radius, setRadius }) => {
       {/* Help Sheet */}
       <BottomSheet isOpen={showHelp} onClose={() => setShowHelp(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             How to Edit Location
           </Text>
           <YStack gap="$3">
@@ -326,7 +326,7 @@ const CategorySettings = ({ selectedCategory, setSelectedCategory, error }) => {
 
   return (
     <YStack gap="$4">
-      <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="$heading">
+      <Text color={colors.textSecondary} fontSize="$3" fontWeight="600" fontFamily="Archivo-SemiBold">
         Category
       </Text>
       <Button
@@ -371,7 +371,7 @@ const CategorySettings = ({ selectedCategory, setSelectedCategory, error }) => {
       {/* Category Selection Sheet */}
       <BottomSheet isOpen={showCategorySheet} onClose={() => setShowCategorySheet(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Select Category
           </Text>
           <Input
@@ -623,7 +623,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
                 <Icon size={24} color={colors.primary} />
               </View>
               <YStack f={1}>
-                <Text color={colors.text} fontSize="$7" fontFamily="$archivoBlack">
+                <Text color={colors.text} fontSize="$7" fontFamily="Archivo-Black" fontWeight="900">
                   {cardTypeInfo.title}
                 </Text>
                 <Text color={colors.textSecondary} fontSize="$3" numberOfLines={2}>
@@ -680,7 +680,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
               borderWidth={1}
               borderColor={colors.border}
             >
-              <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="$archivo">
+              <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
                 Back
               </Text>
             </Button>
@@ -692,7 +692,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
               size="$5"
               borderRadius={15}
             >
-              <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+              <Text color="white" fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
                 Next
               </Text>
             </Button>

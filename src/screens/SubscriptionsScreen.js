@@ -231,7 +231,7 @@ const LoadingSkeleton = () => {
       <YStack gap="$4" mb="$6">
         <XStack ai="center" gap="$2" px="$4">
           <ArrowPathIcon size={20} color={colors.text} />
-          <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black" fontWeight="900">
             Subscriptions
           </Text>
         </XStack>
@@ -319,7 +319,7 @@ const SubscriptionsScreen = () => {
         <YStack gap="$4" mb="$6">
           <XStack ai="center" gap="$2" px="$4">
             <ArrowPathIcon size={20} color={colors.text} />
-            <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack" fontWeight="900">
+            <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black" fontWeight="900">
               Subscriptions
             </Text>
           </XStack>

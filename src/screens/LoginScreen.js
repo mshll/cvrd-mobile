@@ -91,7 +91,7 @@ const LoginScreen = () => {
 
             {/* Title */}
             <YStack gap="$2">
-              <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="$archivoBlack">
+              <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="Archivo-Black">
                 Sign in to Your Account
               </Text>
               <XStack ai="center" gap="$2">
@@ -212,7 +212,7 @@ const LoginScreen = () => {
             size="$5"
             borderRadius={15}
           >
-            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
               {loginMutation.isPending ? 'Signing in...' : 'Login'}
             </Text>
           </Button>

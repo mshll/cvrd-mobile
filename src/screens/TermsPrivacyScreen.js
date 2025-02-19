@@ -64,7 +64,7 @@ const TermsPrivacyScreen = () => {
         }}
       >
         <XStack ai="center" jc="space-between" px="$4" pt="$2">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Terms & Privacy
           </Text>
           <Button

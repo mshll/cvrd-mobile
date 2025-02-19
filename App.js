@@ -7,7 +7,6 @@ import { StatusBar, AppState, Animated } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-
 import MainNav from '@/navigation/MainNav';
 import AuthNav from '@/navigation/AuthNav';
 import { AuthProvider, useAuthContext } from '@/context/AuthContext';
@@ -18,9 +17,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ColorSchemeProvider, useAppTheme } from '@/context/ColorSchemeContext';
 import { deleteToken, getToken } from '@/api/storage';
 import { Colors } from '@/context/ColorSchemeContext';
-import { useFonts } from 'expo-font';
 import { validateToken } from '@/api/auth';
 import { FullWindowOverlay } from 'react-native-screens';
+import { getLoadedFonts, useFonts } from 'expo-font';
 
 const queryClient = new QueryClient();
 
@@ -184,35 +183,27 @@ const AppContent = ({ children }) => {
 export default function App() {
   const [fontsLoaded, fontsError] = useFonts({
     // Archivo Regular Weights
-    Archivo_100Thin: require('./assets/fonts/Archivo/Archivo-Thin.ttf'),
-    Archivo_200ExtraLight: require('./assets/fonts/Archivo/Archivo-ExtraLight.ttf'),
-    Archivo_300Light: require('./assets/fonts/Archivo/Archivo-Light.ttf'),
-    Archivo_400Regular: require('./assets/fonts/Archivo/Archivo-Regular.ttf'),
-    Archivo_500Medium: require('./assets/fonts/Archivo/Archivo-Medium.ttf'),
-    Archivo_600SemiBold: require('./assets/fonts/Archivo/Archivo-SemiBold.ttf'),
-    Archivo_700Bold: require('./assets/fonts/Archivo/Archivo-Bold.ttf'),
-    Archivo_800ExtraBold: require('./assets/fonts/Archivo/Archivo-ExtraBold.ttf'),
-    Archivo_900Black: require('./assets/fonts/Archivo/Archivo-Black.ttf'),
-    // Archivo Italic
-    Archivo_100Thin_Italic: require('./assets/fonts/Archivo/Archivo-ThinItalic.ttf'),
-    Archivo_200ExtraLight_Italic: require('./assets/fonts/Archivo/Archivo-ExtraLightItalic.ttf'),
-    Archivo_300Light_Italic: require('./assets/fonts/Archivo/Archivo-LightItalic.ttf'),
-    Archivo_400Regular_Italic: require('./assets/fonts/Archivo/Archivo-Italic.ttf'),
-    Archivo_500Medium_Italic: require('./assets/fonts/Archivo/Archivo-MediumItalic.ttf'),
-    Archivo_600SemiBold_Italic: require('./assets/fonts/Archivo/Archivo-SemiBoldItalic.ttf'),
-    Archivo_700Bold_Italic: require('./assets/fonts/Archivo/Archivo-BoldItalic.ttf'),
-    Archivo_800ExtraBold_Italic: require('./assets/fonts/Archivo/Archivo-ExtraBoldItalic.ttf'),
-    Archivo_900Black_Italic: require('./assets/fonts/Archivo/Archivo-BlackItalic.ttf'),
-    // Inter Regular Weights
-    Inter_100Thin: require('./assets/fonts/Inter/Inter_24pt-Thin.ttf'),
-    Inter_200ExtraLight: require('./assets/fonts/Inter/Inter_24pt-ExtraLight.ttf'),
-    Inter_300Light: require('./assets/fonts/Inter/Inter_24pt-Light.ttf'),
-    Inter_400Regular: require('./assets/fonts/Inter/Inter_24pt-Regular.ttf'),
-    Inter_500Medium: require('./assets/fonts/Inter/Inter_24pt-Medium.ttf'),
-    Inter_600SemiBold: require('./assets/fonts/Inter/Inter_24pt-SemiBold.ttf'),
-    Inter_700Bold: require('./assets/fonts/Inter/Inter_24pt-Bold.ttf'),
-    Inter_800ExtraBold: require('./assets/fonts/Inter/Inter_24pt-ExtraBold.ttf'),
-    Inter_900Black: require('./assets/fonts/Inter/Inter_24pt-Black.ttf'),
+    // Archivo_100Thin: require('./assets/fonts/Archivo/Archivo-Thin.ttf'),
+    // Archivo_200ExtraLight: require('./assets/fonts/Archivo/Archivo-ExtraLight.ttf'),
+    // Archivo_300Light: require('./assets/fonts/Archivo/Archivo-Light.ttf'),
+    // Archivo_400Regular: require('./assets/fonts/Archivo/Archivo-Regular.ttf'),
+    // Archivo_500Medium: require('./assets/fonts/Archivo/Archivo-Medium.ttf'),
+    // Archivo_600SemiBold: require('./assets/fonts/Archivo/Archivo-SemiBold.ttf'),
+    // Archivo_700Bold: require('./assets/fonts/Archivo/Archivo-Bold.ttf'),
+    // Archivo_800ExtraBold: require('./assets/fonts/Archivo/Archivo-ExtraBold.ttf'),
+    // Archivo_900Black: require('./assets/fonts/Archivo/Archivo-Black.ttf'),
+    // // Archivo Italic
+    // Archivo_900Black_Italic: require('./assets/fonts/Archivo/Archivo-BlackItalic.ttf'),
+    // // Inter Regular Weights
+    // Inter_100Thin: require('./assets/fonts/Inter/Inter_24pt-Thin.ttf'),
+    // Inter_200ExtraLight: require('./assets/fonts/Inter/Inter_24pt-ExtraLight.ttf'),
+    // Inter_300Light: require('./assets/fonts/Inter/Inter_24pt-Light.ttf'),
+    // Inter_400Regular: require('./assets/fonts/Inter/Inter_24pt-Regular.ttf'),
+    // Inter_500Medium: require('./assets/fonts/Inter/Inter_24pt-Medium.ttf'),
+    // Inter_600SemiBold: require('./assets/fonts/Inter/Inter_24pt-SemiBold.ttf'),
+    // Inter_700Bold: require('./assets/fonts/Inter/Inter_24pt-Bold.ttf'),
+    // Inter_800ExtraBold: require('./assets/fonts/Inter/Inter_24pt-ExtraBold.ttf'),
+    // Inter_900Black: require('./assets/fonts/Inter/Inter_24pt-Black.ttf'),
   });
 
   if (fontsError) console.log('Error while trying to load fonts', fontsError);

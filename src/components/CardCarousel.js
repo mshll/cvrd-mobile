@@ -154,7 +154,7 @@ function CardCarousel({ title, data = [], icon: Icon }) {
     <View w="100%" mb="$7" gap="$4">
       <XStack ai="center" mb="$2" gap="$2" px="$4">
         {Icon && <Icon size={20} color={colors.text} />}
-        <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+        <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black">
           {title}
         </Text>
       </XStack>

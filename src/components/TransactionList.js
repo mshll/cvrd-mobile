@@ -96,7 +96,7 @@ const TransactionList = ({
         renderItem={({ item }) => <TransactionCard transaction={item} backgroundColor={cardBg} />}
         renderSectionHeader={({ section: { title } }) => (
           <View style={styles.sectionHeader} backgroundColor={sectionBg}>
-            <Text color={colors.textSecondary} fontSize={16} fontFamily="$heading" fontWeight="600">
+            <Text color={colors.textSecondary} fontSize={16} fontFamily="Archivo-SemiBold" fontWeight="600">
               {title}
             </Text>
           </View>
@@ -109,7 +109,7 @@ const TransactionList = ({
           <YStack f={1} ai="center" jc="center" gap="$4" px="$4" pt="$10">
             <MagnifyingGlassIcon size={40} color={colors.primary} />
             <YStack ai="center" gap="$2">
-              <Text color={colors.text} fontSize="$5" fontWeight="600" textAlign="center">
+              <Text color={colors.text} fontSize="$5" fontWeight="600" fontFamily="Archivo-SemiBold" textAlign="center">
                 {searchText ? `No Results for "${searchText}"` : 'No Transactions Found'}
               </Text>
               <Text color={colors.textSecondary} fontSize="$3" textAlign="center">

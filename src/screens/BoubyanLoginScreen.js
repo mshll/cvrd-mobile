@@ -93,7 +93,7 @@ const BoubyanLoginScreen = () => {
           }}
         >
           <XStack ai="center" jc="space-between" px="$4" pt="$2">
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+            <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
               Login to Boubyan Bank
             </Text>
             <Button
@@ -205,7 +205,7 @@ const BoubyanLoginScreen = () => {
             mt="$4"
             mx="$4"
           >
-            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
               {isLoading ? 'Connecting...' : 'Connect Account'}
             </Text>
           </Button>

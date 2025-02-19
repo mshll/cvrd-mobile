@@ -157,7 +157,14 @@ export function Slide3Story() {
 
       {/* Main Title */}
       <AnimatedYStack pos="absolute" t="43%" l={0} r={0} ai="center" style={titleStyle}>
-        <AnimatedText fontFamily="$archivoBlack" fontSize="$8" color="white" textAlign="center" textShadowRadius={5}>
+        <AnimatedText
+          fontFamily="Archivo-Black"
+          fontWeight="900"
+          fontSize="$8"
+          color="white"
+          textAlign="center"
+          textShadowRadius={5}
+        >
           YOUR MOST LOVED CARDS
         </AnimatedText>
       </AnimatedYStack>
@@ -167,7 +174,8 @@ export function Slide3Story() {
         {topCards.map((card, index) => (
           <AnimatedText
             key={index}
-            fontFamily="$archivoBlack"
+            fontFamily="Archivo-Black"
+            fontWeight="900"
             fontSize="$6"
             mt="$3.5"
             textAlign="center"
@@ -176,10 +184,10 @@ export function Slide3Story() {
               opacity: listOpacities[index].value,
             }))}
           >
-            <Text color="white" fontFamily="$archivoBlack" fontSize="$6">
+            <Text color="white" fontFamily="Archivo-Black" fontSize="$6" fontWeight="900">
               {index + 2}. {card.text}
             </Text>
-            <Text color="white" fontFamily="$archivoBlack" fontSize="$5">
+            <Text color="white" fontFamily="Archivo-Black" fontSize="$5" fontWeight="900">
               {' '}
               • {card.amount} KD
             </Text>
@@ -193,7 +201,8 @@ export function Slide3Story() {
         b="20%"
         l={0}
         r={0}
-        fontFamily="$archivoBlack"
+        fontFamily="Archivo-Black"
+        fontWeight="900"
         fontSize="$6"
         textAlign="center"
         textShadowRadius={5}
@@ -209,16 +218,17 @@ export function Slide3Story() {
         b="6%"
         l={0}
         r={0}
-        fontFamily="$archivoBlack"
+        fontFamily="Archivo-Black"
+        fontWeight="900"
         fontSize="$6"
         textAlign="center"
         textShadowRadius={5}
         style={bottomTextStyle}
       >
-        <Text color="white" fontFamily="$archivoBlack" fontSize="$6">
+        <Text color="white" fontFamily="Archivo-Black" fontSize="$6" fontWeight="900">
           1. {topSpender.text}
         </Text>
-        <Text color="white" fontFamily="$archivoBlack" fontSize="$5">
+        <Text color="white" fontFamily="Archivo-Black" fontSize="$5" fontWeight="900">
           {' '}
           • {topSpender.amount} KD
         </Text>

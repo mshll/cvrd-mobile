@@ -111,7 +111,8 @@ export function Slide2Story() {
       <VideoSlide videoSource={require('@/../assets/playback-vids/slide2.MP4')} />
       <AnimatedYStack pos="absolute" t="40%" l={0} r={0} ai="center" style={containerStyle}>
         <AnimatedText
-          fontFamily="$archivoBlack"
+          fontFamily="Archivo-Black"
+          fontWeight="900"
           fontSize="$8"
           color="white"
           textAlign="center"
@@ -121,7 +122,8 @@ export function Slide2Story() {
           YOU GENERATED
         </AnimatedText>
         <AnimatedText
-          fontFamily="$archivoBlack"
+          fontFamily="Archivo-Black"
+          fontWeight="900"
           fontSize="$12"
           color="white"
           textAlign="center"
@@ -136,8 +138,9 @@ export function Slide2Story() {
         {LIST_ITEMS.map((item, index) => (
           <AnimatedText
             key={item.text}
-            fontFamily="$archivoBlack"
+            fontFamily="Archivo-Black"
             fontSize="$6"
+            fontWeight="900"
             mt="$2"
             textAlign="center"
             textShadowRadius={5}
@@ -145,10 +148,10 @@ export function Slide2Story() {
               opacity: listOpacities[index].value,
             }))}
           >
-            <Text color={item.color} fontFamily="$archivoBlack" fontSize="$10">
+            <Text color={item.color} fontFamily="Archivo-Black" fontSize="$10" fontWeight="900">
               {item.number}
             </Text>{' '}
-            <Text color="white" fontFamily="$archivoBlack" fontSize="$6">
+            <Text color="white" fontFamily="Archivo-Black" fontSize="$6" fontWeight="900">
               {item.text}
             </Text>
           </AnimatedText>

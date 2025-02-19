@@ -151,7 +151,7 @@ const AppearanceSheet = ({ isOpen, onClose }) => {
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose}>
       <YStack gap="$4" px="$4" pt="$2" pb="$6">
-        <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+        <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
           Appearance
         </Text>
         <YStack gap="$3">
@@ -449,7 +449,7 @@ const ProfileScreen = () => {
       {/* <YStack gap="$3" mb="$2" px={16}>
         <XStack ai="center" mb="$2" gap="$2">
           <UserIconFilled size={20} color={colors.text} />
-          <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black">
             Profile
           </Text>
         </XStack>
@@ -493,7 +493,7 @@ const ProfileScreen = () => {
           </Circle>
         </TouchableOpacity>
         <YStack ai="center" gap="$1">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             {user ? `${user.firstName} ${user.lastName}` : 'User'}
           </Text>
           <Text color={colors.textSecondary} fontSize="$3">
@@ -759,7 +759,7 @@ const ProfileScreen = () => {
       {/* Bank Disconnect Confirmation Sheet */}
       <BottomSheet isOpen={showDisconnectConfirm} onClose={() => setShowDisconnectConfirm(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Disconnect Bank Account
           </Text>
           <Text color={colors.textSecondary} fontSize="$4">
@@ -800,7 +800,7 @@ const ProfileScreen = () => {
       {/* Logout Confirmation Sheet */}
       <BottomSheet isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Log Out
           </Text>
           <Text color={colors.textSecondary} fontSize="$4">
@@ -843,7 +843,7 @@ const ProfileScreen = () => {
       {/* Profile Picture Options Sheet */}
       <BottomSheet isOpen={showProfilePictureSheet} onClose={() => setShowProfilePictureSheet(false)} aboveAll={false}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Profile Picture
           </Text>
           <YStack gap="$3">

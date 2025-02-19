@@ -108,7 +108,7 @@ const SignupScreen = () => {
 
             {/* Title */}
             <YStack gap="$2">
-              <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="$archivoBlack">
+              <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="Archivo-Black">
                 Create a New Account
               </Text>
               <XStack ai="center" gap="$2">
@@ -350,7 +350,7 @@ const SignupScreen = () => {
             size="$5"
             borderRadius={15}
           >
-            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
               Next
             </Text>
           </Button>

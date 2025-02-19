@@ -42,6 +42,7 @@ import { CARD_HEIGHT, CARD_WIDTH } from '@/utils/cardUtils';
 import { Paths } from '@/navigation/paths';
 import { getCardViewMode, setCardViewMode } from '@/utils/storage';
 import { useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
+import { getLoadedFonts } from 'expo-font';
 
 // ============================================================================
 // Constants & Config
@@ -118,10 +119,10 @@ function UserGreeting() {
     //     <Avatar.Fallback backgroundColor={colors.backgroundSecondary} />
     //   </Avatar>
     //   <XStack>
-    //     <Text color={colors.text} fontSize="$7" fontFamily="$archivoBlack">
+    //     <Text color={colors.text} fontSize="$7" fontFamily="Archivo-Black">
     //       Hi,{' '}
     //     </Text>
-    //     <Text color={colors.primary} fontSize="$7" fontFamily="$archivoBlack">
+    //     <Text color={colors.primary} fontSize="$7" fontFamily="Archivo-Black">
     //       {user.name.split(' ')[0]}
     //     </Text>
     //   </XStack>
@@ -137,7 +138,7 @@ function SpendingStats() {
     <YStack gap="$3" mb="$2" px={16}>
       <XStack ai="center" mb="$2" gap="$2">
         <BanknotesIcon size={20} color={colors.text} />
-        <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+        <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black" fontWeight="900">
           Spending Overview
         </Text>
       </XStack>
@@ -192,7 +193,7 @@ function CompactCardList({ section }) {
     <YStack gap="$2" mb="$8" px="$4">
       <XStack ai="center" gap="$2" mb="$3">
         <Icon size={20} color={colors.text} />
-        <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+        <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black" fontWeight="900">
           {section.title}
         </Text>
       </XStack>
@@ -208,9 +209,11 @@ function CompactCardList({ section }) {
 function Header({ viewMode, onToggleViewMode, cardFilter, onFilterChange }) {
   const colors = useColors();
   const { cards } = useCards();
+  const loadedFonts = getLoadedFonts();
 
   return (
     <YStack my="$4" gap="$4">
+      {/* <Text>{JSON.stringify(loadedFonts)}</Text> */}
       <UserGreeting />
       <SpendingStats />
       <XStack px="$4" jc="space-between" ai="center">
@@ -331,7 +334,7 @@ function ReorganizeSheet({ isOpen, onOpenChange, sections, onReorder, onReset })
     <BottomSheet isOpen={isOpen} onClose={onOpenChange} enableContentPanningGesture={false}>
       <YStack px="$4" pt="$5" pb="$10">
         <XStack jc="space-between" ai="center" mb="$3">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Customize
           </Text>
           <XStack gap="$2">
@@ -780,7 +783,7 @@ function HomeScreen() {
               >
                 <XStack ai="center" gap="$2">
                   <SparklesIcon size={20} color={colors.text} />
-                  <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+                  <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black">
                     Insights
                   </Text>
                 </XStack>

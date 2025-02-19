@@ -11,14 +11,14 @@ PODS:
   - EXAV (15.0.2):
     - ExpoModulesCore
     - ReactCommon/turbomodule/core
-  - EXConstants (17.0.5):
+  - EXConstants (17.0.6):
     - ExpoModulesCore
   - EXImageLoader (5.0.0):
     - ExpoModulesCore
     - React-Core
   - EXNotifications (0.29.13):
     - ExpoModulesCore
-  - Expo (52.0.33):
+  - Expo (52.0.35):
     - ExpoModulesCore
   - ExpoAsset (11.0.3):
     - ExpoModulesCore
@@ -58,7 +58,7 @@ PODS:
     - ExpoModulesCore
   - ExpoLocation (18.0.6):
     - ExpoModulesCore
-  - ExpoModulesCore (2.2.1):
+  - ExpoModulesCore (2.2.2):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.01.01.00)
@@ -83,7 +83,7 @@ PODS:
     - Yoga
   - ExpoSecureStore (14.0.1):
     - ExpoModulesCore
-  - ExpoSplashScreen (0.29.21):
+  - ExpoSplashScreen (0.29.22):
     - ExpoModulesCore
   - ExpoSymbols (0.2.2):
     - ExpoModulesCore
@@ -1391,7 +1391,7 @@ PODS:
     - Yoga
   - react-native-maps (1.18.0):
     - React-Core
-  - react-native-menu (1.2.1):
+  - react-native-menu (1.2.2):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.01.01.00)
@@ -1521,7 +1521,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-video (6.10.0):
+  - react-native-video (6.10.1):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.01.01.00)
@@ -1534,7 +1534,7 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-video/Video (= 6.10.0)
+    - react-native-video/Video (= 6.10.1)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-rendererdebug
@@ -1543,7 +1543,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-video/Fabric (6.10.0):
+  - react-native-video/Fabric (6.10.1):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.01.01.00)
@@ -1564,7 +1564,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-video/Video (6.10.0):
+  - react-native-video/Video (6.10.1):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.01.01.00)
@@ -1899,7 +1899,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNDateTimePicker (8.2.0):
+  - RNDateTimePicker (8.3.0):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.01.01.00)
@@ -2536,10 +2536,10 @@ SPEC CHECKSUMS:
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
   EXApplication: 27a524f5c3e671c6218220fba04752629466a1a9
   EXAV: 57ea461614a714b8b8fcc72c6fbc298b8f1ec78b
-  EXConstants: aa93a3e70f8b37c81a80931cfd23f860b1819167
+  EXConstants: 9b47f3f07f01c5afaa23b1fc9e49bb87f70e3576
   EXImageLoader: 759063a65ab016b836f73972d3bb25404888713d
   EXNotifications: 08cc7c5a100c2edc3a01227cfdfcaf17746189d7
-  Expo: eb362d6461fd355f2d50786daad5fc3c377599e3
+  Expo: 684b9146eabc19a5aa6994f8d6b9131f6facbb3b
   ExpoAsset: 77e4579f19b48d6b3f4055c933e86ce45e80caeb
   ExpoBlur: 567af66164e3043a9a30069594aed1ddf0a88d97
   ExpoCamera: 821d04abb9a02f6537fa927398984e117e2cab7a
@@ -2556,9 +2556,9 @@ SPEC CHECKSUMS:
   ExpoLinking: 0381341519ca7180a3a057d20edb1cf6a908aaf4
   ExpoLocalAuthentication: 64bf2cbee456f5639d69a853684c285afc0602d8
   ExpoLocation: d872aac36a8d5d23f1c7b90120c8fc5fec0aa9a8
-  ExpoModulesCore: b121fd3d6c9cc2f33e8f6f6dd1e00661555fd494
+  ExpoModulesCore: 3f1e9c760a1bdc0902aadaade19b96d850cf3f52
   ExpoSecureStore: d006eea5e316283099d46f80a6b10055b89a6008
-  ExpoSplashScreen: 2625fffb137856c82c32d6f25e7ee97249bdc0ee
+  ExpoSplashScreen: 643666b96a84e8d97d55fac43926fb4183c692d9
   ExpoSymbols: b9f255ce49868d46a73f30e12859efeb8117bcad
   ExpoSystemUI: ba4507df7d8d15f5e1694a3c7fc6bc3cca3803e5
   ExpoVideoThumbnails: 8022b021c7c8d17608aa2256953d63756ac4e29d
@@ -2603,10 +2603,10 @@ SPEC CHECKSUMS:
   react-native-ios-modal: 202eecddad048ddd7394e9a9f57b79849f928d81
   react-native-ios-utilities: f36f5ce48877fa71dc2a8ce960c04c0d19b55c84
   react-native-maps: 2e6e9896195781327ee15b33e3e84bf73c08207a
-  react-native-menu: faeb45142c3bbe65d9ce9ed49e1b71c6e643313d
+  react-native-menu: b3749bbe8e752d5a6a9837c9032a4e70a80a5449
   react-native-safe-area-context: d6a68614ea19248419f3865dec45ab093bd5d1ff
   react-native-slider: 5cf5c66a17cbcbd10ea46e660db488bb79d2229d
-  react-native-video: 5589fa6d08a85de09077832f1a639ce913ad42e1
+  react-native-video: a46fb2d33f42c9ba0bb7d3112e422ab947d0ac67
   react-native-view-shot: 1a5e4c33de51af9afdb5aff103873b60bbaab919
   react-native-webview: 0154424cd23be800f15d7129d555b4304341cc4c
   React-nativeconfig: 67fa7a63ea288cb5b1d0dd2deaf240405fec164f
@@ -2636,7 +2636,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 2abd5f903c7ab2aa55e6d6177a13658966f117f6
   ReactCommon: 676d55d3b141011103119b59a1577805a54e1d2a
   RNCAsyncStorage: 340d9718a6767c70f2801d1c3a5f80dda0fbd492
-  RNDateTimePicker: a4b5942ea638a5ee93bcf74964dc085954e6ff0c
+  RNDateTimePicker: 87789e5e08177fafde9374f8bd7b959e31e11a0f
   RNFlashList: 2bb4043f2d6df7e4084f66d831a1e2b8f8240bc6
   RNGestureHandler: e6b0837f17a334b5208ca5abb45d35a19840f852
   RNReanimated: 22b21c134e424f3e9bd1720bc9568dac1a7a0099

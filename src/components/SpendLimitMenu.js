@@ -99,7 +99,7 @@ const SpendLimitMenu = ({ card, onSave, darkButtons = false, showSaveButton = fa
             paddingHorizontal="$4"
             opacity={durationLimit === 'no_limit' ? 0.5 : 1}
           >
-            <Text color={colors.text} fontSize="$8" fontWeight="700" fontFamily={'$archivoBlack'} mr="$2">
+            <Text color={colors.text} fontSize="$8" fontWeight="900" fontFamily="Archivo-Black" mr="$2">
               KD
             </Text>
             <Input
@@ -114,9 +114,9 @@ const SpendLimitMenu = ({ card, onSave, darkButtons = false, showSaveButton = fa
               color={colors.text}
               placeholderTextColor={colors.textTertiary}
               fontSize="$8"
-              fontFamily={'$archivoBlack'}
+              fontFamily="Archivo-Black"
               p={0}
-              fontWeight="700"
+              fontWeight="900"
               textAlign="left"
               flex={1}
               editable={durationLimit !== 'no_limit'}

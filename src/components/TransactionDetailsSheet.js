@@ -96,13 +96,13 @@ const TransactionDetailsSheet = ({ transaction, isOpen, onClose }) => {
     <BottomSheet isOpen={isOpen} onClose={onClose}>
       <YStack gap="$4" px="$4" pt="$2" pb={insets.bottom + 20}>
         {/* Title */}
-        {/* <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+        {/* <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black">
           Transaction Details
         </Text> */}
 
         {/* Amount and Status */}
         <YStack ai="center" gap="$2" py="$4">
-          <Text color={colors.text} fontSize="$10" fontWeight="800" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="Archivo-Black">
             {formatCurrency(transaction.amount || 0)}
           </Text>
           <XStack ai="center" gap="$2">

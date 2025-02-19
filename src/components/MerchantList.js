@@ -28,7 +28,7 @@ const MerchantList = () => {
       <XStack ai="center" jc="space-between" px="$4">
         <XStack ai="center" gap="$2">
           <BuildingStorefrontIcon size={20} color={colors.text} />
-          <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Bold" fontWeight="700">
             Available Merchants
           </Text>
         </XStack>
@@ -55,7 +55,7 @@ const MerchantList = () => {
           borderColor={colors.border}
           mt="$2"
         >
-          <Text color={colors.text} fontWeight="700">
+          <Text color={colors.text} fontWeight="700" fontFamily="Archivo-Bold">
             View All Merchants
           </Text>
           <ChevronRightIcon size={20} color={colors.text} />

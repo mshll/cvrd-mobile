@@ -99,7 +99,7 @@ const StatCard = ({ title, value, subtitle, icon, delay, color, valueFirst = tru
             {valueFirst ? (
               <>
                 <YStack f={1} jc="center">
-                  <Text color="white" fontSize={28} fontWeight="900" fontFamily="$archivoBlack">
+                  <Text color="white" fontSize={28} fontWeight="900" fontFamily="Archivo-Black">
                     {value}
                   </Text>
                   {subtitle && (
@@ -113,7 +113,7 @@ const StatCard = ({ title, value, subtitle, icon, delay, color, valueFirst = tru
               <>
                 <YStack f={1} jc="center" space={4}>
                   {subtitle && (
-                    <Text color="white" fontSize={20} fontWeight="900" fontFamily="$archivoBlack" numberOfLines={1}>
+                    <Text color="white" fontSize={20} fontWeight="900" fontFamily="Archivo-Black" numberOfLines={1}>
                       {subtitle}
                     </Text>
                   )}
@@ -297,7 +297,7 @@ export function Slide8Story() {
       await Share.share({
         url: uri,
         title: 'My 2025 CVR Summary',
-        message: 'Have you seen my 2025 CVR? Check out mine!',
+        message: "Here's my year with CVRD! 💳✨ I secured and tracked my spending, what about you? #2025CVR",
       });
 
       // Hide background after capture
@@ -357,7 +357,7 @@ export function Slide8Story() {
         >
           <BlurView intensity={60} tint="dark" style={{ borderRadius: 20, overflow: 'hidden' }}>
             <YStack space={8} padding={20}>
-              <Text color="white" fontSize={32} fontFamily="$archivoBlack" textAlign="center">
+              <Text color="white" fontSize={32} fontFamily="Archivo-Black" textAlign="center" fontWeight="900">
                 2025 CVR SUMMARY
               </Text>
               <Text color={Colors.dark.textSecondary} fontSize={16} textAlign="center">
@@ -437,7 +437,7 @@ export function Slide8Story() {
           >
             <XStack ai="center" gap="$2">
               <ShareIcon size={20} color="white" />
-              <Text color="white" fontSize={16} fontWeight="600" fontFamily="$archivoBlack">
+              <Text color="white" fontSize={16} fontWeight="700" fontFamily="Archivo-Bold">
                 SHARE YOUR 2025 SUMMARY
               </Text>
             </XStack>

@@ -294,7 +294,8 @@ const AnimatedTitle = memo(({ scrollX, showCarousel, colors, cards }) => {
             <Animated.Text
               style={{
                 fontSize: 24,
-                fontFamily: 'Archivo_700Bold',
+                fontFamily: 'Archivo-Bold',
+                fontWeight: '700',
                 color: colors.text,
                 textAlign: 'center',
                 includeFontPadding: false,
@@ -413,7 +414,8 @@ const AnimatedDescription = memo(({ scrollX, showCarousel, colors, cards, isPrem
                 style={{
                   fontSize: 14,
                   color: colors.textSecondary,
-                  fontFamily: '$archivo',
+                  fontFamily: 'Archivo-Medium',
+                  fontWeight: '500',
                   textAlign: 'center',
                   lineHeight: 20,
                 }}
@@ -805,7 +807,7 @@ const AddCardScreen = () => {
             <View width={80} height={80} br={40} bg={`${colors.primary}20`} ai="center" jc="center" mb="$2">
               <BanknotesIcon size={40} color={colors.primary} />
             </View>
-            <Text color={colors.text} fontSize="$7" fontFamily="$archivoBlack" textAlign="center">
+            <Text color={colors.text} fontSize="$7" fontFamily="Archivo-Black" textAlign="center" fontWeight="900">
               Monthly Limit Reached
             </Text>
             <Text color={colors.textSecondary} fontSize="$4" textAlign="center" mb="$4">
@@ -837,7 +839,7 @@ const AddCardScreen = () => {
       <View f={1} bg={colors.background} pt={insets.top}>
         <View backgroundColor={colors.background}>
           <XStack ai="center" jc="space-between" px="$4" pt="$2">
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+            <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
               Create a Card
             </Text>
             <Button

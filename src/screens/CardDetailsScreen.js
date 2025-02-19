@@ -653,7 +653,7 @@ const CardDetailsScreen = () => {
           <YStack gap="$2" f={1}>
             <XStack ai="center" gap="$2" my="$2" px="$4">
               <History size={20} color={colors.text} />
-              <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+              <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black" fontWeight="900">
                 Card Activity
               </Text>
             </XStack>
@@ -687,7 +687,7 @@ const CardDetailsScreen = () => {
       {/* Confirmation Sheet for Card Closure */}
       <BottomSheet isOpen={showConfirmClose} onClose={() => setShowConfirmClose(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Close Card
           </Text>
           <Text color={colors.textSecondary} fontSize="$4">

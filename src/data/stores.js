@@ -10,7 +10,6 @@ export const STORES = [
     discountCode: 'HM2024',
     discountAmount: '20% OFF',
     validUntil: '2024-03-31',
-
   },
   {
     id: 'xcite',
@@ -21,7 +20,6 @@ export const STORES = [
     discountCode: 'XCITE15',
     discountAmount: '15% OFF',
     validUntil: '2024-03-31',
-
   },
   {
     id: 'home-centre',
@@ -32,7 +30,6 @@ export const STORES = [
     discountCode: 'HOME25',
     discountAmount: '25% OFF',
     validUntil: '2024-04-01',
-
   },
   {
     id: 'decathlon',
@@ -43,7 +40,6 @@ export const STORES = [
     discountCode: 'DEC30',
     discountAmount: '30% OFF',
     validUntil: '2024-03-20',
-
   },
   {
     id: 'boots',
@@ -54,7 +50,6 @@ export const STORES = [
     discountCode: 'BOOTS10',
     discountAmount: '10% OFF',
     validUntil: '2024-04-15',
-
   },
   {
     id: 'sultan-center',
@@ -65,7 +60,6 @@ export const STORES = [
     discountCode: 'SULTAN20',
     discountAmount: '20% OFF',
     validUntil: '2024-03-25',
-
   },
   {
     id: 'human-pancreas',
@@ -74,6 +68,16 @@ export const STORES = [
     url: `${baseUrl}/human-pancreas`,
     description: 'Best cookies and baked goods in the world',
     discountCode: 'PANCREAS25',
+    discountAmount: '25% OFF',
+    validUntil: '2024-04-30',
+  },
+  {
+    id: 'backyard',
+    name: 'Backyard',
+    logo: require('@/../assets/store-logos/backyard.png'),
+    url: `${baseUrl}/backyard`,
+    description: 'A cozy outdoor dining experience with delicious food',
+    discountCode: 'BACKYARD25',
     discountAmount: '25% OFF',
     validUntil: '2024-04-30',
   },

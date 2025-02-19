@@ -29,10 +29,16 @@ export function SpendingRecapButton({ onPress }) {
       >
         <YStack p="$4" gap="$1" f={1} jc="space-between">
           <YStack gap="$1">
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" textAlign="left">
+            <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" textAlign="left" fontWeight="900">
               2025 CVR
             </Text>
-            <Text color={colors.textSecondary} fontSize="$4" fontFamily="$archivoMedium" textAlign="left">
+            <Text
+              color={colors.textSecondary}
+              fontSize="$4"
+              fontFamily="Archivo-Medium"
+              fontWeight="500"
+              textAlign="left"
+            >
               Review your yearly spending
             </Text>
           </YStack>

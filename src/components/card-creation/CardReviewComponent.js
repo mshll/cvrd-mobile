@@ -354,7 +354,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
                 <YStack p="$4" gap="$4">
                   <XStack ai="center" gap="$2">
                     <TypeIcon size={20} color={colors.text} />
-                    <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="$heading">
+                    <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
                       {formatCardType(cardType)}
                     </Text>
                   </XStack>
@@ -443,7 +443,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
                   }}
                 >
                   <YStack p="$4" gap="$4">
-                    <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="$heading">
+                    <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
                       Card Generation
                     </Text>
 
@@ -493,7 +493,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
               borderWidth={1}
               borderColor={colors.border}
             >
-              <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="$archivo">
+              <Text color={colors.text} fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
                 Back
               </Text>
             </Button>
@@ -505,7 +505,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
               size="$5"
               borderRadius={15}
             >
-              <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+              <Text color="white" fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
                 Create Card
               </Text>
             </Button>
@@ -516,7 +516,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
       {/* Create Card Confirmation Sheet */}
       <BottomSheet isOpen={showCreateConfirm} onClose={handleCancelCreate}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Create Card
           </Text>
           <Text color={colors.textSecondary} fontSize="$4">
@@ -585,7 +585,7 @@ const CardReviewComponent = ({ cardType, cardData, onBack, onCreateCard }) => {
       {/* Color Picker Sheet */}
       <BottomSheet isOpen={showColorWheel} onClose={() => setShowColorWheel(false)}>
         <YStack gap="$5" px="$4" mt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily={'$archivoBlack'}>
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Custom Color
           </Text>
 

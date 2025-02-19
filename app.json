@@ -19,7 +19,7 @@
         "NSPhotoLibraryUsageDescription": "Allow CVRD to access your photos to update your profile picture",
         "NSCameraUsageDescription": "Allow CVRD to access your camera to take a profile picture"
       },
-      "bundleIdentifier": "com.2ZHKND955JTJ.explicit"
+      "bundleIdentifier": "com.meshall.cvrd"
     },
     "android": {
       "adaptiveIcon": {
@@ -33,7 +33,7 @@
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT"
       ],
-      "package": "com.2ZHKND955JTJ.explicit"
+      "package": "com.meshall.cvrd"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -58,7 +58,32 @@
           "enableBackgroundRemoteNotifications": true
         }
       ],
-      "expo-font"
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Archivo/Archivo-Thin.ttf",
+            "./assets/fonts/Archivo/Archivo-ExtraLight.ttf",
+            "./assets/fonts/Archivo/Archivo-Light.ttf",
+            "./assets/fonts/Archivo/Archivo-Regular.ttf",
+            "./assets/fonts/Archivo/Archivo-Medium.ttf",
+            "./assets/fonts/Archivo/Archivo-SemiBold.ttf",
+            "./assets/fonts/Archivo/Archivo-Bold.ttf",
+            "./assets/fonts/Archivo/Archivo-ExtraBold.ttf",
+            "./assets/fonts/Archivo/Archivo-Black.ttf",
+            "./assets/fonts/Archivo/Archivo-BlackItalic.ttf",
+            "./assets/fonts/Inter/Inter_24pt-Thin.ttf",
+            "./assets/fonts/Inter/Inter_24pt-ExtraLight.ttf",
+            "./assets/fonts/Inter/Inter_24pt-Light.ttf",
+            "./assets/fonts/Inter/Inter_24pt-Regular.ttf",
+            "./assets/fonts/Inter/Inter_24pt-Medium.ttf",
+            "./assets/fonts/Inter/Inter_24pt-SemiBold.ttf",
+            "./assets/fonts/Inter/Inter_24pt-Bold.ttf",
+            "./assets/fonts/Inter/Inter_24pt-ExtraBold.ttf",
+            "./assets/fonts/Inter/Inter_24pt-Black.ttf"
+          ]
+        }
+      ]
     ]
   }
 }

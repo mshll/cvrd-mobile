@@ -184,7 +184,7 @@ const ConfirmationSheet = ({ isOpen, onClose, plan, isUpgrade, onConfirm, isLoad
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose}>
       <YStack gap="$4" px="$4" pt="$2" pb="$6">
-        <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+        <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
           {isUpgrade ? 'Upgrade Plan' : 'Downgrade Plan'}
         </Text>
         <Text color={colors.textSecondary} fontSize="$4">
@@ -308,7 +308,7 @@ const SubscriptionManagementScreen = () => {
         }}
       >
         <XStack ai="center" jc="space-between" px="$4" pt="$2">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             Manage Your Plan
           </Text>
           <Button

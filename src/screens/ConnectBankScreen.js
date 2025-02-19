@@ -64,7 +64,7 @@ const ConnectBankScreen = () => {
 
           {/* Title */}
           <YStack gap="$2">
-            <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="$archivoBlack">
+            <Text color={colors.text} fontSize="$10" fontWeight="900" fontFamily="Archivo-Black">
               CONNECT YOUR{'\n'}BANK ACCOUNT
             </Text>
             <Text color={colors.textSecondary} fontSize="$3">
@@ -136,7 +136,7 @@ const ConnectBankScreen = () => {
               size="$5"
               borderRadius={15}
             >
-              <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+              <Text color="white" fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
                 Continue
               </Text>
             </Button>

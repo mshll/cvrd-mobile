@@ -218,7 +218,14 @@ const ContentScreen = ({ title, description, pattern, color }) => {
 
       {/* Content */}
       <View style={styles.contentContainer}>
-        <Text color={color} fontSize={64} fontFamily="Archivo_900Black_Italic" textAlign="center" lineHeight={58}>
+        <Text
+          color={color}
+          fontSize={64}
+          fontFamily="Archivo-BlackItalic"
+          fontWeight="900"
+          textAlign="center"
+          lineHeight={58}
+        >
           {title}
         </Text>
         <Text
@@ -227,7 +234,8 @@ const ContentScreen = ({ title, description, pattern, color }) => {
           textAlign="center"
           mt="$4"
           lineHeight={24}
-          fontFamily="$archivo"
+          fontFamily="Archivo-Medium"
+          fontWeight="500"
         >
           {description}
         </Text>
@@ -462,7 +470,7 @@ const OnboardingScreen = () => {
 
         {/* Button Text */}
         <Animated.View style={[styles.buttonTextWrapper, { opacity: textOpacity }]}>
-          <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+          <Text color="white" fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
             Get Started
           </Text>
         </Animated.View>

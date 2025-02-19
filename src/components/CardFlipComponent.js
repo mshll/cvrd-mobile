@@ -189,7 +189,7 @@ const CardFlipComponent = ({ cardId }) => {
                         fontWeight="900"
                         ls={2}
                         fontStyle="italic"
-                        fontFamily={'$archivoBlack'}
+                        fontFamily="Archivo-Black"
                         color={textColor}
                         textAlign="right"
                         letterSpacing={0.5}

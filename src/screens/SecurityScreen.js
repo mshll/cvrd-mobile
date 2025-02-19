@@ -82,7 +82,7 @@ const SecurityScreen = () => {
             }}
           >
             <XStack ai="center" jc="space-between" px="$4" pt="$2">
-              <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+              <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
                 Security
               </Text>
               <Button
@@ -254,7 +254,7 @@ const SecurityScreen = () => {
             size="$5"
             borderRadius={15}
           >
-            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="$archivo">
+            <Text color="white" fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
               {isUpdating ? 'Updating...' : 'Update Password'}
             </Text>
           </Button>

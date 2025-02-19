@@ -92,7 +92,7 @@ const ActivityScreen = () => {
 
   if (error) {
     return (
-      <Text color={colors.primary} ta="center" mt={20} fontFamily="$body">
+      <Text color={colors.primary} ta="center" mt={20} fontFamily="Archivo-Medium" fontWeight="500">
         {error.message || 'Failed to load transactions'}
       </Text>
     );
@@ -104,7 +104,7 @@ const ActivityScreen = () => {
         {/* Title */}
         <XStack ai="center" gap="$2" px="$4">
           <History size={20} color={colors.text} />
-          <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black" fontWeight="900">
             Activity
           </Text>
         </XStack>
@@ -144,7 +144,7 @@ const ActivityScreen = () => {
       <BottomSheet isOpen={showSortSheet} onClose={() => setShowSortSheet(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
           <XStack jc="space-between" ai="center">
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+            <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
               Sort By
             </Text>
             <Button
@@ -185,7 +185,7 @@ const ActivityScreen = () => {
       <BottomSheet isOpen={showStatusSheet} onClose={() => setShowStatusSheet(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
           <XStack jc="space-between" ai="center">
-            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+            <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
               Filter by Status
             </Text>
             <Button

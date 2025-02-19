@@ -328,4 +328,48 @@ export const stores = [
       },
     ],
   },
+  {
+    id: 'backyard',
+    name: 'Backyard',
+    category: 'Restaurant',
+    description: 'A cozy outdoor dining experience with delicious food',
+    items: [
+      {
+        id: 1,
+        name: 'Classic Burger',
+        price: 8.9,
+        category: 'Burgers',
+      },
+      {
+        id: 2,
+        name: 'Grilled Chicken Salad',
+        price: 7.5,
+        category: 'Salads',
+      },
+      {
+        id: 3,
+        name: 'BBQ Ribs',
+        price: 15.9,
+        category: 'BBQ',
+      },
+      {
+        id: 4,
+        name: 'Seafood Pasta',
+        price: 12.9,
+        category: 'Pasta',
+      },
+      {
+        id: 5,
+        name: 'Garden Pizza',
+        price: 10.9,
+        category: 'Pizza',
+      },
+      {
+        id: 6,
+        name: 'Chocolate Lava Cake',
+        price: 5.9,
+        category: 'Desserts',
+      },
+    ],
+  },
 ];

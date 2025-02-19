@@ -144,11 +144,12 @@ export function Slide6Story() {
         t="15%"
         l={0}
         r={0}
-        fontFamily="$archivoBlack"
+        fontFamily="Archivo-Black"
         fontSize="$8"
         color="white"
         textAlign="center"
         textShadowRadius={5}
+        fontWeight="900"
         style={titleStyle}
       >
         YOU LOVED THESE{'\n'}PLATFORMS ALL YEAR
@@ -159,11 +160,12 @@ export function Slide6Story() {
         {subscriptions.map((subscription, index) => (
           <AnimatedText
             key={`${subscription.cardId}-${index}`}
-            fontFamily="$archivoBlack"
+            fontFamily="Archivo-Black"
             fontSize="$6"
             color="white"
             textAlign="center"
             textShadowRadius={5}
+            fontWeight="900"
             style={useAnimatedStyle(() => ({
               opacity: subscriptionOpacities[index].value,
             }))}

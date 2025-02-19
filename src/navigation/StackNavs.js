@@ -41,7 +41,7 @@ const defaultScreenOptions = (colors) => ({
     backgroundColor: colors.background,
   },
   headerTitleStyle: {
-    fontFamily: '$archivoBlack',
+    fontFamily: 'Archivo-Black',
     fontSize: 20,
   },
   headerBackTitleVisible: false,

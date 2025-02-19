@@ -197,11 +197,12 @@ const EditLocationScreen = () => {
                 color={colors.text}
                 borderWidth={0}
                 backgroundColor="transparent"
-                fontFamily="$archivoBlack"
+                fontFamily="Archivo-Black"
+                fontWeight="900"
               />
             ) : (
               <>
-                <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+                <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black" fontWeight="900">
                   {radius.toFixed(1)} km
                 </Text>
                 <PencilIcon size={14} color={colors.textSecondary} />
@@ -285,7 +286,7 @@ const EditLocationScreen = () => {
           size="$5"
           br={12}
         >
-          <Text color="white" fontSize="$4" fontWeight="600" fontFamily={'$archivo'}>
+          <Text color="white" fontSize="$4" fontWeight="600" fontFamily="Archivo-SemiBold">
             Save Changes
           </Text>
         </Button>
@@ -294,7 +295,7 @@ const EditLocationScreen = () => {
       {/* Help Sheet */}
       <BottomSheet isOpen={showHelp} onClose={() => setShowHelp(false)}>
         <YStack gap="$4" px="$4" pt="$2" pb="$6">
-          <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$6" fontFamily="Archivo-Black" fontWeight="900">
             How to Edit Location
           </Text>
           <YStack gap="$3">

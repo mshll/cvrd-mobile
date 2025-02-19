@@ -23,7 +23,7 @@ const StoreList = () => {
       <XStack ai="center" jc="space-between" px="$4">
         <XStack ai="center" gap="$2">
           <TagIcon size={20} color={colors.text} />
-          <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+          <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black" fontWeight="900">
             Discount Codes
           </Text>
         </XStack>
@@ -50,7 +50,7 @@ const StoreList = () => {
           borderColor={colors.border}
           mt="$2"
         >
-          <Text color={colors.text} fontWeight="700">
+          <Text color={colors.text} fontWeight="700" fontFamily="Archivo-Bold">
             View All Stores
           </Text>
           <ChevronRightIcon size={20} color={colors.text} />

@@ -22,7 +22,7 @@ const AllMerchantsScreen = () => {
           {/* Header */}
           <XStack ai="center" gap="$2" px="$4" mb="$2">
             <BuildingStorefrontIcon size={20} color={colors.text} />
-            <Text color={colors.text} fontSize="$4" fontFamily="$archivoBlack">
+            <Text color={colors.text} fontSize="$4" fontFamily="Archivo-Black" fontWeight="900">
               All Merchants
             </Text>
           </XStack>
