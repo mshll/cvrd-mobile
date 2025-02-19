@@ -52,7 +52,7 @@ const defaultScreenOptions = (colors) => ({
 
 const modalScreenOptions = {
   headerShown: false,
-  presentation: 'modal',
+  // presentation: 'modal',
   ...TransitionPresets.ModalPresentationIOS,
   gestureEnabled: true,
   animationEnabled: true,
@@ -180,42 +180,6 @@ export const ProfileStack = () => {
           headerTitle: () => <ColorChangingLogo routeName={Paths.PROFILE} />,
         }}
       />
-      <Stack.Screen
-        name={Paths.PERSONAL_INFO}
-        component={PersonalInfoScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name={Paths.SECURITY}
-        component={SecurityScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name={Paths.HELP_CENTER}
-        component={HelpCenterScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name={Paths.TERMS_PRIVACY}
-        component={TermsPrivacyScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-          headerShown: false,
-        }}
-      />
     </Stack.Navigator>
   );
 };
@@ -257,7 +221,7 @@ export function MainStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        presentation: 'modal',
+        // presentation: 'modal',
       }}
     >
       <Stack.Screen name={Paths.HOME} component={HomeScreen} />

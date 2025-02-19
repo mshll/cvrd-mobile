@@ -296,7 +296,7 @@ const SubscriptionManagementScreen = () => {
   const currentPlanData = plans.find((p) => p.name === currentPlan);
 
   return (
-    <View f={1} bg={colors.background}>
+    <View f={1} bg={colors.background} pt={insets.top}>
       {/* Header */}
       <View
         backgroundColor={colors.background}

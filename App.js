@@ -7,7 +7,6 @@ import { StatusBar, AppState, Animated } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { PortalProvider } from '@gorhom/portal';
 
 import MainNav from '@/navigation/MainNav';
 import AuthNav from '@/navigation/AuthNav';
@@ -152,19 +151,17 @@ const ThemedApp = () => {
               <AuthProvider>
                 <NavigationContainer>
                   <BreadcrumbProvider>
-                    <PortalProvider>
-                      <BottomSheetModalProvider>
-                        <StatusBar
-                          animated={true}
-                          barStyle={effectiveColorScheme === 'dark' ? 'light-content' : 'dark-content'}
-                        />
-                        <Navigation />
-                        <FullWindowOverlay>
-                          <Toast config={toastConfig} />
-                        </FullWindowOverlay>
-                        <SecurityOverlay visible={showSecurityOverlay} />
-                      </BottomSheetModalProvider>
-                    </PortalProvider>
+                    <BottomSheetModalProvider>
+                      <StatusBar
+                        animated={true}
+                        barStyle={effectiveColorScheme === 'dark' ? 'light-content' : 'dark-content'}
+                      />
+                      <Navigation />
+                      <FullWindowOverlay>
+                        <Toast config={toastConfig} />
+                      </FullWindowOverlay>
+                      <SecurityOverlay visible={showSecurityOverlay} />
+                    </BottomSheetModalProvider>
                   </BreadcrumbProvider>
                 </NavigationContainer>
               </AuthProvider>

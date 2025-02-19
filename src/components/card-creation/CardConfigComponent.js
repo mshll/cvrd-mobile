@@ -667,7 +667,7 @@ const CardConfigComponent = ({ cardType, initialData, onBack, onNext }) => {
             borderTopColor={`${colors.border}40`}
             pt="$4"
             mt="auto"
-            mb={insets.bottom + 50}
+            mb={insets.bottom + 80}
             jc="space-between"
           >
             <Button

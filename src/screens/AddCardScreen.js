@@ -29,6 +29,7 @@ import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import Toast from 'react-native-toast-message';
 import { usePlans } from '@/hooks/usePlans';
 import { SparklesIcon } from 'react-native-heroicons/outline';
+import { XMarkIcon } from 'react-native-heroicons/solid';
 
 const window = Dimensions.get('window');
 const WINDOW_WIDTH = window.width;
@@ -37,7 +38,7 @@ const CARD_ASPECT_RATIO = 1.586;
 const CARD_WIDTH = Math.round(WINDOW_WIDTH * 0.6);
 const CARD_HEIGHT = Math.round(CARD_WIDTH * CARD_ASPECT_RATIO);
 const CIRCLE_SIZE = 60;
-const START_TOP = 140;
+const START_TOP = 120;
 const BOTTOM_NAV_HEIGHT = 80;
 const CARD_SPACING = 20;
 
@@ -798,7 +799,7 @@ const AddCardScreen = () => {
   // If user has reached their limit, show the limit reached message
   if (hasReachedLimit) {
     return (
-      <View f={1} bg={colors.background}>
+      <View f={1} bg={colors.background} pt={insets.top}>
         <View width={WINDOW_WIDTH} height={WINDOW_HEIGHT} ai="center" jc="center" px="$4">
           <YStack ai="center" gap="$4">
             <View width={80} height={80} br={40} bg={`${colors.primary}20`} ai="center" jc="center" mb="$2">
@@ -833,7 +834,26 @@ const AddCardScreen = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View f={1} bg={colors.background}>
+      <View f={1} bg={colors.background} pt={insets.top}>
+        <View backgroundColor={colors.background}>
+          <XStack ai="center" jc="space-between" px="$4" pt="$2">
+            <Text color={colors.text} fontSize="$6" fontFamily="$archivoBlack" fontWeight="900">
+              Create a Card
+            </Text>
+            <Button
+              size="$3"
+              circular
+              backgroundColor={colors.backgroundSecondary}
+              pressStyle={{ backgroundColor: colors.backgroundTertiary }}
+              onPress={() => navigation.goBack()}
+              borderWidth={1}
+              borderColor={colors.border}
+            >
+              <XMarkIcon size={20} color={colors.text} />
+            </Button>
+          </XStack>
+        </View>
+
         <View width={WINDOW_WIDTH} height={WINDOW_HEIGHT} ai="center">
           {/* Card Section */}
           <View
@@ -850,7 +870,7 @@ const AddCardScreen = () => {
 
           {/* Button Section */}
           {step === 'select' && (
-            <View position="absolute" bottom={BOTTOM_NAV_HEIGHT + insets.bottom + 20} width={WINDOW_WIDTH} ai="center">
+            <View position="absolute" bottom={BOTTOM_NAV_HEIGHT + insets.bottom + 30} width={WINDOW_WIDTH} ai="center">
               <SelectButton
                 showCarousel={showCarousel}
                 selectedCard={selectedCard}

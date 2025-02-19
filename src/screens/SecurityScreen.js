@@ -62,7 +62,7 @@ const SecurityScreen = () => {
   };
 
   return (
-    <View f={1} bg={colors.background}>
+    <View f={1} bg={colors.background} pt={insets.top}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView
           bounces={false}
